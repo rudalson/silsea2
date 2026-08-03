@@ -11,6 +11,9 @@ export class LevelLoader {
     this.created = [];
     this.terrainBodies = null;
     this.checkpointZones = [];
+    this.collectibles = [];
+    this.enemies = [];
+    this.hazards = [];
     this.gate = null;
     this.boss = null;
     this.bossHitLocked = false;
@@ -28,6 +31,7 @@ export class LevelLoader {
     this.createCheckpoints();
     this.createItemMarkers();
     this.createEnemyMarkers();
+    this.createHazards();
     this.createBoss();
 
     if (!this.boss) this.spawnGate();
@@ -112,24 +116,35 @@ export class LevelLoader {
       return star;
     };
 
+    const register = (id, type, x, y, visuals) => {
+      const zone = this.track(this.scene.add.zone(x, y, 48, 48));
+      this.scene.physics.add.existing(zone, true);
+      const collectible = { id, type, x, y, zone, visuals, active: true, magnetizing: false };
+      this.collectibles.push(collectible);
+      return collectible;
+    };
+
     for (const item of this.level.items) {
       if (item.type === "star") {
-        createStar(item.x, item.y);
+        register(item.id, "star", item.x, item.y, [createStar(item.x, item.y)]);
         continue;
       }
       if (item.type === "star_arc") {
         for (let index = 0; index < item.count; index += 1) {
           const angle = Math.PI + (Math.PI * index) / Math.max(1, item.count - 1);
-          createStar(item.x + Math.cos(angle) * item.radius, item.y + Math.sin(angle) * item.radius, 0.78);
+          const x = item.x + Math.cos(angle) * item.radius;
+          const y = item.y + Math.sin(angle) * item.radius;
+          register(`${item.id}-${index}`, "star", x, y, [createStar(x, y, 0.78)]);
         }
         continue;
       }
 
       const definition = ITEM_DEFINITIONS[item.type];
-      const marker = this.track(this.scene.add.circle(item.x, item.y - 44, 24, definition?.color ?? COLORS.collect));
+      const visualY = item.y - 44;
+      const marker = this.track(this.scene.add.circle(item.x, visualY, 24, definition?.color ?? COLORS.collect));
       marker.setStrokeStyle(4, COLORS.outline).setDepth(4);
       const label = this.track(
-        this.scene.add.text(item.x, item.y - 86, item.type, {
+        this.scene.add.text(item.x, visualY - 42, item.type, {
           fontFamily: "system-ui",
           fontSize: "13px",
           color: CSS_COLORS.near,
@@ -138,6 +153,7 @@ export class LevelLoader {
         })
       );
       label.setOrigin(0.5).setDepth(5);
+      register(item.id, item.type, item.x, visualY, [marker, label]);
     }
   }
 
@@ -146,8 +162,20 @@ export class LevelLoader {
       const definition = ENEMY_DEFINITIONS[enemy.type];
       const marker = this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
       marker.setStrokeStyle(4, COLORS.outline).setDepth(3);
+      this.scene.physics.add.existing(marker);
+      marker.body.setSize(50, 46, true);
+      marker.body.setAllowGravity(enemy.type === "raw_potato");
+      marker.setDataEnabled();
+      marker.setData({
+        ...enemy,
+        spawnX: enemy.x,
+        spawnY: enemy.y - 28,
+        state: "idle",
+        stateUntil: 0,
+        activeAttack: false
+      });
       const label = this.track(
-        this.scene.add.text(enemy.x, enemy.y - 70, `${enemy.type}\n(Phase 2)`, {
+        this.scene.add.text(enemy.x, enemy.y - 70, enemy.type, {
           align: "center",
           fontFamily: "system-ui",
           fontSize: "12px",
@@ -157,6 +185,22 @@ export class LevelLoader {
         })
       );
       label.setOrigin(0.5).setDepth(4);
+      marker.setData("label", label);
+      this.enemies.push(marker);
+    }
+  }
+
+  createHazards() {
+    for (const hazard of this.level.hazards.filter((candidate) => candidate.type === "spike_pumpkin")) {
+      const marker = this.track(
+        this.scene.add.triangle(hazard.x, hazard.y, 0, 52, 28, 0, 56, 52, COLORS.danger)
+      );
+      marker.setOrigin(0.5, 1).setStrokeStyle(4, COLORS.outline).setDepth(3);
+      this.scene.physics.add.existing(marker, true);
+      marker.body.setSize(48, 48, true);
+      marker.setDataEnabled();
+      marker.setData({ ...hazard, destroyed: false });
+      this.hazards.push(marker);
     }
   }
 
@@ -172,11 +216,18 @@ export class LevelLoader {
     boss.body.setAllowGravity(false);
     boss.body.setSize(118, 118, true);
     boss.setDataEnabled();
-    boss.setData({ key: section.boss.key, hp: section.boss.hp, maxHp: section.boss.hp, section });
+    boss.setData({
+      key: section.boss.key,
+      hp: section.boss.hp,
+      maxHp: section.boss.hp,
+      phase: 1,
+      vulnerable: false,
+      section
+    });
     this.boss = boss;
     this.track(boss);
     const label = this.track(
-      this.scene.add.text(x, y - 176, `임시 보스 · HP ${section.boss.hp}\n머리를 3번 밟으세요`, {
+      this.scene.add.text(x, y - 176, `감자 대왕 · HP ${section.boss.hp}\n공격 예고 뒤 반짝이는 약점을 밟으세요`, {
         align: "center",
         fontFamily: "system-ui",
         fontSize: "18px",
@@ -191,12 +242,14 @@ export class LevelLoader {
   }
 
   hitBoss(player) {
-    if (!this.boss?.active || this.bossHitLocked) return false;
+    if (!this.boss?.active || this.bossHitLocked || !this.boss.getData("vulnerable")) return false;
     this.bossHitLocked = true;
     const hp = this.boss.getData("hp") - 1;
     this.boss.setData("hp", hp);
+    this.boss.setData("phase", Math.min(3, this.boss.getData("maxHp") - hp + 1));
+    this.boss.setData("vulnerable", false);
     const label = this.boss.getData("label");
-    label?.setText(hp > 0 ? `임시 보스 · HP ${hp}\n다시 머리를 밟으세요` : "임시 보스 격파!");
+    label?.setText(hp > 0 ? `감자 대왕 · HP ${hp}\n공격 예고 뒤 약점을 노리세요` : "감자 대왕 격파!");
     player.setVelocityY(-520);
     this.boss.setTintFill(COLORS.collect);
     this.scene.events.emit(EVENTS.BOSS_HIT, { hp, maxHp: this.boss.getData("maxHp") });
@@ -250,6 +303,16 @@ export class LevelLoader {
     return surfaces.length ? Math.min(...surfaces) : this.level.player.spawn.y;
   }
 
+  findNearestSafePoint(x) {
+    const surfaces = this.getTerrainObjects().map((object) => ({
+      x: Math.max(object.x + 48, Math.min(x, object.x + object.width - 48)),
+      y: object.y,
+      distance: x < object.x ? object.x - x : x > object.x + object.width ? x - object.x - object.width : 0
+    }));
+    surfaces.sort((left, right) => left.distance - right.distance || left.y - right.y);
+    return surfaces[0] ?? { ...this.level.player.spawn };
+  }
+
   getSection(id) {
     return this.level.sections.find((section) => section.id === id) ?? null;
   }
@@ -266,6 +329,9 @@ export class LevelLoader {
   destroy() {
     for (const checkpoint of this.checkpointZones) checkpoint.zone.destroy();
     this.checkpointZones.length = 0;
+    this.collectibles.length = 0;
+    this.enemies.length = 0;
+    this.hazards.length = 0;
     this.gate?.zone.destroy();
     this.gate = null;
     this.terrainBodies?.clear(true, true);

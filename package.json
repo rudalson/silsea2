@@ -7,8 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js",
-    "test": "npm run validate"
+    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js",
+    "test": "node scripts/test-core.js"
   },
   "dependencies": {
     "phaser": "3.90.0"
@@ -17,4 +17,3 @@
     "vite": "8.1.5"
   }
 }
-

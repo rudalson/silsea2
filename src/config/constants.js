@@ -17,6 +17,12 @@ export const SCENE_KEYS = Object.freeze({
 export const EVENTS = Object.freeze({
   CHECKPOINT: "checkpoint:activated",
   PLAYER_FELL: "player:fell",
+  PLAYER_HIT: "player:hit",
+  PLAYER_HP_CHANGED: "player:hp-changed",
+  FORM_CHANGED: "player:form-changed",
+  FORM_WARNING: "player:form-warning",
+  ITEM_COLLECTED: "item:collected",
+  COMBO_CHANGED: "score:combo-changed",
   BOSS_HIT: "boss:hit",
   BOSS_DEFEATED: "boss:defeated",
   GATE_ENTERED: "gate:entered",

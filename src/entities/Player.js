@@ -24,8 +24,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(10);
   }
 
-  updateControls(input, now, delta) {
+  updateControls(input, now, delta, ability = { mode: "normal", moveY: 0 }) {
     if (!this.body.enable) return;
+    if (now < (this.controlLockedUntil ?? 0)) return;
     const grounded = this.body.blocked.down || this.body.touching.down;
     if (grounded) this.lastGroundedAt = now;
     if (input.jumpPressed) this.bufferedJumpUntil = now + this.tuning.jumpBuffer;
@@ -49,9 +50,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(this.body.velocity.y * this.tuning.jumpCutMultiplier);
     }
 
-    const gravityMultiplier = this.body.velocity.y > 0 ? this.tuning.fallGravityMultiplier : 1;
-    this.body.setGravityY(this.tuning.gravity * gravityMultiplier);
-    if (this.body.velocity.y > this.tuning.maxFallSpeed) this.setVelocityY(this.tuning.maxFallSpeed);
+    if (ability.mode === "fly") {
+      this.body.setGravityY(0);
+      const targetY = ability.moveY ? ability.moveY * 280 : -90;
+      this.setVelocityY(Phaser.Math.MoveTowards(this.body.velocity.y, targetY, (920 * delta) / 1000));
+    } else if (ability.mode === "glide") {
+      this.body.setGravityY(this.tuning.gravity * 0.18);
+      if (this.body.velocity.y > 260) this.setVelocityY(260);
+    } else {
+      const gravityMultiplier = this.body.velocity.y > 0 ? this.tuning.fallGravityMultiplier : 1;
+      this.body.setGravityY(this.tuning.gravity * gravityMultiplier);
+      if (this.body.velocity.y > this.tuning.maxFallSpeed) this.setVelocityY(this.tuning.maxFallSpeed);
+    }
 
     this.stateMachine.updateFromBody(this.body);
     if (grounded && !this.wasGrounded) this.playLandingFeedback();

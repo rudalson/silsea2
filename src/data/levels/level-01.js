@@ -54,9 +54,16 @@ export default {
   items: [
     { id: "star_intro", type: "star", x: 384, y: 496 },
     { id: "horn_intro", type: "horn", x: 1792, y: 496 },
-    { id: "magnet_arc", type: "star_arc", x: 2240, y: 456, count: 9, radius: 144 },
+    { id: "magnet_arc", type: "star_arc", x: 2240, y: 456, count: 12, radius: 154 },
+    { id: "pumpkin_reward", type: "percent_large", x: 3072, y: 576 },
     { id: "wings_intro", type: "wings", x: 4352, y: 496 },
-    { id: "alicorn_intro", type: "alicorn", x: 7680, y: 496 }
+    { id: "flight_arc_short", type: "star_arc", x: 4864, y: 420, count: 10, radius: 170 },
+    { id: "flight_arc_cloud", type: "star_arc", x: 5760, y: 350, count: 10, radius: 190 },
+    { id: "flight_arc_long", type: "star_arc", x: 6752, y: 390, count: 10, radius: 210 },
+    { id: "flight_reward", type: "percent_small", x: 7240, y: 520 },
+    { id: "alicorn_intro", type: "alicorn", x: 7680, y: 496 },
+    { id: "alicorn_reward", type: "percent_large", x: 8384, y: 512 },
+    { id: "recovery_arc", type: "star_arc", x: 9600, y: 470, count: 12, radius: 180 }
   ],
   hazards: [
     { id: "pumpkin_intro", type: "spike_pumpkin", x: 2880, y: 576 },
@@ -84,4 +91,3 @@ export default {
     }
   }
 };
-

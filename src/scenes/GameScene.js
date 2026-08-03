@@ -5,13 +5,17 @@ import { getLevel } from "../data/levels/index.js";
 import { assertLevelShape } from "../data/schema/levelSchema.js";
 import { Player } from "../entities/Player.js";
 import { AudioManager } from "../systems/AudioManager.js";
+import { BossController } from "../systems/BossController.js";
 import { CheckpointManager } from "../systems/CheckpointManager.js";
 import { DebugPanel } from "../systems/DebugPanel.js";
+import { EnemyManager } from "../systems/EnemyManager.js";
+import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
 import { ObjectiveManager } from "../systems/ObjectiveManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 import { ScoreManager } from "../systems/ScoreManager.js";
+import { TransformationManager } from "../systems/TransformationManager.js";
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -45,6 +49,7 @@ export class GameScene extends Phaser.Scene {
       this.character,
       this.tuning
     );
+    this.createGameplayManagers();
 
     this.bindWorldInteractions();
     this.configureCamera();
@@ -68,15 +73,23 @@ export class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (!this.player?.active || this.isCompleting) return;
     const input = this.inputManager.sample();
+    this.lastInput = input;
     if (input.debugPressed) this.debugPanel?.toggle();
-    this.player.updateControls(input, time, delta);
+    const ability = this.transformationManager.prepareMovement(input, delta);
+    this.player.updateControls(input, time, delta, ability);
+    this.transformationManager.update(time);
+    this.healthManager.update(time);
+    this.enemyManager.update(time, delta);
+    this.bossController?.update(time, delta);
+    this.updateMagnet(delta);
     this.elapsed += delta / 1000;
     this.objectiveManager.update(this.elapsed);
     this.scoreManager.update(delta);
 
-    if (this.player.y > this.level.world.height + 140) {
+    if (this.player.y > this.level.world.height + 140 && !this.checkpointManager.respawning) {
       this.updateAccessibleStatus("낭떠러지에서 마지막 안전 지점으로 돌아갑니다.");
-      this.checkpointManager.respawn(this.player);
+      this.events.emit(EVENTS.PLAYER_FELL);
+      this.healthManager.handleFall();
     }
 
     this.updateCamera(delta);
@@ -119,10 +132,16 @@ export class GameScene extends Phaser.Scene {
     for (const checkpoint of this.levelLoader.checkpointZones) {
       const overlap = this.physics.add.overlap(this.player, checkpoint.zone, () => {
         if (!this.checkpointManager.activate(checkpoint.data)) return;
+        this.transformationManager.restoreFlight();
         checkpoint.visuals[1].setFillStyle(COLORS.collect);
         this.tweens.add({ targets: checkpoint.visuals, scale: 1.16, duration: 110, yoyo: true });
         this.updateAccessibleStatus(`${checkpoint.data.id} 체크포인트 도착.`);
       });
+      this.interactions.push(overlap);
+    }
+
+    for (const collectible of this.levelLoader.collectibles) {
+      const overlap = this.physics.add.overlap(this.player, collectible.zone, () => this.collectItem(collectible));
       this.interactions.push(overlap);
     }
 
@@ -150,10 +169,9 @@ export class GameScene extends Phaser.Scene {
         this.gateBound = true;
         this.bindGate(this.levelLoader.gate);
       }
+      if (!didHit) this.healthManager.takeDamage(boss.x);
     } else {
-      const direction = this.player.x < boss.x ? -1 : 1;
-      this.player.setVelocityX(direction * 260);
-      this.player.setVelocityY(-240);
+      this.healthManager.takeDamage(boss.x);
     }
   }
 
@@ -163,7 +181,83 @@ export class GameScene extends Phaser.Scene {
       this.bindGate(this.levelLoader.gate);
     }
     this.cameras.main.shake(120, 0.003);
-    this.updateAccessibleStatus("임시 보스를 격파했습니다. 오른쪽 무지개 게이트로 이동하세요.");
+    this.updateAccessibleStatus("감자 대왕을 격파했습니다. 오른쪽 무지개 게이트로 이동하세요.");
+  }
+
+  createGameplayManagers() {
+    this.transformationManager = new TransformationManager(this, this.player, this.levelLoader);
+    this.healthManager = new HealthManager(
+      this,
+      this.player,
+      this.checkpointManager,
+      this.scoreManager,
+      this.objectiveManager,
+      this.transformationManager
+    );
+    this.enemyManager = new EnemyManager(
+      this,
+      this.player,
+      this.levelLoader,
+      this.healthManager,
+      this.transformationManager,
+      this.scoreManager
+    );
+    this.bossController = this.levelLoader.boss
+      ? new BossController(
+          this,
+          this.player,
+          this.levelLoader,
+          this.healthManager,
+          this.transformationManager,
+          this.scoreManager,
+          this.level.order * 8901
+        )
+      : null;
+  }
+
+  collectItem(collectible) {
+    if (!collectible?.active) return;
+    collectible.active = false;
+    collectible.zone.body.enable = false;
+    const multiplier = this.transformationManager.scoreMultiplier;
+
+    if (collectible.type === "star") {
+      this.objectiveManager.addStars(1);
+      this.scoreManager.collect("star", multiplier);
+    } else if (collectible.type === "percent_small" || collectible.type === "percent_large") {
+      this.scoreManager.collect(collectible.type, multiplier);
+    } else {
+      this.transformationManager.collect(collectible.type, this.time.now);
+    }
+
+    this.events.emit(EVENTS.ITEM_COLLECTED, { type: collectible.type });
+    for (const visual of collectible.visuals) {
+      this.tweens.add({
+        targets: visual,
+        x: this.player.x,
+        y: this.player.y - 58,
+        alpha: 0,
+        scale: 1.5,
+        duration: 150,
+        onComplete: () => visual.destroy()
+      });
+    }
+  }
+
+  updateMagnet(delta) {
+    const radius = this.transformationManager.magnetRadius;
+    if (!radius) return;
+    for (const collectible of this.levelLoader.collectibles) {
+      if (!collectible.active || collectible.type !== "star") continue;
+      const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y - 45, collectible.x, collectible.y);
+      if (distance > radius) continue;
+      collectible.magnetizing = true;
+      const speed = (680 * delta) / 1000;
+      collectible.x = Phaser.Math.MoveTowards(collectible.x, this.player.x, speed);
+      collectible.y = Phaser.Math.MoveTowards(collectible.y, this.player.y - 45, speed);
+      for (const visual of collectible.visuals) visual.setPosition(collectible.x, collectible.y);
+      if (distance <= 38) this.collectItem(collectible);
+    }
   }
 
   handleGateEntered() {
@@ -207,9 +301,11 @@ export class GameScene extends Phaser.Scene {
     const position = { x: this.player.x, y: this.player.y };
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
+    this.destroyGameplayManagers();
     this.levelLoader.destroy();
     this.levelLoader = new LevelLoader(this, this.level, this.objectiveManager).build();
     this.player.setPosition(position.x, Math.min(position.y, this.levelLoader.findSafeY(position.x) - 2));
+    this.createGameplayManagers();
     this.gateBound = false;
     this.bindWorldInteractions();
     this.events.emit(EVENTS.LEVEL_RELOADED, this.level.id);
@@ -225,6 +321,16 @@ export class GameScene extends Phaser.Scene {
     if (status) status.textContent = message;
   }
 
+  destroyGameplayManagers() {
+    this.bossController?.destroy();
+    this.bossController = null;
+    this.enemyManager?.destroy();
+    this.enemyManager = null;
+    this.transformationManager?.destroy();
+    this.transformationManager = null;
+    this.healthManager = null;
+  }
+
   shutdown() {
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
@@ -232,6 +338,7 @@ export class GameScene extends Phaser.Scene {
     this.debugPanel = null;
     this.inputManager?.destroy();
     this.audioManager?.destroy();
+    this.destroyGameplayManagers();
     this.levelLoader?.destroy();
   }
 }
