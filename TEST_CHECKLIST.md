@@ -8,12 +8,12 @@
 - [x] [M] 서로 다른 렌더링 화풍을 식별하고 2D 셀 카툰을 사람이 선택함.
 - [x] [M] 실세아 기본형에 뿔이 없음을 확인함.
 - [x] [M] 두 번째 캐릭터의 통통한 갈색 망아지 원안을 기록함.
-- [ ] [M] `data/palette.js` HEX를 사람이 승인함.
-- [ ] [M] 두 캐릭터 Locked Description과 비율을 원안자가 승인함.
-- [ ] [M] `LEVEL_SCHEMA.md`를 사람이 승인함.
-- [ ] [A] `ASSET_LIST.md`의 모든 키가 `mapping.json`에 정확히 한 번 존재함.
-- [ ] [A] `mapping.json`의 모든 styleRefs 경로가 존재함.
-- [ ] [M] Phase 0 문서끼리 이름·수치·우선순위가 모순되지 않음.
+- [x] [M] `data/palette.js` HEX를 사람이 승인함.
+- [x] [M] 두 캐릭터 Locked Description과 비율을 원안자가 승인함.
+- [x] [M] `LEVEL_SCHEMA.md`를 사람이 승인함.
+- [x] [A] `ASSET_LIST.md`의 모든 키가 `mapping.json`에 정확히 한 번 존재함.
+- [x] [A] `mapping.json`의 모든 styleRefs 경로가 존재함.
+- [x] [M] Phase 0 문서끼리 이름·수치·우선순위가 모순되지 않음.
 
 ## 설치와 실행
 
@@ -171,4 +171,3 @@
 | 1 |  |  |  |  |
 | 2 |  |  |  |  |
 | 3 |  |  |  |  |
-

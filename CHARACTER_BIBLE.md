@@ -1,6 +1,6 @@
 # 캐릭터 바이블
 
-> Phase 0 승인용 초안. Locked Description과 HEX는 승인 후 토씨와 값을 바꾸지 않는다.
+> 2026-08-03 사용자 승인 완료. Locked Description과 HEX는 토씨와 값을 바꾸지 않는다.
 
 ## 공통 규격
 
@@ -58,7 +58,7 @@
 - Style Anchor: `assets/_anchor/silsea_anchor.png`
 - Seed: `190701`
 - 첫 생성: 우향 run contact pose 1장.
-- 상태: Locked Description·비율·팔레트 사용자 승인 대기.
+- 상태: 2026-08-03 사용자 승인 완료.
 
 ## 캐릭터: 89% 구운 감자
 
@@ -105,7 +105,7 @@
 - Style Anchor: `assets/_anchor/potato89_anchor.png`
 - Seed: `890089`
 - 첫 생성: 우향 roll/run contact pose 1장.
-- 상태: Locked Description·비율·팔레트 사용자 승인 대기.
+- 상태: 2026-08-03 사용자 승인 완료.
 
 ## 애니메이션 목록
 

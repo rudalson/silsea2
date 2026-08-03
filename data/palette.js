@@ -1,5 +1,5 @@
 // references/images에서 추출한 Phase 0 후보 팔레트.
-// 2026-08-03 화풍 승인 완료. 사람의 HEX 최종 승인 전까지 에셋 생성에 사용하지 않는다.
+// 2026-08-03 화풍·HEX 사용자 승인 완료.
 export const PALETTE = {
   source: "references/images",
   base: ["#F1F6FA", "#DEB5C6", "#D294AC", "#957242"],
@@ -12,4 +12,3 @@ export const PALETTE = {
   bgMid: ["#BFC596", "#4DABA1"],
   bgNear: ["#4ECCA0", "#183D30", "#5D4326"]
 };
-
