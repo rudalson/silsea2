@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Style Anchor Approval</title>
+  <style>
+    body { margin: 0; padding: 32px; font-family: system-ui, sans-serif; color: #42474e; background: #f1f6fa; }
+    h1 { margin: 0 0 8px; }
+    p { margin: 0 0 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    article { padding: 24px; border: 3px solid #42474e; border-radius: 18px; background: #f4fbfd; }
+    .preview { display: grid; place-items: center; min-height: 420px; border-radius: 14px; background-color: #cde5b9; background-image: linear-gradient(45deg, #bfc596 25%, transparent 25%), linear-gradient(-45deg, #bfc596 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #bfc596 75%), linear-gradient(-45deg, transparent 75%, #bfc596 75%); background-size: 32px 32px; background-position: 0 0, 0 16px, 16px -16px, -16px 0; }
+    img { width: 384px; max-width: 100%; height: auto; }
+    h2 { margin: 18px 0 8px; }
+    ul { margin: 0; padding-left: 22px; }
+    code { color: #752b5a; }
+  </style>
+</head>
+<body>
+  <h1>캐릭터 Style Anchor 승인</h1>
+  <p>두 이미지는 128×128 투명 PNG, 승인 팔레트, 발 기준선 16px로 후처리된 접지 포즈 후보입니다.</p>
+  <main class="grid">
+    <article>
+      <div class="preview"><img src="../assets/_anchor/silsea_anchor.png" alt="실세아 승인 스타일 앵커"></div>
+      <h2>실세아</h2>
+      <ul><li>기본형 뿔·날개 없음</li><li>날씬한 흰 망아지와 분홍 갈기·꼬리</li><li>93px 높이, 좌우 8px 여백</li></ul>
+    </article>
+    <article>
+      <div class="preview"><img src="../assets/_anchor/potato89_anchor.png" alt="89% 구운 감자 스타일 앵커 후보"></div>
+      <h2>89% 구운 감자</h2>
+      <ul><li>실세아보다 통통하고 큰 얼굴</li><li>갈색 망아지, 짧고 튼튼한 다리</li><li>96px 높이, 기본형 뿔·날개 없음</li></ul>
+    </article>
+  </main>
+</body>
+</html>

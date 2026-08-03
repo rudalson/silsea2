@@ -58,7 +58,7 @@
 - Style Anchor: `assets/_anchor/silsea_anchor.png`
 - Seed: `190701`
 - 첫 생성: 우향 run contact pose 1장.
-- 상태: 2026-08-03 사용자 승인 완료.
+- 상태: Locked Description·Style Anchor 2026-08-03 사용자 승인 완료.
 
 ## 캐릭터: 89% 구운 감자
 
@@ -105,7 +105,7 @@
 - Style Anchor: `assets/_anchor/potato89_anchor.png`
 - Seed: `890089`
 - 첫 생성: 우향 roll/run contact pose 1장.
-- 상태: 2026-08-03 사용자 승인 완료.
+- 상태: Locked Description·Style Anchor 2026-08-03 사용자 승인 완료.
 
 ## 애니메이션 목록
 

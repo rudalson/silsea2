@@ -7,13 +7,18 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js",
+    "palette": "node scripts/extract-palette.js",
+    "postprocess:frames": "node scripts/postprocess-pending-frames.js",
+    "spritesheets": "node scripts/build-character-sheets.js",
+    "validate:assets": "node scripts/validate-assets.js",
+    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js && node scripts/validate-assets.js",
     "test": "node scripts/test-core.js"
   },
   "dependencies": {
     "phaser": "3.90.0"
   },
   "devDependencies": {
+    "sharp": "^0.35.3",
     "vite": "8.1.5"
   }
 }

@@ -1,6 +1,7 @@
 node_modules/
 dist/
+assets/_anchor/source/
+assets/characters/_source/
 *.log
 .DS_Store
 Thumbs.db
-

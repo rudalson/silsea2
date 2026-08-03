@@ -1,5 +1,101 @@
 {
   "assets": [
+    {
+      "key": "silsea_run",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_run.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    {
+      "key": "potato89_roll",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_roll.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    {
+      "key": "silsea_idle",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "silsea_jump_up",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_jump_up.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "silsea_fall",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_fall.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "potato89_idle",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato89_jump_up",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_jump_up.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "potato89_fall",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_fall.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "silsea_land",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_land.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "silsea_hurt",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_hurt.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "potato89_land",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_land.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "potato89_hurt",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_hurt.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
     { "key": "grass_tileset", "type": "placeholder" },
     { "key": "bg_normal_far", "type": "placeholder" },
     { "key": "bg_normal_mid", "type": "placeholder" },
@@ -15,4 +111,3 @@
     { "key": "bgm_clear", "type": "placeholder" }
   ]
 }
-

@@ -44,23 +44,23 @@
 
 | 에셋 키 | 프레임 | 포즈 지시 | Seed | Anchor | StyleRefs | 상태 |
 |---|---:|---|---:|---|---|---|
-| `silsea_idle` | 4 | 안정→숨 들이쉼→갈기 반응→복귀 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_run` | 8 | contact×2→down×2→pass×2→up×2 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_jump_up` | 2 | 준비 압축→상승 다리 모음 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_fall` | 2 | 최고점 중립→안전한 낙하 자세 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_land` | 2 | 80ms 접지 압축→120ms 복귀 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_hurt` | 2 | 짧은 뒤밀림→회복, 무서운 표정 금지 | 190701 | `silsea_anchor.png` | mapping | 대기 |
+| `silsea_idle` | 4 | 안정→숨 들이쉼→갈기 반응→복귀 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_run` | 8 | contact×2→down×2→pass×2→up×2 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_jump_up` | 2 | 준비 압축→상승 다리 모음 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_fall` | 2 | 최고점 중립→안전한 낙하 자세 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_land` | 2 | 80ms 접지 압축→120ms 복귀 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_hurt` | 2 | 짧은 뒤밀림→회복, 무서운 표정 금지 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `silsea_transform_unicorn` | 6 | 준비→빛 집중→뿔 형성→별 파동→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 대기 |
 | `silsea_transform_pegasus` | 6 | 준비→등 빛→날개 펼침→첫 날갯짓→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 대기 |
 | `silsea_transform_alicorn` | 8 | 준비→빛→뿔→날개→무지개 파동→부유→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 대기 |
 | `silsea_fly` | 6 | 날개 down→contact→up→peak→pass→복귀 | 190701 | `silsea_anchor.png` | mapping | 대기 |
 | `silsea_victory` | 6 | 놀람→앞발 들기→기쁨→갈기 반동→안정→완성 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `potato89_idle` | 4 | 안정→숨 들이쉼→볼 반동→복귀 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_roll` | 8 | contact×2→down×2→pass×2→up×2, 통통한 무게감 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_jump_up` | 2 | 깊은 준비 압축→짧은 다리 모음 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_fall` | 2 | 최고점 중립→볼·배가 살짝 뜨는 낙하 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_land` | 2 | 80ms 넓은 접지→120ms 복귀 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_hurt` | 2 | 짧은 뒤밀림→회복, 귀여움 유지 | 890089 | `potato89_anchor.png` | mapping | 대기 |
+| `potato89_idle` | 4 | 안정→숨 들이쉼→볼 반동→복귀 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_roll` | 8 | contact×2→down×2→pass×2→up×2, 통통한 무게감 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_jump_up` | 2 | 깊은 준비 압축→짧은 다리 모음 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_fall` | 2 | 최고점 중립→볼·배가 살짝 뜨는 낙하 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_land` | 2 | 80ms 넓은 접지→120ms 복귀 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_hurt` | 2 | 짧은 뒤밀림→회복, 귀여움 유지 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_stomp` | 4 | 다리 모음→하강→강한 접지→복귀 | 890089 | `potato89_anchor.png` | mapping | 대기 |
 | `potato89_transform_unicorn` | 6 | 통통한 기본형 유지, 뿔만 형성 | 890089 | `potato89_anchor.png` | mapping | 대기 |
 | `potato89_transform_pegasus` | 6 | 통통한 기본형 유지, 날개만 형성 | 890089 | `potato89_anchor.png` | mapping | 대기 |
@@ -208,4 +208,11 @@ data/palette.js 색만 사용, 투명 배경, 문자·숫자·로고 없음.
 
 | 에셋 키 | 프레임 | 프롬프트 | Seed | Anchor | StyleRefs | 상태 |
 |---|---:|---|---:|---|---|---|
-| `silsea_run_00` | contact | 위 템플릿+접지 포즈 | 190701 | `silsea_anchor.png` | mapping 전량 | 미생성 |
+| `silsea_run_00` | contact | 위 템플릿+접지 포즈 | 190701 | `silsea_anchor.png` | mapping 전량 | 생성 완료 (`assets/characters/silsea/run/`) |
+
+## Style Anchor 승인 후보
+
+| 캐릭터 | 후보 파일 | 생성 방식 | 첨부한 StyleRefs | 후처리 | 상태 |
+|---|---|---|---|---|---|
+| 실세아 | `assets/_anchor/silsea_anchor.png` | built-in imagegen, 우향 run contact pose | `silsea_run.png`, `silsea_sprite-Photoroom.png` | chroma 제거 → 승인 팔레트 양자화 → 128×128 정렬 → 재양자화 | 2026-08-03 승인 |
+| 89% 구운 감자 | `assets/_anchor/potato89_anchor.png` | built-in imagegen, 우향 roll/run contact pose | `silsea_run.png`, `mylittlepony1.webp`, `mario_3.jpg` | chroma 제거 → 승인 팔레트 양자화 → 128×128 정렬 → 재양자화 | 2026-08-03 승인 |
