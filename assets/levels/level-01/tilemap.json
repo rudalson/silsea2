@@ -1,0 +1,39 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "objects": [
+        { "height": 192, "id": 1, "name": "ground_a", "rotation": 0, "type": "ground", "visible": true, "width": 5120, "x": 0, "y": 576 },
+        { "height": 192, "id": 2, "name": "ground_b", "rotation": 0, "type": "ground", "visible": true, "width": 1216, "x": 5376, "y": 576 },
+        { "height": 192, "id": 3, "name": "ground_c", "rotation": 0, "type": "ground", "visible": true, "width": 5184, "x": 7104, "y": 576 },
+        { "height": 64, "id": 4, "name": "first_step", "rotation": 0, "type": "platform", "visible": true, "width": 320, "x": 768, "y": 512 },
+        { "height": 48, "id": 5, "name": "practice_platform", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 3328, "y": 448 },
+        { "height": 40, "id": 6, "name": "pit_platform_1", "rotation": 0, "type": "platform", "visible": true, "width": 112, "x": 6688, "y": 520 },
+        { "height": 40, "id": 7, "name": "pit_platform_2", "rotation": 0, "type": "platform", "visible": true, "width": 128, "x": 6880, "y": 464 },
+        { "height": 40, "id": 8, "name": "pit_platform_3", "rotation": 0, "type": "platform", "visible": true, "width": 96, "x": 7040, "y": 520 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 9,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 192
+}
+

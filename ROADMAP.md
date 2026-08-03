@@ -1,6 +1,6 @@
 # 제작 로드맵
 
-> 현재 단계: Phase 0 Planning  
+> 현재 단계: Phase 2 Core Mechanics  
 > 규칙: Must 전체가 끝나기 전 Should를 구현하지 않고, Should 전체가 끝나기 전 Could를 구현하지 않는다. 각 Phase는 사람 승인과 커밋 후에만 다음 단계로 간다.
 
 ## 현재 게이트
@@ -36,32 +36,32 @@ Phase 1 코드는 위 항목과 Phase 0 전체 승인 전까지 작성하지 않
 - [x] `TEST_CHECKLIST.md`
 - [x] `CREDITS.md`
 - [x] 팔레트·캐릭터·스키마 사람 승인
-- [ ] Phase 0 승인 후 커밋
+- [x] Phase 0 승인 후 커밋 (`1836e3d`)
 
 완료 기준: 네 게이트(전수 분석, 팔레트, 캐릭터 외형, 레벨 스키마)가 승인되고 Phase 0 파일만 커밋된다.
 
 ### Phase 1 — Graybox Prototype
 
-- [ ] npm/Vite/Phaser 프로젝트 셸, `npm install/dev/build/validate`
-- [ ] Boot/Menu/CharacterSelect/StageSelect/Game/UI/Clear Scene 셸
-- [ ] `InputManager`와 키보드·게임패드 입력
-- [ ] 데이터 기반 두 캐릭터 선택과 동일 조작 수치
-- [ ] 가속·감속·공중 제어·최대 낙하 속도
-- [ ] Coyote Time, Jump Buffer, Variable Jump, Fall Gravity, Head Bump Safety
-- [ ] 코드 Squash & Stretch와 착지 도형 파티클
-- [ ] Look-Ahead 카메라, 세로 Dead Zone, cue 데이터
-- [ ] Tiled graybox 지형과 체크포인트·낭떠러지 복귀
-- [ ] `LevelLoader`, 레벨 레지스트리, 동적 에셋 fallback
-- [ ] `ObjectiveManager` handler table
-- [ ] `ProgressManager` 저장/memory fallback
-- [ ] level-01 시작→도형 보스→게이트→클리어
-- [ ] `level-02.js` 추가로 확장성 실증
-- [ ] 디버그 슬라이더, JSON 내보내기, 충돌/FPS/warp/objective 표시
-- [ ] `validate-levels.js`와 `npm run validate`
+- [x] npm/Vite/Phaser 프로젝트 셸, `npm install/dev/build/validate`
+- [x] Boot/Menu/CharacterSelect/StageSelect/Game/UI/Clear Scene 셸
+- [x] `InputManager`와 키보드·게임패드 입력
+- [x] 데이터 기반 두 캐릭터 선택과 동일 조작 수치
+- [x] 가속·감속·공중 제어·최대 낙하 속도
+- [x] Coyote Time, Jump Buffer, Variable Jump, Fall Gravity, Head Bump Safety
+- [x] 코드 Squash & Stretch와 착지 도형 파티클
+- [x] Look-Ahead 카메라, 세로 Dead Zone, cue 데이터
+- [x] Tiled graybox 지형과 체크포인트·낭떠러지 복귀
+- [x] `LevelLoader`, 레벨 레지스트리, 동적 에셋 fallback
+- [x] `ObjectiveManager` handler table
+- [x] `ProgressManager` 저장/memory fallback
+- [x] level-01 시작→도형 보스→게이트→클리어 구현
+- [x] `level-02.js` 추가로 확장성 실증
+- [x] 디버그 슬라이더, JSON 내보내기, 충돌/FPS/warp/objective 표시
+- [x] `validate-levels.js`와 `npm run validate`
 - [ ] 설명 없는 어린이 3명 플레이테스트
-- [ ] Gate 1: 도형만으로 점프가 기분 좋은지 사람 승인
-- [ ] Gate 2: level-02가 Scene/System 수정 없이 동작하는지 승인
-- [ ] Phase 1 커밋
+- [x] Gate 1: 도형만으로 점프가 기분 좋은지 사람 승인 — 2026-08-03 사용자 승인
+- [x] Gate 2: level-02가 Scene/System 수정 없이 동작하는지 승인 — 2026-08-03 사용자 승인
+- [x] Phase 1 승인 후 커밋 (`feat: complete graybox prototype`)
 
 ### Phase 2 — Core Mechanics
 

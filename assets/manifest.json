@@ -1,0 +1,18 @@
+{
+  "assets": [
+    { "key": "grass_tileset", "type": "placeholder" },
+    { "key": "bg_normal_far", "type": "placeholder" },
+    { "key": "bg_normal_mid", "type": "placeholder" },
+    { "key": "bg_normal_near", "type": "placeholder" },
+    { "key": "bg_pit_far", "type": "placeholder" },
+    { "key": "bg_pit_mid", "type": "placeholder" },
+    { "key": "bg_pit_near", "type": "placeholder" },
+    { "key": "bg_boss_far", "type": "placeholder" },
+    { "key": "bg_boss_mid", "type": "placeholder" },
+    { "key": "bg_boss_near", "type": "placeholder" },
+    { "key": "bgm_field", "type": "placeholder" },
+    { "key": "bgm_boss", "type": "placeholder" },
+    { "key": "bgm_clear", "type": "placeholder" }
+  ]
+}
+

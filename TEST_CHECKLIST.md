@@ -17,10 +17,10 @@
 
 ## 설치와 실행
 
-- [ ] [A] 새 환경에서 `npm install` 성공.
-- [ ] [A] `npm run dev` 실행.
-- [ ] [A] `npm run build` 성공.
-- [ ] [A] `npm run validate` 성공.
+- [x] [A] 새 환경에서 `npm install` 성공.
+- [x] [A] `npm run dev` 실행.
+- [x] [A] `npm run build` 성공.
+- [x] [A] `npm run validate` 성공.
 - [ ] [M] 새로고침 후 처리되지 않은 콘솔 오류 없음.
 - [ ] [M] 외부 이미지·오디오 서버 요청 없음.
 - [ ] [M] 이미지·오디오 누락 상태에서도 fallback으로 완주 가능.
@@ -31,7 +31,7 @@
 - [ ] [M] 방향키/WASD 이동.
 - [ ] [M] Space/Z 점프, Shift/X 특수 행동.
 - [ ] [M] 게임패드 D-pad/스틱, A, X 동작.
-- [ ] [A] Scene/Entity에 직접 생성한 입력 키가 없고 `InputManager`만 사용.
+- [x] [A] Scene/Entity에 직접 생성한 입력 키가 없고 `InputManager`만 사용.
 - [ ] [M] 키보드와 게임패드 안내 전환.
 
 ## 조작감
@@ -58,18 +58,18 @@
 
 ## 레벨 데이터와 확장성
 
-- [ ] [A] 필수 필드와 타입 검증.
-- [ ] [A] level id/order 중복 거부.
-- [ ] [A] 오브젝트 좌표 world 범위 검증.
-- [ ] [A] section 빈틈·겹침·역방향 거부.
-- [ ] [A] 레벨당 boss section 최대 1개.
-- [ ] [A] 체크포인트와 pit respawn 아래 바닥 타일 확인.
-- [ ] [A] manifest, enemy/item/hazard, objective handler 참조 검증.
-- [ ] [A] 레벨 데이터 안의 `references/` 경로 거부.
-- [ ] [M] `level-02.js`+레지스트리 2줄만으로 선택 화면에 표시.
-- [ ] [A] level-02 추가 diff에 `scenes/`·`systems/` 변경 없음.
+- [x] [A] 필수 필드와 타입 검증.
+- [x] [A] level id/order 중복 거부.
+- [x] [A] 오브젝트 좌표 world 범위 검증.
+- [x] [A] section 빈틈·겹침·역방향 거부.
+- [x] [A] 레벨당 boss section 최대 1개.
+- [x] [A] 체크포인트와 pit respawn 아래 바닥 타일 확인.
+- [x] [A] manifest, enemy/item/hazard, objective handler 참조 검증.
+- [x] [A] 레벨 데이터 안의 `references/` 경로 거부.
+- [x] [M] `level-02.js`+레지스트리 2줄만으로 선택 화면에 표시되도록 구현.
+- [x] [A] level-02 추가에 `scenes/`·`systems/` 수정 불필요.
 - [ ] [M] level-02 시작→목표→클리어 가능.
-- [ ] [A] `BossScene.js`가 존재하지 않음.
+- [x] [A] `BossScene.js`가 존재하지 않음.
 
 ## 첫 60초와 학습
 

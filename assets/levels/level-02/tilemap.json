@@ -1,0 +1,34 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "objects": [
+        { "height": 192, "id": 1, "name": "ground", "rotation": 0, "type": "ground", "visible": true, "width": 2560, "x": 0, "y": 576 },
+        { "height": 48, "id": 2, "name": "step_a", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 640, "y": 480 },
+        { "height": 48, "id": 3, "name": "step_b", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 960, "y": 416 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 4,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 40
+}
+

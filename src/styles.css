@@ -1,0 +1,160 @@
+:root {
+  color-scheme: dark;
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  background: var(--color-deep);
+  color: var(--color-white);
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 15%, color-mix(in srgb, var(--color-mid) 28%, transparent), transparent 42%),
+    linear-gradient(180deg, var(--color-deep), var(--color-outline) 110%);
+}
+
+#app {
+  display: grid;
+  place-items: center;
+}
+
+#game-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+#game-container canvas {
+  display: block;
+  margin: auto;
+  border-radius: clamp(0px, 1.25vw, 18px);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 35%);
+}
+
+.debug-panel {
+  position: fixed;
+  z-index: 20;
+  top: 12px;
+  right: 12px;
+  width: min(320px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  padding: 14px;
+  border: 2px solid var(--color-mid);
+  border-radius: 16px;
+  background: rgb(15 33 28 / 94%);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 30%);
+  color: var(--color-white);
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.debug-panel[hidden] {
+  display: none;
+}
+
+.debug-panel h2,
+.debug-panel h3 {
+  margin: 0;
+  color: var(--color-collect);
+}
+
+.debug-panel h2 {
+  font-size: 15px;
+}
+
+.debug-panel h3 {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.debug-panel p {
+  margin: 6px 0 10px;
+  color: var(--color-soft);
+  line-height: 1.45;
+}
+
+.debug-control {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 8px;
+  margin: 8px 0;
+}
+
+.debug-control input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--color-collect);
+}
+
+.debug-panel select,
+.debug-panel button {
+  min-height: 34px;
+  border: 1px solid var(--color-mid);
+  border-radius: 10px;
+  background: var(--color-deep);
+  color: var(--color-white);
+  font: inherit;
+}
+
+.debug-panel select {
+  width: 100%;
+  padding: 6px 8px;
+}
+
+.debug-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.debug-panel button {
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+.debug-panel button:hover,
+.debug-panel button:focus-visible {
+  border-color: var(--color-collect);
+  outline: 2px solid rgb(245 223 79 / 30%);
+}
+
+.debug-objectives {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: var(--color-soft);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  .debug-panel {
+    top: 8px;
+    right: 8px;
+    max-height: calc(100vh - 16px);
+  }
+}

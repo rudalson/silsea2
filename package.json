@@ -1,0 +1,20 @@
+{
+  "name": "silsea-graybox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js",
+    "test": "npm run validate"
+  },
+  "dependencies": {
+    "phaser": "3.90.0"
+  },
+  "devDependencies": {
+    "vite": "8.1.5"
+  }
+}
+
