@@ -253,6 +253,7 @@ export class EnemyManager {
     enemy.setVisible(false).setActive(false);
     this.scoreManager.defeat(type, this.transformationManager.scoreMultiplier);
     this.scene.audioManager?.playSfx("sfx_enemy_defeat");
+    if (type === "dark_cloud" || type === "magpie") this.scene.cameraEffects?.shake("enemyDefeat");
   }
 
   spawnRecovery(x, y, amount) {

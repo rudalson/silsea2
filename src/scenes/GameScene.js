@@ -6,6 +6,7 @@ import { assertLevelShape } from "../data/schema/levelSchema.js";
 import { Player } from "../entities/Player.js";
 import { AudioManager } from "../systems/AudioManager.js";
 import { BossController } from "../systems/BossController.js";
+import { CameraEffectsManager } from "../systems/CameraEffectsManager.js";
 import { CheckpointManager } from "../systems/CheckpointManager.js";
 import { DebugPanel } from "../systems/DebugPanel.js";
 import { EnemyManager } from "../systems/EnemyManager.js";
@@ -39,6 +40,7 @@ export class GameScene extends Phaser.Scene {
     this.tuning = cloneTuning(this.character);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
+    this.cameraEffects = new CameraEffectsManager(this);
     this.scoreManager = new ScoreManager({
       onComboChanged: (snapshot) => this.events.emit(EVENTS.COMBO_CHANGED, snapshot)
     });
@@ -193,7 +195,7 @@ export class GameScene extends Phaser.Scene {
       this.gateBound = true;
       this.bindGate(this.levelLoader.gate);
     }
-    this.cameras.main.shake(120, 0.003);
+    this.cameraEffects.shake("bossDefeat");
     this.audioManager.playSfx("sfx_gate_spawn", { randomizeRate: false });
     this.updateAccessibleStatus("감자 대왕을 격파했습니다. 오른쪽 무지개 게이트로 이동하세요.");
   }
@@ -355,6 +357,7 @@ export class GameScene extends Phaser.Scene {
     this.debugPanel = null;
     this.inputManager?.destroy();
     this.audioManager?.destroy();
+    this.cameraEffects?.destroy();
     this.destroyGameplayManagers();
     this.levelLoader?.destroy();
   }

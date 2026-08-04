@@ -8,6 +8,7 @@ export class InputManager {
       special: false,
       confirm: false,
       pause: false,
+      shakeToggle: false,
       debug: false
     };
 
@@ -26,6 +27,7 @@ export class InputManager {
       specialX: Phaser.Input.Keyboard.KeyCodes.X,
       confirm: Phaser.Input.Keyboard.KeyCodes.ENTER,
       pause: Phaser.Input.Keyboard.KeyCodes.ESC,
+      shakeToggle: Phaser.Input.Keyboard.KeyCodes.V,
       debug: Phaser.Input.Keyboard.KeyCodes.BACKTICK
     });
 
@@ -49,6 +51,7 @@ export class InputManager {
     const special = this.keys.specialShift.isDown || this.keys.specialX.isDown || Boolean(pad?.buttons[2]?.pressed);
     const confirm = jump || this.keys.confirm.isDown;
     const pause = this.keys.pause.isDown || Boolean(pad?.buttons[9]?.pressed);
+    const shakeToggle = this.keys.shakeToggle.isDown;
     const debug = this.keys.debug.isDown;
 
     const result = {
@@ -61,10 +64,11 @@ export class InputManager {
       specialPressed: special && !this.previous.special,
       confirmPressed: confirm && !this.previous.confirm,
       pausePressed: pause && !this.previous.pause,
+      shakeTogglePressed: shakeToggle && !this.previous.shakeToggle,
       debugPressed: debug && !this.previous.debug
     };
 
-    this.previous = { jump, special, confirm, pause, debug };
+    this.previous = { jump, special, confirm, pause, shakeToggle, debug };
     return result;
   }
 
@@ -78,4 +82,3 @@ export class InputManager {
     ]);
   }
 }
-

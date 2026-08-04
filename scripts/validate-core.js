@@ -7,13 +7,16 @@ const read = (path) => readFile(new URL(path, `${new URL("../", import.meta.url)
 const errors = [];
 const fail = (message) => errors.push(message);
 
-const [gameScene, player, levelLoader, enemyManager, bossController, transformManager] = await Promise.all([
+const [gameScene, player, levelLoader, enemyManager, bossController, transformManager, cameraEffects, uiScene, inputManager] = await Promise.all([
   read("src/scenes/GameScene.js"),
   read("src/entities/Player.js"),
   read("src/systems/LevelLoader.js"),
   read("src/systems/EnemyManager.js"),
   read("src/systems/BossController.js"),
-  read("src/systems/TransformationManager.js")
+  read("src/systems/TransformationManager.js"),
+  read("src/systems/CameraEffectsManager.js"),
+  read("src/scenes/UIScene.js"),
+  read("src/systems/InputManager.js")
 ]);
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
@@ -36,6 +39,18 @@ if (!transformManager.includes("body.moves = false") || !transformManager.includ
 }
 if (!transformManager.includes("this.transforming || this.form === FORMS.ALICORN")) {
   fail("변신 정지 중 피격 방지가 연결되지 않음");
+}
+if (!gameScene.includes("CameraEffectsManager") || !bossController.includes("cameraEffects?.shake")) {
+  fail("카메라 흔들림이 중앙 CameraEffectsManager를 통하지 않음");
+}
+if ([gameScene, enemyManager, bossController].some((source) => source.includes("cameras.main.shake"))) {
+  fail("CameraEffectsManager 밖에 직접 camera shake 호출이 있음");
+}
+if (!cameraEffects.includes("screenShakeEnabled") || !cameraEffects.includes("shakeEffect?.reset")) {
+  fail("화면 흔들림 설정 저장 또는 즉시 중단 처리가 없음");
+}
+if (!uiScene.includes("toggleScreenShake") || !inputManager.includes("shakeTogglePressed")) {
+  fail("HUD 또는 키보드 화면 흔들림 토글이 연결되지 않음");
 }
 if (!levelLoader.includes("add.tileSprite") || !levelLoader.includes("setBackgroundMood")) {
   fail("패럴랙스 배경 TileSprite 또는 무드 전환이 없음");

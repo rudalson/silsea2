@@ -10,6 +10,7 @@ import {
 } from "../src/data/gameplay.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
 import { AudioManager, STAR_PITCH_RATES } from "../src/systems/AudioManager.js";
+import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/CameraEffectsManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { moveTowards } from "../src/utils/math.js";
@@ -157,6 +158,35 @@ audio.setMuted(false);
 assert.equal(audioScene.sound.mute, false);
 audio.destroy();
 
+for (const profile of Object.values(CAMERA_SHAKE_PROFILES)) {
+  assert.ok(profile.duration <= 180);
+  assert.ok(profile.intensity <= 0.003);
+}
+const cameraRegistry = new Map();
+const shakeCalls = [];
+let shakeReset = 0;
+const cameraScene = {
+  registry: {
+    get: (key) => cameraRegistry.get(key),
+    set: (key, value) => cameraRegistry.set(key, value)
+  },
+  cameras: {
+    main: {
+      shake: (duration, intensity) => shakeCalls.push({ duration, intensity }),
+      shakeEffect: { reset: () => { shakeReset += 1; } }
+    }
+  }
+};
+const cameraEffects = new CameraEffectsManager(cameraScene);
+assert.equal(cameraEffects.shake("bossLand", { duration: 999, intensity: 1 }), true);
+assert.deepEqual(shakeCalls.at(-1), { duration: 180, intensity: 0.003 });
+assert.equal(cameraEffects.setEnabled(false), false);
+assert.equal(shakeReset, 1);
+assert.equal(cameraEffects.shake("bossLand"), false);
+assert.equal(shakeCalls.length, 1, "화면 흔들림 Off에서는 camera.shake를 호출하지 않아야 함");
+assert.equal(cameraRegistry.get("screenShakeEnabled"), false);
+cameraEffects.destroy();
+
 const starCount = level01.items.reduce((total, item) => {
   if (item.type === "star") return total + 1;
   if (item.type === "star_arc") return total + item.count;
@@ -171,4 +201,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 변신 시간·100~180ms 연출, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

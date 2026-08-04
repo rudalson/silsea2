@@ -129,7 +129,7 @@ export class BossController {
     this.boss.clearTint().setY(this.baseY);
     this.telegraphShadow.setVisible(false).setScale(1).setAlpha(0.2);
     this.scene.audioManager?.playSfx("sfx_boss_land", { randomizeRate: false });
-    this.scene.cameras.main.shake(phase === 1 ? 90 : 130, phase === 1 ? 0.002 : 0.003);
+    this.scene.cameraEffects?.shake(phase === 1 ? "bossLandLight" : "bossLand");
     directions.forEach((direction, index) => {
       this.projectilePool.acquire({
         x: this.boss.x + direction * (86 + index * 18),

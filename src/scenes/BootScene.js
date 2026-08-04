@@ -18,6 +18,7 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("levelId", LEVELS[0].id);
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", false);
+    this.registry.set("screenShakeEnabled", true);
     this.registry.set("audioMuted", false);
     this.registry.set("sfxVolume", 0.72);
     this.registry.set("bgmVolume", 0.46);

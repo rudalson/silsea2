@@ -64,6 +64,18 @@ export class UIScene extends Phaser.Scene {
       padding: { x: 10, y: 7 }
     }).setOrigin(1, 0).setScrollFactor(0);
 
+    this.shakeButton = this.add.text(GAME_WIDTH - 24, 88, "", {
+      align: "right",
+      fontFamily: "system-ui",
+      fontSize: "14px",
+      fontStyle: "700",
+      color: CSS_COLORS.collectBlue,
+      backgroundColor: CSS_COLORS.panelSoft,
+      padding: { x: 10, y: 7 }
+    }).setOrigin(1, 0).setScrollFactor(0).setInteractive({ useHandCursor: true });
+    this.shakeButton.on("pointerdown", () => this.toggleScreenShake());
+    this.renderShakeSetting();
+
     this.bossText = this.add.text(GAME_WIDTH / 2, 112, "", {
       fontFamily: "system-ui",
       fontSize: "19px",
@@ -90,7 +102,8 @@ export class UIScene extends Phaser.Scene {
       fontStyle: "900",
       color: CSS_COLORS.white
     }).setOrigin(0.5));
-    this.pauseOverlay.add(this.add.text(640, 395, "Esc / 게임패드 Start로 계속", {
+    this.pauseOverlay.add(this.add.text(640, 395, "Esc / 게임패드 Start로 계속\nV 화면 흔들림 켜기/끄기", {
+      align: "center",
       fontFamily: "system-ui",
       fontSize: "20px",
       color: CSS_COLORS.soft
@@ -118,6 +131,7 @@ export class UIScene extends Phaser.Scene {
   update() {
     const input = this.inputManager.sample();
     if (input.pausePressed) this.togglePause();
+    if (input.shakeTogglePressed) this.toggleScreenShake();
     if (!this.gameScene?.player) return;
 
     this.characterText.setText(this.gameScene.character.name);
@@ -159,6 +173,21 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
+  toggleScreenShake() {
+    const enabled = this.gameScene.cameraEffects?.toggle() ?? false;
+    this.gameScene.audioManager?.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.renderShakeSetting();
+    this.showToast(`화면 흔들림 ${enabled ? "켜짐" : "꺼짐"}`);
+    this.gameScene.updateAccessibleStatus(`화면 흔들림을 ${enabled ? "켰습니다" : "껐습니다"}.`);
+  }
+
+  renderShakeSetting() {
+    const enabled = this.gameScene.cameraEffects?.enabled ?? false;
+    this.shakeButton
+      .setText(`화면 흔들림 ${enabled ? "ON" : "OFF"} · V`)
+      .setColor(enabled ? CSS_COLORS.collectBlue : CSS_COLORS.soft);
+  }
+
   showToast(message) {
     this.toast.setText(message).setAlpha(1).setY(164);
     this.tweens.killTweensOf(this.toast);
@@ -171,6 +200,7 @@ export class UIScene extends Phaser.Scene {
 
   shutdown() {
     this.inputManager?.destroy();
+    this.shakeButton?.removeAllListeners();
     this.gameScene?.events.off(EVENTS.CHECKPOINT, this.onCheckpoint);
     this.gameScene?.events.off(EVENTS.BOSS_HIT, this.onBossHit);
     this.gameScene?.events.off(EVENTS.BOSS_DEFEATED, this.onBossDefeated);
