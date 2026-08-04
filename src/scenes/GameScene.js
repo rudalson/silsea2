@@ -39,7 +39,9 @@ export class GameScene extends Phaser.Scene {
     this.tuning = cloneTuning(this.character);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
-    this.scoreManager = new ScoreManager();
+    this.scoreManager = new ScoreManager({
+      onComboChanged: (snapshot) => this.events.emit(EVENTS.COMBO_CHANGED, snapshot)
+    });
     this.objectiveManager = new ObjectiveManager(this, this.level.objectives);
     this.checkpointManager = new CheckpointManager(this, this.level.player.spawn);
     this.levelLoader = new LevelLoader(this, this.level, this.objectiveManager).build();

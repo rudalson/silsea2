@@ -7,10 +7,14 @@ const DEFAULT_SETTINGS = Object.freeze({
 });
 
 const ITEM_SFX = Object.freeze({
-  star: "sfx_star",
   percent_small: "sfx_percent_small",
   percent_large: "sfx_percent_large"
 });
+
+export const STAR_PITCH_SEMITONES = Object.freeze([0, 2, 4, 5, 7, 9]);
+export const STAR_PITCH_RATES = Object.freeze(
+  STAR_PITCH_SEMITONES.map((semitones) => 2 ** (semitones / 12))
+);
 
 const clamp01 = (value) => Math.max(0, Math.min(1, Number(value)));
 
@@ -21,6 +25,7 @@ export class AudioManager {
     this.maxSameFrame = maxSameFrame;
     this.sameFramePlays = new Map();
     this.loops = new Map();
+    this.starStep = 0;
     this.currentBgm = null;
     this.currentBgmKey = null;
     this.desiredBgm = null;
@@ -41,8 +46,15 @@ export class AudioManager {
   bindSceneEvents() {
     this.handlers = [
       [EVENTS.ITEM_COLLECTED, ({ type } = {}) => {
+        if (type === "star") {
+          this.playStar();
+          return;
+        }
         const key = ITEM_SFX[type];
         if (key) this.playSfx(key);
+      }],
+      [EVENTS.COMBO_CHANGED, ({ combo } = {}) => {
+        if (!combo) this.resetStarSequence();
       }],
       [EVENTS.CHECKPOINT, () => this.playSfx("sfx_checkpoint", { randomizeRate: false })],
       [EVENTS.PLAYER_HIT, ({ hp } = {}) => this.playSfx(hp <= 0 ? "sfx_hp_zero" : "sfx_player_hurt")],
@@ -87,6 +99,20 @@ export class AudioManager {
     } catch {
       return null;
     }
+  }
+
+  playStar(config = {}) {
+    const step = Math.min(this.starStep, STAR_PITCH_RATES.length - 1);
+    this.starStep = Math.min(step + 1, STAR_PITCH_RATES.length - 1);
+    return this.playSfx("sfx_star", {
+      ...config,
+      rate: STAR_PITCH_RATES[step],
+      randomizeRate: false
+    });
+  }
+
+  resetStarSequence() {
+    this.starStep = 0;
   }
 
   playLoop(key, config = {}) {
@@ -190,7 +216,8 @@ export class AudioManager {
     return {
       ...this.settings,
       currentBgmKey: this.currentBgmKey,
-      activeLoops: [...this.loops.keys()]
+      activeLoops: [...this.loops.keys()],
+      starStep: this.starStep
     };
   }
 

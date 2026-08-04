@@ -7,7 +7,7 @@ import {
   stepFlightGauge
 } from "../src/data/gameplay.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
-import { AudioManager } from "../src/systems/AudioManager.js";
+import { AudioManager, STAR_PITCH_RATES } from "../src/systems/AudioManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { moveTowards } from "../src/utils/math.js";
@@ -36,6 +36,13 @@ assert.equal(score.collect("star", 2), 20);
 score.score = 10000;
 assert.equal(score.steal(), 100);
 assert.equal(score.score, 9900);
+
+const comboEvents = [];
+const comboScore = new ScoreManager({ onComboChanged: (snapshot) => comboEvents.push({ ...snapshot }) });
+comboScore.collect("star");
+assert.equal(comboEvents.at(-1).combo, 1);
+comboScore.update(CORE_RULES.comboWindowMs + 1);
+assert.equal(comboEvents.at(-1).combo, 0, "콤보 시간 종료 시 초기화 이벤트가 발생해야 함");
 
 const first = new SeededRandom(8901);
 const second = new SeededRandom(8901);
@@ -122,6 +129,20 @@ audioEvents.emit("checkpoint:activated", {});
 assert.equal(audioPlays.at(-1).key, "sfx_checkpoint");
 const bgm = audio.playBgm("bgm_field");
 assert.equal(bgm.key, "bgm_field");
+audio.resetStarSequence();
+const starStart = audioPlays.length;
+for (let index = 0; index < 7; index += 1) {
+  audioScene.game.loop.frame += 1;
+  audio.playStar();
+}
+const starRates = audioPlays.slice(starStart).map((entry) => entry.config.rate);
+assert.deepEqual(starRates.slice(0, 6), [...STAR_PITCH_RATES]);
+assert.equal(starRates[6], STAR_PITCH_RATES[5], "여섯 번째 이후 별 음정은 최고 단계로 유지해야 함");
+audioEvents.emit("score:combo-changed", { combo: 0 });
+assert.equal(audio.getSnapshot().starStep, 0);
+audioScene.game.loop.frame += 1;
+audioEvents.emit("item:collected", { type: "star" });
+assert.equal(audioPlays.at(-1).config.rate, STAR_PITCH_RATES[0]);
 audio.setMuted(true);
 assert.equal(audioScene.sound.mute, true);
 assert.equal(audio.playSfx("sfx_jump"), null);
@@ -143,4 +164,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 변신 시간, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 변신 시간, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
