@@ -1,4 +1,47 @@
 {
+  "$schemaVersion": 2,
+  "$delivery": {
+    "manifestGroups": {
+      "raw_potato": ["raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"],
+      "spike_pumpkin": ["spike_pumpkin_idle", "spike_pumpkin_warning", "spike_pumpkin_break"],
+      "dark_cloud": ["dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated"],
+      "magpie": ["magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"],
+      "potato_king": ["potato_king_idle", "potato_king_jump", "potato_king_fall", "potato_king_land", "potato_king_shoot", "potato_king_hurt", "potato_king_defeated"]
+    },
+    "code": {
+      "fx_dust": ["src/systems/ParticleEffectsManager.js", "src/entities/Player.js"],
+      "fx_magnet_trail": ["src/systems/ParticleEffectsManager.js", "src/scenes/GameScene.js"],
+      "fx_transform_flash": ["src/systems/ParticleEffectsManager.js", "src/systems/TransformationManager.js"],
+      "fx_alicorn_overlay": ["src/systems/TransformationManager.js"],
+      "fx_attack_marker": ["src/systems/EnemyManager.js"],
+      "fx_lightning": ["src/systems/EnemyManager.js"],
+      "fx_weakpoint_star": ["src/systems/BossController.js"],
+      "fx_stolen_percent": ["src/systems/EnemyManager.js"]
+    },
+    "planned": [
+      "decor_flower",
+      "decor_grass",
+      "decor_rock",
+      "decor_sign",
+      "fx_shadow_oval",
+      "fx_item_glow",
+      "fx_quake_wave",
+      "ui_portrait_silsea",
+      "ui_portrait_potato89",
+      "ui_form_base",
+      "ui_form_unicorn",
+      "ui_form_pegasus",
+      "ui_form_alicorn",
+      "ui_hp",
+      "ui_flight_gauge",
+      "ui_fever_gauge",
+      "ui_boss_hp",
+      "ui_panel",
+      "ui_button",
+      "ui_pause",
+      "ui_accessibility"
+    ]
+  },
   "silsea_idle": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 원안 외형과 색상선. 기본형 뿔은 제거." },
   "silsea_run": { "styleRefs": ["silsea_run.png", "silsea_sprite-Photoroom.png"], "note": "8프레임 보행 순서와 원안 외형." },
   "silsea_jump_up": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 우향 측면과 공중 포즈." },
