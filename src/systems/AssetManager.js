@@ -2,19 +2,20 @@ import manifest from "../../assets/manifest.json";
 import { COLORS } from "../config/constants.js";
 
 const entries = new Map(manifest.assets.map((asset) => [asset.key, asset]));
+const audioEntries = manifest.assets.filter((asset) => asset.type === "audio");
 
 const toCss = (value) => `#${value.toString(16).padStart(6, "0")}`;
 
 export class AssetManager {
   static queueLevelAssets(scene, level) {
     scene.load.json(level.assets.tilemapKey, level.assets.tilemap);
+    AssetManager.queueAudioAssets(scene);
 
     for (const key of new Set(AssetManager.collectManifestKeys(level.assets))) {
       const entry = entries.get(key);
       const url = entry?.url ?? entry?.file;
       if (!url || entry.type === "placeholder") continue;
       if (entry.type === "image") scene.load.image(key, url);
-      if (entry.type === "audio") scene.load.audio(key, url);
       if (entry.type === "atlas") scene.load.atlas(key, url, entry.atlasUrl);
       if (entry.type === "spritesheet") {
         scene.load.spritesheet(key, url, {
@@ -23,6 +24,13 @@ export class AssetManager {
           endFrame: entry.frames - 1
         });
       }
+    }
+  }
+
+  static queueAudioAssets(scene) {
+    for (const entry of audioEntries) {
+      const url = entry.url ?? entry.file;
+      if (url && !scene.cache.audio.exists(entry.key)) scene.load.audio(entry.key, url);
     }
   }
 

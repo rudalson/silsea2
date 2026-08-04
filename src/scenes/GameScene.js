@@ -54,6 +54,7 @@ export class GameScene extends Phaser.Scene {
 
     this.bindWorldInteractions();
     this.configureCamera();
+    this.audioManager.playBgm(this.level.assets.bgm.field);
     this.scene.stop(SCENE_KEYS.UI);
     this.scene.launch(SCENE_KEYS.UI, { gameSceneKey: SCENE_KEYS.GAME });
 
@@ -110,6 +111,12 @@ export class GameScene extends Phaser.Scene {
     if (section?.id !== this.currentSectionId) {
       this.currentSectionId = section?.id ?? null;
       this.levelLoader.setBackgroundMood(section?.mood);
+      if (section?.type === "boss" && this.level.assets.bgm.boss) {
+        this.audioManager.playSfx("sfx_boss_appear", { randomizeRate: false });
+        this.audioManager.playBgm(this.level.assets.bgm.boss);
+      } else if (this.level.assets.bgm.field) {
+        this.audioManager.playBgm(this.level.assets.bgm.field);
+      }
       this.events.emit(EVENTS.DEBUG_UPDATED, { section: this.currentSectionId });
     }
 
@@ -185,6 +192,7 @@ export class GameScene extends Phaser.Scene {
       this.bindGate(this.levelLoader.gate);
     }
     this.cameras.main.shake(120, 0.003);
+    this.audioManager.playSfx("sfx_gate_spawn", { randomizeRate: false });
     this.updateAccessibleStatus("감자 대왕을 격파했습니다. 오른쪽 무지개 게이트로 이동하세요.");
   }
 
@@ -269,6 +277,9 @@ export class GameScene extends Phaser.Scene {
     this.objectiveManager.markGateEntered();
     if (!this.objectiveManager.areRequiredComplete()) return;
     this.isCompleting = true;
+    this.events.emit(EVENTS.GATE_ENTERED, { levelId: this.level.id });
+    this.audioManager.stopLoop("sfx_fly_loop");
+    this.audioManager.playSfx("sfx_clear", { randomizeRate: false });
     this.player.setVelocity(0, 0);
     this.player.body.enable = false;
     this.cameras.main.flash(260, 245, 223, 79);

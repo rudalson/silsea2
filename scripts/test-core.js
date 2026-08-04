@@ -7,6 +7,7 @@ import {
   stepFlightGauge
 } from "../src/data/gameplay.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
+import { AudioManager } from "../src/systems/AudioManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { moveTowards } from "../src/utils/math.js";
@@ -65,6 +66,69 @@ for (let index = 0; index < 10000; index += 1) {
 assert.equal(pool.entries.length, 2);
 pool.destroy();
 
+const audioListeners = new Map();
+const audioPlays = [];
+const registryValues = new Map();
+const audioEvents = {
+  on(event, handler) {
+    const handlers = audioListeners.get(event) ?? [];
+    handlers.push(handler);
+    audioListeners.set(event, handlers);
+  },
+  off(event, handler) {
+    audioListeners.set(event, (audioListeners.get(event) ?? []).filter((entry) => entry !== handler));
+  },
+  emit(event, payload) {
+    for (const handler of audioListeners.get(event) ?? []) handler(payload);
+  }
+};
+const audioScene = {
+  cache: { audio: { exists: (key) => key !== "missing" } },
+  events: audioEvents,
+  game: { loop: { frame: 12 } },
+  time: { now: 1200 },
+  registry: {
+    get: (key) => registryValues.get(key),
+    set: (key, value) => registryValues.set(key, value)
+  },
+  sound: {
+    mute: false,
+    play(key, config) {
+      audioPlays.push({ key, config });
+      return true;
+    },
+    add(key, config) {
+      return {
+        key,
+        config,
+        isPlaying: false,
+        play() {
+          this.isPlaying = true;
+          return true;
+        },
+        stop() { this.isPlaying = false; },
+        destroy() {},
+        setVolume(value) { this.volume = value; }
+      };
+    }
+  }
+};
+const audio = new AudioManager(audioScene, { random: () => 0.5 });
+assert.equal(audio.playSfx("sfx_star"), true);
+assert.equal(audio.playSfx("sfx_star"), true);
+assert.equal(audio.playSfx("sfx_star"), null, "동일 프레임 세 번째 SFX는 제한되어야 함");
+assert.equal(audio.playSfx("missing"), null, "누락 오디오는 무음 fallback이어야 함");
+audioEvents.emit("checkpoint:activated", {});
+assert.equal(audioPlays.at(-1).key, "sfx_checkpoint");
+const bgm = audio.playBgm("bgm_field");
+assert.equal(bgm.key, "bgm_field");
+audio.setMuted(true);
+assert.equal(audioScene.sound.mute, true);
+assert.equal(audio.playSfx("sfx_jump"), null);
+audio.setMuted(false);
+assert.equal(audioScene.sound.mute, false);
+audio.destroy();
+
 const starCount = level01.items.reduce((total, item) => {
   if (item.type === "star") return total + 1;
   if (item.type === "star_arc") return total + item.count;
@@ -79,4 +143,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 변신 시간, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계");
+console.log("Core Mechanics 테스트 통과: 변신 시간, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 동시 재생 제한·무음 fallback");

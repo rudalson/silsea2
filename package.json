@@ -11,6 +11,7 @@
     "tiles": "node scripts/generate-tiles.js",
     "background": "node scripts/postprocess-background.js",
     "background:preview": "node scripts/build-background-previews.js",
+    "audio": "node scripts/generate-audio.js",
     "postprocess:frames": "node scripts/postprocess-pending-frames.js",
     "spritesheets": "node scripts/build-character-sheets.js",
     "validate:assets": "node scripts/validate-assets.js",

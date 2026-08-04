@@ -18,6 +18,7 @@ export const EVENTS = Object.freeze({
   CHECKPOINT: "checkpoint:activated",
   PLAYER_FELL: "player:fell",
   PLAYER_HIT: "player:hit",
+  PLAYER_RESPAWNED: "player:respawned",
   PLAYER_HP_CHANGED: "player:hp-changed",
   FORM_CHANGED: "player:form-changed",
   FORM_WARNING: "player:form-warning",

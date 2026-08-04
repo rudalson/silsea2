@@ -18,6 +18,7 @@ export class TransformationManager {
     this.flightMs = CORE_RULES.flightMaxMs;
     this.alicornEndsAt = 0;
     this.warningSent = false;
+    this.flightLowSent = false;
     this.lastMode = "normal";
     this.createVisuals();
   }
@@ -73,7 +74,7 @@ export class TransformationManager {
         this.scene.time.timeScale = 1;
       });
     }
-    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs });
+    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs, emphasize });
   }
 
   prepareMovement(input, delta) {
@@ -86,6 +87,11 @@ export class TransformationManager {
         grounded,
         flying: wantsFlight && this.flightMs > 0
       });
+      if (!this.flightLowSent && this.flightMs > 0 && this.flightMs <= CORE_RULES.flightMaxMs * 0.2) {
+        this.flightLowSent = true;
+        this.scene.audioManager?.playSfx("sfx_flight_low", { randomizeRate: false });
+      }
+      if (grounded && this.flightMs > CORE_RULES.flightMaxMs * 0.25) this.flightLowSent = false;
     } else if (grounded) {
       this.flightMs = stepFlightGauge(this.flightMs, delta, { grounded: true });
     }
@@ -130,6 +136,7 @@ export class TransformationManager {
 
   restoreFlight() {
     this.flightMs = CORE_RULES.flightMaxMs;
+    this.flightLowSent = false;
   }
 
   get magnetRadius() {

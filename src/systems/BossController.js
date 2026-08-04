@@ -97,6 +97,7 @@ export class BossController {
     this.stateUntil = now + telegraphMs;
     this.boss.setData("vulnerable", false);
     this.boss.setTintFill(COLORS.danger);
+    this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
     this.telegraphShadow.setVisible(true).setAlpha(0.2);
     this.scene.tweens.add({
       targets: this.boss,
@@ -127,6 +128,7 @@ export class BossController {
 
     this.boss.clearTint().setY(this.baseY);
     this.telegraphShadow.setVisible(false).setScale(1).setAlpha(0.2);
+    this.scene.audioManager?.playSfx("sfx_boss_land", { randomizeRate: false });
     this.scene.cameras.main.shake(phase === 1 ? 90 : 130, phase === 1 ? 0.002 : 0.003);
     directions.forEach((direction, index) => {
       this.projectilePool.acquire({

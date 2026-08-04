@@ -14,6 +14,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastGroundedAt = -Infinity;
     this.bufferedJumpUntil = -Infinity;
     this.wasGrounded = false;
+    this.fallCuePlayed = false;
+    this.lastAbilityMode = "normal";
     this.feedbackTween = null;
 
     scene.add.existing(this);
@@ -64,6 +66,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (this.body.velocity.y > this.tuning.maxFallSpeed) this.setVelocityY(this.tuning.maxFallSpeed);
     }
 
+    if (ability.mode !== this.lastAbilityMode) {
+      if (ability.mode === "fly") this.scene.audioManager?.playLoop("sfx_fly_loop", { volume: 0.46 });
+      if (this.lastAbilityMode === "fly") this.scene.audioManager?.stopLoop("sfx_fly_loop");
+      if (ability.mode === "glide") this.scene.audioManager?.playSfx("sfx_glide");
+      this.lastAbilityMode = ability.mode;
+    }
+
+    if (!grounded && this.body.velocity.y >= this.tuning.maxFallSpeed * 0.55 && !this.fallCuePlayed) {
+      this.fallCuePlayed = true;
+      this.scene.audioManager?.playSfx("sfx_fall_start", { volume: 0.7 });
+    }
+    if (grounded) this.fallCuePlayed = false;
+
     this.stateMachine.updateFromBody(this.body);
     if (grounded && !this.wasGrounded) this.playLandingFeedback();
     this.wasGrounded = grounded;
@@ -71,12 +86,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   performJump() {
     this.setVelocityY(this.tuning.jumpVelocity);
+    this.scene.audioManager?.playSfx("sfx_jump");
     this.playScaleFeedback(0.9, 1.15, 80, () => {
       this.scene.tweens.add({ targets: this, scaleX: 1, scaleY: 1, duration: 110, ease: "Sine.Out" });
     });
   }
 
   playLandingFeedback() {
+    this.scene.audioManager?.playSfx("sfx_land", { volume: 0.78 });
     this.playScaleFeedback(1.2, 0.8, 80, () => {
       this.scene.tweens.add({ targets: this, scaleX: 1, scaleY: 1, duration: 120, ease: "Sine.Out" });
     });

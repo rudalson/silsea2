@@ -116,6 +116,17 @@ const backgroundAssets = [
   { name: "bg_boss_mid", luma: [45, 60] },
   { name: "bg_boss_near", luma: [40, 55], minimumY: 576 }
 ];
+const requiredAudioKeys = [
+  "sfx_jump", "sfx_land", "sfx_fall_start", "sfx_footstep", "sfx_star",
+  "sfx_percent_small", "sfx_percent_large", "sfx_combo", "sfx_transform_unicorn",
+  "sfx_transform_pegasus", "sfx_transform_alicorn", "sfx_alicorn_warning", "sfx_fly_loop",
+  "sfx_flight_low", "sfx_glide", "sfx_player_hurt", "sfx_hp_zero", "sfx_respawn",
+  "sfx_enemy_defeat", "sfx_magpie_warning", "sfx_cloud_charge", "sfx_lightning",
+  "sfx_boss_appear", "sfx_boss_warning", "sfx_boss_land", "sfx_boss_hit",
+  "sfx_boss_defeat", "sfx_checkpoint", "sfx_gate_spawn", "sfx_clear", "sfx_ui_move",
+  "sfx_ui_select", "sfx_pause", "bgm_field", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
+];
+let validatedAudioCount = 0;
 
 for (const asset of assets) {
   const { name, path } = asset;
@@ -337,9 +348,49 @@ for (const asset of backgroundAssets) {
   }
 }
 
+try {
+  const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
+  const manifestAudio = new Map(
+    manifest.assets.filter((entry) => entry.type === "audio").map((entry) => [entry.key, entry])
+  );
+  for (const key of requiredAudioKeys) {
+    const entry = manifestAudio.get(key);
+    if (!entry) {
+      errors.push(`manifest.json: 필수 오디오 ${key} 없음`);
+      continue;
+    }
+    if (!entry.url?.startsWith("/assets/audio/") || entry.url.includes("://")) {
+      errors.push(`${key}: 저장소 내부 오디오 URL이 아님`);
+      continue;
+    }
+    try {
+      const buffer = await readFile(join(root, entry.url.slice(1)));
+      if (buffer.length < 45 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WAVE") {
+        errors.push(`${key}: 유효한 WAV 파일이 아님`);
+        continue;
+      }
+      const channels = buffer.readUInt16LE(22);
+      const rate = buffer.readUInt32LE(24);
+      const bits = buffer.readUInt16LE(34);
+      const dataBytes = buffer.readUInt32LE(40);
+      const duration = dataBytes / (rate * channels * (bits / 8));
+      if (channels !== 1 || rate !== 22050 || bits !== 16) {
+        errors.push(`${key}: 22050Hz mono 16-bit PCM이 아님`);
+      }
+      if (key.startsWith("bgm_") && duration < 3) errors.push(`${key}: BGM 길이 ${duration.toFixed(2)}초 (3초 미만)`);
+      if (key.startsWith("sfx_") && duration < 0.05) errors.push(`${key}: SFX 길이 ${duration.toFixed(2)}초 (50ms 미만)`);
+      validatedAudioCount += 1;
+    } catch (error) {
+      errors.push(`${key}: 오디오 파일을 읽을 수 없음 (${error.message})`);
+    }
+  }
+} catch (error) {
+  errors.push(`manifest.json: 오디오 검증 불가 (${error.message})`);
+}
+
 if (errors.length) {
   console.error(`캐릭터/적/아이템/타일/배경 에셋 검증 실패 (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
-console.log(`캐릭터 ${characterAssets.length}개·적 ${enemyAssets.length}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개 검증 통과: 규격, 실루엣, 투명 여백, 팔레트, 2px extrude, 명도, seam 잠금`);
+console.log(`캐릭터 ${characterAssets.length}개·적 ${enemyAssets.length}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);

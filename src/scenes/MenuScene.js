@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
+import { AudioManager } from "../systems/AudioManager.js";
 import { InputManager } from "../systems/InputManager.js";
 
 export class MenuScene extends Phaser.Scene {
@@ -51,10 +52,17 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.inputManager = new InputManager(this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.inputManager.destroy());
+    this.audioManager = new AudioManager(this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.inputManager.destroy();
+      this.audioManager.destroy();
+    });
   }
 
   update() {
-    if (this.inputManager.sample().confirmPressed) this.scene.start(SCENE_KEYS.CHARACTER_SELECT);
+    if (this.inputManager.sample().confirmPressed) {
+      this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+      this.scene.start(SCENE_KEYS.CHARACTER_SELECT);
+    }
   }
 }

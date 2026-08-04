@@ -3,6 +3,7 @@ import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../conf
 import { getCharacter } from "../data/characters.js";
 import { getLevel, getNextLevel } from "../data/levels/index.js";
 import { AssetManager } from "../systems/AssetManager.js";
+import { AudioManager } from "../systems/AudioManager.js";
 import { InputManager } from "../systems/InputManager.js";
 
 export class ClearScene extends Phaser.Scene {
@@ -20,6 +21,8 @@ export class ClearScene extends Phaser.Scene {
     const character = getCharacter(this.result.characterId);
     this.cameras.main.setBackgroundColor(COLORS.near);
     this.inputManager = new InputManager(this);
+    this.audioManager = new AudioManager(this);
+    this.audioManager.playBgm(level.assets.bgm.clear, { loop: false });
 
     for (let index = 0; index < 34; index += 1) {
       const colors = [COLORS.collect, COLORS.collectBlue, COLORS.collectPink];
@@ -68,10 +71,16 @@ export class ClearScene extends Phaser.Scene {
       backgroundColor: CSS_COLORS.whiteSoft,
       padding: { x: 18, y: 10 }
     }).setOrigin(0.5);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.inputManager.destroy());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.inputManager.destroy();
+      this.audioManager.destroy();
+    });
   }
 
   update() {
-    if (this.inputManager.sample().confirmPressed) this.scene.start(SCENE_KEYS.STAGE_SELECT);
+    if (this.inputManager.sample().confirmPressed) {
+      this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+      this.scene.start(SCENE_KEYS.STAGE_SELECT);
+    }
   }
 }

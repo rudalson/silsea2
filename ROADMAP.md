@@ -1,6 +1,6 @@
 # 제작 로드맵
 
-> 현재 단계: Phase 3 Art Integration — 스타일 앵커 승인 대기  
+> 현재 단계: Phase 4 Polish — 로컬 오디오 기반 통합
 > 규칙: Must 전체가 끝나기 전 Should를 구현하지 않고, Should 전체가 끝나기 전 Could를 구현하지 않는다. 각 Phase는 사람 승인과 커밋 후에만 다음 단계로 간다.
 
 ## 현재 게이트
@@ -125,11 +125,11 @@ Phase 1 코드는 위 항목과 Phase 0 전체 승인 전까지 작성하지 않
 - [ ] `validate-assets.js`와 HTML 썸네일·흑백 대비 보고서
 - [ ] 발 기준선 ±2px, 높이 ±5%, 팔레트 외 5% 이하
 - [ ] 전체 스크린샷 화풍 육안 승인
-- [ ] 모든 validate 통과와 Phase 3 커밋
+- [x] 모든 validate 통과와 Phase 3 커밋 (`de4f246`) — 2026-08-04
 
 ### Phase 4 — Polish
 
-- [ ] AudioManager와 필수 SFX/BGM/무음 fallback
+- [x] AudioManager와 필수 SFX/BGM/무음 fallback — 2026-08-04, 로컬 WAV 37종·중앙 재생·누락 캐시 안전 처리
 - [ ] 별 6단계 상승 음계와 동시 재생 제한
 - [ ] 변신 정지·플래시·카메라 강조
 - [ ] 약한 흔들림과 접근성 On/Off

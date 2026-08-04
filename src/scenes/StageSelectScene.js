@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { COLORS, CSS_COLORS, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { LEVELS } from "../data/levels/index.js";
+import { AudioManager } from "../systems/AudioManager.js";
 import { InputManager } from "../systems/InputManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 
@@ -13,6 +14,7 @@ export class StageSelectScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(COLORS.skyTop);
     this.selected = Math.max(0, LEVELS.findIndex((level) => level.id === this.registry.get("levelId")));
     this.inputManager = new InputManager(this);
+    this.audioManager = new AudioManager(this);
     this.cards = [];
 
     this.add.text(GAME_WIDTH / 2, 88, "스테이지 선택", {
@@ -56,7 +58,10 @@ export class StageSelectScene extends Phaser.Scene {
       padding: { x: 15, y: 8 }
     }).setOrigin(0.5);
     this.renderSelection();
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.inputManager.destroy());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.inputManager.destroy();
+      this.audioManager.destroy();
+    });
   }
 
   update() {
@@ -64,10 +69,12 @@ export class StageSelectScene extends Phaser.Scene {
     if (Math.abs(input.moveX) > 0.5 && !this.axisLocked) {
       this.selected = Phaser.Math.Wrap(this.selected + Math.sign(input.moveX), 0, LEVELS.length);
       this.axisLocked = true;
+      this.audioManager.playSfx("sfx_ui_move");
       this.renderSelection();
     }
     if (Math.abs(input.moveX) < 0.2) this.axisLocked = false;
     if (input.confirmPressed) {
+      this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
       const levelId = LEVELS[this.selected].id;
       this.registry.set("levelId", levelId);
       this.scene.start(SCENE_KEYS.PRELOAD, { levelId });

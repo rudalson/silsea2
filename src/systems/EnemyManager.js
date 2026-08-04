@@ -82,6 +82,7 @@ export class EnemyManager {
         this.interactions.push(this.scene.physics.add.overlap(this.player, zone, () => {
           if (!entry.poolActive) return;
           this.scoreManager.recover(entry.amount);
+          this.scene.audioManager?.playSfx("sfx_percent_small", { volume: 0.7 });
           this.recoveryPool.release(entry);
         }));
         return entry;
@@ -147,6 +148,7 @@ export class EnemyManager {
       const targetY = this.levelLoader.findSafeY(targetX);
       enemy.setData({ state: "telegraph", stateUntil: now + 700, targetX, targetY });
       enemy.setTintFill(COLORS.collectBlue);
+      this.scene.audioManager?.playSfx("sfx_cloud_charge", { randomizeRate: false });
       this.showTargetMarker(enemy, targetX, targetY - 5, COLORS.dangerAlt);
     } else if (state === "telegraph") {
       enemy.setScale(1 + Math.sin(now / 55) * 0.08);
@@ -156,6 +158,7 @@ export class EnemyManager {
           y: enemy.getData("targetY") - 230,
           expiresAt: now + 170
         });
+        this.scene.audioManager?.playSfx("sfx_lightning", { randomizeRate: false });
         enemy.clearTint().setScale(1);
         enemy.getData("targetMarker")?.setVisible(false);
         enemy.setData({ state: "cooldown", stateUntil: now + 1500 });
@@ -177,6 +180,7 @@ export class EnemyManager {
       const targetY = this.levelLoader.findSafeY(targetX) - 28;
       enemy.setData({ state: "telegraph", stateUntil: now + 650, targetX, targetY });
       enemy.setTintFill(COLORS.danger);
+      this.scene.audioManager?.playSfx("sfx_magpie_warning", { randomizeRate: false });
       this.showTargetMarker(enemy, targetX, targetY + 24, COLORS.danger);
     } else if (state === "telegraph") {
       enemy.x += Math.sin(now / 35) * 1.8;
@@ -235,6 +239,7 @@ export class EnemyManager {
       hazard.body.enable = false;
       hazard.setVisible(false).setActive(false);
       this.scoreManager.defeat("spike_pumpkin", this.transformationManager.scoreMultiplier);
+      this.scene.audioManager?.playSfx("sfx_enemy_defeat");
       return;
     }
     this.healthManager.takeDamage(hazard.x);
@@ -247,6 +252,7 @@ export class EnemyManager {
     enemy.body.enable = false;
     enemy.setVisible(false).setActive(false);
     this.scoreManager.defeat(type, this.transformationManager.scoreMultiplier);
+    this.scene.audioManager?.playSfx("sfx_enemy_defeat");
   }
 
   spawnRecovery(x, y, amount) {
