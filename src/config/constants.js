@@ -67,5 +67,5 @@ export const COLORS = Object.freeze(
 );
 
 export const DEBUG_ENABLED = typeof window !== "undefined"
-  ? new URLSearchParams(window.location.search).get("debug") !== "0"
+  ? new URLSearchParams(window.location.search).get("debug") === "1"
   : false;

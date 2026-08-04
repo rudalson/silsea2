@@ -74,6 +74,10 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
+    const visualReviewSectionId = this.registry.get("visualReviewSectionId");
+    const visualReviewOffset = this.registry.get("visualReviewOffset");
+    if (visualReviewSectionId) this.warpToSection(visualReviewSectionId, visualReviewOffset ?? 160);
+
     this.updateAccessibleStatus(`${this.level.name} 시작. ${this.character.name} 선택됨.`);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }
@@ -318,10 +322,10 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  warpToSection(sectionId) {
+  warpToSection(sectionId, offset = 160) {
     const section = this.levelLoader.getSection(sectionId);
     if (!section) return;
-    const x = Math.min(section.xEnd - 96, section.xStart + 160);
+    const x = Math.min(section.xEnd - 96, section.xStart + Math.max(0, offset));
     const y = this.levelLoader.findSafeY(x);
     this.player.setPosition(x, y - 2).setVelocity(0, 0);
     this.cameras.main.centerOn(x, y - 180);

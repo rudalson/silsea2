@@ -15,14 +15,33 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    this.registry.set("characterId", CHARACTER_LIST[0].id);
-    this.registry.set("levelId", LEVELS[0].id);
+    const query = new URLSearchParams(window.location.search);
+    const requestedCharacter = query.get("character");
+    const characterId = CHARACTER_LIST.some(({ id }) => id === requestedCharacter)
+      ? requestedCharacter
+      : CHARACTER_LIST[0].id;
+    const requestedReviewLevel = query.get("visualReview");
+    const reviewLevel = LEVELS.find(({ id }) => id === requestedReviewLevel) ?? null;
+    const levelId = reviewLevel?.id ?? LEVELS[0].id;
+    const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
+    const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
+      ? requestedReviewOffset
+      : null;
+
+    this.registry.set("characterId", characterId);
+    this.registry.set("levelId", levelId);
+    this.registry.set("visualReviewSectionId", reviewLevel ? query.get("section") : null);
+    this.registry.set("visualReviewOffset", reviewLevel ? reviewOffset : null);
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", false);
     this.registry.set("screenShakeEnabled", true);
     this.registry.set("audioMuted", false);
     this.registry.set("sfxVolume", 0.72);
     this.registry.set("bgmVolume", 0.46);
+    if (reviewLevel) {
+      this.scene.start(SCENE_KEYS.PRELOAD, { levelId });
+      return;
+    }
     this.scene.start(SCENE_KEYS.MENU);
   }
 }

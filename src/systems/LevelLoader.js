@@ -45,7 +45,7 @@ export class LevelLoader {
     this.scene.physics.world.setBounds(0, 0, this.level.world.width, this.level.world.height + 256);
     this.createBackground();
     this.createTerrain();
-    this.createSectionMarkers();
+    if (this.scene.registry.get("debugEnabled")) this.createSectionMarkers();
     this.createCheckpoints();
     this.createItemMarkers();
     this.createEnemyMarkers();

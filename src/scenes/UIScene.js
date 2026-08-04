@@ -62,7 +62,7 @@ export class UIScene extends Phaser.Scene {
       color: CSS_COLORS.white,
       backgroundColor: CSS_COLORS.panelSoft,
       padding: { x: 10, y: 7 }
-    }).setOrigin(1, 0).setScrollFactor(0);
+    }).setOrigin(1, 0).setScrollFactor(0).setVisible(this.registry.get("debugEnabled"));
 
     this.shakeButton = this.add.text(GAME_WIDTH - 24, 88, "", {
       align: "right",
@@ -150,7 +150,9 @@ export class UIScene extends Phaser.Scene {
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
     this.objectiveText.setText(`목표 ${required.filter((objective) => objective.complete).length}/${required.length}`);
-    this.fpsText.setText(`FPS ${Math.round(this.game.loop.actualFps)}\nEsc 일시정지 · \` 디버그`);
+    if (this.registry.get("debugEnabled")) {
+      this.fpsText.setText(`FPS ${Math.round(this.game.loop.actualFps)}\nEsc 일시정지 · \` 디버그`);
+    }
 
     const section = this.gameScene.levelLoader?.getSectionAt(this.gameScene.player.x);
     if (section?.type === "boss" && this.gameScene.levelLoader.boss?.active) {

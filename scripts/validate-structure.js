@@ -25,7 +25,10 @@ const allSourceFiles = await walk(join(root, "src"));
 if (sceneFiles.some((file) => file.endsWith("BossScene.js"))) fail("BossScene.js가 존재함");
 
 const gameScene = await readFile(join(root, "src", "scenes", "GameScene.js"), "utf8");
+const bootScene = await readFile(join(root, "src", "scenes", "BootScene.js"), "utf8");
+const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
 const levelLoader = await readFile(join(root, "src", "systems", "LevelLoader.js"), "utf8");
+const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
 for (const forbidden of LEVELS.flatMap((level) => [level.id, level.name])) {
   if (gameScene.includes(forbidden)) fail(`GameScene에 특정 레벨 참조가 있음: ${forbidden}`);
   if (levelLoader.includes(forbidden)) fail(`LevelLoader에 특정 레벨 참조가 있음: ${forbidden}`);
@@ -53,10 +56,17 @@ const levelIndex = await readFile(join(root, "src", "data", "levels", "index.js"
 if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02 import 한 줄이 없음");
 if (!levelIndex.includes("[level01, level02]")) fail("LEVELS 배열에 level-02 항목이 없음");
 
+if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
+if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
+if (!gameScene.includes("visualReviewOffset")) fail("런타임 화풍 검수용 구간 오프셋이 없음");
+if (!constants.includes('get("debug") === "1"')) fail("디버그가 명시적인 ?debug=1 없이 활성화됨");
+if (!levelLoader.includes('registry.get("debugEnabled")')) fail("구간 마커가 디버그 상태에 연결되지 않음");
+if (!uiScene.includes('setVisible(this.registry.get("debugEnabled"))')) fail("FPS 표시가 디버그 상태에 연결되지 않음");
+
 if (errors.length) {
   console.error(`구조 검증 실패 (${errors.length})`);
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log("구조 검증 통과: 공용 GameScene, Boss section, InputManager, level-02 레지스트리");
+console.log("구조 검증 통과: 공용 GameScene, Boss section, InputManager, level-02 레지스트리, visualReview 진입점, 디버그 표시 격리");
