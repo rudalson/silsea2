@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { DEBUG_ENABLED, SCENE_KEYS } from "../config/constants.js";
 import { CHARACTER_LIST } from "../data/characters.js";
+import { FORMS } from "../data/gameplay.js";
 import { LEVELS } from "../data/levels/index.js";
 import { AssetManager } from "../systems/AssetManager.js";
 
@@ -27,11 +28,20 @@ export class BootScene extends Phaser.Scene {
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
       ? requestedReviewOffset
       : null;
+    const requestedReviewForm = query.get("form");
+    const reviewForm = Object.values(FORMS).includes(requestedReviewForm) ? requestedReviewForm : null;
+    const requestedReviewZoom = query.has("zoom") ? Number(query.get("zoom")) : null;
+    const reviewZoom = Number.isFinite(requestedReviewZoom)
+      ? Math.min(2, Math.max(1, requestedReviewZoom))
+      : null;
 
     this.registry.set("characterId", characterId);
     this.registry.set("levelId", levelId);
     this.registry.set("visualReviewSectionId", reviewLevel ? query.get("section") : null);
     this.registry.set("visualReviewOffset", reviewLevel ? reviewOffset : null);
+    this.registry.set("visualReviewForm", reviewLevel ? reviewForm : null);
+    this.registry.set("visualReviewAnimation", reviewLevel ? query.get("animation") : null);
+    this.registry.set("visualReviewZoom", reviewLevel ? reviewZoom : null);
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", false);
     this.registry.set("screenShakeEnabled", true);

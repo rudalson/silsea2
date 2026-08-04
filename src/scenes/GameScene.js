@@ -77,6 +77,17 @@ export class GameScene extends Phaser.Scene {
     const visualReviewSectionId = this.registry.get("visualReviewSectionId");
     const visualReviewOffset = this.registry.get("visualReviewOffset");
     if (visualReviewSectionId) this.warpToSection(visualReviewSectionId, visualReviewOffset ?? 160);
+    const visualReviewForm = this.registry.get("visualReviewForm");
+    if (visualReviewForm) {
+      this.transformationManager.setForm(visualReviewForm, false);
+      if (visualReviewForm === "alicorn") this.transformationManager.alicornEndsAt = Number.POSITIVE_INFINITY;
+    }
+    const visualReviewAnimation = this.registry.get("visualReviewAnimation");
+    if (visualReviewAnimation && this.player.playCharacterAnimation(visualReviewAnimation, { force: true })) {
+      this.player.animationLockedUntil = Number.POSITIVE_INFINITY;
+    }
+    const visualReviewZoom = this.registry.get("visualReviewZoom");
+    if (visualReviewZoom) this.cameras.main.setZoom(visualReviewZoom);
 
     this.updateAccessibleStatus(`${this.level.name} 시작. ${this.character.name} 선택됨.`);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());

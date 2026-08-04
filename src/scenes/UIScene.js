@@ -138,7 +138,7 @@ export class UIScene extends Phaser.Scene {
     const hp = this.gameScene.healthManager?.hp ?? 0;
     const maxHp = this.gameScene.healthManager?.maxHp ?? 0;
     this.hpText.setText(`HP ${"♥ ".repeat(hp)}${"♡ ".repeat(Math.max(0, maxHp - hp))}`.trim());
-    this.scoreText.setText(`PERCENT ${this.gameScene.scoreManager?.displayScore ?? 0}%`);
+    this.scoreText.setText(`PERCENT ${Math.round(this.gameScene.scoreManager?.displayScore ?? 0)}%`);
     const combo = this.gameScene.scoreManager?.combo ?? 0;
     this.comboText.setText(combo >= 2 ? `${combo} COMBO` : "");
     const form = this.gameScene.transformationManager?.getSnapshot(this.gameScene.time.now);

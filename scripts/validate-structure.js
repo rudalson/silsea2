@@ -58,7 +58,10 @@ if (!levelIndex.includes("[level01, level02]")) fail("LEVELS 배열에 level-02 
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
+if (!bootScene.includes('query.get("form")')) fail("캐릭터 런타임 검수용 form 선택이 없음");
+if (!bootScene.includes('query.get("animation")')) fail("캐릭터 런타임 검수용 animation 선택이 없음");
 if (!gameScene.includes("visualReviewOffset")) fail("런타임 화풍 검수용 구간 오프셋이 없음");
+if (!gameScene.includes("visualReviewAnimation")) fail("캐릭터 런타임 애니메이션 고정이 없음");
 if (!constants.includes('get("debug") === "1"')) fail("디버그가 명시적인 ?debug=1 없이 활성화됨");
 if (!levelLoader.includes('registry.get("debugEnabled")')) fail("구간 마커가 디버그 상태에 연결되지 않음");
 if (!uiScene.includes('setVisible(this.registry.get("debugEnabled"))')) fail("FPS 표시가 디버그 상태에 연결되지 않음");

@@ -77,8 +77,13 @@ if (!transformManager.includes("body.moves = false") || !transformManager.includ
 if (!transformManager.includes("this.transforming || this.form === FORMS.ALICORN")) {
   fail("변신 정지 중 피격 방지가 연결되지 않음");
 }
-if (transformManager.includes("this.horn.setPosition(this.player.x + direction * 18, this.player.y - 82).setFlipX")) {
-  fail("Shape 기반 뿔에 지원되지 않는 setFlipX 호출이 남아 있음");
+if (!transformManager.includes('this.scene.add.image(0, 0, "item_horn")')
+  || !transformManager.includes('this.scene.add.image(0, 0, "item_wings")')) {
+  fail("변신 부착물이 승인된 horn/wings 텍스처를 사용하지 않음");
+}
+if (!transformManager.includes('animationKey.endsWith(":fly")')) fail("비행 시트와 날개 부착물의 중복 방지가 없음");
+if (!uiScene.includes("Math.round(this.gameScene.scoreManager?.displayScore ?? 0)")) {
+  fail("HUD 보간 점수가 정수로 표시되지 않음");
 }
 if (!gameScene.includes("CameraEffectsManager") || !bossController.includes("cameraEffects?.shake")) {
   fail("카메라 흔들림이 중앙 CameraEffectsManager를 통하지 않음");
