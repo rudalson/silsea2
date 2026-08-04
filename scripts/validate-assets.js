@@ -13,6 +13,7 @@ import {
   getEnemyAssetKeys,
   getEnemySequenceNames
 } from "../src/data/enemyAnimations.js";
+import { generateAssetReport } from "./asset-report.js";
 import { colorDistance, hexToRgb, paletteRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -469,4 +470,6 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
+const assetReport = await generateAssetReport({ root });
 console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
+console.log(`HTML 에셋 보고서 생성: ${assetReport.outputPath} (시각 에셋 ${assetReport.assetCount}개·역할 실루엣 ${assetReport.roleCount}개)`);
