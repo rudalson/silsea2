@@ -16,6 +16,7 @@ import { ObjectiveManager } from "../systems/ObjectiveManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 import { ScoreManager } from "../systems/ScoreManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
+import { moveTowards } from "../utils/math.js";
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -108,6 +109,7 @@ export class GameScene extends Phaser.Scene {
     const section = this.levelLoader.getSectionAt(this.player.x);
     if (section?.id !== this.currentSectionId) {
       this.currentSectionId = section?.id ?? null;
+      this.levelLoader.setBackgroundMood(section?.mood);
       this.events.emit(EVENTS.DEBUG_UPDATED, { section: this.currentSectionId });
     }
 
@@ -133,7 +135,9 @@ export class GameScene extends Phaser.Scene {
       const overlap = this.physics.add.overlap(this.player, checkpoint.zone, () => {
         if (!this.checkpointManager.activate(checkpoint.data)) return;
         this.transformationManager.restoreFlight();
-        checkpoint.visuals[1].setFillStyle(COLORS.collect);
+        const fallbackFlag = checkpoint.visuals.at(-1);
+        if (fallbackFlag?.setFillStyle) fallbackFlag.setFillStyle(COLORS.collect);
+        for (const visual of checkpoint.visuals) visual.setAlpha(1);
         this.tweens.add({ targets: checkpoint.visuals, scale: 1.16, duration: 110, yoyo: true });
         this.updateAccessibleStatus(`${checkpoint.data.id} 체크포인트 도착.`);
       });
@@ -253,8 +257,8 @@ export class GameScene extends Phaser.Scene {
       if (distance > radius) continue;
       collectible.magnetizing = true;
       const speed = (680 * delta) / 1000;
-      collectible.x = Phaser.Math.MoveTowards(collectible.x, this.player.x, speed);
-      collectible.y = Phaser.Math.MoveTowards(collectible.y, this.player.y - 45, speed);
+      collectible.x = moveTowards(collectible.x, this.player.x, speed);
+      collectible.y = moveTowards(collectible.y, this.player.y - 45, speed);
       for (const visual of collectible.visuals) visual.setPosition(collectible.x, collectible.y);
       if (distance <= 38) this.collectItem(collectible);
     }

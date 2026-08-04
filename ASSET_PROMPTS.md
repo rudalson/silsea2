@@ -50,23 +50,23 @@
 | `silsea_fall` | 2 | 최고점 중립→안전한 낙하 자세 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `silsea_land` | 2 | 80ms 접지 압축→120ms 복귀 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `silsea_hurt` | 2 | 짧은 뒤밀림→회복, 무서운 표정 금지 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
-| `silsea_transform_unicorn` | 6 | 준비→빛 집중→뿔 형성→별 파동→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_transform_pegasus` | 6 | 준비→등 빛→날개 펼침→첫 날갯짓→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_transform_alicorn` | 8 | 준비→빛→뿔→날개→무지개 파동→부유→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_fly` | 6 | 날개 down→contact→up→peak→pass→복귀 | 190701 | `silsea_anchor.png` | mapping | 대기 |
-| `silsea_victory` | 6 | 놀람→앞발 들기→기쁨→갈기 반동→안정→완성 | 190701 | `silsea_anchor.png` | mapping | 대기 |
+| `silsea_transform_unicorn` | 6 | 준비→빛 집중→뿔 형성→별 파동→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_transform_pegasus` | 6 | 준비→등 빛→날개 펼침→첫 날갯짓→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_transform_alicorn` | 8 | 준비→빛→뿔→날개→무지개 파동→부유→안정→완성 300ms | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_fly` | 6 | 날개 down→contact→up→peak→pass→복귀 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `silsea_victory` | 6 | 놀람→앞발 들기→기쁨→갈기 반동→안정→완성 | 190701 | `silsea_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_idle` | 4 | 안정→숨 들이쉼→볼 반동→복귀 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_roll` | 8 | contact×2→down×2→pass×2→up×2, 통통한 무게감 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_jump_up` | 2 | 깊은 준비 압축→짧은 다리 모음 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_fall` | 2 | 최고점 중립→볼·배가 살짝 뜨는 낙하 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_land` | 2 | 80ms 넓은 접지→120ms 복귀 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
 | `potato89_hurt` | 2 | 짧은 뒤밀림→회복, 귀여움 유지 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
-| `potato89_stomp` | 4 | 다리 모음→하강→강한 접지→복귀 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_transform_unicorn` | 6 | 통통한 기본형 유지, 뿔만 형성 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_transform_pegasus` | 6 | 통통한 기본형 유지, 날개만 형성 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_transform_alicorn` | 8 | 기본형 유지, 뿔+날개+무지개 파동 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_fly` | 6 | 통통한 체형 유지, 날개 down→contact→up→peak→pass→복귀 | 890089 | `potato89_anchor.png` | mapping | 대기 |
-| `potato89_victory` | 6 | 놀람→짧은 점프→볼 반동→기쁨→안정→완성 | 890089 | `potato89_anchor.png` | mapping | 대기 |
+| `potato89_stomp` | 4 | 다리 모음→하강→강한 접지→복귀 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_transform_unicorn` | 6 | 통통한 기본형 유지, 뿔만 형성 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_transform_pegasus` | 6 | 통통한 기본형 유지, 날개만 형성 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_transform_alicorn` | 8 | 기본형 유지, 뿔+날개+무지개 파동 | 890089 | `potato89_anchor.png` | mapping | 2026-08-03 생성·정렬·시트 조립 완료 |
+| `potato89_fly` | 6 | 통통한 체형 유지, 날개 down→contact→up→peak→pass→복귀 | 890089 | `potato89_anchor.png` | mapping | 2026-08-04 생성·정렬·시트 조립 완료 |
+| `potato89_victory` | 6 | 놀람→짧은 점프→볼 반동→기쁨→안정→완성 | 890089 | `potato89_anchor.png` | mapping | 2026-08-04 생성·정렬·시트 조립 완료 |
 
 각 행은 실행 시 `에셋키_00`, `에셋키_01`처럼 프레임별 행으로 확장하고, 프롬프트·Seed·Anchor·StyleRefs·채택 상태를 각각 기록한다.
 
@@ -92,11 +92,11 @@ warning/charge는 기본색 변화와 자세 변화가 동시에 보인다.
 
 | 에셋 키 | 애니메이션 | Seed | StyleRefs | 상태 |
 |---|---|---:|---|---|
-| `raw_potato` | idle 2, roll 6, defeated 4 | 210101 | mapping | 대기 |
-| `spike_pumpkin` | idle 2, warning 2, break 6 | 210102 | mapping | 대기 |
-| `dark_cloud` | idle 4, charge 4, attack 3, defeated 4 | 210103 | mapping | 대기 |
-| `magpie` | fly 6, warning 3, dive 4, stunned 4, defeated 4 | 210104 | mapping | 대기 |
-| `potato_king` | idle 4, jump 4, fall 2, land 4, shoot 4, hurt 3, defeated 8 | 210105 | mapping | 대기 |
+| `raw_potato` | idle 2, roll 6, defeated 4 | 210101 | mapping | 2026-08-04 앵커 승인·12프레임 생성·정렬·시트 조립 완료 |
+| `spike_pumpkin` | idle 2, warning 2, break 6 | 210102 | mapping | 2026-08-04 앵커 승인·10프레임 생성·정렬·시트 조립 완료 |
+| `dark_cloud` | idle 4, charge 4, attack 3, defeated 4 | 210103 | mapping | 2026-08-04 앵커 승인·15프레임 생성·정렬·시트 조립 완료 |
+| `magpie` | fly 6, warning 3, dive 4, stunned 4, defeated 4 | 210104 | mapping | 2026-08-04 앵커 승인·21프레임 생성·정렬·시트 조립 완료 |
+| `potato_king` | idle 4, jump 4, fall 2, land 4, shoot 4, hurt 3, defeated 8 | 210105 | mapping | 2026-08-04 앵커 승인·29프레임 생성·정렬·시트 조립 완료 |
 
 ## 아이템 템플릿과 작업표
 
@@ -111,14 +111,14 @@ data/palette.js의 collect 색만 사용. 본체 후광, 문자, 숫자, 그림�
 
 | 에셋 키 | 지시 | Seed | StyleRefs | 상태 |
 |---|---|---:|---|---|
-| `item_star` | 둥근 꼭짓점의 독자적인 5각 별 | 310101 | mapping | 대기 |
-| `item_percent_small` | 문자 없는 작은 원형 점수 토큰, 안쪽에 두 개의 작은 점과 사선형 홈 | 310102 | mapping | 대기 |
-| `item_percent_large` | 작은 토큰과 구분되는 큰 이중 원형 테두리 | 310103 | mapping | 대기 |
-| `item_horn` | 둥근 나선 홈이 있는 짧은 원뿔 | 310104 | mapping | 대기 |
-| `item_wings` | 좌우가 대칭인 둥근 깃털 날개 한 쌍 | 310105 | mapping | 대기 |
-| `item_alicorn` | 중앙 뿔과 좌우 날개의 결합 실루엣 | 310106 | mapping | 대기 |
-| `checkpoint_flag` | 둥근 깃발과 짧은 기둥, 글자 없음 | 310107 | mapping | 대기 |
-| `rainbow_gate` | 캐릭터가 통과할 넓은 빈 공간이 있는 둥근 아치 | 310108 | mapping | 대기 |
+| `item_star` | 둥근 꼭짓점의 독자적인 5각 별 | 310101 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `item_percent_small` | 문자 없는 작은 원형 점수 토큰, 안쪽에 두 개의 작은 점과 사선형 홈 | 310102 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `item_percent_large` | 작은 토큰과 구분되는 큰 이중 원형 테두리 | 310103 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `item_horn` | 둥근 나선 홈이 있는 짧은 원뿔 | 310104 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `item_wings` | 좌우가 대칭인 둥근 깃털 날개 한 쌍 | 310105 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `item_alicorn` | 중앙 뿔과 좌우 날개의 결합 실루엣 | 310106 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `checkpoint_flag` | 둥근 깃발과 짧은 기둥, 글자 없음 | 310107 | mapping | 2026-08-04 앵커 승인·제작 완료 |
+| `rainbow_gate` | 캐릭터가 통과할 넓은 빈 공간이 있는 둥근 아치 | 310108 | mapping | 2026-08-04 앵커 승인·제작 완료 |
 
 퍼센트 토큰의 두 점과 사선 홈은 실제 문자 글리프가 아니라 단순 도형으로 제작해 AI 생성 문자 문제를 피한다.
 
@@ -136,19 +136,19 @@ near 레이어는 오브젝트를 하단 25%에만 배치한다.
 
 | 에셋 키 | 지시 | Seed | StyleRefs | 상태 |
 |---|---|---:|---|---|
-| `bg_normal_far` | 밝은 먼 산·구름·희미한 무지개, 명도 70~85% | 410101 | mapping | 대기 |
-| `bg_normal_mid` | 둥근 언덕과 큰 나무 덩어리, 명도 55~70% | 410102 | mapping | 대기 |
-| `bg_normal_near` | 하단 풀·꽃 덩어리, 명도 45~60% | 410103 | mapping | 대기 |
-| `bg_pit_far` | 넓고 비어 보이는 차가운 하늘과 먼 절벽, 명도 70~85% | 410201 | mapping | 대기 |
-| `bg_pit_mid` | 간격이 넓은 나무·바위 덩어리, 명도 55~70% | 410202 | mapping | 대기 |
-| `bg_pit_near` | 하단 가장자리 풀과 작은 바위만, 명도 45~60% | 410203 | mapping | 대기 |
-| `bg_boss_far` | 어두운 구름과 먼 거목 실루엣, 명도 60~75% | 410301 | mapping | 대기 |
-| `bg_boss_mid` | 넓은 전투 공간을 비우는 수직 나무 랜드마크, 명도 45~60% | 410302 | mapping | 대기 |
-| `bg_boss_near` | 낮고 단순한 하단 식생, 명도 40~55% | 410303 | mapping | 대기 |
+| `bg_normal_far` | 밝은 먼 산·구름·희미한 무지개, 명도 70~85% | 410101 | mapping | 2026-08-04 생성·검증·통합 완료 |
+| `bg_normal_mid` | 둥근 언덕과 큰 나무 덩어리, 명도 55~70% | 410102 | mapping | 2026-08-04 앵커 승인·통합 완료 |
+| `bg_normal_near` | 하단 풀·꽃 덩어리, 명도 45~60% | 410103 | mapping | 2026-08-04 생성·검증·통합 완료 |
+| `bg_pit_far` | 넓고 비어 보이는 차가운 하늘과 먼 절벽, 명도 70~85% | 410201 | mapping | 2026-08-04 생성·검증·통합 완료 |
+| `bg_pit_mid` | 간격이 넓은 나무·바위 덩어리, 명도 55~70% | 410202 | mapping | 2026-08-04 생성·검증·통합 완료 |
+| `bg_pit_near` | 하단 가장자리 풀과 작은 바위만, 명도 45~60% | 410203 | mapping | 2026-08-04 생성·검증·통합 완료 |
+| `bg_boss_far` | 어두운 구름과 먼 거목 실루엣, 명도 60~75% | 410301 | mapping | 2026-08-04 생성·보정·검증·통합 완료 |
+| `bg_boss_mid` | 넓은 전투 공간을 비우는 수직 나무 랜드마크, 명도 45~60% | 410302 | mapping | 2026-08-04 생성·검증·통합 완료 |
+| `bg_boss_near` | 낮고 단순한 하단 식생, 명도 40~55% | 410303 | mapping | 2026-08-04 생성·검증·통합 완료 |
 
 ## 타일과 장식
 
-- `grass_tileset`: 이미지 생성 프롬프트 없음. `generate-tiles.js`가 팔레트로 생성한다.
+- `grass_tileset`: 이미지 생성 프롬프트 없음. `generate-tiles.js`가 팔레트로 생성한다. 2026-08-04 16종·64px·2px extrude 제작 및 통합 완료.
 
 | 에셋 키 | 프롬프트 차분 | Seed | StyleRefs | 상태 |
 |---|---|---:|---|---|

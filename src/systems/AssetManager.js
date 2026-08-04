@@ -9,11 +9,20 @@ export class AssetManager {
   static queueLevelAssets(scene, level) {
     scene.load.json(level.assets.tilemapKey, level.assets.tilemap);
 
-    for (const key of AssetManager.collectManifestKeys(level.assets)) {
+    for (const key of new Set(AssetManager.collectManifestKeys(level.assets))) {
       const entry = entries.get(key);
-      if (!entry?.file || entry.type === "placeholder") continue;
-      if (entry.type === "image") scene.load.image(key, entry.file);
-      if (entry.type === "audio") scene.load.audio(key, entry.file);
+      const url = entry?.url ?? entry?.file;
+      if (!url || entry.type === "placeholder") continue;
+      if (entry.type === "image") scene.load.image(key, url);
+      if (entry.type === "audio") scene.load.audio(key, url);
+      if (entry.type === "atlas") scene.load.atlas(key, url, entry.atlasUrl);
+      if (entry.type === "spritesheet") {
+        scene.load.spritesheet(key, url, {
+          frameWidth: entry.frameWidth,
+          frameHeight: entry.frameHeight,
+          endFrame: entry.frames - 1
+        });
+      }
     }
   }
 
@@ -149,4 +158,3 @@ export class AssetManager {
     lines.forEach((value, index) => context.fillText(value, x, y - offset + index * lineHeight));
   }
 }
-

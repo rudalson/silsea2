@@ -9,6 +9,7 @@ import {
 import { ObjectPool } from "../src/systems/ObjectPool.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
+import { moveTowards } from "../src/utils/math.js";
 
 assert.equal(CORE_RULES.invulnerableMs, 2000);
 assert.ok(CORE_RULES.hurtLockMs <= 250);
@@ -24,6 +25,9 @@ assert.equal(stepFlightGauge(120, 16, { checkpoint: true }), 10000);
 assert.equal(getMagpieStealAmount(99), 9);
 assert.equal(getMagpieStealAmount(10000), 100);
 assert.equal(getRespawnScoreLoss(10000), 75);
+assert.equal(moveTowards(0, 100, 30), 30);
+assert.equal(moveTowards(100, 0, 30), 70);
+assert.equal(moveTowards(95, 100, 30), 100);
 
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);

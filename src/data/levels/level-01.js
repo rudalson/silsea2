@@ -14,6 +14,18 @@ export default {
       pit: { far: "bg_pit_far", mid: "bg_pit_mid", near: "bg_pit_near" },
       boss: { far: "bg_boss_far", mid: "bg_boss_mid", near: "bg_boss_near" }
     },
+    objects: {
+      items: {
+        star: "item_star",
+        percent_small: "item_percent_small",
+        percent_large: "item_percent_large",
+        horn: "item_horn",
+        wings: "item_wings",
+        alicorn: "item_alicorn"
+      },
+      checkpoint: "checkpoint_flag",
+      gate: "rainbow_gate"
+    },
     bgm: { field: "bgm_field", boss: "bgm_boss", clear: "bgm_clear" }
   },
   world: { width: 12288, height: 768, tileSize: 64 },

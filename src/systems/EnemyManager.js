@@ -21,7 +21,7 @@ export class EnemyManager {
     for (const enemy of this.levelLoader.enemies) {
       if (enemy.getData("type") === "raw_potato") {
         this.interactions.push(this.scene.physics.add.collider(enemy, this.levelLoader.terrainBodies));
-        enemy.setVelocityX(-70);
+        enemy.body.setVelocityX(-70);
       }
       this.interactions.push(
         this.scene.physics.add.overlap(this.player, enemy, () => this.handleEnemyContact(enemy))
@@ -130,8 +130,8 @@ export class EnemyManager {
   updateRawPotato(enemy) {
     const spawnX = enemy.getData("spawnX");
     const patrol = enemy.getData("patrol") ?? 160;
-    if (enemy.x <= spawnX - patrol) enemy.setVelocityX(72);
-    if (enemy.x >= spawnX + patrol) enemy.setVelocityX(-72);
+    if (enemy.x <= spawnX - patrol) enemy.body.setVelocityX(72);
+    if (enemy.x >= spawnX + patrol) enemy.body.setVelocityX(-72);
     enemy.setRotation(enemy.rotation + enemy.body.velocity.x * 0.0008);
   }
 
@@ -182,12 +182,13 @@ export class EnemyManager {
       enemy.x += Math.sin(now / 35) * 1.8;
       if (now >= enemy.getData("stateUntil")) {
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, enemy.getData("targetX"), enemy.getData("targetY"));
-        enemy.setVelocity(Math.cos(angle) * 620, Math.sin(angle) * 620);
+        enemy.body.setVelocity(Math.cos(angle) * 620, Math.sin(angle) * 620);
         enemy.setData({ state: "dive", stateUntil: now + 620, activeAttack: true });
         enemy.clearTint();
       }
     } else if (state === "dive" && now >= enemy.getData("stateUntil")) {
-      enemy.setVelocity(0, 0).setRotation(0.35);
+      enemy.body.setVelocity(0, 0);
+      enemy.setRotation(0.35);
       enemy.setData({ state: "stunned", stateUntil: now + 1100, activeAttack: false });
     } else if (state === "stunned" && now >= enemy.getData("stateUntil")) {
       enemy.setPosition(enemy.getData("spawnX"), enemy.getData("spawnY")).setRotation(0);
@@ -218,7 +219,7 @@ export class EnemyManager {
         const stolen = this.scoreManager.steal();
         this.spawnRecovery(enemy.x, this.levelLoader.findSafeY(enemy.x) - 48, stolen);
         enemy.setData({ state: "stunned", stateUntil: this.scene.time.now + 1100, activeAttack: false });
-        enemy.setVelocity(0, 0);
+        enemy.body.setVelocity(0, 0);
       }
       return;
     }

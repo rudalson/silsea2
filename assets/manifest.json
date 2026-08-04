@@ -96,16 +96,297 @@
       "frameHeight": 128,
       "frames": 2
     },
-    { "key": "grass_tileset", "type": "placeholder" },
-    { "key": "bg_normal_far", "type": "placeholder" },
-    { "key": "bg_normal_mid", "type": "placeholder" },
-    { "key": "bg_normal_near", "type": "placeholder" },
-    { "key": "bg_pit_far", "type": "placeholder" },
-    { "key": "bg_pit_mid", "type": "placeholder" },
-    { "key": "bg_pit_near", "type": "placeholder" },
-    { "key": "bg_boss_far", "type": "placeholder" },
-    { "key": "bg_boss_mid", "type": "placeholder" },
-    { "key": "bg_boss_near", "type": "placeholder" },
+    {
+      "key": "silsea_transform_unicorn",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_transform_unicorn.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "potato89_stomp",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_stomp.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato89_transform_unicorn",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_transform_unicorn.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "potato89_transform_pegasus",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_transform_pegasus.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "potato89_transform_alicorn",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_transform_alicorn.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    {
+      "key": "potato89_fly",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_fly.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "potato89_victory",
+      "type": "spritesheet",
+      "url": "/assets/characters/potato89/potato89_victory.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "silsea_transform_pegasus",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_transform_pegasus.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "silsea_transform_alicorn",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_transform_alicorn.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    {
+      "key": "silsea_fly",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_fly.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "silsea_victory",
+      "type": "spritesheet",
+      "url": "/assets/characters/silsea/silsea_victory.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "raw_potato_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/raw_potato/raw_potato_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "raw_potato_roll",
+      "type": "spritesheet",
+      "url": "/assets/enemies/raw_potato/raw_potato_roll.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "raw_potato_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/raw_potato/raw_potato_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "spike_pumpkin_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/spike_pumpkin/spike_pumpkin_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "spike_pumpkin_warning",
+      "type": "spritesheet",
+      "url": "/assets/enemies/spike_pumpkin/spike_pumpkin_warning.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "spike_pumpkin_break",
+      "type": "spritesheet",
+      "url": "/assets/enemies/spike_pumpkin/spike_pumpkin_break.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "dark_cloud_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/dark_cloud/dark_cloud_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "dark_cloud_charge",
+      "type": "spritesheet",
+      "url": "/assets/enemies/dark_cloud/dark_cloud_charge.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "dark_cloud_attack",
+      "type": "spritesheet",
+      "url": "/assets/enemies/dark_cloud/dark_cloud_attack.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3
+    },
+    {
+      "key": "dark_cloud_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/dark_cloud/dark_cloud_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "magpie_fly",
+      "type": "spritesheet",
+      "url": "/assets/enemies/magpie/magpie_fly.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "magpie_warning",
+      "type": "spritesheet",
+      "url": "/assets/enemies/magpie/magpie_warning.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3
+    },
+    {
+      "key": "magpie_dive",
+      "type": "spritesheet",
+      "url": "/assets/enemies/magpie/magpie_dive.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "magpie_stunned",
+      "type": "spritesheet",
+      "url": "/assets/enemies/magpie/magpie_stunned.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "magpie_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/magpie/magpie_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato_king_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato_king_jump",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_jump.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato_king_fall",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_fall.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2
+    },
+    {
+      "key": "potato_king_land",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_land.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato_king_shoot",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_shoot.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "potato_king_hurt",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_hurt.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3
+    },
+    {
+      "key": "potato_king_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/potato_king/potato_king_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    { "key": "item_star", "type": "image", "url": "/assets/items/item_star.png" },
+    { "key": "item_percent_small", "type": "image", "url": "/assets/items/item_percent_small.png" },
+    { "key": "item_percent_large", "type": "image", "url": "/assets/items/item_percent_large.png" },
+    { "key": "item_horn", "type": "image", "url": "/assets/items/item_horn.png" },
+    { "key": "item_wings", "type": "image", "url": "/assets/items/item_wings.png" },
+    { "key": "item_alicorn", "type": "image", "url": "/assets/items/item_alicorn.png" },
+    { "key": "checkpoint_flag", "type": "image", "url": "/assets/items/checkpoint_flag.png" },
+    { "key": "rainbow_gate", "type": "image", "url": "/assets/items/rainbow_gate.png" },
+    {
+      "key": "grass_tileset",
+      "type": "atlas",
+      "url": "/assets/tiles/grass_tileset.png",
+      "atlasUrl": "/assets/tiles/grass_tileset.json",
+      "tileWidth": 64,
+      "tileHeight": 64,
+      "extrude": 2,
+      "frames": 16
+    },
+    { "key": "bg_normal_far", "type": "image", "url": "/assets/backgrounds/bg_normal_far.png", "width": 2048, "height": 720 },
+    { "key": "bg_normal_mid", "type": "image", "url": "/assets/backgrounds/bg_normal_mid.png", "width": 2048, "height": 720 },
+    { "key": "bg_normal_near", "type": "image", "url": "/assets/backgrounds/bg_normal_near.png", "width": 2048, "height": 720 },
+    { "key": "bg_pit_far", "type": "image", "url": "/assets/backgrounds/bg_pit_far.png", "width": 2048, "height": 720 },
+    { "key": "bg_pit_mid", "type": "image", "url": "/assets/backgrounds/bg_pit_mid.png", "width": 2048, "height": 720 },
+    { "key": "bg_pit_near", "type": "image", "url": "/assets/backgrounds/bg_pit_near.png", "width": 2048, "height": 720 },
+    { "key": "bg_boss_far", "type": "image", "url": "/assets/backgrounds/bg_boss_far.png", "width": 2048, "height": 720 },
+    { "key": "bg_boss_mid", "type": "image", "url": "/assets/backgrounds/bg_boss_mid.png", "width": 2048, "height": 720 },
+    { "key": "bg_boss_near", "type": "image", "url": "/assets/backgrounds/bg_boss_near.png", "width": 2048, "height": 720 },
     { "key": "bgm_field", "type": "placeholder" },
     { "key": "bgm_boss", "type": "placeholder" },
     { "key": "bgm_clear", "type": "placeholder" }

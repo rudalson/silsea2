@@ -2,6 +2,9 @@ node_modules/
 dist/
 assets/_anchor/source/
 assets/characters/_source/
+assets/enemies/_source/
+assets/items/_source/
+assets/backgrounds/_source/
 *.log
 .DS_Store
 Thumbs.db

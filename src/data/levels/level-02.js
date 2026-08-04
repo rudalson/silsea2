@@ -12,6 +12,18 @@ export default {
     backgrounds: {
       normal: { far: "bg_normal_far", mid: "bg_normal_mid", near: "bg_normal_near" }
     },
+    objects: {
+      items: {
+        star: "item_star",
+        percent_small: "item_percent_small",
+        percent_large: "item_percent_large",
+        horn: "item_horn",
+        wings: "item_wings",
+        alicorn: "item_alicorn"
+      },
+      checkpoint: "checkpoint_flag",
+      gate: "rainbow_gate"
+    },
     bgm: { field: "bgm_field", clear: "bgm_clear" }
   },
   world: { width: 2560, height: 768, tileSize: 64 },
@@ -32,4 +44,3 @@ export default {
   },
   difficulty: { easyMode: { extraCheckpoints: [], removeEnemies: [], pitScoreLoss: 0 } }
 };
-

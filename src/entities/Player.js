@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { COLORS } from "../config/constants.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { PlayerStateMachine } from "../systems/PlayerStateMachine.js";
+import { moveTowards } from "../utils/math.js";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, character, tuning) {
@@ -34,7 +35,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const acceleration = grounded ? this.tuning.acceleration : this.tuning.airAcceleration;
     const targetVelocity = input.moveX * this.tuning.maxSpeed;
     const rate = input.moveX === 0 ? this.tuning.deceleration : acceleration;
-    const nextVelocity = Phaser.Math.MoveTowards(this.body.velocity.x, targetVelocity, (rate * delta) / 1000);
+    const nextVelocity = moveTowards(this.body.velocity.x, targetVelocity, (rate * delta) / 1000);
     this.setVelocityX(nextVelocity);
 
     if (Math.abs(input.moveX) > 0.05) this.setFlipX(input.moveX < 0);
@@ -53,7 +54,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (ability.mode === "fly") {
       this.body.setGravityY(0);
       const targetY = ability.moveY ? ability.moveY * 280 : -90;
-      this.setVelocityY(Phaser.Math.MoveTowards(this.body.velocity.y, targetY, (920 * delta) / 1000));
+      this.setVelocityY(moveTowards(this.body.velocity.y, targetY, (920 * delta) / 1000));
     } else if (ability.mode === "glide") {
       this.body.setGravityY(this.tuning.gravity * 0.18);
       if (this.body.velocity.y > 260) this.setVelocityY(260);

@@ -7,8 +7,9 @@ const read = (path) => readFile(new URL(path, `${new URL("../", import.meta.url)
 const errors = [];
 const fail = (message) => errors.push(message);
 
-const [gameScene, levelLoader, enemyManager, bossController, transformManager] = await Promise.all([
+const [gameScene, player, levelLoader, enemyManager, bossController, transformManager] = await Promise.all([
   read("src/scenes/GameScene.js"),
+  read("src/entities/Player.js"),
   read("src/systems/LevelLoader.js"),
   read("src/systems/EnemyManager.js"),
   read("src/systems/BossController.js"),
@@ -27,7 +28,14 @@ if (!enemyManager.includes("isOnScreen")) fail("화면 밖 공격 차단이 없�
 if (!enemyManager.includes("new ObjectPool") || !bossController.includes("new ObjectPool")) fail("반복 오브젝트에 Object Pool이 없음");
 if (!bossController.includes("SeededRandom")) fail("보스 패턴에 고정 Seed가 없음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
+if (!levelLoader.includes("add.tileSprite") || !levelLoader.includes("setBackgroundMood")) {
+  fail("패럴랙스 배경 TileSprite 또는 무드 전환이 없음");
+}
+if (!gameScene.includes("setBackgroundMood(section?.mood)")) fail("섹션 mood가 배경 전환에 연결되지 않음");
 if ([enemyManager, bossController].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
+if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {
+  fail("현재 Phaser 버전에 없는 Math.MoveTowards 호출이 있음");
+}
 if (/#[0-9a-f]{6}\b|0x[0-9a-f]{6}\b/i.test([gameScene, levelLoader, enemyManager, bossController, transformManager].join("\n"))) {
   fail("Core Mechanics 소스에 직접 색상 값이 있음");
 }

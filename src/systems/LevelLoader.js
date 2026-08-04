@@ -3,6 +3,21 @@ import { ENEMY_DEFINITIONS } from "../data/enemies.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
 import { AssetManager } from "./AssetManager.js";
 
+const ITEM_SCALES = Object.freeze({
+  star: 0.65,
+  percent_small: 0.7,
+  percent_large: 0.68,
+  horn: 0.65,
+  wings: 0.68,
+  alicorn: 0.68
+});
+
+const BACKGROUND_LAYERS = Object.freeze({
+  far: { depth: -30 },
+  mid: { depth: -20 },
+  near: { depth: -10 }
+});
+
 export class LevelLoader {
   constructor(scene, level, objectiveManager) {
     this.scene = scene;
@@ -18,6 +33,8 @@ export class LevelLoader {
     this.boss = null;
     this.bossHitLocked = false;
     this.tilemap = null;
+    this.backgroundLayers = [];
+    this.backgroundMood = null;
   }
 
   build() {
@@ -40,6 +57,22 @@ export class LevelLoader {
 
   createBackground() {
     const { width, height } = this.level.world;
+    const initialMood = this.level.sections[0]?.mood ?? "normal";
+    const keys = this.level.assets.backgrounds?.[initialMood];
+    const canUseImages = keys && Object.keys(BACKGROUND_LAYERS).every(
+      (layer) => keys[layer] && this.scene.textures.exists(keys[layer])
+    );
+
+    if (canUseImages) {
+      this.backgroundLayers = Object.entries(BACKGROUND_LAYERS).map(([layer, config]) => {
+        const image = this.track(this.scene.add.tileSprite(width / 2, height / 2, width * 1.2, height, keys[layer]));
+        image.setScrollFactor(this.level.parallax[layer], 0).setDepth(config.depth);
+        return { layer, image };
+      });
+      this.backgroundMood = initialMood;
+      return;
+    }
+
     const far = this.track(this.scene.add.rectangle(width / 2, height * 0.56, width * 1.15, height * 0.56, COLORS.far, 1));
     far.setScrollFactor(this.level.parallax.far, 0.2).setDepth(-30);
 
@@ -55,8 +88,21 @@ export class LevelLoader {
     near.setScrollFactor(this.level.parallax.near, 1).setDepth(-10);
   }
 
+  setBackgroundMood(mood) {
+    if (!mood || mood === this.backgroundMood || !this.backgroundLayers.length) return false;
+    const keys = this.level.assets.backgrounds?.[mood] ?? this.level.assets.backgrounds?.normal;
+    if (!keys || this.backgroundLayers.some(({ layer }) => !keys[layer] || !this.scene.textures.exists(keys[layer]))) {
+      return false;
+    }
+    for (const { layer, image } of this.backgroundLayers) image.setTexture(keys[layer]);
+    this.backgroundMood = mood;
+    return true;
+  }
+
   createTerrain() {
     this.terrainBodies = this.scene.physics.add.staticGroup();
+    const tilesetKey = this.level.assets.tileset;
+    const useTileset = Boolean(tilesetKey && this.scene.textures.exists(tilesetKey));
     for (const object of this.getTerrainObjects()) {
       const color = object.type === "platform" ? COLORS.ground : COLORS.ground;
       const rectangle = this.scene.add.rectangle(
@@ -64,16 +110,51 @@ export class LevelLoader {
         object.y + object.height / 2,
         object.width,
         object.height,
-        color
+        color,
+        useTileset ? 0 : 1
       );
-      rectangle.setStrokeStyle(4, COLORS.outline, 1).setDepth(0);
+      if (!useTileset) rectangle.setStrokeStyle(4, COLORS.outline, 1);
+      rectangle.setDepth(0);
       this.scene.physics.add.existing(rectangle, true);
       this.terrainBodies.add(rectangle);
 
-      const grass = this.track(
-        this.scene.add.rectangle(object.x + object.width / 2, object.y + 6, object.width - 4, 12, COLORS.grass)
-      );
-      grass.setDepth(1);
+      if (useTileset) {
+        this.createTerrainTiles(object, tilesetKey);
+      } else {
+        const grass = this.track(
+          this.scene.add.rectangle(object.x + object.width / 2, object.y + 6, object.width - 4, 12, COLORS.grass)
+        );
+        grass.setDepth(1);
+      }
+    }
+  }
+
+  createTerrainTiles(object, tilesetKey) {
+    const tileSize = this.level.world.tileSize;
+    const columns = Math.ceil(object.width / tileSize);
+    const rows = Math.ceil(object.height / tileSize);
+    const platform = object.type === "platform";
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const isLeft = column === 0;
+        const isRight = column === columns - 1;
+        let frame;
+        if (platform) {
+          frame = isLeft ? "platform_left" : isRight ? "platform_right" : "platform_mid";
+        } else if (row === 0) {
+          frame = isLeft ? "grass_top_left" : isRight ? "grass_top_right" : "grass_top";
+        } else {
+          frame = isLeft ? "dirt_left" : isRight ? "dirt_right" : (column + row) % 3 === 0 ? "dirt_variant" : "dirt";
+        }
+
+        const width = Math.min(tileSize, object.width - column * tileSize);
+        const height = Math.min(tileSize, object.height - row * tileSize);
+        const tile = this.track(
+          this.scene.add.image(object.x + column * tileSize, object.y + row * tileSize, tilesetKey, frame)
+        );
+        tile.setOrigin(0, 0).setDisplaySize(width, height).setDepth(0);
+      }
     }
   }
 
@@ -97,23 +178,44 @@ export class LevelLoader {
 
   createCheckpoints() {
     for (const checkpoint of this.level.checkpoints) {
-      const pole = this.track(this.scene.add.rectangle(checkpoint.x, checkpoint.y - 54, 8, 108, COLORS.outline));
-      const flag = this.track(
-        this.scene.add.triangle(checkpoint.x + 27, checkpoint.y - 92, 0, 0, 58, 18, 0, 36, COLORS.collectBlue)
-      );
-      pole.setDepth(3);
-      flag.setDepth(3);
+      const key = this.level.assets.objects?.checkpoint;
+      let visuals;
+      if (key && this.scene.textures.exists(key)) {
+        const flag = this.track(this.scene.add.image(checkpoint.x, checkpoint.y - 48, key));
+        flag.setDepth(3).setAlpha(0.82);
+        visuals = [flag];
+      } else {
+        const pole = this.track(this.scene.add.rectangle(checkpoint.x, checkpoint.y - 54, 8, 108, COLORS.outline));
+        const flag = this.track(
+          this.scene.add.triangle(checkpoint.x + 27, checkpoint.y - 92, 0, 0, 58, 18, 0, 36, COLORS.collectBlue)
+        );
+        pole.setDepth(3);
+        flag.setDepth(3);
+        visuals = [pole, flag];
+      }
       const zone = this.scene.add.zone(checkpoint.x, checkpoint.y - 48, 64, 112);
       this.scene.physics.add.existing(zone, true);
-      this.checkpointZones.push({ zone, data: checkpoint, visuals: [pole, flag] });
+      this.checkpointZones.push({ zone, data: checkpoint, visuals });
     }
   }
 
   createItemMarkers() {
-    const createStar = (x, y, alpha = 1) => {
-      const star = this.track(this.scene.add.star(x, y, 5, 8, 18, COLORS.collect, alpha));
-      star.setStrokeStyle(3, COLORS.outline).setDepth(4);
-      return star;
+    const createVisual = (type, x, y, alpha = 1) => {
+      const key = this.level.assets.objects?.items?.[type];
+      if (key && this.scene.textures.exists(key)) {
+        const image = this.track(this.scene.add.image(x, y, key));
+        image.setScale(ITEM_SCALES[type] ?? 0.65).setAlpha(alpha).setDepth(4);
+        return image;
+      }
+      if (type === "star") {
+        const star = this.track(this.scene.add.star(x, y, 5, 8, 18, COLORS.collect, alpha));
+        star.setStrokeStyle(3, COLORS.outline).setDepth(4);
+        return star;
+      }
+      const definition = ITEM_DEFINITIONS[type];
+      const marker = this.track(this.scene.add.circle(x, y, 24, definition?.color ?? COLORS.collect, alpha));
+      marker.setStrokeStyle(4, COLORS.outline).setDepth(4);
+      return marker;
     };
 
     const register = (id, type, x, y, visuals) => {
@@ -126,7 +228,7 @@ export class LevelLoader {
 
     for (const item of this.level.items) {
       if (item.type === "star") {
-        register(item.id, "star", item.x, item.y, [createStar(item.x, item.y)]);
+        register(item.id, "star", item.x, item.y, [createVisual("star", item.x, item.y)]);
         continue;
       }
       if (item.type === "star_arc") {
@@ -134,26 +236,13 @@ export class LevelLoader {
           const angle = Math.PI + (Math.PI * index) / Math.max(1, item.count - 1);
           const x = item.x + Math.cos(angle) * item.radius;
           const y = item.y + Math.sin(angle) * item.radius;
-          register(`${item.id}-${index}`, "star", x, y, [createStar(x, y, 0.78)]);
+          register(`${item.id}-${index}`, "star", x, y, [createVisual("star", x, y, 0.78)]);
         }
         continue;
       }
 
-      const definition = ITEM_DEFINITIONS[item.type];
       const visualY = item.y - 44;
-      const marker = this.track(this.scene.add.circle(item.x, visualY, 24, definition?.color ?? COLORS.collect));
-      marker.setStrokeStyle(4, COLORS.outline).setDepth(4);
-      const label = this.track(
-        this.scene.add.text(item.x, visualY - 42, item.type, {
-          fontFamily: "system-ui",
-          fontSize: "13px",
-          color: CSS_COLORS.near,
-          backgroundColor: CSS_COLORS.whiteSoft,
-          padding: { x: 6, y: 3 }
-        })
-      );
-      label.setOrigin(0.5).setDepth(5);
-      register(item.id, item.type, item.x, visualY, [marker, label]);
+      register(item.id, item.type, item.x, visualY, [createVisual(item.type, item.x, visualY)]);
     }
   }
 
@@ -273,19 +362,27 @@ export class LevelLoader {
     if (this.gate) return this.gate;
     const x = this.level.world.width - 180;
     const y = this.findSafeY(x);
-    const arch = this.track(this.scene.add.rectangle(x, y - 82, 116, 164, COLORS.collectBlue, 0.28));
-    arch.setStrokeStyle(12, COLORS.collect).setDepth(3);
-    const label = this.track(
-      this.scene.add.text(x, y - 190, "무지개 게이트", {
-        fontFamily: "system-ui",
-        fontSize: "20px",
-        fontStyle: "700",
-        color: CSS_COLORS.collect,
-        backgroundColor: CSS_COLORS.panel,
-        padding: { x: 10, y: 5 }
-      })
-    );
-    label.setOrigin(0.5).setDepth(5);
+    const key = this.level.assets.objects?.gate;
+    let arch;
+    let label = null;
+    if (key && this.scene.textures.exists(key)) {
+      arch = this.track(this.scene.add.image(x, y - 81, key));
+      arch.setScale(1.45).setDepth(3);
+    } else {
+      arch = this.track(this.scene.add.rectangle(x, y - 82, 116, 164, COLORS.collectBlue, 0.28));
+      arch.setStrokeStyle(12, COLORS.collect).setDepth(3);
+      label = this.track(
+        this.scene.add.text(x, y - 190, "무지개 게이트", {
+          fontFamily: "system-ui",
+          fontSize: "20px",
+          fontStyle: "700",
+          color: CSS_COLORS.collect,
+          backgroundColor: CSS_COLORS.panel,
+          padding: { x: 10, y: 5 }
+        })
+      );
+      label.setOrigin(0.5).setDepth(5);
+    }
     const zone = this.scene.add.zone(x, y - 70, 92, 140);
     this.scene.physics.add.existing(zone, true);
     this.gate = { zone, arch, label };
@@ -341,6 +438,8 @@ export class LevelLoader {
       if (object?.active || object?.scene) object.destroy();
     }
     this.created.length = 0;
+    this.backgroundLayers.length = 0;
+    this.backgroundMood = null;
     this.boss = null;
   }
 }

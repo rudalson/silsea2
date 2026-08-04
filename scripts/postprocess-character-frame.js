@@ -51,7 +51,25 @@ const metadata = await sharp(trimmed).metadata();
 const outputName = parse(output).base.toLowerCase();
 const silseaFrame = outputName.startsWith("silsea_");
 const potatoFrame = outputName.startsWith("potato89_");
-const scale = Math.min(96 / metadata.height, 112 / metadata.width);
+const frameScale = {
+  "dark_cloud_idle_01.png": 0.98,
+  "dark_cloud_idle_02.png": 0.96,
+  "dark_cloud_idle_03.png": 0.98,
+  "dark_cloud_charge_00.png": 0.93,
+  "dark_cloud_charge_01.png": 0.86,
+  "dark_cloud_charge_02.png": 0.79,
+  "dark_cloud_charge_03.png": 0.73,
+  "dark_cloud_attack_00.png": 0.82,
+  "dark_cloud_attack_02.png": 0.92,
+  "dark_cloud_defeated_00.png": 0.92,
+  "dark_cloud_defeated_01.png": 0.84,
+  "dark_cloud_defeated_02.png": 0.74,
+  "dark_cloud_defeated_03.png": 0.64,
+  "potato_king_defeated_05.png": 0.95,
+  "potato_king_defeated_06.png": 0.88,
+  "potato_king_defeated_07.png": 0.80
+}[outputName] ?? 1;
+const scale = Math.min(96 / metadata.height, 112 / metadata.width) * frameScale;
 const width = silseaFrame ? 112 : potatoFrame ? 98 : Math.max(1, Math.round(metadata.width * scale));
 const height = silseaFrame ? 93 : potatoFrame ? 96 : Math.max(1, Math.round(metadata.height * scale));
 const resized = await sharp(trimmed).resize(width, height, { fit: "fill" }).png().toBuffer();
