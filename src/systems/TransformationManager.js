@@ -1,4 +1,3 @@
-import Phaser from "phaser";
 import { COLORS, EVENTS, GAME_HEIGHT, GAME_WIDTH } from "../config/constants.js";
 import { CORE_RULES, FORMS, TRANSFORM_PRESENTATION, stepFlightGauge } from "../data/gameplay.js";
 
@@ -29,7 +28,6 @@ export class TransformationManager {
     this.flightLowSent = false;
     this.lastMode = "normal";
     this.transforming = false;
-    this.transformParticles = new Set();
     this.createVisuals();
   }
 
@@ -127,41 +125,11 @@ export class TransformationManager {
       camera.zoomTo(this.savedCameraZoom ?? 1, Math.ceil(cue.emphasisMs * 0.5), "Sine.InOut", true);
       this.cameraResetTimer = null;
     });
-    this.spawnTransformBurst(cue, FORM_COLORS[form]);
+    this.scene.particleEffects?.emitTransform(form, this.player.x, this.player.y - 52, cue);
 
     this.transformReleaseTimer = this.scene.time.delayedCall(cue.holdMs, () => {
       this.finishTransformPresentation();
     });
-  }
-
-  spawnTransformBurst(cue, color) {
-    for (let index = 0; index < cue.burstCount; index += 1) {
-      const angle = (Math.PI * 2 * index) / cue.burstCount;
-      const distance = 46 + (index % 3) * 12;
-      const particle = this.scene.add.star(
-        this.player.x,
-        this.player.y - 52,
-        4,
-        3,
-        7,
-        index % 2 ? color : COLORS.collect
-      ).setDepth(31).setAlpha(0.95);
-      this.transformParticles.add(particle);
-      this.scene.tweens.add({
-        targets: particle,
-        x: particle.x + Math.cos(angle) * distance,
-        y: particle.y + Math.sin(angle) * distance,
-        rotation: angle + Math.PI,
-        scale: 0.35,
-        alpha: 0,
-        duration: cue.emphasisMs + 100,
-        ease: "Quad.Out",
-        onComplete: () => {
-          this.transformParticles.delete(particle);
-          particle.destroy();
-        }
-      });
-    }
   }
 
   finishTransformPresentation() {
@@ -218,7 +186,7 @@ export class TransformationManager {
 
   updateVisualPositions(now) {
     const direction = this.player.flipX ? -1 : 1;
-    this.horn.setPosition(this.player.x + direction * 18, this.player.y - 82).setFlipX(direction < 0);
+    this.horn.setPosition(this.player.x + direction * 18, this.player.y - 82);
     this.leftWing.setPosition(this.player.x - 28, this.player.y - 50).setRotation(-0.35);
     this.rightWing.setPosition(this.player.x + 28, this.player.y - 50).setRotation(0.35);
     if (this.rainbowOverlay.visible) this.rainbowOverlay.setAlpha(0.07 + Math.sin(now / 120) * 0.025);
@@ -276,8 +244,6 @@ export class TransformationManager {
     this.formVisualTimer?.remove(false);
     this.finishTransformPresentation();
     if (this.savedCameraZoom !== undefined) this.scene.cameras.main.setZoom(this.savedCameraZoom);
-    for (const particle of this.transformParticles) particle.destroy();
-    this.transformParticles.clear();
     this.horn.destroy();
     this.leftWing.destroy();
     this.rightWing.destroy();

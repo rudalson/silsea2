@@ -164,10 +164,10 @@ near 레이어는 오브젝트를 하단 25%에만 배치한다.
 | 에셋 키 | 지시 | Seed | StyleRefs | 상태 |
 |---|---|---:|---|---|
 | `fx_shadow_oval` | 단색 저불투명 타원, 가장자리 1단계 | 610101 | mapping | 대기 |
-| `fx_dust` | 둥근 먼지 입자 4개, 서로 분리 | 610102 | mapping | 대기 |
+| `fx_dust` | 둥근 먼지 입자 4개, 서로 분리 | 610102 | mapping | 완료(코드 파티클) |
 | `fx_item_glow` | 중앙이 빈 둥근 빛 링 | 610103 | mapping | 대기 |
-| `fx_magnet_trail` | 짧은 곡선 별빛 조각 | 610104 | mapping | 대기 |
-| `fx_transform_flash` | 중앙이 빈 별 파동 조각 | 610105 | mapping | 대기 |
+| `fx_magnet_trail` | 짧은 곡선 별빛 조각 | 610104 | mapping | 완료(코드 파티클) |
+| `fx_transform_flash` | 중앙이 빈 별 파동 조각 | 610105 | mapping | 완료(코드 파티클) |
 | `fx_alicorn_overlay` | 화면 타일링 가능한 세 색 무지개 띠, 낮은 불투명도 | 610106 | mapping | 대기 |
 | `fx_attack_marker` | 중앙이 빈 위험 링과 아래 방향 삼각형 | 610107 | mapping | 대기 |
 | `fx_lightning` | 세 갈래의 굵고 뾰족한 번개 | 610108 | mapping | 대기 |

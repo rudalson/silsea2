@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { COLORS } from "../config/constants.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
 import { PlayerStateMachine } from "../systems/PlayerStateMachine.js";
@@ -18,6 +17,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastGroundedAt = -Infinity;
     this.bufferedJumpUntil = -Infinity;
     this.wasGrounded = false;
+    this.airborneLandingSpeed = 0;
     this.fallCuePlayed = false;
     this.lastAbilityMode = "normal";
     this.animationLockedUntil = 0;
@@ -47,6 +47,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!this.body.enable) return;
     if (now < (this.controlLockedUntil ?? 0)) return;
     const grounded = this.body.blocked.down || this.body.touching.down;
+    if (!grounded) this.airborneLandingSpeed = Math.max(this.airborneLandingSpeed, Math.max(0, this.body.velocity.y));
     if (grounded) this.lastGroundedAt = now;
     if (input.jumpPressed) this.bufferedJumpUntil = now + this.tuning.jumpBuffer;
 
@@ -96,7 +97,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (grounded) this.fallCuePlayed = false;
 
     this.stateMachine.updateFromBody(this.body);
-    if (grounded && !this.wasGrounded) this.playLandingFeedback();
+    if (grounded && !this.wasGrounded) {
+      this.playLandingFeedback(this.airborneLandingSpeed);
+      this.airborneLandingSpeed = 0;
+    }
     this.updateCharacterAnimation(ability, now);
     this.wasGrounded = grounded;
   }
@@ -116,7 +120,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  playLandingFeedback() {
+  playLandingFeedback(impactSpeed = 0) {
     this.playCharacterAnimation("land", { lockMs: 200 });
     this.scene.audioManager?.playSfx("sfx_land", { volume: 0.78 });
     this.playScaleFeedback(1.2, 0.8, 80, () => {
@@ -129,18 +133,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       });
     });
 
-    for (const direction of [-1, 1]) {
-      const dust = this.scene.add.circle(this.x + direction * 18, this.y - 4, 5, COLORS.soft, 0.7).setDepth(8);
-      this.scene.tweens.add({
-        targets: dust,
-        x: dust.x + direction * 20,
-        y: dust.y - 12,
-        alpha: 0,
-        scale: 0.4,
-        duration: 260,
-        onComplete: () => dust.destroy()
-      });
-    }
+    this.scene.particleEffects?.emitLanding(this.x, this.y - 4, impactSpeed);
   }
 
   playScaleFeedback(scaleX, scaleY, duration, onComplete) {

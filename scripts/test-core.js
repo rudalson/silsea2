@@ -18,6 +18,7 @@ import {
   stepFlightGauge
 } from "../src/data/gameplay.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
+import { PARTICLE_EFFECTS } from "../src/data/particleEffects.js";
 import { AudioManager, STAR_PITCH_RATES } from "../src/systems/AudioManager.js";
 import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/CameraEffectsManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
@@ -36,6 +37,10 @@ for (const cue of Object.values(TRANSFORM_PRESENTATION)) {
   assert.ok(cue.holdMs > 0 && cue.holdMs <= cue.emphasisMs);
 }
 assert.equal(TRANSFORM_PRESENTATION[FORMS.ALICORN].emphasisMs, 180);
+assert.equal(PARTICLE_EFFECTS.landing.count, 4);
+assert.ok(PARTICLE_EFFECTS.magnet.intervalMs >= 32);
+assert.ok(PARTICLE_EFFECTS.magnet.lateralOffset > 0);
+assert.ok(PARTICLE_EFFECTS.transform.lifespan.max <= 400);
 assert.equal(getCharacterSequenceKey("silsea", "move"), "silsea_run");
 assert.equal(getCharacterSequenceKey("potato89", "move"), "potato89_roll");
 assert.equal(getCharacterAssetKeys("silsea").length, 11);

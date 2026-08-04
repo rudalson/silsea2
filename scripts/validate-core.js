@@ -24,7 +24,8 @@ const [
   menuScene,
   assetManager,
   characterAnimator,
-  enemyAnimator
+  enemyAnimator,
+  particleEffects
 ] = await Promise.all([
   read("src/scenes/GameScene.js"),
   read("src/entities/Player.js"),
@@ -42,7 +43,8 @@ const [
   read("src/scenes/MenuScene.js"),
   read("src/systems/AssetManager.js"),
   read("src/systems/CharacterAnimationManager.js"),
-  read("src/systems/EnemyAnimationManager.js")
+  read("src/systems/EnemyAnimationManager.js"),
+  read("src/systems/ParticleEffectsManager.js")
 ]);
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
@@ -55,6 +57,15 @@ if (Object.values(TRANSFORM_PRESENTATION).some((cue) => cue.emphasisMs < 100 || 
 }
 
 if (!gameScene.includes("TransformationManager") || !gameScene.includes("HealthManager")) fail("GameScene에 핵심 매니저가 연결되지 않음");
+if (!gameScene.includes("ParticleEffectsManager") || !particleEffects.includes("scene.add.particles")) {
+  fail("GameScene에 Phaser 파티클 효과 매니저가 연결되지 않음");
+}
+if (!player.includes("emitLanding") || !gameScene.includes("emitMagnetTrail") || !transformManager.includes("emitTransform")) {
+  fail("착지·자석·변신 파티클 중 실제 런타임 연결이 누락됨");
+}
+if (!particleEffects.includes("generateTexture") || !particleEffects.includes("magnetStates")) {
+  fail("팔레트 고정 런타임 파티클 텍스처 또는 자석 궤적 제어가 없음");
+}
 if (!levelLoader.includes('candidate.type === "boss"')) fail("보스가 section 데이터로 로드되지 않음");
 if (!enemyManager.includes("isOnScreen")) fail("화면 밖 공격 차단이 없음");
 if (!enemyManager.includes("new ObjectPool") || !bossController.includes("new ObjectPool")) fail("반복 오브젝트에 Object Pool이 없음");
@@ -65,6 +76,9 @@ if (!transformManager.includes("body.moves = false") || !transformManager.includ
 }
 if (!transformManager.includes("this.transforming || this.form === FORMS.ALICORN")) {
   fail("변신 정지 중 피격 방지가 연결되지 않음");
+}
+if (transformManager.includes("this.horn.setPosition(this.player.x + direction * 18, this.player.y - 82).setFlipX")) {
+  fail("Shape 기반 뿔에 지원되지 않는 setFlipX 호출이 남아 있음");
 }
 if (!gameScene.includes("CameraEffectsManager") || !bossController.includes("cameraEffects?.shake")) {
   fail("카메라 흔들림이 중앙 CameraEffectsManager를 통하지 않음");
@@ -109,7 +123,7 @@ if ([enemyManager, bossController].some((source) => source.includes("Math.random
 if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {
   fail("현재 Phaser 버전에 없는 Math.MoveTowards 호출이 있음");
 }
-if (/#[0-9a-f]{6}\b|0x[0-9a-f]{6}\b/i.test([gameScene, levelLoader, enemyManager, bossController, transformManager].join("\n"))) {
+if (/#[0-9a-f]{6}\b|0x[0-9a-f]{6}\b/i.test([gameScene, levelLoader, enemyManager, bossController, transformManager, particleEffects].join("\n"))) {
   fail("Core Mechanics 소스에 직접 색상 값이 있음");
 }
 

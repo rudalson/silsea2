@@ -14,6 +14,7 @@ import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
 import { ObjectiveManager } from "../systems/ObjectiveManager.js";
+import { ParticleEffectsManager } from "../systems/ParticleEffectsManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 import { ScoreManager } from "../systems/ScoreManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
@@ -54,6 +55,7 @@ export class GameScene extends Phaser.Scene {
       this.character,
       this.tuning
     );
+    this.particleEffects = new ParticleEffectsManager(this);
     this.createGameplayManagers();
 
     this.bindWorldInteractions();
@@ -235,6 +237,7 @@ export class GameScene extends Phaser.Scene {
     if (!collectible?.active) return;
     collectible.active = false;
     collectible.zone.body.enable = false;
+    this.particleEffects.clearMagnetTrail(collectible.id);
     const multiplier = this.transformationManager.scoreMultiplier;
 
     if (collectible.type === "star") {
@@ -268,10 +271,17 @@ export class GameScene extends Phaser.Scene {
       const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y - 45, collectible.x, collectible.y);
       if (distance > radius) continue;
       collectible.magnetizing = true;
+      const previous = { x: collectible.x, y: collectible.y };
       const speed = (680 * delta) / 1000;
       collectible.x = moveTowards(collectible.x, this.player.x, speed);
       collectible.y = moveTowards(collectible.y, this.player.y - 45, speed);
       for (const visual of collectible.visuals) visual.setPosition(collectible.x, collectible.y);
+      this.particleEffects.emitMagnetTrail(
+        collectible.id,
+        previous,
+        { x: collectible.x, y: collectible.y },
+        this.time.now
+      );
       if (distance <= 38) this.collectItem(collectible);
     }
   }
@@ -322,6 +332,7 @@ export class GameScene extends Phaser.Scene {
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
     this.destroyGameplayManagers();
+    this.particleEffects.reset();
     this.levelLoader.destroy();
     this.levelLoader = new LevelLoader(this, this.level, this.objectiveManager).build();
     this.player.setPosition(position.x, Math.min(position.y, this.levelLoader.findSafeY(position.x) - 2));
@@ -360,6 +371,8 @@ export class GameScene extends Phaser.Scene {
     this.audioManager?.destroy();
     this.cameraEffects?.destroy();
     this.destroyGameplayManagers();
+    this.particleEffects?.destroy();
+    this.particleEffects = null;
     this.levelLoader?.destroy();
   }
 }
