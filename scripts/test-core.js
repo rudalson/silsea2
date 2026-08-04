@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
 import {
   CORE_RULES,
+  FORMS,
+  TRANSFORM_PRESENTATION,
   getMagpieStealAmount,
   getRespawnScoreLoss,
   stepFlightGauge
@@ -19,6 +21,11 @@ assert.equal(CORE_RULES.flightRecoveryMs, 3000);
 assert.equal(CORE_RULES.alicornDurationMs, 12000);
 assert.equal(CORE_RULES.alicornWarningMs, 3000);
 assert.ok(CORE_RULES.bossTelegraphMs >= 700 && CORE_RULES.bossTelegraphMs <= 1000);
+for (const cue of Object.values(TRANSFORM_PRESENTATION)) {
+  assert.ok(cue.emphasisMs >= 100 && cue.emphasisMs <= 180);
+  assert.ok(cue.holdMs > 0 && cue.holdMs <= cue.emphasisMs);
+}
+assert.equal(TRANSFORM_PRESENTATION[FORMS.ALICORN].emphasisMs, 180);
 
 assert.equal(stepFlightGauge(10000, 1000, { flying: true }), 9000);
 assert.equal(stepFlightGauge(0, 3000, { grounded: true }), 10000);
@@ -164,4 +171,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 변신 시간, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 변신 시간·100~180ms 연출, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

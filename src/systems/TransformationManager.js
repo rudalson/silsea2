@@ -1,12 +1,20 @@
 import Phaser from "phaser";
 import { COLORS, EVENTS, GAME_HEIGHT, GAME_WIDTH } from "../config/constants.js";
-import { CORE_RULES, FORMS, stepFlightGauge } from "../data/gameplay.js";
+import { CORE_RULES, FORMS, TRANSFORM_PRESENTATION, stepFlightGauge } from "../data/gameplay.js";
 
 const ITEM_TO_FORM = Object.freeze({
   horn: FORMS.UNICORN,
   wings: FORMS.PEGASUS,
   alicorn: FORMS.ALICORN
 });
+
+const FORM_COLORS = Object.freeze({
+  [FORMS.UNICORN]: COLORS.collect,
+  [FORMS.PEGASUS]: COLORS.collectBlue,
+  [FORMS.ALICORN]: COLORS.collectPink
+});
+
+const toRgb = (color) => [(color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff];
 
 export class TransformationManager {
   constructor(scene, player, levelLoader) {
@@ -20,6 +28,8 @@ export class TransformationManager {
     this.warningSent = false;
     this.flightLowSent = false;
     this.lastMode = "normal";
+    this.transforming = false;
+    this.transformParticles = new Set();
     this.createVisuals();
   }
 
@@ -67,14 +77,87 @@ export class TransformationManager {
     this.leftWing.setVisible(hasWings);
     this.rightWing.setVisible(hasWings);
     this.rainbowOverlay.setVisible(form === FORMS.ALICORN);
-    if (emphasize) {
-      this.scene.cameras.main.flash(150, 245, 223, 79);
-      this.scene.time.timeScale = 0.4;
-      this.scene.time.delayedCall(70, () => {
-        this.scene.time.timeScale = 1;
+    if (emphasize) this.playTransformPresentation(form);
+    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs, emphasize });
+  }
+
+  playTransformPresentation(form) {
+    const cue = TRANSFORM_PRESENTATION[form];
+    if (!cue) return;
+    this.transformReleaseTimer?.remove(false);
+    this.cameraResetTimer?.remove(false);
+
+    if (!this.transforming) {
+      this.transforming = true;
+      this.savedTransformMotion = {
+        x: this.player.body.velocity.x,
+        y: this.player.body.velocity.y,
+        moves: this.player.body.moves
+      };
+      this.savedCameraZoom = this.scene.cameras.main.zoom;
+    }
+
+    this.player.body.moves = false;
+    this.player.setVelocity(0, 0);
+    this.player.controlLockedUntil = Math.max(this.player.controlLockedUntil ?? 0, this.scene.time.now + cue.holdMs);
+    this.player.setTintFill(FORM_COLORS[form]);
+
+    const camera = this.scene.cameras.main;
+    const [red, green, blue] = toRgb(FORM_COLORS[form]);
+    camera.flash(cue.emphasisMs, red, green, blue);
+    camera.zoomTo(cue.zoom, Math.floor(cue.emphasisMs * 0.45), "Sine.Out", true);
+    this.cameraResetTimer = this.scene.time.delayedCall(Math.floor(cue.emphasisMs * 0.5), () => {
+      camera.zoomTo(this.savedCameraZoom ?? 1, Math.ceil(cue.emphasisMs * 0.5), "Sine.InOut", true);
+      this.cameraResetTimer = null;
+    });
+    this.spawnTransformBurst(cue, FORM_COLORS[form]);
+
+    this.transformReleaseTimer = this.scene.time.delayedCall(cue.holdMs, () => {
+      this.finishTransformPresentation();
+    });
+  }
+
+  spawnTransformBurst(cue, color) {
+    for (let index = 0; index < cue.burstCount; index += 1) {
+      const angle = (Math.PI * 2 * index) / cue.burstCount;
+      const distance = 46 + (index % 3) * 12;
+      const particle = this.scene.add.star(
+        this.player.x,
+        this.player.y - 52,
+        4,
+        3,
+        7,
+        index % 2 ? color : COLORS.collect
+      ).setDepth(31).setAlpha(0.95);
+      this.transformParticles.add(particle);
+      this.scene.tweens.add({
+        targets: particle,
+        x: particle.x + Math.cos(angle) * distance,
+        y: particle.y + Math.sin(angle) * distance,
+        rotation: angle + Math.PI,
+        scale: 0.35,
+        alpha: 0,
+        duration: cue.emphasisMs + 100,
+        ease: "Quad.Out",
+        onComplete: () => {
+          this.transformParticles.delete(particle);
+          particle.destroy();
+        }
       });
     }
-    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs, emphasize });
+  }
+
+  finishTransformPresentation() {
+    if (!this.transforming) return;
+    const motion = this.savedTransformMotion;
+    if (this.player?.body) {
+      this.player.body.moves = motion?.moves ?? true;
+      if (this.player.body.enable) this.player.setVelocity(motion?.x ?? 0, motion?.y ?? 0);
+    }
+    this.player?.clearTint();
+    this.transforming = false;
+    this.savedTransformMotion = null;
+    this.transformReleaseTimer = null;
   }
 
   prepareMovement(input, delta) {
@@ -150,7 +233,7 @@ export class TransformationManager {
   }
 
   get invulnerable() {
-    return this.form === FORMS.ALICORN;
+    return this.transforming || this.form === FORMS.ALICORN;
   }
 
   get canBreakObstacles() {
@@ -171,7 +254,12 @@ export class TransformationManager {
   }
 
   destroy() {
-    this.scene.time.timeScale = 1;
+    this.transformReleaseTimer?.remove(false);
+    this.cameraResetTimer?.remove(false);
+    this.finishTransformPresentation();
+    if (this.savedCameraZoom !== undefined) this.scene.cameras.main.setZoom(this.savedCameraZoom);
+    for (const particle of this.transformParticles) particle.destroy();
+    this.transformParticles.clear();
     this.horn.destroy();
     this.leftWing.destroy();
     this.rightWing.destroy();

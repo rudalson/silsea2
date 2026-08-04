@@ -20,6 +20,12 @@ export const CORE_RULES = Object.freeze({
   bossTelegraphMs: 820
 });
 
+export const TRANSFORM_PRESENTATION = Object.freeze({
+  [FORMS.UNICORN]: Object.freeze({ holdMs: 110, emphasisMs: 130, zoom: 1.025, burstCount: 8 }),
+  [FORMS.PEGASUS]: Object.freeze({ holdMs: 125, emphasisMs: 150, zoom: 1.035, burstCount: 10 }),
+  [FORMS.ALICORN]: Object.freeze({ holdMs: 150, emphasisMs: 180, zoom: 1.05, burstCount: 14 })
+});
+
 export const SCORE_VALUES = Object.freeze({
   star: 10,
   percent_small: 25,
