@@ -3,6 +3,16 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { PALETTE } from "../data/palette.js";
+import {
+  getCharacterAnimationSpec,
+  getCharacterAssetKeys,
+  getCharacterSequenceNames
+} from "../src/data/characterAnimations.js";
+import {
+  getEnemyAnimationSpec,
+  getEnemyAssetKeys,
+  getEnemySequenceNames
+} from "../src/data/enemyAnimations.js";
 import { colorDistance, hexToRgb, paletteRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -127,6 +137,8 @@ const requiredAudioKeys = [
   "sfx_ui_select", "sfx_pause", "bgm_field", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
 ];
 let validatedAudioCount = 0;
+let validatedCharacterSheetCount = 0;
+let validatedEnemySheetCount = 0;
 
 for (const asset of assets) {
   const { name, path } = asset;
@@ -239,6 +251,70 @@ for (const asset of assets) {
     if (asset.kind !== "item" && Math.abs(baseline - 16) > 2) errors.push(`${name}: 발 기준선 ${baseline}px (16px ±2 아님)`);
     if (minX < 8 || info.width - maxX - 1 < 8) errors.push(`${name}: 좌우 여백 8px 미만`);
   }
+}
+
+try {
+  const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
+  const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
+  for (const characterId of ["silsea", "potato89"]) {
+    const expectedKeys = new Set(getCharacterAssetKeys(characterId));
+    for (const sequence of getCharacterSequenceNames(characterId)) {
+      const spec = getCharacterAnimationSpec(characterId, sequence);
+      const entry = manifestEntries.get(spec.textureKey);
+      if (!entry || entry.type !== "spritesheet") {
+        errors.push(`${spec.textureKey}: manifest spritesheet 등록 없음`);
+        continue;
+      }
+      expectedKeys.delete(entry.key);
+      if (entry.frames !== spec.durations.length) {
+        errors.push(`${entry.key}: manifest ${entry.frames}프레임과 duration ${spec.durations.length}개 불일치`);
+      }
+      try {
+        const metadata = await sharp(join(root, entry.url.slice(1))).metadata();
+        if (metadata.width !== entry.frameWidth * entry.frames || metadata.height !== entry.frameHeight) {
+          errors.push(`${entry.key}: 시트 ${metadata.width}x${metadata.height}, 예상 ${entry.frameWidth * entry.frames}x${entry.frameHeight}`);
+        }
+        validatedCharacterSheetCount += 1;
+      } catch (error) {
+        errors.push(`${entry.key}: 캐릭터 시트를 읽을 수 없음 (${error.message})`);
+      }
+    }
+    if (expectedKeys.size) errors.push(`${characterId}: 검증하지 못한 캐릭터 키 ${[...expectedKeys].join(", ")}`);
+  }
+} catch (error) {
+  errors.push(`manifest.json: 캐릭터 시트 검증 불가 (${error.message})`);
+}
+
+try {
+  const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
+  const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
+  for (const enemyType of ["raw_potato", "spike_pumpkin", "dark_cloud", "magpie", "potato_king"]) {
+    const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
+    for (const sequence of getEnemySequenceNames(enemyType)) {
+      const spec = getEnemyAnimationSpec(enemyType, sequence);
+      const entry = manifestEntries.get(spec.textureKey);
+      if (!entry || entry.type !== "spritesheet") {
+        errors.push(`${spec.textureKey}: manifest spritesheet 등록 없음`);
+        continue;
+      }
+      expectedKeys.delete(entry.key);
+      if (entry.frames !== spec.durations.length) {
+        errors.push(`${entry.key}: manifest ${entry.frames}프레임과 duration ${spec.durations.length}개 불일치`);
+      }
+      try {
+        const metadata = await sharp(join(root, entry.url.slice(1))).metadata();
+        if (metadata.width !== entry.frameWidth * entry.frames || metadata.height !== entry.frameHeight) {
+          errors.push(`${entry.key}: 시트 ${metadata.width}x${metadata.height}, 예상 ${entry.frameWidth * entry.frames}x${entry.frameHeight}`);
+        }
+        validatedEnemySheetCount += 1;
+      } catch (error) {
+        errors.push(`${entry.key}: 적 시트를 읽을 수 없음 (${error.message})`);
+      }
+    }
+    if (expectedKeys.size) errors.push(`${enemyType}: 검증하지 못한 적 키 ${[...expectedKeys].join(", ")}`);
+  }
+} catch (error) {
+  errors.push(`manifest.json: 적 시트 검증 불가 (${error.message})`);
 }
 
 try {
@@ -393,4 +469,4 @@ if (errors.length) {
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
-console.log(`캐릭터 ${characterAssets.length}개·적 ${enemyAssets.length}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
+console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);

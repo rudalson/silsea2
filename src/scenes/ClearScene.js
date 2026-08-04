@@ -4,6 +4,7 @@ import { getCharacter } from "../data/characters.js";
 import { getLevel, getNextLevel } from "../data/levels/index.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { AudioManager } from "../systems/AudioManager.js";
+import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
 import { InputManager } from "../systems/InputManager.js";
 
 export class ClearScene extends Phaser.Scene {
@@ -45,8 +46,12 @@ export class ClearScene extends Phaser.Scene {
       strokeThickness: 8
     }).setOrigin(0.5);
 
-    const texture = AssetManager.ensurePlayerTexture(this, character);
-    this.add.image(GAME_WIDTH / 2, 290, texture).setScale(1.9).setOrigin(0.5);
+    CharacterAnimationManager.register(this, character);
+    const victory = CharacterAnimationManager.getSpec(character, "victory");
+    const hasArt = Boolean(victory && this.textures.exists(victory.textureKey));
+    const texture = hasArt ? victory.textureKey : AssetManager.ensurePlayerTexture(this, character);
+    const portrait = this.add.sprite(GAME_WIDTH / 2, 290, texture).setScale(1.9).setOrigin(0.5);
+    if (hasArt) CharacterAnimationManager.play(portrait, character, "victory");
     this.add.text(GAME_WIDTH / 2, 410, `${character.name} · ${level.name}`, {
       fontFamily: "system-ui",
       fontSize: "27px",

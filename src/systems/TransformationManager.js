@@ -71,14 +71,31 @@ export class TransformationManager {
 
   setForm(form, emphasize = false) {
     this.form = form;
-    const hasHorn = form === FORMS.UNICORN || form === FORMS.ALICORN;
-    const hasWings = form === FORMS.PEGASUS || form === FORMS.ALICORN;
+    this.formVisualTimer?.remove(false);
+    this.formVisualTimer = null;
+    this.rainbowOverlay.setVisible(form === FORMS.ALICORN);
+    const animationMs = emphasize ? this.player.playTransformAnimation?.(form) ?? 0 : 0;
+    if (animationMs > 0) {
+      this.horn.setVisible(false);
+      this.leftWing.setVisible(false);
+      this.rightWing.setVisible(false);
+      this.formVisualTimer = this.scene.time.delayedCall(animationMs, () => {
+        this.syncFormVisuals();
+        this.formVisualTimer = null;
+      });
+    } else {
+      this.syncFormVisuals();
+    }
+    if (emphasize) this.playTransformPresentation(form);
+    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs, emphasize });
+  }
+
+  syncFormVisuals() {
+    const hasHorn = this.form === FORMS.UNICORN || this.form === FORMS.ALICORN;
+    const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
     this.horn.setVisible(hasHorn);
     this.leftWing.setVisible(hasWings);
     this.rightWing.setVisible(hasWings);
-    this.rainbowOverlay.setVisible(form === FORMS.ALICORN);
-    if (emphasize) this.playTransformPresentation(form);
-    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs, emphasize });
   }
 
   playTransformPresentation(form) {
@@ -256,6 +273,7 @@ export class TransformationManager {
   destroy() {
     this.transformReleaseTimer?.remove(false);
     this.cameraResetTimer?.remove(false);
+    this.formVisualTimer?.remove(false);
     this.finishTransformPresentation();
     if (this.savedCameraZoom !== undefined) this.scene.cameras.main.setZoom(this.savedCameraZoom);
     for (const particle of this.transformParticles) particle.destroy();

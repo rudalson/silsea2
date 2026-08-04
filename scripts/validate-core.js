@@ -7,7 +7,25 @@ const read = (path) => readFile(new URL(path, `${new URL("../", import.meta.url)
 const errors = [];
 const fail = (message) => errors.push(message);
 
-const [gameScene, player, levelLoader, enemyManager, bossController, transformManager, cameraEffects, uiScene, inputManager] = await Promise.all([
+const [
+  gameScene,
+  player,
+  levelLoader,
+  enemyManager,
+  bossController,
+  transformManager,
+  cameraEffects,
+  uiScene,
+  inputManager,
+  bootScene,
+  preloadScene,
+  characterSelectScene,
+  clearScene,
+  menuScene,
+  assetManager,
+  characterAnimator,
+  enemyAnimator
+] = await Promise.all([
   read("src/scenes/GameScene.js"),
   read("src/entities/Player.js"),
   read("src/systems/LevelLoader.js"),
@@ -16,7 +34,15 @@ const [gameScene, player, levelLoader, enemyManager, bossController, transformMa
   read("src/systems/TransformationManager.js"),
   read("src/systems/CameraEffectsManager.js"),
   read("src/scenes/UIScene.js"),
-  read("src/systems/InputManager.js")
+  read("src/systems/InputManager.js"),
+  read("src/scenes/BootScene.js"),
+  read("src/scenes/PreloadScene.js"),
+  read("src/scenes/CharacterSelectScene.js"),
+  read("src/scenes/ClearScene.js"),
+  read("src/scenes/MenuScene.js"),
+  read("src/systems/AssetManager.js"),
+  read("src/systems/CharacterAnimationManager.js"),
+  read("src/systems/EnemyAnimationManager.js")
 ]);
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
@@ -52,6 +78,29 @@ if (!cameraEffects.includes("screenShakeEnabled") || !cameraEffects.includes("sh
 if (!uiScene.includes("toggleScreenShake") || !inputManager.includes("shakeTogglePressed")) {
   fail("HUD 또는 키보드 화면 흔들림 토글이 연결되지 않음");
 }
+if (!bootScene.includes("queueCharacterPortraits") || !preloadScene.includes("queueCharacterAssets")) {
+  fail("선택 화면 idle 또는 선택 캐릭터 전체 시트 프리로드가 없음");
+}
+if (!assetManager.includes("getCharacterAssetKeys") || !assetManager.includes("queueManifestAsset")) {
+  fail("manifest 기반 캐릭터 에셋 로딩 경로가 없음");
+}
+if (!characterSelectScene.includes("CharacterAnimationManager.play") || !clearScene.includes('"victory"')) {
+  fail("선택 또는 클리어 화면에 실제 캐릭터 애니메이션이 없음");
+}
+if (!player.includes("usesCharacterArt") || !player.includes("updateCharacterAnimation") || !characterAnimator.includes("frameRate: 1000")) {
+  fail("Player 실제 캐릭터 애니메이션 또는 프레임별 duration 등록이 없음");
+}
+if (!transformManager.includes("playTransformAnimation") || !gameScene.includes("playVictoryAnimation")) {
+  fail("변신 또는 스테이지 클리어 애니메이션이 Player에 연결되지 않음");
+}
+if (!preloadScene.includes("queueEnemyAssets") || !levelLoader.includes("EnemyAnimationManager.play")) {
+  fail("레벨 적·보스 시트 프리로드 또는 실제 스프라이트 생성 경로가 없음");
+}
+if (!enemyManager.includes('"warning"') || !enemyManager.includes('"defeated"') || !bossController.includes('"hurt"')) {
+  fail("적 경고·처치 또는 보스 피격 애니메이션 상태 연결이 없음");
+}
+if (!enemyAnimator.includes("frameRate: 1000")) fail("적 프레임별 duration 등록이 없음");
+if (menuScene.includes("GRAYBOX")) fail("메뉴에 Graybox 표기가 남아 있음");
 if (!levelLoader.includes("add.tileSprite") || !levelLoader.includes("setBackgroundMood")) {
   fail("패럴랙스 배경 TileSprite 또는 무드 전환이 없음");
 }

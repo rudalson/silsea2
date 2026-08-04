@@ -23,6 +23,7 @@ export class HealthManager {
     this.objectiveManager.recordDamage();
     this.invulnerableUntil = now + CORE_RULES.invulnerableMs;
     this.player.controlLockedUntil = now + CORE_RULES.hurtLockMs;
+    this.player.playHurtAnimation?.();
     const direction = this.player.x < sourceX ? -1 : 1;
     this.player.setVelocity(direction * 300, -260);
     this.player.setTintFill(COLORS.danger);

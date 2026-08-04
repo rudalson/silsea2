@@ -286,6 +286,7 @@ export class GameScene extends Phaser.Scene {
     this.audioManager.playSfx("sfx_clear", { randomizeRate: false });
     this.player.setVelocity(0, 0);
     this.player.body.enable = false;
+    this.player.playVictoryAnimation?.();
     this.cameras.main.flash(260, 245, 223, 79);
     const achieved = this.objectiveManager
       .getSnapshot()

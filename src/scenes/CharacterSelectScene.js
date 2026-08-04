@@ -3,6 +3,7 @@ import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../conf
 import { CHARACTER_LIST } from "../data/characters.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { AudioManager } from "../systems/AudioManager.js";
+import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
 import { InputManager } from "../systems/InputManager.js";
 
 export class CharacterSelectScene extends Phaser.Scene {
@@ -28,8 +29,12 @@ export class CharacterSelectScene extends Phaser.Scene {
       const x = GAME_WIDTH / 2 + (index - 0.5) * 360;
       const card = this.add.rectangle(x, GAME_HEIGHT / 2 + 25, 300, 390, COLORS.bgMid ?? COLORS.mid, 0.85)
         .setStrokeStyle(5, COLORS.outline);
-      const texture = AssetManager.ensurePlayerTexture(this, character);
-      const portrait = this.add.image(x, GAME_HEIGHT / 2 - 25, texture).setScale(1.65).setOrigin(0.5);
+      CharacterAnimationManager.register(this, character);
+      const idle = CharacterAnimationManager.getSpec(character, "idle");
+      const hasArt = Boolean(idle && this.textures.exists(idle.textureKey));
+      const texture = hasArt ? idle.textureKey : AssetManager.ensurePlayerTexture(this, character);
+      const portrait = this.add.sprite(x, GAME_HEIGHT / 2 - 25, texture).setScale(1.65).setOrigin(0.5);
+      if (hasArt) CharacterAnimationManager.play(portrait, character, "idle");
       const name = this.add.text(x, GAME_HEIGHT / 2 + 145, character.name, {
         fontFamily: "system-ui",
         fontSize: "27px",

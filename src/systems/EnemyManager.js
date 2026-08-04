@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { COLORS } from "../config/constants.js";
 import { SCORE_VALUES } from "../data/gameplay.js";
+import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
 
 export class EnemyManager {
@@ -133,7 +134,8 @@ export class EnemyManager {
     const patrol = enemy.getData("patrol") ?? 160;
     if (enemy.x <= spawnX - patrol) enemy.body.setVelocityX(72);
     if (enemy.x >= spawnX + patrol) enemy.body.setVelocityX(-72);
-    enemy.setRotation(enemy.rotation + enemy.body.velocity.x * 0.0008);
+    if (enemy.getData("usesArt")) EnemyAnimationManager.play(enemy, "move");
+    else enemy.setRotation(enemy.rotation + enemy.body.velocity.x * 0.0008);
   }
 
   updateDarkCloud(enemy, now) {
@@ -148,6 +150,7 @@ export class EnemyManager {
       const targetY = this.levelLoader.findSafeY(targetX);
       enemy.setData({ state: "telegraph", stateUntil: now + 700, targetX, targetY });
       enemy.setTintFill(COLORS.collectBlue);
+      EnemyAnimationManager.play(enemy, "warning");
       this.scene.audioManager?.playSfx("sfx_cloud_charge", { randomizeRate: false });
       this.showTargetMarker(enemy, targetX, targetY - 5, COLORS.dangerAlt);
     } else if (state === "telegraph") {
@@ -159,12 +162,14 @@ export class EnemyManager {
           expiresAt: now + 170
         });
         this.scene.audioManager?.playSfx("sfx_lightning", { randomizeRate: false });
+        EnemyAnimationManager.play(enemy, "attack", false);
         enemy.clearTint().setScale(1);
         enemy.getData("targetMarker")?.setVisible(false);
         enemy.setData({ state: "cooldown", stateUntil: now + 1500 });
       }
     } else if (state === "cooldown" && now >= enemy.getData("stateUntil")) {
       enemy.setData("state", "idle");
+      EnemyAnimationManager.play(enemy, "idle");
     }
   }
 
@@ -180,6 +185,7 @@ export class EnemyManager {
       const targetY = this.levelLoader.findSafeY(targetX) - 28;
       enemy.setData({ state: "telegraph", stateUntil: now + 650, targetX, targetY });
       enemy.setTintFill(COLORS.danger);
+      EnemyAnimationManager.play(enemy, "warning");
       this.scene.audioManager?.playSfx("sfx_magpie_warning", { randomizeRate: false });
       this.showTargetMarker(enemy, targetX, targetY + 24, COLORS.danger);
     } else if (state === "telegraph") {
@@ -189,17 +195,20 @@ export class EnemyManager {
         enemy.body.setVelocity(Math.cos(angle) * 620, Math.sin(angle) * 620);
         enemy.setData({ state: "dive", stateUntil: now + 620, activeAttack: true });
         enemy.clearTint();
+        EnemyAnimationManager.play(enemy, "attack");
       }
     } else if (state === "dive" && now >= enemy.getData("stateUntil")) {
       enemy.body.setVelocity(0, 0);
       enemy.setRotation(0.35);
       enemy.setData({ state: "stunned", stateUntil: now + 1100, activeAttack: false });
+      EnemyAnimationManager.play(enemy, "stunned");
     } else if (state === "stunned" && now >= enemy.getData("stateUntil")) {
       enemy.setPosition(enemy.getData("spawnX"), enemy.getData("spawnY")).setRotation(0);
       enemy.getData("targetMarker")?.setVisible(false);
       enemy.setData({ state: "cooldown", stateUntil: now + 1300 });
     } else if (state === "cooldown" && now >= enemy.getData("stateUntil")) {
       enemy.setData("state", "idle");
+      EnemyAnimationManager.play(enemy, "idle");
     }
   }
 
@@ -235,9 +244,13 @@ export class EnemyManager {
     if (!hazard.active || hazard.getData("destroyed")) return;
     if (this.transformationManager.canBreakObstacles) {
       hazard.setData("destroyed", true);
-      hazard.disableBody?.(true, true);
       hazard.body.enable = false;
-      hazard.setVisible(false).setActive(false);
+      const defeated = hazard.getData("usesArt") ? EnemyAnimationManager.play(hazard, "defeated", false) : null;
+      if (defeated) {
+        this.scene.time.delayedCall(defeated.durationMs, () => hazard.setVisible(false).setActive(false));
+      } else {
+        hazard.setVisible(false).setActive(false);
+      }
       this.scoreManager.defeat("spike_pumpkin", this.transformationManager.scoreMultiplier);
       this.scene.audioManager?.playSfx("sfx_enemy_defeat");
       return;
@@ -248,9 +261,13 @@ export class EnemyManager {
   defeatEnemy(enemy, type) {
     enemy.getData("targetMarker")?.setVisible(false);
     enemy.getData("label")?.setVisible(false);
-    enemy.disableBody?.(true, true);
     enemy.body.enable = false;
-    enemy.setVisible(false).setActive(false);
+    const defeated = enemy.getData("usesArt") ? EnemyAnimationManager.play(enemy, "defeated", false) : null;
+    if (defeated) {
+      this.scene.time.delayedCall(defeated.durationMs, () => enemy.setVisible(false).setActive(false));
+    } else {
+      enemy.setVisible(false).setActive(false);
+    }
     this.scoreManager.defeat(type, this.transformationManager.scoreMultiplier);
     this.scene.audioManager?.playSfx("sfx_enemy_defeat");
     if (type === "dark_cloud" || type === "magpie") this.scene.cameraEffects?.shake("enemyDefeat");
@@ -286,6 +303,7 @@ export class EnemyManager {
     enemy.clearTint().setScale(1);
     enemy.getData("targetMarker")?.setVisible(false);
     enemy.setData("state", "idle");
+    EnemyAnimationManager.play(enemy, "idle");
   }
 
   isOnScreen(object) {

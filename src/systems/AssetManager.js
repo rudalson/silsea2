@@ -1,5 +1,7 @@
 import manifest from "../../assets/manifest.json";
 import { COLORS } from "../config/constants.js";
+import { getCharacterAssetKeys, getCharacterSequenceKey } from "../data/characterAnimations.js";
+import { getEnemyAssetKeys } from "../data/enemyAnimations.js";
 
 const entries = new Map(manifest.assets.map((asset) => [asset.key, asset]));
 const audioEntries = manifest.assets.filter((asset) => asset.type === "audio");
@@ -12,25 +14,56 @@ export class AssetManager {
     AssetManager.queueAudioAssets(scene);
 
     for (const key of new Set(AssetManager.collectManifestKeys(level.assets))) {
-      const entry = entries.get(key);
-      const url = entry?.url ?? entry?.file;
-      if (!url || entry.type === "placeholder") continue;
-      if (entry.type === "image") scene.load.image(key, url);
-      if (entry.type === "atlas") scene.load.atlas(key, url, entry.atlasUrl);
-      if (entry.type === "spritesheet") {
-        scene.load.spritesheet(key, url, {
-          frameWidth: entry.frameWidth,
-          frameHeight: entry.frameHeight,
-          endFrame: entry.frames - 1
-        });
-      }
+      AssetManager.queueManifestAsset(scene, key);
     }
+  }
+
+  static queueCharacterPortraits(scene) {
+    for (const characterId of ["silsea", "potato89"]) {
+      AssetManager.queueManifestAsset(scene, getCharacterSequenceKey(characterId, "idle"));
+    }
+  }
+
+  static queueCharacterAssets(scene, characterId) {
+    for (const key of getCharacterAssetKeys(characterId)) AssetManager.queueManifestAsset(scene, key);
+  }
+
+  static queueEnemyAssets(scene, level) {
+    const types = new Set(level.enemies.map((enemy) => enemy.type));
+    for (const hazard of level.hazards) {
+      if (hazard.type === "spike_pumpkin") types.add(hazard.type);
+    }
+    const boss = level.sections.find((section) => section.type === "boss")?.boss?.key;
+    if (boss) types.add(boss);
+    for (const type of types) {
+      for (const key of getEnemyAssetKeys(type)) AssetManager.queueManifestAsset(scene, key);
+    }
+  }
+
+  static queueManifestAsset(scene, key) {
+    const entry = entries.get(key);
+    const url = entry?.url ?? entry?.file;
+    if (!entry || !url || entry.type === "placeholder") return false;
+    if (entry.type === "audio") {
+      if (!scene.cache.audio.exists(key)) scene.load.audio(key, url);
+      return true;
+    }
+    if (scene.textures.exists(key)) return true;
+    if (entry.type === "image") scene.load.image(key, url);
+    if (entry.type === "atlas") scene.load.atlas(key, url, entry.atlasUrl);
+    if (entry.type === "spritesheet") {
+      scene.load.spritesheet(key, url, {
+        frameWidth: entry.frameWidth,
+        frameHeight: entry.frameHeight,
+        endFrame: entry.frames - 1
+      });
+    }
+    return true;
   }
 
   static queueAudioAssets(scene) {
     for (const entry of audioEntries) {
-      const url = entry.url ?? entry.file;
-      if (url && !scene.cache.audio.exists(entry.key)) scene.load.audio(entry.key, url);
+      AssetManager.queueManifestAsset(scene, entry.key);
     }
   }
 

@@ -25,7 +25,7 @@ export class MenuScene extends Phaser.Scene {
       strokeThickness: 8
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, 238, "PHASE 1 · GRAYBOX", {
+    this.add.text(GAME_WIDTH / 2, 238, "2D CEL CARTOON ACTION", {
       fontFamily: "system-ui",
       fontSize: "22px",
       fontStyle: "700",

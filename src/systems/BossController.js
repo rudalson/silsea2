@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { COLORS, EVENTS } from "../config/constants.js";
 import { CORE_RULES } from "../data/gameplay.js";
+import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
 import { SeededRandom } from "./SeededRandom.js";
 
@@ -97,6 +98,12 @@ export class BossController {
     this.stateUntil = now + telegraphMs;
     this.boss.setData("vulnerable", false);
     this.boss.setTintFill(COLORS.danger);
+    EnemyAnimationManager.play(this.boss, "jump", false);
+    this.animationTimer?.remove(false);
+    this.animationTimer = this.scene.time.delayedCall(Math.floor(telegraphMs * 0.46), () => {
+      if (this.state === "telegraph") EnemyAnimationManager.play(this.boss, "fall", false);
+      this.animationTimer = null;
+    });
     this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
     this.telegraphShadow.setVisible(true).setAlpha(0.2);
     this.scene.tweens.add({
@@ -128,6 +135,14 @@ export class BossController {
 
     this.boss.clearTint().setY(this.baseY);
     this.telegraphShadow.setVisible(false).setScale(1).setAlpha(0.2);
+    const landAnimation = EnemyAnimationManager.play(this.boss, "land", false);
+    this.animationTimer?.remove(false);
+    if (landAnimation) {
+      this.animationTimer = this.scene.time.delayedCall(landAnimation.durationMs, () => {
+        if (this.state === "vulnerable") EnemyAnimationManager.play(this.boss, "attack", false);
+        this.animationTimer = null;
+      });
+    }
     this.scene.audioManager?.playSfx("sfx_boss_land", { randomizeRate: false });
     this.scene.cameraEffects?.shake(phase === 1 ? "bossLandLight" : "bossLand");
     directions.forEach((direction, index) => {
@@ -150,6 +165,7 @@ export class BossController {
     this.weakness.setVisible(false);
     this.state = "idle";
     this.stateUntil = now + 700;
+    EnemyAnimationManager.play(this.boss, "idle");
   }
 
   handleBossHit(hp) {
@@ -157,6 +173,9 @@ export class BossController {
     this.boss?.setData("vulnerable", false);
     this.weakness?.setVisible(false);
     this.projectilePool?.releaseAll();
+    this.animationTimer?.remove(false);
+    this.animationTimer = null;
+    EnemyAnimationManager.play(this.boss, "hurt", false);
     if (hp > 0) {
       this.state = "idle";
       this.stateUntil = this.scene.time.now + 850;
@@ -167,9 +186,13 @@ export class BossController {
     this.defeated = true;
     this.state = "defeated";
     this.projectilePool?.releaseAll();
+    this.animationTimer?.remove(false);
+    this.animationTimer = null;
     this.telegraphShadow?.setVisible(false);
     this.weakness?.setVisible(false);
     this.scene.tweens.killTweensOf(this.boss);
+    const defeated = EnemyAnimationManager.play(this.boss, "defeated", false);
+    if (defeated) this.scene.time.delayedCall(defeated.durationMs, () => this.boss?.setActive(false));
   }
 
   cancelAttack() {
@@ -180,6 +203,7 @@ export class BossController {
     this.telegraphShadow.setVisible(false).setScale(1);
     this.state = "idle";
     this.stateUntil = this.scene.time.now + 500;
+    EnemyAnimationManager.play(this.boss, "idle");
   }
 
   isOnScreen(object, margin = 0) {
@@ -193,6 +217,7 @@ export class BossController {
     if (!this.boss) return;
     this.scene.events.off(EVENTS.BOSS_HIT, this.onBossHit);
     this.scene.events.off(EVENTS.BOSS_DEFEATED, this.onBossDefeated);
+    this.animationTimer?.remove(false);
     this.scene.tweens.killTweensOf(this.boss);
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;

@@ -2,6 +2,7 @@ import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
 import { ENEMY_DEFINITIONS } from "../data/enemies.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
 import { AssetManager } from "./AssetManager.js";
+import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
 const ITEM_SCALES = Object.freeze({
   star: 0.65,
@@ -249,20 +250,33 @@ export class LevelLoader {
   createEnemyMarkers() {
     for (const enemy of this.level.enemies) {
       const definition = ENEMY_DEFINITIONS[enemy.type];
-      const marker = this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
-      marker.setStrokeStyle(4, COLORS.outline).setDepth(3);
-      this.scene.physics.add.existing(marker);
-      marker.body.setSize(50, 46, true);
+      EnemyAnimationManager.register(this.scene, enemy.type);
+      const idle = EnemyAnimationManager.getSpec(enemy.type, "idle");
+      const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
+      const marker = usesArt
+        ? this.track(this.scene.physics.add.sprite(enemy.x, enemy.y, idle.textureKey))
+        : this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
+      if (usesArt) {
+        marker.setOrigin(0.5, 112 / 128).setDepth(3);
+        marker.body.setSize(50, 46, false);
+        marker.body.setOffset(39, 112 - 46);
+      } else {
+        marker.setStrokeStyle(4, COLORS.outline).setDepth(3);
+        this.scene.physics.add.existing(marker);
+        marker.body.setSize(50, 46, true);
+      }
       marker.body.setAllowGravity(enemy.type === "raw_potato");
       marker.setDataEnabled();
       marker.setData({
         ...enemy,
         spawnX: enemy.x,
-        spawnY: enemy.y - 28,
+        spawnY: marker.y,
         state: "idle",
         stateUntil: 0,
-        activeAttack: false
+        activeAttack: false,
+        usesArt
       });
+      if (usesArt) EnemyAnimationManager.play(marker, enemy.type === "raw_potato" ? "move" : "idle");
       const label = this.track(
         this.scene.add.text(enemy.x, enemy.y - 70, enemy.type, {
           align: "center",
@@ -273,7 +287,7 @@ export class LevelLoader {
           padding: { x: 5, y: 3 }
         })
       );
-      label.setOrigin(0.5).setDepth(4);
+      label.setOrigin(0.5).setDepth(4).setVisible(!usesArt);
       marker.setData("label", label);
       this.enemies.push(marker);
     }
@@ -281,14 +295,20 @@ export class LevelLoader {
 
   createHazards() {
     for (const hazard of this.level.hazards.filter((candidate) => candidate.type === "spike_pumpkin")) {
-      const marker = this.track(
-        this.scene.add.triangle(hazard.x, hazard.y, 0, 52, 28, 0, 56, 52, COLORS.danger)
-      );
-      marker.setOrigin(0.5, 1).setStrokeStyle(4, COLORS.outline).setDepth(3);
+      EnemyAnimationManager.register(this.scene, hazard.type);
+      const idle = EnemyAnimationManager.getSpec(hazard.type, "idle");
+      const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
+      const marker = usesArt
+        ? this.track(this.scene.add.sprite(hazard.x, hazard.y, idle.textureKey))
+        : this.track(this.scene.add.triangle(hazard.x, hazard.y, 0, 52, 28, 0, 56, 52, COLORS.danger));
+      if (usesArt) marker.setOrigin(0.5, 112 / 128).setDepth(3);
+      else marker.setOrigin(0.5, 1).setStrokeStyle(4, COLORS.outline).setDepth(3);
       this.scene.physics.add.existing(marker, true);
-      marker.body.setSize(48, 48, true);
+      marker.body.setSize(48, 48, false);
+      if (usesArt) marker.body.setOffset(40, 112 - 48);
       marker.setDataEnabled();
-      marker.setData({ ...hazard, destroyed: false });
+      marker.setData({ ...hazard, destroyed: false, usesArt });
+      if (usesArt) EnemyAnimationManager.play(marker, "idle");
       this.hazards.push(marker);
     }
   }
@@ -296,14 +316,23 @@ export class LevelLoader {
   createBoss() {
     const section = this.level.sections.find((candidate) => candidate.type === "boss");
     if (!section?.boss) return;
-    const key = `graybox-${section.boss.key}`;
-    AssetManager.ensurePlaceholder(this.scene, key, { width: 150, height: 150, color: COLORS.dangerAlt });
+    EnemyAnimationManager.register(this.scene, section.boss.key);
+    const idle = EnemyAnimationManager.getSpec(section.boss.key, "idle");
+    const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
+    const key = usesArt ? idle.textureKey : `graybox-${section.boss.key}`;
+    if (!usesArt) AssetManager.ensurePlaceholder(this.scene, key, { width: 150, height: 150, color: COLORS.dangerAlt });
     const x = section.xEnd - 560;
     const y = this.findSafeY(x);
     const boss = this.scene.physics.add.sprite(x, y, key);
-    boss.setOrigin(0.5, 1).setImmovable(true).setDepth(4);
+    boss.setOrigin(0.5, usesArt ? 112 / 128 : 1).setImmovable(true).setDepth(4);
+    if (usesArt) boss.setScale(1.5);
     boss.body.setAllowGravity(false);
-    boss.body.setSize(118, 118, true);
+    if (usesArt) {
+      boss.body.setSize(82, 78, false);
+      boss.body.setOffset(23, 112 - 78);
+    } else {
+      boss.body.setSize(118, 118, true);
+    }
     boss.setDataEnabled();
     boss.setData({
       key: section.boss.key,
@@ -311,8 +340,11 @@ export class LevelLoader {
       maxHp: section.boss.hp,
       phase: 1,
       vulnerable: false,
-      section
+      section,
+      usesArt,
+      type: section.boss.key
     });
+    if (usesArt) EnemyAnimationManager.play(boss, "idle");
     this.boss = boss;
     this.track(boss);
     const label = this.track(
@@ -326,7 +358,7 @@ export class LevelLoader {
         padding: { x: 10, y: 6 }
       })
     );
-    label.setOrigin(0.5).setDepth(5);
+    label.setOrigin(0.5).setDepth(5).setVisible(!usesArt);
     boss.setData("label", label);
   }
 
@@ -352,7 +384,8 @@ export class LevelLoader {
       const key = this.boss.getData("key");
       this.objectiveManager.markBossDefeated(key);
       this.scene.events.emit(EVENTS.BOSS_DEFEATED, key);
-      this.boss.disableBody(true, true);
+      this.boss.body.enable = false;
+      this.boss.setData("defeated", true);
       this.spawnGate();
     }
     return true;

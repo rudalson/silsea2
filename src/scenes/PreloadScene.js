@@ -35,6 +35,8 @@ export class PreloadScene extends Phaser.Scene {
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {
       barBg.setStrokeStyle(2, COLORS.collectBlue);
     });
+    AssetManager.queueCharacterAssets(this, this.registry.get("characterId"));
+    AssetManager.queueEnemyAssets(this, this.level);
     AssetManager.queueLevelAssets(this, this.level);
   }
 

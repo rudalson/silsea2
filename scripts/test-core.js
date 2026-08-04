@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
 import {
+  getCharacterAnimationSpec,
+  getCharacterAssetKeys,
+  getCharacterSequenceKey
+} from "../src/data/characterAnimations.js";
+import {
+  getEnemyAnimationSpec,
+  getEnemyAssetKeys
+} from "../src/data/enemyAnimations.js";
+import {
   CORE_RULES,
   FORMS,
   TRANSFORM_PRESENTATION,
@@ -27,6 +36,30 @@ for (const cue of Object.values(TRANSFORM_PRESENTATION)) {
   assert.ok(cue.holdMs > 0 && cue.holdMs <= cue.emphasisMs);
 }
 assert.equal(TRANSFORM_PRESENTATION[FORMS.ALICORN].emphasisMs, 180);
+assert.equal(getCharacterSequenceKey("silsea", "move"), "silsea_run");
+assert.equal(getCharacterSequenceKey("potato89", "move"), "potato89_roll");
+assert.equal(getCharacterAssetKeys("silsea").length, 11);
+assert.equal(getCharacterAssetKeys("potato89").length, 12);
+for (const characterId of ["silsea", "potato89"]) {
+  for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "victory"]) {
+    const spec = getCharacterAnimationSpec(characterId, sequence);
+    assert.ok(spec, `${characterId} ${sequence} 애니메이션 명세가 필요함`);
+    assert.equal(spec.durationMs, spec.durations.reduce((total, duration) => total + duration, 0));
+  }
+  assert.ok(getCharacterAnimationSpec(characterId, "transform_unicorn").durations.at(-1) >= 300);
+}
+assert.deepEqual(getCharacterAnimationSpec("silsea", "land").durations, [80, 120]);
+assert.equal(getEnemyAssetKeys("raw_potato").length, 3);
+assert.equal(getEnemyAssetKeys("spike_pumpkin").length, 3);
+assert.equal(getEnemyAssetKeys("dark_cloud").length, 4);
+assert.equal(getEnemyAssetKeys("magpie").length, 5);
+assert.equal(getEnemyAssetKeys("potato_king").length, 7);
+for (const enemyType of ["raw_potato", "spike_pumpkin", "dark_cloud", "magpie", "potato_king"]) {
+  assert.ok(getEnemyAnimationSpec(enemyType, "idle"));
+  assert.ok(getEnemyAnimationSpec(enemyType, "defeated"));
+}
+assert.equal(getEnemyAnimationSpec("dark_cloud", "warning").durationMs, 700);
+assert.ok(getEnemyAnimationSpec("potato_king", "defeated").durationMs >= 1000);
 
 assert.equal(stepFlightGauge(10000, 1000, { flying: true }), 9000);
 assert.equal(stepFlightGauge(0, 3000, { grounded: true }), 10000);
@@ -201,4 +234,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
