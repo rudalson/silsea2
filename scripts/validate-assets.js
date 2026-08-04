@@ -17,6 +17,15 @@ import { generateAssetReport } from "./asset-report.js";
 import { colorDistance, hexToRgb, paletteRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const QUALITY_THRESHOLDS = Object.freeze({
+  alpha: 16,
+  baseline: 16,
+  baselineTolerancePx: 2,
+  characterHeight: 96,
+  characterHeightToleranceRatio: 0.05,
+  paletteDistance: 8,
+  outsidePaletteRatio: 0.05
+});
 const sequenceAssets = (character, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${character}_${sequence}_${String(index).padStart(2, "0")}.png`;
   return { name: frame, path: join(root, "assets", "characters", character, sequence, frame), kind: "character" };
@@ -140,6 +149,11 @@ const requiredAudioKeys = [
 let validatedAudioCount = 0;
 let validatedCharacterSheetCount = 0;
 let validatedEnemySheetCount = 0;
+const qualityMeasurements = {
+  baseline: [],
+  characterHeight: [],
+  outsidePalette: []
+};
 
 for (const asset of assets) {
   const { name, path } = asset;
@@ -161,7 +175,7 @@ for (const asset of assets) {
   let maxX = -1;
   let maxY = -1;
   for (let index = 0; index < data.length; index += 4) {
-    if (data[index + 3] < 16) continue;
+    if (data[index + 3] < QUALITY_THRESHOLDS.alpha) continue;
     opaque += 1;
     const pixel = index / 4;
     const x = pixel % info.width;
@@ -171,19 +185,22 @@ for (const asset of assets) {
     maxX = Math.max(maxX, x);
     maxY = Math.max(maxY, y);
     const rgb = [data[index], data[index + 1], data[index + 2]];
-    if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > 8) outside += 1;
+    if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
     if (asset.kind === "item" && Math.min(...collectRgb.map((entry) => colorDistance(rgb, entry))) > 0) {
       outsideCollect += 1;
     }
   }
   if (!opaque) errors.push(`${name}: 불투명 픽셀이 없음`);
-  if (opaque && outside / opaque > 0.05) errors.push(`${name}: 팔레트 외 픽셀 5% 초과`);
+  const outsidePaletteRatio = opaque ? outside / opaque : 0;
+  if (opaque) qualityMeasurements.outsidePalette.push({ name, value: outsidePaletteRatio });
+  if (outsidePaletteRatio > QUALITY_THRESHOLDS.outsidePaletteRatio) errors.push(`${name}: 팔레트 외 픽셀 5% 초과`);
   if (asset.kind === "item" && outsideCollect > 0) errors.push(`${name}: collect 팔레트 밖 픽셀 ${outsideCollect}개`);
   if (opaque) {
     const subjectWidth = maxX - minX + 1;
     const subjectHeight = maxY - minY + 1;
     const baseline = info.height - (maxY + 1);
-    if (asset.kind === "character" && (subjectHeight < 91 || subjectHeight > 101)) {
+    if (asset.kind === "character") qualityMeasurements.characterHeight.push({ name, value: subjectHeight });
+    if (asset.kind === "character" && Math.abs(subjectHeight - QUALITY_THRESHOLDS.characterHeight) / QUALITY_THRESHOLDS.characterHeight > QUALITY_THRESHOLDS.characterHeightToleranceRatio) {
       errors.push(`${name}: 캐릭터 높이 ${subjectHeight}px (96px ±5% 아님)`);
     }
     if (asset.kind === "raw_potato" && (subjectWidth < 96 || subjectWidth > 112 || subjectHeight < 65 || subjectHeight > 101)) {
@@ -249,7 +266,10 @@ for (const asset of assets) {
         errors.push(`${name}: 관문 중앙 통과 공간이 투명하지 않음`);
       }
     }
-    if (asset.kind !== "item" && Math.abs(baseline - 16) > 2) errors.push(`${name}: 발 기준선 ${baseline}px (16px ±2 아님)`);
+    if (asset.kind !== "item") qualityMeasurements.baseline.push({ name, value: baseline });
+    if (asset.kind !== "item" && Math.abs(baseline - QUALITY_THRESHOLDS.baseline) > QUALITY_THRESHOLDS.baselineTolerancePx) {
+      errors.push(`${name}: 발 기준선 ${baseline}px (16px ±2 아님)`);
+    }
     if (minX < 8 || info.width - maxX - 1 < 8) errors.push(`${name}: 좌우 여백 8px 미만`);
   }
 }
@@ -471,5 +491,16 @@ if (errors.length) {
   process.exit(1);
 }
 const assetReport = await generateAssetReport({ root });
+const measurementRange = (measurements) => ({
+  minimum: Math.min(...measurements.map(({ value }) => value)),
+  maximum: Math.max(...measurements.map(({ value }) => value))
+});
+const baselineRange = measurementRange(qualityMeasurements.baseline);
+const heightRange = measurementRange(qualityMeasurements.characterHeight);
+const maximumOutsidePalette = qualityMeasurements.outsidePalette.reduce(
+  (maximum, measurement) => measurement.value > maximum.value ? measurement : maximum,
+  qualityMeasurements.outsidePalette[0]
+);
 console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
+console.log(`형태/팔레트 임계값 통과: 기준선 ${qualityMeasurements.baseline.length}개 ${baselineRange.minimum}~${baselineRange.maximum}px (16±2px) · 캐릭터 높이 ${qualityMeasurements.characterHeight.length}개 ${heightRange.minimum}~${heightRange.maximum}px (96px±5%) · 팔레트 ${qualityMeasurements.outsidePalette.length}개 최대 ${(maximumOutsidePalette.value * 100).toFixed(2)}% (${maximumOutsidePalette.name}, 허용 5% 이하)`);
 console.log(`HTML 에셋 보고서 생성: ${assetReport.outputPath} (시각 에셋 ${assetReport.assetCount}개·역할 실루엣 ${assetReport.roleCount}개)`);
