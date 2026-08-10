@@ -42,6 +42,7 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("visualReviewForm", reviewLevel ? reviewForm : null);
     this.registry.set("visualReviewAnimation", reviewLevel ? query.get("animation") : null);
     this.registry.set("visualReviewZoom", reviewLevel ? reviewZoom : null);
+    this.registry.set("visualReviewPresentation", Boolean(reviewLevel && query.get("presentation") === "1"));
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", false);
     this.registry.set("screenShakeEnabled", true);

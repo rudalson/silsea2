@@ -84,7 +84,10 @@ export class GameScene extends Phaser.Scene {
     if (visualReviewSectionId) this.warpToSection(visualReviewSectionId, visualReviewOffset ?? 160);
     const visualReviewForm = this.registry.get("visualReviewForm");
     if (visualReviewForm) {
-      this.transformationManager.setForm(visualReviewForm, false);
+      this.transformationManager.setForm(
+        visualReviewForm,
+        Boolean(this.registry.get("visualReviewPresentation"))
+      );
       if (visualReviewForm === "alicorn") this.transformationManager.alicornEndsAt = Number.POSITIVE_INFINITY;
     }
     const visualReviewAnimation = this.registry.get("visualReviewAnimation");

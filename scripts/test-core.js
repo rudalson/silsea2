@@ -29,6 +29,7 @@ import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/Came
 import { createRuntimeLevel, getDifficultySettings } from "../src/systems/DifficultyManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
+import { TRANSFORM_CAMERA_EASING } from "../src/systems/TransformationManager.js";
 import { moveTowards } from "../src/utils/math.js";
 
 assert.equal(CORE_RULES.invulnerableMs, 2000);
@@ -43,6 +44,12 @@ for (const cue of Object.values(TRANSFORM_PRESENTATION)) {
   assert.ok(cue.holdMs > 0 && cue.holdMs <= cue.emphasisMs);
 }
 assert.equal(TRANSFORM_PRESENTATION[FORMS.ALICORN].emphasisMs, 180);
+assert.equal(TRANSFORM_CAMERA_EASING.emphasize(0), 0);
+assert.equal(TRANSFORM_CAMERA_EASING.emphasize(1), 1);
+assert.equal(TRANSFORM_CAMERA_EASING.restore(0), 0);
+assert.equal(TRANSFORM_CAMERA_EASING.restore(1), 1);
+assert.equal(typeof TRANSFORM_CAMERA_EASING.emphasize, "function");
+assert.equal(typeof TRANSFORM_CAMERA_EASING.restore, "function");
 assert.equal(PARTICLE_EFFECTS.landing.count, 4);
 assert.ok(PARTICLE_EFFECTS.magnet.intervalMs >= 32);
 assert.ok(PARTICLE_EFFECTS.magnet.lateralOffset > 0);

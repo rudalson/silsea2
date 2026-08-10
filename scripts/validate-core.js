@@ -126,6 +126,12 @@ if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 �
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {
   fail("변신 정지·플래시·카메라 강조가 모두 연결되지 않음");
 }
+if (!transformManager.includes("TRANSFORM_CAMERA_EASING.emphasize") || !transformManager.includes("TRANSFORM_CAMERA_EASING.restore")) {
+  fail("변신 카메라 zoom ease가 함수로 연결되지 않음");
+}
+if (/camera\.zoomTo\([^;]+[\"']Sine\./s.test(transformManager)) {
+  fail("Phaser Camera zoomTo에 문자열 ease를 전달함");
+}
 if (!transformManager.includes("this.transforming || this.form === FORMS.ALICORN")) {
   fail("변신 정지 중 피격 방지가 연결되지 않음");
 }

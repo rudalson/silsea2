@@ -20,6 +20,11 @@ const ATTACHMENT_LAYOUT = Object.freeze({
 
 const toRgb = (color) => [(color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff];
 
+export const TRANSFORM_CAMERA_EASING = Object.freeze({
+  emphasize: (progress) => Math.sin((progress * Math.PI) / 2),
+  restore: (progress) => (1 - Math.cos(Math.PI * progress)) / 2
+});
+
 export class TransformationManager {
   constructor(scene, player, levelLoader, difficulty = {}) {
     this.scene = scene;
@@ -120,9 +125,19 @@ export class TransformationManager {
     const camera = this.scene.cameras.main;
     const [red, green, blue] = toRgb(FORM_COLORS[form]);
     camera.flash(cue.emphasisMs, red, green, blue);
-    camera.zoomTo(cue.zoom, Math.floor(cue.emphasisMs * 0.45), "Sine.Out", true);
+    camera.zoomTo(
+      cue.zoom,
+      Math.floor(cue.emphasisMs * 0.45),
+      TRANSFORM_CAMERA_EASING.emphasize,
+      true
+    );
     this.cameraResetTimer = this.scene.time.delayedCall(Math.floor(cue.emphasisMs * 0.5), () => {
-      camera.zoomTo(this.savedCameraZoom ?? 1, Math.ceil(cue.emphasisMs * 0.5), "Sine.InOut", true);
+      camera.zoomTo(
+        this.savedCameraZoom ?? 1,
+        Math.ceil(cue.emphasisMs * 0.5),
+        TRANSFORM_CAMERA_EASING.restore,
+        true
+      );
       this.cameraResetTimer = null;
     });
     this.scene.particleEffects?.emitTransform(form, this.player.x, this.player.y - 52, cue);
