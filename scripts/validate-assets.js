@@ -105,6 +105,7 @@ const itemAssets = [
   ...itemAsset("rainbow_gate", 108, 112)
 ];
 const collectRgb = PALETTE.collect.map(hexToRgb);
+const potatoFaceRgb = PALETTE.base.slice(1, 3).map(hexToRgb);
 const assets = [...characterAssets, ...enemyAssets, ...itemAssets];
 const errors = [];
 const requiredTileFrames = [
@@ -199,6 +200,22 @@ for (const asset of assets) {
     const subjectWidth = maxX - minX + 1;
     const subjectHeight = maxY - minY + 1;
     const baseline = info.height - (maxY + 1);
+    if (name.startsWith("potato89_roll_")) {
+      let faceXTotal = 0;
+      let facePixels = 0;
+      for (let index = 0; index < data.length; index += 4) {
+        if (data[index + 3] < QUALITY_THRESHOLDS.alpha) continue;
+        const rgb = [data[index], data[index + 1], data[index + 2]];
+        if (Math.min(...potatoFaceRgb.map((color) => colorDistance(rgb, color))) > 0) continue;
+        faceXTotal += (index / 4) % info.width;
+        facePixels += 1;
+      }
+      const faceCenterX = facePixels ? faceXTotal / facePixels : 0;
+      const subjectCenterX = (minX + maxX) / 2;
+      if (facePixels < 80 || faceCenterX <= subjectCenterX + 8) {
+        errors.push(`${name}: 구운 감자 roll 프레임이 오른쪽을 보지 않음 (얼굴 x=${faceCenterX.toFixed(1)}, 몸 중심 x=${subjectCenterX.toFixed(1)})`);
+      }
+    }
     if (asset.kind === "character") qualityMeasurements.characterHeight.push({ name, value: subjectHeight });
     if (asset.kind === "character" && Math.abs(subjectHeight - QUALITY_THRESHOLDS.characterHeight) / QUALITY_THRESHOLDS.characterHeight > QUALITY_THRESHOLDS.characterHeightToleranceRatio) {
       errors.push(`${name}: 캐릭터 높이 ${subjectHeight}px (96px ±5% 아님)`);
@@ -501,6 +518,6 @@ const maximumOutsidePalette = qualityMeasurements.outsidePalette.reduce(
   (maximum, measurement) => measurement.value > maximum.value ? measurement : maximum,
   qualityMeasurements.outsidePalette[0]
 );
-console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
+console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 1개·배경 ${backgroundAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
 console.log(`형태/팔레트 임계값 통과: 기준선 ${qualityMeasurements.baseline.length}개 ${baselineRange.minimum}~${baselineRange.maximum}px (16±2px) · 캐릭터 높이 ${qualityMeasurements.characterHeight.length}개 ${heightRange.minimum}~${heightRange.maximum}px (96px±5%) · 팔레트 ${qualityMeasurements.outsidePalette.length}개 최대 ${(maximumOutsidePalette.value * 100).toFixed(2)}% (${maximumOutsidePalette.name}, 허용 5% 이하)`);
 console.log(`HTML 에셋 보고서 생성: ${assetReport.outputPath} (시각 에셋 ${assetReport.assetCount}개·역할 실루엣 ${assetReport.roleCount}개)`);
