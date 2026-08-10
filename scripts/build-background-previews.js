@@ -1,5 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import sharp from "sharp";
+import { PALETTE } from "../data/palette.js";
 
 const PREVIEW_WIDTH = 1024;
 const PREVIEW_HEIGHT = 360;
@@ -10,7 +11,7 @@ const previews = [];
 for (const mood of moods) {
   const layers = ["far", "mid", "near"].map((layer) => `assets/backgrounds/bg_${mood}_${layer}.png`);
   const full = await sharp(layers[0])
-    .flatten({ background: "#CDE5B9" })
+    .flatten({ background: PALETTE.environmentSky[0] })
     .composite(layers.slice(1).map((input) => ({ input })))
     .png()
     .toBuffer();
@@ -28,7 +29,7 @@ await sharp({
     width: PREVIEW_WIDTH,
     height: PREVIEW_HEIGHT * previews.length,
     channels: 4,
-    background: "#42474E"
+    background: PALETTE.environmentNeutral[0]
   }
 })
   .composite(previews.map((input, index) => ({ input, left: 0, top: index * PREVIEW_HEIGHT })))

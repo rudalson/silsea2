@@ -31,6 +31,16 @@ import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { TRANSFORM_CAMERA_EASING } from "../src/systems/TransformationManager.js";
 import { moveTowards } from "../src/utils/math.js";
+import { PALETTE } from "../data/palette.js";
+
+const colorChannels = (hex) => {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+};
+const colorLuma = (hex) => {
+  const [red, green, blue] = colorChannels(hex);
+  return (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+};
 
 assert.equal(CORE_RULES.invulnerableMs, 2000);
 assert.ok(CORE_RULES.hurtLockMs <= 250);
@@ -50,6 +60,13 @@ assert.equal(TRANSFORM_CAMERA_EASING.restore(0), 0);
 assert.equal(TRANSFORM_CAMERA_EASING.restore(1), 1);
 assert.equal(typeof TRANSFORM_CAMERA_EASING.emphasize, "function");
 assert.equal(typeof TRANSFORM_CAMERA_EASING.restore, "function");
+assert.ok(PALETTE.environmentSky.every((hex) => colorLuma(hex) > 0.78));
+assert.ok(PALETTE.environmentFar.every((hex) => colorLuma(hex) > 0.82));
+for (const hex of PALETTE.environmentMid) {
+  const [red, green, blue] = colorChannels(hex);
+  assert.ok(green > blue && red / green >= 0.5, `${hex} 환경 중경색에 청록 편향이 있음`);
+}
+assert.ok(colorLuma(PALETTE.environmentNear[2]) > colorLuma(PALETTE.bgNear[2]));
 assert.equal(PARTICLE_EFFECTS.landing.count, 4);
 assert.ok(PARTICLE_EFFECTS.magnet.intervalMs >= 32);
 assert.ok(PARTICLE_EFFECTS.magnet.lateralOffset > 0);
@@ -308,4 +325,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 데이터 변환, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 밝은 환경 팔레트 명도·청록 편향 차단, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 데이터 변환, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

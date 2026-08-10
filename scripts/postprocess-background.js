@@ -1,6 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { dirname, parse } from "node:path";
 import sharp from "sharp";
+import { PALETTE } from "../data/palette.js";
 import { colorDistance, hexToRgb, paletteHexes } from "./image-utils.js";
 
 const [input, output, preview] = process.argv.slice(2);
@@ -24,21 +25,21 @@ const BRIGHTNESS_FACTORS = {
 };
 const brightness = BRIGHTNESS_FACTORS[outputName] ?? 1;
 const LUMA_RANGES = {
-  bg_normal_far: [70, 85],
-  bg_normal_mid: [55, 70],
-  bg_normal_near: [45, 60],
-  bg_pit_far: [70, 85],
-  bg_pit_mid: [55, 70],
-  bg_pit_near: [45, 60],
-  bg_boss_far: [60, 75],
-  bg_boss_mid: [45, 60],
-  bg_boss_near: [40, 55]
+  bg_normal_far: [82, 94],
+  bg_normal_mid: [62, 78],
+  bg_normal_near: [50, 68],
+  bg_pit_far: [82, 94],
+  bg_pit_mid: [60, 80],
+  bg_pit_near: [48, 68],
+  bg_boss_far: [70, 86],
+  bg_boss_mid: [52, 70],
+  bg_boss_near: [42, 62]
 };
 const BACKGROUND_HEXES = layer === "far"
-  ? ["#CDE5B9", "#4691A2", "#BFC596", "#4DABA1", "#42474E", "#183D30", "#DEB5C6", "#F5DF4F", "#3DBFE3", "#E573A0"]
+  ? [...PALETTE.environmentFar, ...PALETTE.environmentMid, PALETTE.environmentNeutral[0], PALETTE.environmentNear[1], "#DEB5C6", "#F5DF4F", "#3DBFE3", "#E573A0"]
   : layer === "near"
-    ? ["#4ECCA0", "#183D30", "#5D4326", "#42474E", "#4DABA1", "#4691A2", "#BFC596", "#957242", "#9598A2"]
-    : ["#CDE5B9", "#4691A2", "#BFC596", "#4DABA1", "#4ECCA0", "#183D30", "#5D4326", "#42474E", "#957242", "#9598A2"];
+    ? [...PALETTE.environmentNear, PALETTE.environmentNeutral[0], ...PALETTE.environmentMid, ...PALETTE.environmentFar, PALETTE.environmentNeutral[2], PALETTE.environmentNeutral[1]]
+    : [...PALETTE.environmentFar, ...PALETTE.environmentMid, ...PALETTE.environmentNear, ...PALETTE.environmentNeutral];
 const BACKGROUND_PALETTE = BACKGROUND_HEXES.map((hex) => ({ hex, rgb: hexToRgb(hex) }));
 
 const nearestBackgroundColor = (rgb) => BACKGROUND_PALETTE.reduce(
@@ -131,7 +132,7 @@ await sharp(normalizedData, { raw: { width: WIDTH, height: HEIGHT, channels: 4 }
 if (preview) {
   await mkdir(dirname(preview), { recursive: true });
   await sharp(output)
-    .flatten({ background: "#CDE5B9" })
+    .flatten({ background: PALETTE.environmentSky[0] })
     .resize(1024, 360)
     .png({ compressionLevel: 9, palette: true })
     .toFile(preview);

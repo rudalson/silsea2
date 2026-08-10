@@ -126,15 +126,15 @@ const requiredTileFrames = [
   "slope_down"
 ];
 const backgroundAssets = [
-  { name: "bg_normal_far", luma: [70, 85] },
-  { name: "bg_normal_mid", luma: [55, 70] },
-  { name: "bg_normal_near", luma: [45, 60], minimumY: 540 },
-  { name: "bg_pit_far", luma: [70, 85] },
-  { name: "bg_pit_mid", luma: [55, 70] },
-  { name: "bg_pit_near", luma: [45, 60], minimumY: 540 },
-  { name: "bg_boss_far", luma: [60, 75] },
-  { name: "bg_boss_mid", luma: [45, 60] },
-  { name: "bg_boss_near", luma: [40, 55], minimumY: 576 }
+  { name: "bg_normal_far", luma: [82, 94] },
+  { name: "bg_normal_mid", luma: [62, 78] },
+  { name: "bg_normal_near", luma: [50, 68], minimumY: 540 },
+  { name: "bg_pit_far", luma: [82, 94] },
+  { name: "bg_pit_mid", luma: [60, 80] },
+  { name: "bg_pit_near", luma: [48, 68], minimumY: 540 },
+  { name: "bg_boss_far", luma: [70, 86] },
+  { name: "bg_boss_mid", luma: [52, 70] },
+  { name: "bg_boss_near", luma: [42, 62], minimumY: 576 }
 ];
 const requiredAudioKeys = [
   "sfx_jump", "sfx_land", "sfx_fall_start", "sfx_footstep", "sfx_star",

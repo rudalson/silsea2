@@ -20,13 +20,13 @@ const channels = 4;
 const rgba = (hex, alpha = 255) => [...hexToRgb(hex), alpha];
 const COLORS = Object.freeze({
   transparent: [0, 0, 0, 0],
-  outline: rgba(PALETTE.outline),
-  grass: rgba(PALETTE.bgNear[0]),
-  grassShadow: rgba(PALETTE.bgNear[1]),
-  grassHighlight: rgba(PALETTE.highlight[1]),
-  dirt: rgba(PALETTE.bgNear[2]),
-  dirtHighlight: rgba(PALETTE.base[3]),
-  sky: rgba(PALETTE.bgFar[0])
+  outline: rgba(PALETTE.environmentNeutral[0]),
+  grass: rgba(PALETTE.environmentNear[0]),
+  grassShadow: rgba(PALETTE.environmentMid[1]),
+  grassHighlight: rgba(PALETTE.environmentFar[1]),
+  dirt: rgba(PALETTE.environmentNear[2]),
+  dirtHighlight: rgba(PALETTE.environmentNeutral[2]),
+  sky: rgba(PALETTE.environmentSky[0])
 });
 
 const createBuffer = (width, height, color = COLORS.transparent) => {

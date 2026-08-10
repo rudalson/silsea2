@@ -37,10 +37,16 @@
 | bgFar | `#CDE5B9`, `#4691A2` |
 | bgMid | `#BFC596`, `#4DABA1` |
 | bgNear | `#4ECCA0`, `#183D30`, `#5D4326` |
+| environmentSky | `#9ADDF2`, `#D9F3FA` |
+| environmentFar | `#FFF6D8`, `#DCEB85` |
+| environmentMid | `#82CB70`, `#59AE72` |
+| environmentNear | `#51CE87`, `#285144`, `#9A6535` |
+| environmentNeutral | `#45494B`, `#A8AA96`, `#D09A4E` |
 
 - 에셋 생성 후 이 팔레트로 양자화한다.
 - 팔레트 외 픽셀이 5%를 넘으면 경고하고 육안 확인 전 채택하지 않는다.
 - 안티앨리어싱 경계색은 기준색과 ΔE 임계값 이내일 때만 허용한다.
+- Phase 0 코어 색은 캐릭터·적·아이템의 정체성을 보존한다. 2026-08-10 사용자 피드백으로 추가한 `environment*` 그룹은 하늘·배경·지형·HUD에만 사용해 청록 편향을 줄이고 어린이용 화면의 명도와 온기를 높인다.
 
 ## 선과 명암
 

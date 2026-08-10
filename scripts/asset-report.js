@@ -194,8 +194,8 @@ const buildHtml = ({ assets, roleAssets }) => {
       --line: ${PALETTE.base[1]};
       --danger: ${PALETTE.danger[0]};
       --collect: ${PALETTE.collect[0]};
-      --friendly: ${PALETTE.bgNear[0]};
-      --deep: ${PALETTE.bgNear[1]};
+      --friendly: ${PALETTE.environmentNear[0]};
+      --deep: ${PALETTE.environmentNear[1]};
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif; }

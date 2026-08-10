@@ -36,7 +36,10 @@ const [
   viteConfig,
   runtimeBuildTest,
   styles,
-  gameConfig
+  gameConfig,
+  palette,
+  constants,
+  environmentRegrade
 ] = await Promise.all([
   read("src/scenes/GameScene.js"),
   read("src/entities/Player.js"),
@@ -66,7 +69,10 @@ const [
   read("vite.config.js"),
   read("scripts/validate-runtime-build.js"),
   read("src/styles.css"),
-  read("src/config/gameConfig.js")
+  read("src/config/gameConfig.js"),
+  read("data/palette.js"),
+  read("src/config/constants.js"),
+  read("scripts/regrade-environment.js")
 ]);
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
@@ -120,6 +126,16 @@ if (!gameConfig.includes("Phaser.Scale.FIT") || !gameConfig.includes("Phaser.Sca
 }
 if (!styles.includes("100dvh") || !styles.includes("safe-area-inset") || !styles.includes("max-width: 100%") || !styles.includes("max-height: 100%")) {
   fail("동적 뷰포트·안전 영역·캔버스 반응형 CSS가 없음");
+}
+if (!["environmentSky", "environmentFar", "environmentMid", "environmentNear", "environmentNeutral"]
+  .every((group) => palette.includes(group))) {
+  fail("어린이용 밝은 환경 확장 팔레트가 완전하지 않음");
+}
+if (!constants.includes("PALETTE.environmentSky") || !constants.includes("PALETTE.environmentNear")) {
+  fail("런타임 하늘·HUD·지형이 밝은 환경 팔레트에 연결되지 않음");
+}
+if (!environmentRegrade.includes("files.length !== 9") || !environmentRegrade.includes("environmentNeutral")) {
+  fail("배경 9종의 재현 가능한 환경 리그레이드 경로가 없음");
 }
 if (!bossController.includes("SeededRandom")) fail("보스 패턴에 고정 Seed가 없음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
