@@ -44,6 +44,7 @@ export class AssetManager {
     for (const type of types) {
       for (const key of getEnemyAssetKeys(type)) AssetManager.queueManifestAsset(scene, key);
     }
+    if (types.has("dark_cloud")) AssetManager.queueManifestAsset(scene, "fx_lightning");
   }
 
   static queueManifestAsset(scene, key) {

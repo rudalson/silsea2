@@ -368,6 +368,7 @@
     { "key": "item_alicorn", "type": "image", "url": "/assets/items/item_alicorn.png" },
     { "key": "checkpoint_flag", "type": "image", "url": "/assets/items/checkpoint_flag.png" },
     { "key": "rainbow_gate", "type": "image", "url": "/assets/items/rainbow_gate.png" },
+    { "key": "fx_lightning", "type": "image", "url": "/assets/effects/fx_lightning.png" },
     {
       "key": "grass_tileset",
       "type": "atlas",

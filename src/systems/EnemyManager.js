@@ -39,31 +39,62 @@ export class EnemyManager {
     return new ObjectPool({
       maxSize: 6,
       create: () => {
-        const beam = this.scene.add.rectangle(0, 0, 42, 460, COLORS.collectBlue, 0.78)
-          .setStrokeStyle(5, COLORS.dangerAlt)
-          .setDepth(7)
+        const visual = this.scene.add.image(0, 0, "fx_lightning")
+          .setOrigin(0.5, 1)
+          .setDepth(10)
           .setVisible(false);
-        this.scene.physics.add.existing(beam);
-        beam.body.setAllowGravity(false);
-        beam.body.setImmovable(true);
-        beam.body.enable = false;
-        this.interactions.push(this.scene.physics.add.overlap(this.player, beam, () => {
-          if (!beam.poolActive || !this.isOnScreen(beam)) return;
-          this.healthManager.takeDamage(beam.x);
+        const impactGlow = this.scene.add.ellipse(0, 0, 72, 22, COLORS.collect, 0.2)
+          .setStrokeStyle(4, COLORS.collect, 0.9)
+          .setDepth(9)
+          .setVisible(false);
+        const impactRing = this.scene.add.ellipse(0, 0, 38, 12, COLORS.white, 0.95)
+          .setStrokeStyle(4, COLORS.dangerAlt, 0.95)
+          .setDepth(11)
+          .setVisible(false);
+        const hitbox = this.scene.add.zone(0, 0, 46, 420).setVisible(false);
+        this.scene.physics.add.existing(hitbox);
+        hitbox.body.setAllowGravity(false);
+        hitbox.body.setImmovable(true);
+        hitbox.body.enable = false;
+        const beam = { visual, impactGlow, impactRing, hitbox, expiresAt: 0, startedAt: 0, visualHeight: 0 };
+        this.interactions.push(this.scene.physics.add.overlap(this.player, hitbox, () => {
+          if (!beam.poolActive || !this.isOnScreen(beam.hitbox)) return;
+          this.healthManager.takeDamage(beam.hitbox.x);
         }));
         return beam;
       },
       activate: (beam, data) => {
         beam.expiresAt = data.expiresAt;
-        beam.setPosition(data.x, data.y).setVisible(true).setActive(true).setAlpha(0.8);
-        beam.body.enable = true;
-        beam.body.reset(data.x, data.y);
+        beam.startedAt = this.scene.time.now;
+        beam.visualHeight = Phaser.Math.Clamp(data.visualHeight ?? 460, 360, 600);
+        const impactY = data.targetY + 10;
+        beam.visual
+          .setPosition(data.x, impactY)
+          .setDisplaySize(Math.round(beam.visualHeight * 0.67), beam.visualHeight)
+          .setVisible(true)
+          .setActive(true)
+          .setAlpha(1);
+        beam.impactGlow.setPosition(data.x, impactY).setVisible(true).setActive(true).setScale(0.55).setAlpha(0.9);
+        beam.impactRing.setPosition(data.x, impactY).setVisible(true).setActive(true).setScale(0.3).setAlpha(1);
+        const hitboxHeight = beam.visualHeight - 42;
+        beam.hitbox.setPosition(data.x, impactY - beam.visualHeight / 2).setSize(46, hitboxHeight).setActive(true);
+        beam.hitbox.body.setSize(46, hitboxHeight);
+        beam.hitbox.body.enable = true;
+        beam.hitbox.body.reset(beam.hitbox.x, beam.hitbox.y);
       },
       deactivate: (beam) => {
-        beam.setVisible(false).setActive(false);
-        beam.body.enable = false;
+        beam.visual.setVisible(false).setActive(false);
+        beam.impactGlow.setVisible(false).setActive(false);
+        beam.impactRing.setVisible(false).setActive(false);
+        beam.hitbox.setActive(false);
+        beam.hitbox.body.enable = false;
       },
-      destroy: (beam) => beam.destroy()
+      destroy: (beam) => {
+        beam.visual.destroy();
+        beam.impactGlow.destroy();
+        beam.impactRing.destroy();
+        beam.hitbox.destroy();
+      }
     });
   }
 
@@ -120,8 +151,11 @@ export class EnemyManager {
     }
 
     this.lightningPool.forEachActive((beam) => {
-      beam.setAlpha(0.55 + Math.sin(now / 45) * 0.25);
-      if (now >= beam.expiresAt || !this.isOnScreen(beam)) this.lightningPool.release(beam);
+      const progress = Phaser.Math.Clamp((now - beam.startedAt) / Math.max(1, beam.expiresAt - beam.startedAt), 0, 1);
+      beam.visual.setAlpha(0.82 + Math.sin(now / 24) * 0.18 - progress * 0.24);
+      beam.impactGlow.setScale(0.55 + progress * 2.05).setAlpha((1 - progress) * 0.9);
+      beam.impactRing.setScale(0.3 + progress * 1.35).setAlpha((1 - progress) * 0.98);
+      if (now >= beam.expiresAt || !this.isOnScreen(beam.hitbox)) this.lightningPool.release(beam);
     });
     this.recoveryPool.forEachActive((entry) => {
       entry.visual.setRotation(entry.visual.rotation + delta * 0.004);
@@ -155,16 +189,23 @@ export class EnemyManager {
       this.showTargetMarker(enemy, targetX, targetY - 5, COLORS.dangerAlt);
     } else if (state === "telegraph") {
       enemy.setScale(1 + Math.sin(now / 55) * 0.08);
+      const marker = enemy.getData("targetMarker");
+      marker?.setScale(0.9 + Math.sin(now / 55) * 0.16).setAlpha(0.76 + Math.sin(now / 42) * 0.2);
       if (now >= enemy.getData("stateUntil")) {
+        const targetY = enemy.getData("targetY");
         this.lightningPool.acquire({
           x: enemy.getData("targetX"),
-          y: enemy.getData("targetY") - 230,
+          targetY,
+          visualHeight: targetY - enemy.y + 46,
           expiresAt: now + 170
         });
         this.scene.audioManager?.playSfx("sfx_lightning", { randomizeRate: false });
+        this.scene.particleEffects?.emitLightningImpact(enemy.getData("targetX"), targetY + 8);
+        this.scene.cameras.main.flash(105, 255, 243, 153);
+        this.scene.cameraEffects?.shake("lightning");
         EnemyAnimationManager.play(enemy, "attack", false);
         enemy.clearTint().setScale(1);
-        enemy.getData("targetMarker")?.setVisible(false);
+        enemy.getData("targetMarker")?.setVisible(false).setScale(1).setAlpha(1);
         enemy.setData({ state: "cooldown", stateUntil: now + 1500 });
       }
     } else if (state === "cooldown" && now >= enemy.getData("stateUntil")) {
@@ -292,16 +333,18 @@ export class EnemyManager {
   showTargetMarker(enemy, x, y, color) {
     let marker = enemy.getData("targetMarker");
     if (!marker) {
-      marker = this.scene.add.ellipse(x, y, 92, 18, color, 0.48).setDepth(2);
+      marker = this.scene.add.ellipse(x, y, 92, 18, color, 0.36)
+        .setStrokeStyle(3, COLORS.white, 0.88)
+        .setDepth(2);
       enemy.setData("targetMarker", marker);
     }
-    marker.setPosition(x, y).setFillStyle(color, 0.48).setVisible(true);
+    marker.setPosition(x, y).setFillStyle(color, 0.36).setVisible(true).setScale(1).setAlpha(1);
   }
 
   cancelTelegraph(enemy) {
     if (enemy.getData("state") !== "telegraph") return;
     enemy.clearTint().setScale(1);
-    enemy.getData("targetMarker")?.setVisible(false);
+    enemy.getData("targetMarker")?.setVisible(false).setScale(1).setAlpha(1);
     enemy.setData("state", "idle");
     EnemyAnimationManager.play(enemy, "idle");
   }

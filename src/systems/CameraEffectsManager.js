@@ -1,5 +1,6 @@
 export const CAMERA_SHAKE_PROFILES = Object.freeze({
   enemyDefeat: Object.freeze({ duration: 90, intensity: 0.0014 }),
+  lightning: Object.freeze({ duration: 115, intensity: 0.0021 }),
   bossLandLight: Object.freeze({ duration: 100, intensity: 0.002 }),
   bossLand: Object.freeze({ duration: 130, intensity: 0.0028 }),
   bossDefeat: Object.freeze({ duration: 140, intensity: 0.0022 })

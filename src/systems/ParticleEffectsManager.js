@@ -83,6 +83,20 @@ export class ParticleEffectsManager {
       maxParticles: PARTICLE_LIMITS.magnet
     }).setDepth(7);
 
+    const lightning = PARTICLE_EFFECTS.lightning;
+    this.lightningEmitter = this.scene.add.particles(0, 0, TEXTURE_KEYS.sparkle, {
+      emitting: false,
+      lifespan: lightning.lifespan,
+      speed: lightning.speed,
+      angle: { min: 196, max: 344 },
+      gravityY: 330,
+      scale: { start: 1.05, end: 0.08 },
+      alpha: { start: 1, end: 0 },
+      rotate: { min: -240, max: 240 },
+      tint: [COLORS.white, COLORS.collect, COLORS.collectBlue],
+      maxParticles: PARTICLE_LIMITS.lightning
+    }).setDepth(14);
+
     const transform = PARTICLE_EFFECTS.transform;
     this.transformEmitters = new Map(Object.entries(FORM_COLORS).map(([form, color]) => {
       const emitter = this.scene.add.particles(0, 0, TEXTURE_KEYS.sparkle, {
@@ -158,6 +172,10 @@ export class ParticleEffectsManager {
     });
   }
 
+  emitLightningImpact(x, y) {
+    this.lightningEmitter.emitParticleAt(x, y, PARTICLE_EFFECTS.lightning.count);
+  }
+
   getSnapshot() {
     const emitterSnapshot = (emitter) => ({
       activeCount: emitter?.getAliveParticleCount?.() ?? 0,
@@ -166,7 +184,8 @@ export class ParticleEffectsManager {
     });
     const emitters = {
       landing: emitterSnapshot(this.dustEmitter),
-      magnet: emitterSnapshot(this.magnetEmitter)
+      magnet: emitterSnapshot(this.magnetEmitter),
+      lightning: emitterSnapshot(this.lightningEmitter)
     };
     for (const [form, emitter] of this.transformEmitters ?? []) {
       emitters[`transform:${form}`] = emitterSnapshot(emitter);
@@ -190,6 +209,7 @@ export class ParticleEffectsManager {
     this.magnetStates.clear();
     this.dustEmitter?.killAll();
     this.magnetEmitter?.killAll();
+    this.lightningEmitter?.killAll();
     for (const emitter of this.transformEmitters?.values() ?? []) emitter.killAll();
     for (const pulse of this.pulses) {
       this.scene.tweens.killTweensOf(pulse);
@@ -202,6 +222,7 @@ export class ParticleEffectsManager {
     this.reset();
     this.dustEmitter?.destroy();
     this.magnetEmitter?.destroy();
+    this.lightningEmitter?.destroy();
     for (const emitter of this.transformEmitters?.values() ?? []) emitter.destroy();
     this.transformEmitters?.clear();
     this.scene = null;

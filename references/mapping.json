@@ -14,7 +14,6 @@
       "fx_transform_flash": ["src/systems/ParticleEffectsManager.js", "src/systems/TransformationManager.js"],
       "fx_alicorn_overlay": ["src/systems/TransformationManager.js"],
       "fx_attack_marker": ["src/systems/EnemyManager.js"],
-      "fx_lightning": ["src/systems/EnemyManager.js"],
       "fx_weakpoint_star": ["src/systems/BossController.js"],
       "fx_stolen_percent": ["src/systems/EnemyManager.js"]
     },
@@ -105,7 +104,7 @@
   "fx_transform_flash": { "styleRefs": ["mylittlepony1.webp", "mario_3.jpg"], "note": "변신 판독성과 밝은 축제감." },
   "fx_alicorn_overlay": { "styleRefs": ["mylittlepony1.webp", "mario_3.jpg"], "note": "무지개 계열 피버 분위기, 캐릭터 형태 미참조." },
   "fx_attack_marker": { "styleRefs": ["mario_1.jpg", "mario_2.webp"], "note": "위험 위치의 명확한 지면 표식." },
-  "fx_lightning": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "뾰족한 위험 실루엣과 색상선." },
+  "fx_lightning": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "밝은 황금 중심, 산호색 외곽과 청록 전기 파편이 있는 세로형 낙뢰 타격 VFX. 지면 충격과 안전한 아동용 카툰 연출에 사용." },
   "fx_quake_wave": { "styleRefs": ["mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "낮은 수평 파동의 가독성." },
   "fx_weakpoint_star": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "별형 약점과 프로젝트 선 처리." },
   "fx_stolen_percent": { "styleRefs": ["mario_1.jpg", "mario_3.jpg"], "note": "즉시 회수하고 싶은 반짝이는 점수 조각." },
