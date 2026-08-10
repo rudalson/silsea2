@@ -2,14 +2,23 @@ import { COLORS, EVENTS } from "../config/constants.js";
 import { CORE_RULES } from "../data/gameplay.js";
 
 export class HealthManager {
-  constructor(scene, player, checkpointManager, scoreManager, objectiveManager, transformationManager) {
+  constructor(
+    scene,
+    player,
+    checkpointManager,
+    scoreManager,
+    objectiveManager,
+    transformationManager,
+    difficulty = {}
+  ) {
     this.scene = scene;
     this.player = player;
     this.checkpointManager = checkpointManager;
     this.scoreManager = scoreManager;
     this.objectiveManager = objectiveManager;
     this.transformationManager = transformationManager;
-    this.maxHp = player.character.physics.maxHp ?? CORE_RULES.maxHp;
+    this.maxHp = (player.character.physics.maxHp ?? CORE_RULES.maxHp) + (difficulty.player?.extraHp ?? 0);
+    this.pitScoreLoss = difficulty.pitScoreLoss ?? undefined;
     this.hp = this.maxHp;
     this.invulnerableUntil = 0;
     this.emitHp();
@@ -44,7 +53,7 @@ export class HealthManager {
     }
     if (this.hp <= 0) {
       this.hp = this.maxHp;
-      this.scoreManager.loseOnRespawn();
+      this.scoreManager.loseOnRespawn(this.pitScoreLoss);
     }
     this.invulnerableUntil = now + CORE_RULES.invulnerableMs;
     this.checkpointManager.respawn(this.player);

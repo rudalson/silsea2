@@ -464,8 +464,9 @@ export class LevelLoader {
     this.hazards.length = 0;
     this.gate?.zone.destroy();
     this.gate = null;
-    this.terrainBodies?.clear(true, true);
-    this.terrainBodies?.destroy(true);
+    if (this.terrainBodies?.world?.bodies) {
+      this.terrainBodies.destroy(true);
+    }
     this.terrainBodies = null;
     for (const object of this.created) {
       if (object?.active || object?.scene) object.destroy();

@@ -55,7 +55,7 @@ export class UIScene extends Phaser.Scene {
       color: CSS_COLORS.collectPink
     }).setOrigin(0, 0.5).setScrollFactor(0);
 
-    this.fpsText = this.add.text(GAME_WIDTH - 24, 26, "FPS —\nEsc 일시정지", {
+    this.fpsText = this.add.text(GAME_WIDTH - 24, 136, "FPS —\nEsc 일시정지", {
       align: "right",
       fontFamily: "system-ui",
       fontSize: "14px",
@@ -63,6 +63,17 @@ export class UIScene extends Phaser.Scene {
       backgroundColor: CSS_COLORS.panelSoft,
       padding: { x: 10, y: 7 }
     }).setOrigin(1, 0).setScrollFactor(0).setVisible(this.registry.get("debugEnabled"));
+
+    this.pauseButton = this.add.text(GAME_WIDTH - 24, 26, "일시정지 · Esc", {
+      align: "right",
+      fontFamily: "system-ui",
+      fontSize: "15px",
+      fontStyle: "700",
+      color: CSS_COLORS.white,
+      backgroundColor: CSS_COLORS.panelSoft,
+      padding: { x: 10, y: 7 }
+    }).setOrigin(1, 0).setScrollFactor(0).setInteractive({ useHandCursor: true });
+    this.pauseButton.on("pointerdown", () => this.togglePause());
 
     this.shakeButton = this.add.text(GAME_WIDTH - 24, 88, "", {
       align: "right",
@@ -94,20 +105,7 @@ export class UIScene extends Phaser.Scene {
       padding: { x: 16, y: 8 }
     }).setOrigin(0.5).setScrollFactor(0).setAlpha(0);
 
-    this.pauseOverlay = this.add.container(0, 0).setScrollFactor(0).setDepth(100).setVisible(false);
-    this.pauseOverlay.add(this.add.rectangle(640, 360, 1280, 720, COLORS.near, 0.72));
-    this.pauseOverlay.add(this.add.text(640, 318, "일시정지", {
-      fontFamily: "system-ui",
-      fontSize: "52px",
-      fontStyle: "900",
-      color: CSS_COLORS.white
-    }).setOrigin(0.5));
-    this.pauseOverlay.add(this.add.text(640, 395, "Esc / 게임패드 Start로 계속\nV 화면 흔들림 켜기/끄기", {
-      align: "center",
-      fontFamily: "system-ui",
-      fontSize: "20px",
-      color: CSS_COLORS.soft
-    }).setOrigin(0.5));
+    this.createPauseOverlay();
 
     this.onCheckpoint = (checkpoint) => this.showToast(`${checkpoint.id} 체크포인트!`);
     this.onBossHit = ({ hp, maxHp }) => {
@@ -130,11 +128,18 @@ export class UIScene extends Phaser.Scene {
 
   update() {
     const input = this.inputManager.sample();
-    if (input.pausePressed) this.togglePause();
+    if (input.pausePressed) {
+      this.togglePause();
+      return;
+    }
+    if (input.muteTogglePressed) this.toggleMute();
     if (input.shakeTogglePressed) this.toggleScreenShake();
+    if (this.gameScene?.scene.isPaused()) this.handlePauseInput(input);
     if (!this.gameScene?.player) return;
 
-    this.characterText.setText(this.gameScene.character.name);
+    this.characterText.setText(
+      `${this.gameScene.character.name}${this.gameScene.difficulty?.enabled ? " · 쉬운 모드" : ""}`
+    );
     const hp = this.gameScene.healthManager?.hp ?? 0;
     const maxHp = this.gameScene.healthManager?.maxHp ?? 0;
     this.hpText.setText(`HP ${"♥ ".repeat(hp)}${"♡ ".repeat(Math.max(0, maxHp - hp))}`.trim());
@@ -169,10 +174,187 @@ export class UIScene extends Phaser.Scene {
     if (this.gameScene.scene.isPaused()) {
       this.gameScene.scene.resume();
       this.pauseOverlay.setVisible(false);
+      this.gameScene.audioManager?.playSfx("sfx_pause", { randomizeRate: false });
+      this.gameScene.updateAccessibleStatus("게임을 계속합니다.");
     } else {
+      this.gameScene.audioManager?.playSfx("sfx_pause", { randomizeRate: false });
       this.gameScene.scene.pause();
+      this.pauseSelection = 0;
+      this.renderPauseMenu();
       this.pauseOverlay.setVisible(true);
+      this.gameScene.updateAccessibleStatus("게임이 일시정지되었습니다. 위아래로 메뉴를 고르고 좌우로 값을 조절하세요.");
     }
+  }
+
+  createPauseOverlay() {
+    this.pauseSelection = 0;
+    this.pauseMenuItems = [
+      { key: "resume", label: "계속하기" },
+      { key: "bgm", label: "BGM 볼륨", adjustable: true },
+      { key: "sfx", label: "효과음 볼륨", adjustable: true },
+      { key: "mute", label: "음소거" },
+      { key: "easy", label: "쉬운 모드" }
+    ];
+    this.pauseRows = [];
+    this.pauseArrows = [];
+    this.pauseOverlay = this.add.container(0, 0).setScrollFactor(0).setDepth(100).setVisible(false);
+    this.pauseOverlay.add(this.add.rectangle(640, 360, 1280, 720, COLORS.near, 0.78).setInteractive());
+    this.pauseOverlay.add(
+      this.add.rectangle(640, 360, 760, 650, COLORS.near, 0.96).setStrokeStyle(4, COLORS.mid)
+    );
+    this.pauseOverlay.add(this.add.text(640, 82, "일시정지", {
+      fontFamily: "system-ui",
+      fontSize: "46px",
+      fontStyle: "900",
+      color: CSS_COLORS.white
+    }).setOrigin(0.5));
+    this.pauseOverlay.add(this.add.text(640, 130, "↑↓ 선택 · ←→ 조절 · Enter / A 결정", {
+      fontFamily: "system-ui",
+      fontSize: "17px",
+      color: CSS_COLORS.collectBlue
+    }).setOrigin(0.5));
+
+    this.pauseMenuItems.forEach((item, index) => {
+      const y = 190 + index * 54;
+      const row = this.add.text(640, y, "", {
+        align: "center",
+        fontFamily: "system-ui",
+        fontSize: "21px",
+        fontStyle: "700",
+        color: CSS_COLORS.white,
+        backgroundColor: CSS_COLORS.panelSoft,
+        padding: { x: 14, y: 10 }
+      }).setOrigin(0.5).setFixedSize(590, 46).setInteractive({ useHandCursor: true });
+      row.on("pointerover", () => this.selectPauseOption(index));
+      row.on("pointerdown", () => this.activatePauseOption(index));
+      this.pauseRows.push(row);
+      this.pauseOverlay.add(row);
+
+      if (item.adjustable) {
+        for (const [direction, x, glyph] of [[-1, 375, "◀"], [1, 905, "▶"]]) {
+          const arrow = this.add.text(x, y, glyph, {
+            fontFamily: "system-ui",
+            fontSize: "24px",
+            fontStyle: "900",
+            color: CSS_COLORS.collect
+          }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+          arrow.on("pointerover", () => this.selectPauseOption(index));
+          arrow.on("pointerdown", (pointer, localX, localY, event) => {
+            event?.stopPropagation?.();
+            this.adjustPauseOption(index, direction);
+          });
+          this.pauseArrows.push(arrow);
+          this.pauseOverlay.add(arrow);
+        }
+      }
+    });
+
+    this.pauseOverlay.add(this.add.text(
+      640,
+      512,
+      "조작 안내\n이동  ← → / A D / 왼쪽 스틱\n점프  Space / Z / 게임패드 A\n특수  Shift / X / 게임패드 X\n일시정지  Esc / Start   ·   음소거  M   ·   화면 흔들림  V",
+      {
+        align: "center",
+        fontFamily: "system-ui",
+        fontSize: "17px",
+        lineSpacing: 5,
+        color: CSS_COLORS.soft
+      }
+    ).setOrigin(0.5));
+    this.pauseOverlay.add(this.add.text(640, 650, "쉬운 모드를 바꾸면 현재 스테이지를 처음부터 다시 시작합니다.", {
+      fontFamily: "system-ui",
+      fontSize: "14px",
+      color: CSS_COLORS.collectBlue
+    }).setOrigin(0.5));
+    this.renderPauseMenu();
+  }
+
+  handlePauseInput(input) {
+    if (input.menuUpPressed) this.selectPauseOption(this.pauseSelection - 1);
+    if (input.menuDownPressed) this.selectPauseOption(this.pauseSelection + 1);
+    if (input.menuLeftPressed) this.adjustPauseOption(this.pauseSelection, -1);
+    if (input.menuRightPressed) this.adjustPauseOption(this.pauseSelection, 1);
+    if (input.confirmPressed) this.activatePauseOption(this.pauseSelection);
+  }
+
+  selectPauseOption(index) {
+    const count = this.pauseMenuItems.length;
+    this.pauseSelection = (index + count) % count;
+    this.renderPauseMenu();
+  }
+
+  activatePauseOption(index) {
+    const key = this.pauseMenuItems[index]?.key;
+    if (key === "resume") this.togglePause();
+    else if (key === "bgm" || key === "sfx") this.adjustPauseOption(index, 1);
+    else if (key === "mute") this.toggleMute();
+    else if (key === "easy") this.toggleEasyMode();
+  }
+
+  adjustPauseOption(index, direction) {
+    const key = this.pauseMenuItems[index]?.key;
+    if (key !== "bgm" && key !== "sfx") return;
+    const audio = this.gameScene.audioManager;
+    const snapshot = audio?.getSnapshot();
+    if (!audio || !snapshot) return;
+    const setting = key === "bgm" ? "bgmVolume" : "sfxVolume";
+    const next = Phaser.Math.Clamp(Math.round((snapshot[setting] + direction * 0.1) * 100) / 100, 0, 1);
+    if (key === "bgm") audio.setBgmVolume(next);
+    else audio.setSfxVolume(next);
+    audio.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.renderPauseMenu();
+    this.gameScene.updateAccessibleStatus(`${key === "bgm" ? "배경 음악" : "효과음"} 볼륨 ${Math.round(next * 100)}퍼센트.`);
+  }
+
+  toggleMute() {
+    const audio = this.gameScene.audioManager;
+    if (!audio) return;
+    const muted = !audio.getSnapshot().muted;
+    if (muted) audio.playSfx("sfx_ui_select", { randomizeRate: false });
+    audio.setMuted(muted);
+    if (!muted) audio.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.renderPauseMenu();
+    this.showToast(`음소거 ${muted ? "켜짐" : "꺼짐"}`);
+    this.gameScene.updateAccessibleStatus(`음소거를 ${muted ? "켰습니다" : "껐습니다"}.`);
+  }
+
+  toggleEasyMode() {
+    const enabled = !Boolean(this.registry.get("easyMode"));
+    this.registry.set("easyMode", enabled);
+    this.gameScene.audioManager?.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.gameScene.updateAccessibleStatus(
+      `쉬운 모드를 ${enabled ? "켜고" : "끄고"} 현재 스테이지를 처음부터 다시 시작합니다.`
+    );
+    this.pauseOverlay.setVisible(false);
+    this.gameScene.scene.resume();
+    this.time.delayedCall(50, () => {
+      const levelId = this.gameScene.levelId;
+      this.scene.stop(this.gameSceneKey);
+      this.time.delayedCall(50, () => this.scene.start(this.gameSceneKey, { levelId, easyMode: enabled }));
+    });
+  }
+
+  renderPauseMenu() {
+    if (!this.pauseRows?.length) return;
+    const audio = this.gameScene.audioManager?.getSnapshot() ?? {
+      muted: false,
+      bgmVolume: 0,
+      sfxVolume: 0
+    };
+    const values = {
+      resume: "계속하기",
+      bgm: `BGM 볼륨  ${Math.round(audio.bgmVolume * 100)}%`,
+      sfx: `효과음 볼륨  ${Math.round(audio.sfxVolume * 100)}%`,
+      mute: `음소거  ${audio.muted ? "ON" : "OFF"} · M`,
+      easy: `쉬운 모드  ${this.registry.get("easyMode") ? "ON" : "OFF"}`
+    };
+    this.pauseRows.forEach((row, index) => {
+      const selected = index === this.pauseSelection;
+      row
+        .setText(`${selected ? "●  " : ""}${values[this.pauseMenuItems[index].key]}`)
+        .setColor(selected ? CSS_COLORS.near : CSS_COLORS.white)
+        .setBackgroundColor(selected ? CSS_COLORS.collectSoft : CSS_COLORS.panelSoft);
+    });
   }
 
   toggleScreenShake() {
@@ -202,7 +384,10 @@ export class UIScene extends Phaser.Scene {
 
   shutdown() {
     this.inputManager?.destroy();
+    this.pauseButton?.removeAllListeners();
     this.shakeButton?.removeAllListeners();
+    for (const row of this.pauseRows ?? []) row.removeAllListeners();
+    for (const arrow of this.pauseArrows ?? []) arrow.removeAllListeners();
     this.gameScene?.events.off(EVENTS.CHECKPOINT, this.onCheckpoint);
     this.gameScene?.events.off(EVENTS.BOSS_HIT, this.onBossHit);
     this.gameScene?.events.off(EVENTS.BOSS_DEFEATED, this.onBossDefeated);

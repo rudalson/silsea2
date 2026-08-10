@@ -16,8 +16,11 @@
     "spritesheets": "node scripts/build-character-sheets.js",
     "validate:mapping": "node scripts/validate-asset-mapping.js",
     "validate:assets": "node scripts/validate-assets.js",
+    "validate:runtime": "node scripts/validate-runtime-build.js",
     "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js && node scripts/validate-asset-mapping.js && node scripts/validate-assets.js",
-    "test": "node scripts/test-core.js"
+    "test": "node scripts/test-core.js",
+    "test:soak": "node --expose-gc scripts/test-soak.js",
+    "test:release": "npm run build && npm run validate:runtime"
   },
   "dependencies": {
     "phaser": "3.90.0"

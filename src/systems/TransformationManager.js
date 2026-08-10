@@ -21,10 +21,11 @@ const ATTACHMENT_LAYOUT = Object.freeze({
 const toRgb = (color) => [(color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff];
 
 export class TransformationManager {
-  constructor(scene, player, levelLoader) {
+  constructor(scene, player, levelLoader, difficulty = {}) {
     this.scene = scene;
     this.player = player;
     this.levelLoader = levelLoader;
+    this.flightDrainMultiplier = difficulty.player?.flightDrainMultiplier ?? 1;
     this.form = FORMS.BASE;
     this.returnForm = FORMS.BASE;
     this.flightMs = CORE_RULES.flightMaxMs;
@@ -152,7 +153,8 @@ export class TransformationManager {
     if (this.form === FORMS.PEGASUS) {
       this.flightMs = stepFlightGauge(this.flightMs, delta, {
         grounded,
-        flying: wantsFlight && this.flightMs > 0
+        flying: wantsFlight && this.flightMs > 0,
+        drainMultiplier: this.flightDrainMultiplier
       });
       if (!this.flightLowSent && this.flightMs > 0 && this.flightMs <= CORE_RULES.flightMaxMs * 0.2) {
         this.flightLowSent = true;

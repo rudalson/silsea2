@@ -27,6 +27,7 @@ export class DebugPanel {
     this.onWarp = options.onWarp;
     this.onReload = options.onReload;
     this.visible = true;
+    this.nextMetricsAt = 0;
     this.inputs = new Map();
     this.root = this.build();
     document.body.appendChild(this.root);
@@ -87,8 +88,16 @@ export class DebugPanel {
   }
 
   update(player, fps, elapsed) {
+    if (elapsed < this.nextMetricsAt) return;
+    this.nextMetricsAt = elapsed + 0.25;
     const metrics = this.root.querySelector("[data-metrics]");
-    metrics.textContent = `FPS ${Math.round(fps)} · x ${Math.round(player.x)} · y ${Math.round(player.y)} · ${elapsed.toFixed(1)}초`;
+    const performance = this.scene.getPerformanceSnapshot?.();
+    const pool = performance?.poolTotals;
+    const particles = performance?.particles?.totals;
+    const runtimeCounts = pool && particles
+      ? ` · Pool ${pool.activeCount}/${pool.size}/${pool.maxSize} · FX ${particles.activeCount}/${particles.size}/${particles.maxSize}`
+      : "";
+    metrics.textContent = `FPS ${Math.round(fps)} · x ${Math.round(player.x)} · y ${Math.round(player.y)} · ${elapsed.toFixed(1)}초${runtimeCounts}`;
     const list = this.root.querySelector("[data-objectives]");
     list.replaceChildren();
     for (const objective of this.objectives.getSnapshot()) {
@@ -130,4 +139,3 @@ export class DebugPanel {
     this.root.remove();
   }
 }
-

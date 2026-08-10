@@ -9,6 +9,7 @@ import { BossController } from "../systems/BossController.js";
 import { CameraEffectsManager } from "../systems/CameraEffectsManager.js";
 import { CheckpointManager } from "../systems/CheckpointManager.js";
 import { DebugPanel } from "../systems/DebugPanel.js";
+import { createRuntimeLevel, getDifficultySettings } from "../systems/DifficultyManager.js";
 import { EnemyManager } from "../systems/EnemyManager.js";
 import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
@@ -27,6 +28,7 @@ export class GameScene extends Phaser.Scene {
 
   init(data) {
     this.levelId = data.levelId ?? this.registry.get("levelId");
+    if (data.easyMode !== undefined) this.registry.set("easyMode", Boolean(data.easyMode));
     this.interactions = [];
     this.elapsed = 0;
     this.lookAhead = 0;
@@ -35,8 +37,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.level = getLevel(this.levelId);
-    assertLevelShape(this.level);
+    const sourceLevel = getLevel(this.levelId);
+    assertLevelShape(sourceLevel);
+    const easyMode = Boolean(this.registry.get("easyMode"));
+    this.difficulty = getDifficultySettings(sourceLevel, easyMode);
+    this.level = createRuntimeLevel(sourceLevel, easyMode);
     this.character = getCharacter(this.registry.get("characterId"));
     this.tuning = cloneTuning(this.character);
     this.inputManager = new InputManager(this);
@@ -89,7 +94,9 @@ export class GameScene extends Phaser.Scene {
     const visualReviewZoom = this.registry.get("visualReviewZoom");
     if (visualReviewZoom) this.cameras.main.setZoom(visualReviewZoom);
 
-    this.updateAccessibleStatus(`${this.level.name} 시작. ${this.character.name} 선택됨.`);
+    this.updateAccessibleStatus(
+      `${this.level.name} 시작. ${this.character.name} 선택됨.${this.difficulty.enabled ? " 쉬운 모드." : ""}`
+    );
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }
 
@@ -134,9 +141,9 @@ export class GameScene extends Phaser.Scene {
       this.levelLoader.setBackgroundMood(section?.mood);
       if (section?.type === "boss" && this.level.assets.bgm.boss) {
         this.audioManager.playSfx("sfx_boss_appear", { randomizeRate: false });
-        this.audioManager.playBgm(this.level.assets.bgm.boss);
+        this.audioManager.transitionBgm(this.level.assets.bgm.boss);
       } else if (this.level.assets.bgm.field) {
-        this.audioManager.playBgm(this.level.assets.bgm.field);
+        this.audioManager.transitionBgm(this.level.assets.bgm.field);
       }
       this.events.emit(EVENTS.DEBUG_UPDATED, { section: this.currentSectionId });
     }
@@ -218,14 +225,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   createGameplayManagers() {
-    this.transformationManager = new TransformationManager(this, this.player, this.levelLoader);
+    this.transformationManager = new TransformationManager(this, this.player, this.levelLoader, this.difficulty);
     this.healthManager = new HealthManager(
       this,
       this.player,
       this.checkpointManager,
       this.scoreManager,
       this.objectiveManager,
-      this.transformationManager
+      this.transformationManager,
+      this.difficulty
     );
     this.enemyManager = new EnemyManager(
       this,
@@ -243,7 +251,8 @@ export class GameScene extends Phaser.Scene {
           this.healthManager,
           this.transformationManager,
           this.scoreManager,
-          this.level.order * 8901
+          this.level.order * 8901,
+          this.difficulty
         )
       : null;
   }
@@ -365,6 +374,27 @@ export class GameScene extends Phaser.Scene {
   updateAccessibleStatus(message) {
     const status = document.querySelector("#game-status");
     if (status) status.textContent = message;
+  }
+
+  getPerformanceSnapshot() {
+    const pools = {
+      ...(this.enemyManager?.getPoolSnapshot() ?? {}),
+      ...(this.bossController?.getPoolSnapshot() ?? {})
+    };
+    const poolValues = Object.values(pools).filter(Boolean);
+
+    return {
+      fps: this.game.loop.actualFps,
+      elapsedSeconds: this.elapsed,
+      pools,
+      poolTotals: {
+        activeCount: poolValues.reduce((total, entry) => total + entry.activeCount, 0),
+        size: poolValues.reduce((total, entry) => total + entry.size, 0),
+        maxSize: poolValues.reduce((total, entry) => total + entry.maxSize, 0),
+        rejectedCount: poolValues.reduce((total, entry) => total + entry.rejectedCount, 0)
+      },
+      particles: this.particleEffects?.getSnapshot() ?? null
+    };
   }
 
   destroyGameplayManagers() {

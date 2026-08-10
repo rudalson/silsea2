@@ -40,8 +40,10 @@ export class ScoreManager {
     return this.add(amount);
   }
 
-  loseOnRespawn() {
-    const amount = getRespawnScoreLoss(this.score);
+  loseOnRespawn(overrideAmount) {
+    const amount = overrideAmount === undefined
+      ? getRespawnScoreLoss(this.score)
+      : Math.max(0, Math.floor(Number(overrideAmount) || 0));
     this.score = Math.max(0, this.score - amount);
     this.resetCombo();
     return amount;

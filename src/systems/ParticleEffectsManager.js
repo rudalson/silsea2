@@ -1,6 +1,6 @@
 import { COLORS } from "../config/constants.js";
 import { FORMS } from "../data/gameplay.js";
-import { PARTICLE_EFFECTS } from "../data/particleEffects.js";
+import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../data/particleEffects.js";
 
 const TEXTURE_KEYS = Object.freeze({
   dust: "runtime-fx-dust",
@@ -66,7 +66,8 @@ export class ParticleEffectsManager {
       gravityY: landing.gravityY,
       scale: { start: 1, end: 0.3 },
       alpha: { start: 0.82, end: 0 },
-      rotate: { min: -25, max: 25 }
+      rotate: { min: -25, max: 25 },
+      maxParticles: PARTICLE_LIMITS.landing
     }).setDepth(8);
 
     const magnet = PARTICLE_EFFECTS.magnet;
@@ -78,7 +79,8 @@ export class ParticleEffectsManager {
       scale: { start: 0.68, end: 0.08 },
       alpha: { start: 0.9, end: 0 },
       rotate: { min: -150, max: 150 },
-      tint: [COLORS.collect, COLORS.collectBlue, COLORS.white]
+      tint: [COLORS.collect, COLORS.collectBlue, COLORS.white],
+      maxParticles: PARTICLE_LIMITS.magnet
     }).setDepth(7);
 
     const transform = PARTICLE_EFFECTS.transform;
@@ -91,7 +93,8 @@ export class ParticleEffectsManager {
         scale: { start: 1, end: 0.16 },
         alpha: { start: 1, end: 0 },
         rotate: { min: -220, max: 220 },
-        tint: [color, COLORS.collect, COLORS.white]
+        tint: [color, COLORS.collect, COLORS.white],
+        maxParticles: PARTICLE_LIMITS.transformPerForm
       }).setDepth(31);
       return [form, emitter];
     }));
@@ -135,6 +138,7 @@ export class ParticleEffectsManager {
     if (!emitter || !color || !cue) return;
 
     emitter.emitParticleAt(x, y, cue.burstCount);
+    if (this.pulses.size >= PARTICLE_LIMITS.pulses) return;
     const pulse = this.scene.add.star(x, y, 8, 32, 42, color, 0.08)
       .setStrokeStyle(4, color, 0.95)
       .setDepth(30)
@@ -154,12 +158,43 @@ export class ParticleEffectsManager {
     });
   }
 
+  getSnapshot() {
+    const emitterSnapshot = (emitter) => ({
+      activeCount: emitter?.getAliveParticleCount?.() ?? 0,
+      size: emitter?.getParticleCount?.() ?? 0,
+      maxSize: emitter?.maxParticles ?? 0
+    });
+    const emitters = {
+      landing: emitterSnapshot(this.dustEmitter),
+      magnet: emitterSnapshot(this.magnetEmitter)
+    };
+    for (const [form, emitter] of this.transformEmitters ?? []) {
+      emitters[`transform:${form}`] = emitterSnapshot(emitter);
+    }
+    const values = Object.values(emitters);
+
+    return {
+      magnetTrails: this.magnetStates.size,
+      pulses: this.pulses.size,
+      maxPulses: PARTICLE_LIMITS.pulses,
+      emitters,
+      totals: {
+        activeCount: values.reduce((total, entry) => total + entry.activeCount, 0),
+        size: values.reduce((total, entry) => total + entry.size, 0),
+        maxSize: values.reduce((total, entry) => total + entry.maxSize, 0)
+      }
+    };
+  }
+
   reset() {
     this.magnetStates.clear();
     this.dustEmitter?.killAll();
     this.magnetEmitter?.killAll();
     for (const emitter of this.transformEmitters?.values() ?? []) emitter.killAll();
-    for (const pulse of this.pulses) pulse.destroy();
+    for (const pulse of this.pulses) {
+      this.scene.tweens.killTweensOf(pulse);
+      pulse.destroy();
+    }
     this.pulses.clear();
   }
 

@@ -18,9 +18,15 @@ import {
   stepFlightGauge
 } from "../src/data/gameplay.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
-import { PARTICLE_EFFECTS } from "../src/data/particleEffects.js";
-import { AudioManager, STAR_PITCH_RATES } from "../src/systems/AudioManager.js";
+import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../src/data/particleEffects.js";
+import {
+  ALICORN_LAYER_KEY,
+  AudioManager,
+  BGM_CROSSFADE_MS,
+  STAR_PITCH_RATES
+} from "../src/systems/AudioManager.js";
 import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/CameraEffectsManager.js";
+import { createRuntimeLevel, getDifficultySettings } from "../src/systems/DifficultyManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { moveTowards } from "../src/utils/math.js";
@@ -41,6 +47,10 @@ assert.equal(PARTICLE_EFFECTS.landing.count, 4);
 assert.ok(PARTICLE_EFFECTS.magnet.intervalMs >= 32);
 assert.ok(PARTICLE_EFFECTS.magnet.lateralOffset > 0);
 assert.ok(PARTICLE_EFFECTS.transform.lifespan.max <= 400);
+assert.ok(PARTICLE_LIMITS.landing >= PARTICLE_EFFECTS.landing.count * 2);
+assert.ok(PARTICLE_LIMITS.magnet > 0);
+assert.ok(PARTICLE_LIMITS.transformPerForm >= TRANSFORM_PRESENTATION[FORMS.ALICORN].burstCount * 2);
+assert.ok(PARTICLE_LIMITS.pulses > 0);
 assert.equal(getCharacterSequenceKey("silsea", "move"), "silsea_run");
 assert.equal(getCharacterSequenceKey("potato89", "move"), "potato89_roll");
 assert.equal(getCharacterAssetKeys("silsea").length, 11);
@@ -67,6 +77,7 @@ assert.equal(getEnemyAnimationSpec("dark_cloud", "warning").durationMs, 700);
 assert.ok(getEnemyAnimationSpec("potato_king", "defeated").durationMs >= 1000);
 
 assert.equal(stepFlightGauge(10000, 1000, { flying: true }), 9000);
+assert.equal(stepFlightGauge(10000, 1000, { flying: true, drainMultiplier: 0.65 }), 9350);
 assert.equal(stepFlightGauge(0, 3000, { grounded: true }), 10000);
 assert.equal(stepFlightGauge(120, 16, { checkpoint: true }), 10000);
 assert.equal(getMagpieStealAmount(99), 9);
@@ -82,6 +93,18 @@ assert.equal(score.collect("star", 2), 20);
 score.score = 10000;
 assert.equal(score.steal(), 100);
 assert.equal(score.score, 9900);
+assert.equal(score.loseOnRespawn(0), 0);
+assert.equal(score.score, 9900);
+
+const easySettings = getDifficultySettings(level01, true);
+const easyLevel = createRuntimeLevel(level01, true);
+assert.equal(easySettings.player.extraHp, 2);
+assert.equal(easySettings.player.flightDrainMultiplier, 0.65);
+assert.equal(easySettings.boss.telegraphMultiplier, 1.35);
+assert.equal(easySettings.pitScoreLoss, 0);
+assert.ok(easyLevel.checkpoints.some(({ id }) => id === "cp_easy"));
+assert.ok(!easyLevel.enemies.some(({ id }) => id === "e_cloud_01"));
+assert.ok(level01.enemies.some(({ id }) => id === "e_cloud_01"), "원본 레벨 데이터는 변경되면 안 됨");
 
 const comboEvents = [];
 const comboScore = new ScoreManager({ onComboChanged: (snapshot) => comboEvents.push({ ...snapshot }) });
@@ -111,16 +134,32 @@ assert.ok(pooledA && pooledB);
 assert.equal(pool.acquire(), null);
 pool.release(pooledA);
 assert.equal(pool.acquire(), pooledA);
+pool.releaseAll();
 assert.equal(pool.entries.length, 2);
 for (let index = 0; index < 10000; index += 1) {
   const entry = pool.acquire();
   if (entry) pool.release(entry);
 }
-assert.equal(pool.entries.length, 2);
+assert.deepEqual(pool.getSnapshot(), {
+  maxSize: 2,
+  size: 2,
+  activeCount: 0,
+  inactiveCount: 2,
+  createdCount: 2,
+  acquireCount: 10003,
+  releaseCount: 10003,
+  rejectedCount: 1,
+  peakActiveCount: 2,
+  destroyed: false
+});
 pool.destroy();
+assert.equal(pool.getSnapshot().destroyed, true);
+assert.equal(pool.getSnapshot().size, 0);
+assert.equal(pool.acquire(), null, "폐기된 풀은 새 엔트리를 만들면 안 됨");
 
 const audioListeners = new Map();
 const audioPlays = [];
+const audioAdds = [];
 const registryValues = new Map();
 const audioEvents = {
   on(event, handler) {
@@ -151,18 +190,21 @@ const audioScene = {
       return true;
     },
     add(key, config) {
-      return {
+      const sound = {
         key,
         config,
         isPlaying: false,
+        destroyed: false,
         play() {
           this.isPlaying = true;
           return true;
         },
         stop() { this.isPlaying = false; },
-        destroy() {},
+        destroy() { this.destroyed = true; },
         setVolume(value) { this.volume = value; }
       };
+      audioAdds.push(sound);
+      return sound;
     }
   }
 };
@@ -175,6 +217,21 @@ audioEvents.emit("checkpoint:activated", {});
 assert.equal(audioPlays.at(-1).key, "sfx_checkpoint");
 const bgm = audio.playBgm("bgm_field");
 assert.equal(bgm.key, "bgm_field");
+const bossBgm = audio.transitionBgm("bgm_boss");
+assert.equal(BGM_CROSSFADE_MS, 480);
+assert.equal(audio.getSnapshot().currentBgmKey, "bgm_boss");
+assert.equal(bgm.destroyed, true, "크로스페이드가 끝나면 이전 BGM을 해제해야 함");
+assert.equal(bossBgm.volume, 0.46);
+audioEvents.emit("player:form-changed", { form: "alicorn", emphasize: true });
+assert.deepEqual(audio.getSnapshot().activeBgmLayers, [ALICORN_LAYER_KEY]);
+const alicornLayer = audioAdds.find((sound) => sound.key === ALICORN_LAYER_KEY);
+assert.ok(alicornLayer?.isPlaying, "알리콘 진입 시 피버 레이어가 재생되어야 함");
+audio.setBgmVolume(0.5);
+assert.equal(bossBgm.volume, 0.5);
+assert.equal(alicornLayer.volume, 0.26);
+audioEvents.emit("player:form-warning", { remaining: 3000 });
+assert.deepEqual(audio.getSnapshot().activeBgmLayers, []);
+assert.equal(alicornLayer.destroyed, true, "알리콘 종료 예고부터 레이어를 페이드 아웃해야 함");
 audio.resetStarSequence();
 const starStart = audioPlays.length;
 for (let index = 0; index < 7; index += 1) {
@@ -192,8 +249,13 @@ assert.equal(audioPlays.at(-1).config.rate, STAR_PITCH_RATES[0]);
 audio.setMuted(true);
 assert.equal(audioScene.sound.mute, true);
 assert.equal(audio.playSfx("sfx_jump"), null);
+audioEvents.emit("player:form-changed", { form: "alicorn", emphasize: true });
+assert.deepEqual(audio.getSnapshot().activeBgmLayers, [], "음소거 중에는 레이어를 새로 재생하지 않아야 함");
 audio.setMuted(false);
 assert.equal(audioScene.sound.mute, false);
+assert.deepEqual(audio.getSnapshot().activeBgmLayers, [ALICORN_LAYER_KEY], "음소거 해제 시 필요한 레이어를 복원해야 함");
+audioEvents.emit("player:form-changed", { form: "base", emphasize: false });
+assert.deepEqual(audio.getSnapshot().activeBgmLayers, []);
 audio.destroy();
 
 for (const profile of Object.values(CAMERA_SHAKE_PROFILES)) {
@@ -239,4 +301,4 @@ const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, Seed, Object Pool, 보스 3단계, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 데이터 변환, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

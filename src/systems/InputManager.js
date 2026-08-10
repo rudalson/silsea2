@@ -9,7 +9,12 @@ export class InputManager {
       confirm: false,
       pause: false,
       shakeToggle: false,
-      debug: false
+      muteToggle: false,
+      debug: false,
+      menuUp: false,
+      menuDown: false,
+      menuLeft: false,
+      menuRight: false
     };
 
     this.keys = scene.input.keyboard.addKeys({
@@ -28,6 +33,7 @@ export class InputManager {
       confirm: Phaser.Input.Keyboard.KeyCodes.ENTER,
       pause: Phaser.Input.Keyboard.KeyCodes.ESC,
       shakeToggle: Phaser.Input.Keyboard.KeyCodes.V,
+      muteToggle: Phaser.Input.Keyboard.KeyCodes.M,
       debug: Phaser.Input.Keyboard.KeyCodes.BACKTICK
     });
 
@@ -52,7 +58,13 @@ export class InputManager {
     const confirm = jump || this.keys.confirm.isDown;
     const pause = this.keys.pause.isDown || Boolean(pad?.buttons[9]?.pressed);
     const shakeToggle = this.keys.shakeToggle.isDown;
+    const muteToggle = this.keys.muteToggle.isDown;
     const debug = this.keys.debug.isDown;
+    const verticalAxis = pad?.axes[1]?.getValue() ?? 0;
+    const menuUp = this.keys.up.isDown || this.keys.w.isDown || Boolean(pad?.buttons[12]?.pressed) || verticalAxis < -0.5;
+    const menuDown = this.keys.down.isDown || this.keys.s.isDown || Boolean(pad?.buttons[13]?.pressed) || verticalAxis > 0.5;
+    const menuLeft = this.keys.left.isDown || this.keys.a.isDown || Boolean(pad?.buttons[14]?.pressed) || analog < -0.5;
+    const menuRight = this.keys.right.isDown || this.keys.d.isDown || Boolean(pad?.buttons[15]?.pressed) || analog > 0.5;
 
     const result = {
       moveX,
@@ -65,10 +77,27 @@ export class InputManager {
       confirmPressed: confirm && !this.previous.confirm,
       pausePressed: pause && !this.previous.pause,
       shakeTogglePressed: shakeToggle && !this.previous.shakeToggle,
+      muteTogglePressed: muteToggle && !this.previous.muteToggle,
+      menuUpPressed: menuUp && !this.previous.menuUp,
+      menuDownPressed: menuDown && !this.previous.menuDown,
+      menuLeftPressed: menuLeft && !this.previous.menuLeft,
+      menuRightPressed: menuRight && !this.previous.menuRight,
       debugPressed: debug && !this.previous.debug
     };
 
-    this.previous = { jump, special, confirm, pause, shakeToggle, debug };
+    this.previous = {
+      jump,
+      special,
+      confirm,
+      pause,
+      shakeToggle,
+      muteToggle,
+      debug,
+      menuUp,
+      menuDown,
+      menuLeft,
+      menuRight
+    };
     return result;
   }
 

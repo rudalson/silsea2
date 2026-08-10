@@ -311,6 +311,13 @@ export class EnemyManager {
     return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
   }
 
+  getPoolSnapshot() {
+    return {
+      lightning: this.lightningPool.getSnapshot(),
+      recovery: this.recoveryPool.getSnapshot()
+    };
+  }
+
   destroy() {
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;

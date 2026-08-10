@@ -18,3 +18,10 @@ export const PARTICLE_EFFECTS = Object.freeze({
     pulseExtraMs: 160
   })
 });
+
+export const PARTICLE_LIMITS = Object.freeze({
+  landing: 32,
+  magnet: 192,
+  transformPerForm: 28,
+  pulses: 4
+});

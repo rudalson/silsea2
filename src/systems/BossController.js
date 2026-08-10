@@ -6,7 +6,16 @@ import { ObjectPool } from "./ObjectPool.js";
 import { SeededRandom } from "./SeededRandom.js";
 
 export class BossController {
-  constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, seed = 8901) {
+  constructor(
+    scene,
+    player,
+    levelLoader,
+    healthManager,
+    transformationManager,
+    scoreManager,
+    seed = 8901,
+    difficulty = {}
+  ) {
     this.scene = scene;
     this.player = player;
     this.levelLoader = levelLoader;
@@ -15,6 +24,7 @@ export class BossController {
     this.scoreManager = scoreManager;
     this.boss = levelLoader.boss;
     this.random = new SeededRandom(seed);
+    this.telegraphMultiplier = difficulty.boss?.telegraphMultiplier ?? 1;
     this.state = "idle";
     this.stateUntil = scene.time.now + 900;
     this.interactions = [];
@@ -93,7 +103,9 @@ export class BossController {
 
   beginTelegraph(now) {
     const phase = this.boss.getData("phase");
-    const telegraphMs = CORE_RULES.bossTelegraphMs + (phase === 1 ? 100 : 0);
+    const telegraphMs = Math.round(
+      (CORE_RULES.bossTelegraphMs + (phase === 1 ? 100 : 0)) * this.telegraphMultiplier
+    );
     this.state = "telegraph";
     this.stateUntil = now + telegraphMs;
     this.boss.setData("vulnerable", false);
@@ -211,6 +223,12 @@ export class BossController {
     const view = new Phaser.Geom.Rectangle(source.x, source.y, source.width, source.height);
     Phaser.Geom.Rectangle.Inflate(view, margin, margin);
     return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
+  }
+
+  getPoolSnapshot() {
+    return {
+      bossProjectile: this.projectilePool?.getSnapshot() ?? null
+    };
   }
 
   destroy() {

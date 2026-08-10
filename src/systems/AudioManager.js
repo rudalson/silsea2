@@ -1,4 +1,5 @@
 import { EVENTS } from "../config/constants.js";
+import { FORMS } from "../data/gameplay.js";
 
 const DEFAULT_SETTINGS = Object.freeze({
   muted: false,
@@ -15,6 +16,12 @@ export const STAR_PITCH_SEMITONES = Object.freeze([0, 2, 4, 5, 7, 9]);
 export const STAR_PITCH_RATES = Object.freeze(
   STAR_PITCH_SEMITONES.map((semitones) => 2 ** (semitones / 12))
 );
+export const BGM_CROSSFADE_MS = 480;
+export const ALICORN_LAYER_FADE_IN_MS = 120;
+export const ALICORN_LAYER_KEY = "bgm_alicorn_layer";
+
+const ALICORN_LAYER_VOLUME = 0.52;
+const ALICORN_LAYER_EXIT_FADE_MS = 180;
 
 const clamp01 = (value) => Math.max(0, Math.min(1, Number(value)));
 
@@ -25,6 +32,9 @@ export class AudioManager {
     this.maxSameFrame = maxSameFrame;
     this.sameFramePlays = new Map();
     this.loops = new Map();
+    this.bgmLayers = new Map();
+    this.desiredBgmLayers = new Map();
+    this.fadingBgm = new Set();
     this.starStep = 0;
     this.currentBgm = null;
     this.currentBgmKey = null;
@@ -61,8 +71,21 @@ export class AudioManager {
       [EVENTS.PLAYER_RESPAWNED, () => this.playSfx("sfx_respawn", { randomizeRate: false })],
       [EVENTS.FORM_CHANGED, ({ form, emphasize } = {}) => {
         if (emphasize && form !== "base") this.playSfx(`sfx_transform_${form}`, { randomizeRate: false });
+        if (form === FORMS.ALICORN) {
+          this.playBgmLayer(ALICORN_LAYER_KEY, {
+            volume: ALICORN_LAYER_VOLUME,
+            fadeInMs: ALICORN_LAYER_FADE_IN_MS
+          });
+        } else {
+          this.stopBgmLayer(ALICORN_LAYER_KEY, { fadeOutMs: ALICORN_LAYER_EXIT_FADE_MS });
+        }
       }],
-      [EVENTS.FORM_WARNING, () => this.playSfx("sfx_alicorn_warning", { randomizeRate: false })],
+      [EVENTS.FORM_WARNING, ({ remaining } = {}) => {
+        this.playSfx("sfx_alicorn_warning", { randomizeRate: false });
+        this.stopBgmLayer(ALICORN_LAYER_KEY, {
+          fadeOutMs: Math.max(ALICORN_LAYER_EXIT_FADE_MS, Number(remaining) || ALICORN_LAYER_EXIT_FADE_MS)
+        });
+      }],
       [EVENTS.BOSS_HIT, () => this.playSfx("sfx_boss_hit")],
       [EVENTS.BOSS_DEFEATED, () => this.playSfx("sfx_boss_defeat", { randomizeRate: false })]
     ];
@@ -144,15 +167,21 @@ export class AudioManager {
     this.loops.delete(key);
   }
 
-  playBgm(key, { loop = key !== "bgm_clear", volume = 1 } = {}) {
-    this.desiredBgm = { key, loop, volume };
+  playBgm(key, { loop = key !== "bgm_clear", volume = 1, fadeMs = 0 } = {}) {
+    if (!this.has(key)) return null;
+    this.desiredBgm = { key, loop, volume, fadeMs };
     if (this.currentBgmKey === key && this.currentBgm?.isPlaying) return this.currentBgm;
-    this.stopBgm({ keepDesired: true });
-    if (this.settings.muted || !this.has(key)) return null;
+    if (this.settings.muted) {
+      this.stopBgm({ keepDesired: true });
+      return null;
+    }
+
+    const previous = this.currentBgm;
     try {
+      const targetVolume = clamp01(volume) * this.settings.bgmVolume;
       const sound = this.scene.sound?.add?.(key, {
         loop,
-        volume: clamp01(volume) * this.settings.bgmVolume
+        volume: fadeMs > 0 ? 0 : targetVolume
       });
       if (!sound || sound.play?.() === false) {
         sound?.destroy?.();
@@ -160,15 +189,76 @@ export class AudioManager {
       }
       this.currentBgm = sound;
       this.currentBgmKey = key;
+      if (previous && previous !== sound) {
+        this.fadingBgm.add(previous);
+        this.fadeSound(previous, 0, fadeMs, () => {
+          this.fadingBgm.delete(previous);
+          this.releaseSound(previous);
+        });
+      }
+      if (fadeMs > 0) this.fadeSound(sound, targetVolume, fadeMs);
       return sound;
     } catch {
       return null;
     }
   }
 
+  transitionBgm(key, config = {}) {
+    return this.playBgm(key, { ...config, fadeMs: config.fadeMs ?? BGM_CROSSFADE_MS });
+  }
+
+  playBgmLayer(key, { volume = 1, fadeInMs = 0 } = {}) {
+    if (!this.has(key)) return null;
+    const config = { key, volume: clamp01(volume), fadeInMs };
+    this.desiredBgmLayers.set(key, config);
+    const existing = this.bgmLayers.get(key);
+    if (existing) {
+      existing.stopping = false;
+      existing.volume = config.volume;
+      this.fadeSound(existing.sound, config.volume * this.settings.bgmVolume, fadeInMs);
+      return existing.sound;
+    }
+    if (this.settings.muted) return null;
+
+    try {
+      const targetVolume = config.volume * this.settings.bgmVolume;
+      const sound = this.scene.sound?.add?.(key, {
+        loop: true,
+        volume: fadeInMs > 0 ? 0 : targetVolume
+      });
+      if (!sound || sound.play?.() === false) {
+        sound?.destroy?.();
+        return null;
+      }
+      this.bgmLayers.set(key, { sound, volume: config.volume, stopping: false });
+      if (fadeInMs > 0) this.fadeSound(sound, targetVolume, fadeInMs);
+      return sound;
+    } catch {
+      return null;
+    }
+  }
+
+  stopBgmLayer(key, { fadeOutMs = 0, keepDesired = false } = {}) {
+    if (!keepDesired) this.desiredBgmLayers.delete(key);
+    const entry = this.bgmLayers.get(key);
+    if (!entry) return;
+    entry.stopping = true;
+    this.fadeSound(entry.sound, 0, fadeOutMs, () => {
+      if (!entry.stopping) return;
+      this.releaseSound(entry.sound);
+      if (this.bgmLayers.get(key) === entry) this.bgmLayers.delete(key);
+    });
+  }
+
+  stopAllBgmLayers({ keepDesired = false } = {}) {
+    for (const key of [...this.bgmLayers.keys()]) this.stopBgmLayer(key, { keepDesired });
+    if (!keepDesired) this.desiredBgmLayers.clear();
+  }
+
   stopBgm({ keepDesired = false } = {}) {
-    this.currentBgm?.stop?.();
-    this.currentBgm?.destroy?.();
+    this.releaseSound(this.currentBgm);
+    for (const sound of this.fadingBgm) this.releaseSound(sound);
+    this.fadingBgm.clear();
     this.currentBgm = null;
     this.currentBgmKey = null;
     if (!keepDesired) this.desiredBgm = null;
@@ -178,7 +268,10 @@ export class AudioManager {
     this.settings.muted = Boolean(value);
     this.scene.registry?.set?.("audioMuted", this.settings.muted);
     this.applyMute();
-    if (!this.settings.muted && !this.currentBgm && this.desiredBgm) this.playBgm(this.desiredBgm.key, this.desiredBgm);
+    if (!this.settings.muted) {
+      if (!this.currentBgm && this.desiredBgm) this.playBgm(this.desiredBgm.key, this.desiredBgm);
+      for (const config of this.desiredBgmLayers.values()) this.playBgmLayer(config.key, config);
+    }
   }
 
   setSfxVolume(value) {
@@ -190,7 +283,14 @@ export class AudioManager {
   setBgmVolume(value) {
     this.settings.bgmVolume = clamp01(value);
     this.scene.registry?.set?.("bgmVolume", this.settings.bgmVolume);
-    this.currentBgm?.setVolume?.(this.settings.bgmVolume);
+    const baseVolume = clamp01(this.desiredBgm?.volume ?? 1) * this.settings.bgmVolume;
+    this.scene.tweens?.killTweensOf?.(this.currentBgm);
+    this.currentBgm?.setVolume?.(baseVolume);
+    for (const entry of this.bgmLayers.values()) {
+      if (entry.stopping) continue;
+      this.scene.tweens?.killTweensOf?.(entry.sound);
+      entry.sound.setVolume?.(entry.volume * this.settings.bgmVolume);
+    }
   }
 
   applyMute() {
@@ -216,6 +316,7 @@ export class AudioManager {
     return {
       ...this.settings,
       currentBgmKey: this.currentBgmKey,
+      activeBgmLayers: [...this.bgmLayers.keys()],
       activeLoops: [...this.loops.keys()],
       starStep: this.starStep
     };
@@ -224,8 +325,36 @@ export class AudioManager {
   destroy() {
     for (const [event, handler] of this.handlers ?? []) this.scene.events?.off?.(event, handler);
     for (const key of [...this.loops.keys()]) this.stopLoop(key);
+    this.stopAllBgmLayers();
     this.stopBgm();
     this.sameFramePlays.clear();
     this.scene = null;
+  }
+
+  fadeSound(sound, volume, duration, onComplete) {
+    if (!sound) {
+      onComplete?.();
+      return null;
+    }
+    this.scene.tweens?.killTweensOf?.(sound);
+    if (!(duration > 0) || !this.scene.tweens?.add) {
+      sound.setVolume?.(volume);
+      onComplete?.();
+      return null;
+    }
+    return this.scene.tweens.add({
+      targets: sound,
+      volume,
+      duration,
+      ease: "Linear",
+      onComplete
+    });
+  }
+
+  releaseSound(sound) {
+    if (!sound) return;
+    this.scene?.tweens?.killTweensOf?.(sound);
+    sound.stop?.();
+    sound.destroy?.();
   }
 }

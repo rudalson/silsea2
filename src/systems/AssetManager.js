@@ -7,6 +7,12 @@ const entries = new Map(manifest.assets.map((asset) => [asset.key, asset]));
 const audioEntries = manifest.assets.filter((asset) => asset.type === "audio");
 
 const toCss = (value) => `#${value.toString(16).padStart(6, "0")}`;
+const resolveRuntimeAssetUrl = (url) => {
+  const relativeUrl = url.replace(/^\/+/, "");
+  if (typeof document === "undefined") return relativeUrl;
+  const baseUrl = new URL(import.meta.env.BASE_URL, document.baseURI);
+  return new URL(relativeUrl, baseUrl).href;
+};
 
 export class AssetManager {
   static queueLevelAssets(scene, level) {
@@ -42,7 +48,8 @@ export class AssetManager {
 
   static queueManifestAsset(scene, key) {
     const entry = entries.get(key);
-    const url = entry?.url ?? entry?.file;
+    const sourceUrl = entry?.url ?? entry?.file;
+    const url = sourceUrl ? resolveRuntimeAssetUrl(sourceUrl) : null;
     if (!entry || !url || entry.type === "placeholder") return false;
     if (entry.type === "audio") {
       if (!scene.cache.audio.exists(key)) scene.load.audio(key, url);
@@ -50,7 +57,7 @@ export class AssetManager {
     }
     if (scene.textures.exists(key)) return true;
     if (entry.type === "image") scene.load.image(key, url);
-    if (entry.type === "atlas") scene.load.atlas(key, url, entry.atlasUrl);
+    if (entry.type === "atlas") scene.load.atlas(key, url, resolveRuntimeAssetUrl(entry.atlasUrl));
     if (entry.type === "spritesheet") {
       scene.load.spritesheet(key, url, {
         frameWidth: entry.frameWidth,

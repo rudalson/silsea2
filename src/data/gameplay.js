@@ -48,12 +48,19 @@ export function getRespawnScoreLoss(score) {
   return Math.min(Math.floor(Math.max(0, score) * 0.08), 75);
 }
 
-export function stepFlightGauge(currentMs, deltaMs, { grounded = false, flying = false, checkpoint = false } = {}) {
+export function stepFlightGauge(
+  currentMs,
+  deltaMs,
+  { grounded = false, flying = false, checkpoint = false, drainMultiplier = 1 } = {}
+) {
   if (checkpoint) return CORE_RULES.flightMaxMs;
   if (grounded) {
     const recoveryRate = CORE_RULES.flightMaxMs / CORE_RULES.flightRecoveryMs;
     return clamp(currentMs + deltaMs * recoveryRate, 0, CORE_RULES.flightMaxMs);
   }
-  if (flying) return clamp(currentMs - deltaMs, 0, CORE_RULES.flightMaxMs);
+  if (flying) {
+    const drain = Math.max(0, Number.isFinite(Number(drainMultiplier)) ? Number(drainMultiplier) : 1);
+    return clamp(currentMs - deltaMs * drain, 0, CORE_RULES.flightMaxMs);
+  }
   return clamp(currentMs, 0, CORE_RULES.flightMaxMs);
 }
