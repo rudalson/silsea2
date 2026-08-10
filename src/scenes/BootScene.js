@@ -13,6 +13,8 @@ export class BootScene extends Phaser.Scene {
   preload() {
     AssetManager.queueAudioAssets(this);
     AssetManager.queueCharacterPortraits(this);
+    AssetManager.queueManifestAsset(this, "bg_intro");
+    AssetManager.queueManifestAsset(this, "bg_character_select");
   }
 
   create() {

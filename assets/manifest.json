@@ -388,6 +388,8 @@
     { "key": "bg_boss_far", "type": "image", "url": "/assets/backgrounds/bg_boss_far.png", "width": 2048, "height": 720 },
     { "key": "bg_boss_mid", "type": "image", "url": "/assets/backgrounds/bg_boss_mid.png", "width": 2048, "height": 720 },
     { "key": "bg_boss_near", "type": "image", "url": "/assets/backgrounds/bg_boss_near.png", "width": 2048, "height": 720 },
+    { "key": "bg_intro", "type": "image", "url": "/assets/backgrounds/bg_intro.png", "width": 1680, "height": 944 },
+    { "key": "bg_character_select", "type": "image", "url": "/assets/backgrounds/bg_character_select.png", "width": 1680, "height": 944 },
     { "key": "sfx_jump", "type": "audio", "url": "/assets/audio/sfx/sfx_jump.wav", "category": "sfx" },
     { "key": "sfx_land", "type": "audio", "url": "/assets/audio/sfx/sfx_land.wav", "category": "sfx" },
     { "key": "sfx_fall_start", "type": "audio", "url": "/assets/audio/sfx/sfx_fall_start.wav", "category": "sfx" },

@@ -90,6 +90,8 @@
   "bg_boss_far": { "styleRefs": ["maple_story_1.png", "mario_1.jpg"], "note": "일반보다 어두운 원경과 선명한 전투 영역." },
   "bg_boss_mid": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "큰 수직 랜드마크와 낮춘 명도." },
   "bg_boss_near": { "styleRefs": ["maple_2.jpg", "mario_1.jpg"], "note": "낮고 단순한 하단 전경." },
+  "bg_intro": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "첫 타이틀 화면 전용의 밝은 무지개 계곡. 중앙 제목 영역을 비워 두고, 아동용 모험의 시작과 진행 방향을 보여 주는 황금 길을 사용." },
+  "bg_character_select": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "캐릭터 선택 화면 전용의 하늘 정원. 양쪽 무지개·구름·탑 장식은 프레임으로 쓰고, 두 선택 카드가 읽히도록 중앙을 밝게 비워 둠." },
 
   "grass_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "팔레트와 흙/잔디 층만 참고해 코드 생성. 이미지 생성 금지." },
   "decor_flower": { "styleRefs": ["maple_story_1.png", "maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "하단 식생 소재와 프로젝트 선 처리." },
