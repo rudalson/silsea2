@@ -179,6 +179,18 @@ const cloudAttackStartMs = stormCloud.activationDelayMs + stormCloud.telegraphMs
 const magpieAttackStartMs = stormMagpie.activationDelayMs + stormMagpie.telegraphMs;
 assert.ok(magpieAttackStartMs - cloudAttackStartMs >= 400, "폭풍 구간 공격 예고가 충분히 엇갈려야 함");
 assert.ok(stormMagpie.triggerX > stormCloud.triggerX, "먹구름을 먼저 소개한 뒤 까치가 진입해야 함");
+assert.ok(stormCloud.telegraphMs >= 900, "폭풍 구간 먹구름은 어린이가 반응할 예고 시간을 제공해야 함");
+assert.ok(stormMagpie.telegraphMs >= 800, "폭풍 구간 까치는 어린이가 반응할 예고 시간을 제공해야 함");
+
+const stormPit = level01.hazards.find(({ id }) => id === "pit_long");
+const stormUpdraft = level01.terrainMechanics.updrafts.find(({ id }) => id === "updraft_combo");
+const stormMovingCloud = level01.terrainMechanics.movingPlatforms.find(({ id }) => id === "moving_cloud_combo");
+const stormCrumble = level01.terrainMechanics.crumblePlatforms.find(({ id }) => id === "crumble_combo");
+assert.ok(stormUpdraft.x <= stormPit.xStart, "상승기류가 긴 구덩이 진입부를 덮어야 함");
+assert.ok(stormUpdraft.x + stormUpdraft.width >= stormPit.xEnd, "상승기류가 긴 구덩이 착지부까지 이어져야 함");
+assert.ok(stormMovingCloud.width >= 176 && stormMovingCloud.speed <= 70, "이동 발판은 충분한 착지 폭과 예측 가능한 속도를 가져야 함");
+assert.ok(stormCrumble.width >= 176 && stormCrumble.crumbleDelayMs >= 950, "붕괴 발판은 착지 후 다음 행동 시간을 보장해야 함");
+assert.ok(level01.checkpoints.some(({ id, x }) => id === "cp_storm_landing" && x >= stormPit.xEnd), "긴 구덩이 통과 직후 안전 체크포인트가 필요함");
 
 const healthEvents = [];
 const restHealth = new HealthManager(

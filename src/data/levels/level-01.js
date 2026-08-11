@@ -58,13 +58,14 @@ export default {
     { id: "cue_first_hazard", xStart: 2368, xEnd: 2944, lookAhead: 170, targetX: 3008 },
     { id: "cue_orchard_rhythm", xStart: 4864, xEnd: 6208, lookAhead: 175, targetX: 6272 },
     { id: "cue_short_pit", xStart: 7040, xEnd: 7808, lookAhead: 180, targetX: 7872 },
-    { id: "cue_long_pit", xStart: 9536, xEnd: 10432, lookAhead: 180, targetX: 10496 },
-    { id: "cue_storm_combo", xStart: 10624, xEnd: 11456, lookAhead: 185, targetX: 11520 }
+    { id: "cue_long_pit", xStart: 9472, xEnd: 10560, lookAhead: 180, targetX: 10624 },
+    { id: "cue_storm_combo", xStart: 10496, xEnd: 11456, lookAhead: 180, targetX: 11520 }
   ],
   checkpoints: [
     { id: "cp1", x: 4480, y: 576 },
     { id: "cp2", x: 7296, y: 576 },
     { id: "cp3", x: 9792, y: 576 },
+    { id: "cp_storm_landing", x: 10560, y: 576 },
     { id: "cp4", x: 11648, y: 576 },
     { id: "cp5", x: 14176, y: 576, restoresHealth: true }
   ],
@@ -82,19 +83,19 @@ export default {
       x: 10880,
       y: 256,
       triggerX: 10560,
-      activationDelayMs: 0,
-      telegraphMs: 720,
-      cooldownMs: 2200
+      activationDelayMs: 350,
+      telegraphMs: 900,
+      cooldownMs: 2400
     },
     {
       id: "e_magpie_storm_01",
       type: "magpie",
       x: 11456,
       y: 224,
-      triggerX: 10944,
-      activationDelayMs: 520,
-      telegraphMs: 680,
-      cooldownMs: 2100
+      triggerX: 11008,
+      activationDelayMs: 900,
+      telegraphMs: 800,
+      cooldownMs: 2200
     },
     { id: "e_alicorn_potato", type: "raw_potato", x: 12416, y: 576, patrol: 208 }
   ],
@@ -147,11 +148,11 @@ export default {
         id: "moving_cloud_combo",
         x: 10096,
         y: 456,
-        width: 144,
+        width: 176,
         height: 32,
         axis: "x",
-        distance: 224,
-        speed: 82
+        distance: 192,
+        speed: 70
       }
     ],
     updrafts: [
@@ -166,12 +167,12 @@ export default {
       },
       {
         id: "updraft_combo",
-        x: 10048,
+        x: 9984,
         y: 224,
-        width: 416,
+        width: 512,
         height: 352,
-        liftSpeed: 370,
-        liftAcceleration: 900
+        liftSpeed: 390,
+        liftAcceleration: 950
       }
     ],
     crumblePlatforms: [
@@ -186,12 +187,12 @@ export default {
       },
       {
         id: "crumble_combo",
-        x: 10352,
+        x: 10320,
         y: 496,
-        width: 144,
+        width: 176,
         height: 32,
-        crumbleDelayMs: 760,
-        respawnMs: 2300
+        crumbleDelayMs: 950,
+        respawnMs: 2000
       }
     ]
   },
