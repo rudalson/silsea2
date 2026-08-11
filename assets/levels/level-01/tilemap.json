@@ -26,7 +26,13 @@
         { "height": 40, "id": 16, "name": "pit_long_2", "rotation": 0, "type": "platform", "visible": true, "width": 128, "x": 10240, "y": 448 },
         { "height": 40, "id": 17, "name": "pit_long_3", "rotation": 0, "type": "platform", "visible": true, "width": 96, "x": 10432, "y": 512 },
         { "height": 48, "id": 18, "name": "alicorn_step_1", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 12288, "y": 480 },
-        { "height": 48, "id": 19, "name": "alicorn_step_2", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 12672, "y": 416 }
+        { "height": 48, "id": 19, "name": "alicorn_step_2", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 12672, "y": 416 },
+        { "height": 48, "id": 20, "name": "unicorn_upper_3", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 4800, "y": 448 },
+        { "height": 48, "id": 21, "name": "pegasus_high_perch", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 7040, "y": 416 },
+        { "height": 48, "id": 22, "name": "alicorn_upper_3", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 13056, "y": 352 },
+        { "height": 48, "id": 23, "name": "secret_step_1", "rotation": 0, "type": "platform", "visible": true, "width": 128, "x": 13440, "y": 496 },
+        { "height": 48, "id": 24, "name": "secret_step_2", "rotation": 0, "type": "platform", "visible": true, "width": 128, "x": 13632, "y": 416 },
+        { "height": 48, "id": 25, "name": "secret_sky_garden", "rotation": 0, "type": "platform", "visible": true, "width": 320, "x": 13824, "y": 336 }
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -36,7 +42,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 20,
+  "nextobjectid": 26,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
