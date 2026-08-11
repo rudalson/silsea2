@@ -165,8 +165,9 @@ export class TransformationManager {
     this.transformReleaseTimer = null;
     this.cameraResetTimer?.remove(false);
     this.cameraResetTimer = null;
-    if (this.savedCameraZoom !== undefined) this.scene.cameras.main.setZoom(this.savedCameraZoom);
-    this.scene.cameras.main.flashEffect?.reset?.();
+    const camera = this.scene?.cameras?.main;
+    if (camera && this.savedCameraZoom !== undefined) camera.setZoom(this.savedCameraZoom);
+    camera?.flashEffect?.reset?.();
     this.finishTransformPresentation();
   }
 

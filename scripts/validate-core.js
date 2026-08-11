@@ -241,6 +241,12 @@ if (bossDefeatBlock.indexOf("this.spawnGate()") > bossDefeatBlock.indexOf("EVENT
 if (!gameScene.includes("transformationManager?.cancelPresentation()") || !transformManager.includes("flashEffect?.reset?.()")) {
   fail("보스 처치 시 남은 변신 플래시를 해제하는 경로가 없음");
 }
+if (!transformManager.includes("this.scene?.cameras?.main")) {
+  fail("장면 종료 중 카메라가 먼저 제거되는 경우를 변신 연출 정리가 처리하지 못함");
+}
+if (!gameScene.includes("BOSS_CLEAR_DELAY_MS") || !gameScene.includes("this.handleGateEntered()")) {
+  fail("보스 처치 애니메이션 이후 자동 클리어 전환 경로가 없음");
+}
 if ([enemyManager, bossController].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
 if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {
   fail("현재 Phaser 버전에 없는 Math.MoveTowards 호출이 있음");

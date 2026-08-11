@@ -111,7 +111,7 @@ export class UIScene extends Phaser.Scene {
     this.onBossHit = ({ hp, maxHp }) => {
       this.bossText.setText(`감자 대왕  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
     };
-    this.onBossDefeated = () => this.showToast("보스 격파! 게이트가 열렸어요");
+    this.onBossDefeated = () => this.showToast("보스 격파! 무지개 언덕 클리어!");
     this.onFormChanged = ({ form }) => this.showToast(`${this.formName(form)} 변신!`);
     this.onFormWarning = () => this.showToast("알리콘 종료까지 3초!");
     this.onItemCollected = ({ type }) => {

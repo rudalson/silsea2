@@ -37,7 +37,7 @@ import { createRuntimeLevel, getDifficultySettings } from "../src/systems/Diffic
 import { HealthManager } from "../src/systems/HealthManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
-import { TRANSFORM_CAMERA_EASING } from "../src/systems/TransformationManager.js";
+import { TRANSFORM_CAMERA_EASING, TransformationManager } from "../src/systems/TransformationManager.js";
 import { getUpdraftVelocity } from "../src/systems/TerrainMechanicsManager.js";
 import { moveTowards } from "../src/utils/math.js";
 import { PALETTE } from "../data/palette.js";
@@ -69,6 +69,14 @@ assert.equal(TRANSFORM_CAMERA_EASING.restore(0), 0);
 assert.equal(TRANSFORM_CAMERA_EASING.restore(1), 1);
 assert.equal(typeof TRANSFORM_CAMERA_EASING.emphasize, "function");
 assert.equal(typeof TRANSFORM_CAMERA_EASING.restore, "function");
+const transformationTeardown = Object.create(TransformationManager.prototype);
+transformationTeardown.scene = { cameras: {} };
+transformationTeardown.savedCameraZoom = 1;
+transformationTeardown.transforming = false;
+assert.doesNotThrow(
+  () => transformationTeardown.cancelPresentation(),
+  "장면 종료 중 카메라가 먼저 제거되어도 변신 연출 정리가 실패하면 안 됨"
+);
 assert.ok(PALETTE.environmentSky.every((hex) => colorLuma(hex) > 0.78));
 assert.ok(PALETTE.environmentFar.every((hex) => colorLuma(hex) > 0.82));
 for (const hex of PALETTE.environmentMid) {

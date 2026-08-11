@@ -23,6 +23,8 @@ import { TerrainMechanicsManager } from "../systems/TerrainMechanicsManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
 import { moveTowards } from "../utils/math.js";
 
+const BOSS_CLEAR_DELAY_MS = 1500;
+
 export class GameScene extends Phaser.Scene {
   constructor() {
     super(SCENE_KEYS.GAME);
@@ -36,6 +38,7 @@ export class GameScene extends Phaser.Scene {
     this.lookAhead = 0;
     this.isCompleting = false;
     this.currentSectionId = null;
+    this.bossClearTimer = null;
   }
 
   create() {
@@ -245,7 +248,12 @@ export class GameScene extends Phaser.Scene {
     }
     this.cameraEffects.shake("bossDefeat");
     this.audioManager.playSfx("sfx_gate_spawn", { randomizeRate: false });
-    this.updateAccessibleStatus("감자 대왕을 격파했습니다. 오른쪽 무지개 게이트로 이동하세요.");
+    this.updateAccessibleStatus("감자 대왕을 격파했습니다. 잠시 후 클리어 화면으로 이동합니다.");
+    this.bossClearTimer?.remove(false);
+    this.bossClearTimer = this.time.delayedCall(BOSS_CLEAR_DELAY_MS, () => {
+      this.bossClearTimer = null;
+      this.handleGateEntered();
+    });
   }
 
   createGameplayManagers() {
@@ -440,6 +448,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   shutdown() {
+    this.bossClearTimer?.remove(false);
+    this.bossClearTimer = null;
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
     this.debugPanel?.destroy();
