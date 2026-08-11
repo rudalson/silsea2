@@ -1,4 +1,4 @@
-import { COLORS, CSS_COLORS } from "../config/constants.js";
+import { COLORS } from "../config/constants.js";
 
 const MOVING_PLATFORM_DEPTH = 2;
 const UPDRAFT_DEPTH = 1;
@@ -109,16 +109,7 @@ export class TerrainMechanicsManager {
         baseScaleY: image.scaleY
       };
     });
-    const label = this.scene.add.text(0, config.height / 2 - 16, "상승기류 ↑", {
-      fontFamily: "system-ui",
-      fontSize: "15px",
-      fontStyle: "700",
-      color: CSS_COLORS.white,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 7, y: 3 }
-    });
-    label.setOrigin(0.5, 1);
-    container.add([glow, ...gusts.map(({ image }) => image), label]);
+    container.add([glow, ...gusts.map(({ image }) => image)]);
 
     this.updrafts.push({
       ...config,

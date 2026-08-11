@@ -66,9 +66,8 @@ export class LevelLoader {
 
     if (canUseImages) {
       this.backgroundLayers = Object.entries(BACKGROUND_LAYERS).map(([layer, config]) => {
-        const image = this.track(this.scene.add.tileSprite(width / 2, height / 2, width * 1.2, height, keys[layer]));
-        image.setScrollFactor(this.level.parallax[layer], 0).setDepth(config.depth);
-        return { layer, image };
+        const tiles = this.createMirroredBackgroundTiles(layer, keys[layer], config.depth, width, height);
+        return { layer, tiles };
       });
       this.backgroundMood = initialMood;
       return;
@@ -95,9 +94,36 @@ export class LevelLoader {
     if (!keys || this.backgroundLayers.some(({ layer }) => !keys[layer] || !this.scene.textures.exists(keys[layer]))) {
       return false;
     }
-    for (const { layer, image } of this.backgroundLayers) image.setTexture(keys[layer]);
+    for (const { layer, tiles } of this.backgroundLayers) {
+      for (const image of tiles) image.setTexture(keys[layer]);
+    }
     this.backgroundMood = mood;
     return true;
+  }
+
+  createMirroredBackgroundTiles(layer, textureKey, depth, worldWidth, worldHeight) {
+    const source = this.scene.textures.get(textureKey)?.getSourceImage();
+    const tileWidth = source?.width ?? 2048;
+    const tileHeight = source?.height ?? worldHeight;
+    const tiles = [];
+
+    // 원본과 좌우 반전본을 교차하면 맞닿는 두 가장자리가 같은 픽셀이 되어,
+    // 개별 일러스트의 좌우 구도가 달라도 반복 지점에 수직 절단선이 생기지 않는다.
+    for (let index = -1; index * tileWidth < worldWidth + tileWidth; index += 1) {
+      const image = this.track(this.scene.add.image(
+        index * tileWidth + tileWidth / 2,
+        worldHeight / 2,
+        textureKey
+      ));
+      image
+        .setDisplaySize(tileWidth, Math.max(tileHeight, worldHeight))
+        .setFlipX(Math.abs(index) % 2 === 1)
+        .setScrollFactor(this.level.parallax[layer], 0)
+        .setDepth(depth);
+      tiles.push(image);
+    }
+
+    return tiles;
   }
 
   createTerrain() {

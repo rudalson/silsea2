@@ -230,8 +230,8 @@ if (!enemyManager.includes('"warning"') || !enemyManager.includes('"defeated"') 
 }
 if (!enemyAnimator.includes("frameRate: 1000")) fail("적 프레임별 duration 등록이 없음");
 if (menuScene.includes("GRAYBOX")) fail("메뉴에 Graybox 표기가 남아 있음");
-if (!levelLoader.includes("add.tileSprite") || !levelLoader.includes("setBackgroundMood")) {
-  fail("패럴랙스 배경 TileSprite 또는 무드 전환이 없음");
+if (!(levelLoader.includes("add.tileSprite") || levelLoader.includes("createMirroredBackgroundTiles")) || !levelLoader.includes("setBackgroundMood")) {
+  fail("패럴랙스 배경 반복 처리 또는 무드 전환이 없음");
 }
 if (!gameScene.includes("setBackgroundMood(section?.mood)")) fail("섹션 mood가 배경 전환에 연결되지 않음");
 if ([enemyManager, bossController].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
