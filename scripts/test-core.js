@@ -127,8 +127,10 @@ assert.equal(easySettings.player.flightDrainMultiplier, 0.65);
 assert.equal(easySettings.boss.telegraphMultiplier, 1.35);
 assert.equal(easySettings.pitScoreLoss, 0);
 assert.ok(easyLevel.checkpoints.some(({ id }) => id === "cp_easy"));
-assert.ok(!easyLevel.enemies.some(({ id }) => id === "e_cloud_01"));
-assert.ok(level01.enemies.some(({ id }) => id === "e_cloud_01"), "원본 레벨 데이터는 변경되면 안 됨");
+for (const enemyId of ["e_cloud_storm_01", "e_magpie_storm_01"]) {
+  assert.ok(!easyLevel.enemies.some(({ id }) => id === enemyId));
+  assert.ok(level01.enemies.some(({ id }) => id === enemyId), "원본 레벨 데이터는 변경되면 안 됨");
+}
 
 const comboEvents = [];
 const comboScore = new ScoreManager({ onComboChanged: (snapshot) => comboEvents.push({ ...snapshot }) });
