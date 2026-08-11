@@ -408,11 +408,11 @@ export class LevelLoader {
 
     if (hp <= 0) {
       const key = this.boss.getData("key");
-      this.objectiveManager.markBossDefeated(key);
-      this.scene.events.emit(EVENTS.BOSS_DEFEATED, key);
       this.boss.body.enable = false;
       this.boss.setData("defeated", true);
       this.spawnGate();
+      this.objectiveManager.markBossDefeated(key);
+      this.scene.events.emit(EVENTS.BOSS_DEFEATED, key);
     }
     return true;
   }

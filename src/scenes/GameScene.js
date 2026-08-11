@@ -238,6 +238,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleBossDefeated() {
+    this.transformationManager?.cancelPresentation();
     if (this.levelLoader.gate && !this.gateBound) {
       this.gateBound = true;
       this.bindGate(this.levelLoader.gate);

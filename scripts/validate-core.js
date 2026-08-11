@@ -234,6 +234,13 @@ if (!(levelLoader.includes("add.tileSprite") || levelLoader.includes("createMirr
   fail("패럴랙스 배경 반복 처리 또는 무드 전환이 없음");
 }
 if (!gameScene.includes("setBackgroundMood(section?.mood)")) fail("섹션 mood가 배경 전환에 연결되지 않음");
+const bossDefeatBlock = levelLoader.slice(levelLoader.indexOf("if (hp <= 0)"), levelLoader.indexOf("return true;", levelLoader.indexOf("if (hp <= 0)")));
+if (bossDefeatBlock.indexOf("this.spawnGate()") > bossDefeatBlock.indexOf("EVENTS.BOSS_DEFEATED")) {
+  fail("보스 처치 이벤트보다 게이트가 먼저 생성되지 않아 게이트 충돌 연결이 누락될 수 있음");
+}
+if (!gameScene.includes("transformationManager?.cancelPresentation()") || !transformManager.includes("flashEffect?.reset?.()")) {
+  fail("보스 처치 시 남은 변신 플래시를 해제하는 경로가 없음");
+}
 if ([enemyManager, bossController].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
 if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {
   fail("현재 Phaser 버전에 없는 Math.MoveTowards 호출이 있음");

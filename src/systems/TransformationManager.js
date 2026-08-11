@@ -160,6 +160,16 @@ export class TransformationManager {
     this.transformReleaseTimer = null;
   }
 
+  cancelPresentation() {
+    this.transformReleaseTimer?.remove(false);
+    this.transformReleaseTimer = null;
+    this.cameraResetTimer?.remove(false);
+    this.cameraResetTimer = null;
+    if (this.savedCameraZoom !== undefined) this.scene.cameras.main.setZoom(this.savedCameraZoom);
+    this.scene.cameras.main.flashEffect?.reset?.();
+    this.finishTransformPresentation();
+  }
+
   prepareMovement(input, delta) {
     const grounded = this.player.body.blocked.down || this.player.body.touching.down;
     const canFly = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
@@ -266,11 +276,8 @@ export class TransformationManager {
   }
 
   destroy() {
-    this.transformReleaseTimer?.remove(false);
-    this.cameraResetTimer?.remove(false);
     this.formVisualTimer?.remove(false);
-    this.finishTransformPresentation();
-    if (this.savedCameraZoom !== undefined) this.scene.cameras.main.setZoom(this.savedCameraZoom);
+    this.cancelPresentation();
     this.horn.destroy();
     this.wings.destroy();
     this.rainbowOverlay.destroy();
