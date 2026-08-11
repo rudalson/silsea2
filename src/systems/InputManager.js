@@ -10,6 +10,7 @@ export class InputManager {
       pause: false,
       shakeToggle: false,
       muteToggle: false,
+      exportReport: false,
       debug: false,
       menuUp: false,
       menuDown: false,
@@ -34,6 +35,7 @@ export class InputManager {
       pause: Phaser.Input.Keyboard.KeyCodes.ESC,
       shakeToggle: Phaser.Input.Keyboard.KeyCodes.V,
       muteToggle: Phaser.Input.Keyboard.KeyCodes.M,
+      exportReport: Phaser.Input.Keyboard.KeyCodes.E,
       debug: Phaser.Input.Keyboard.KeyCodes.BACKTICK
     });
 
@@ -59,6 +61,7 @@ export class InputManager {
     const pause = this.keys.pause.isDown || Boolean(pad?.buttons[9]?.pressed);
     const shakeToggle = this.keys.shakeToggle.isDown;
     const muteToggle = this.keys.muteToggle.isDown;
+    const exportReport = this.keys.exportReport.isDown;
     const debug = this.keys.debug.isDown;
     const verticalAxis = pad?.axes[1]?.getValue() ?? 0;
     const menuUp = this.keys.up.isDown || this.keys.w.isDown || Boolean(pad?.buttons[12]?.pressed) || verticalAxis < -0.5;
@@ -78,6 +81,7 @@ export class InputManager {
       pausePressed: pause && !this.previous.pause,
       shakeTogglePressed: shakeToggle && !this.previous.shakeToggle,
       muteTogglePressed: muteToggle && !this.previous.muteToggle,
+      exportPressed: exportReport && !this.previous.exportReport,
       menuUpPressed: menuUp && !this.previous.menuUp,
       menuDownPressed: menuDown && !this.previous.menuDown,
       menuLeftPressed: menuLeft && !this.previous.menuLeft,
@@ -92,6 +96,7 @@ export class InputManager {
       pause,
       shakeToggle,
       muteToggle,
+      exportReport,
       debug,
       menuUp,
       menuDown,

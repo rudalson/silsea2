@@ -18,8 +18,8 @@ export class StageSelectScene extends Phaser.Scene {
     this.audioManager = new AudioManager(this);
     this.cards = [];
 
-    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "bg_stage_select").setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.outline, 0.1);
+    this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "bg_stage_select_calm").setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.outline, 0.08);
     this.add.rectangle(GAME_WIDTH / 2, 90, 484, 106, COLORS.near, 0.85)
       .setStrokeStyle(4, COLORS.collect, 0.9)
       .setDepth(2);
@@ -127,7 +127,9 @@ export class StageSelectScene extends Phaser.Scene {
       entry.card.setStrokeStyle(selected ? 8 : 4, selected ? COLORS.collect : COLORS.outline);
       entry.card.setScale(selected ? 1.05 : 1).setAlpha(selected ? 1 : 0.7);
       entry.previewFrame.setStrokeStyle(selected ? 5 : 3, selected ? COLORS.collect : COLORS.outline).setAlpha(selected ? 1 : 0.72);
-      entry.preview.setScale(selected ? 1.02 : 0.96).setAlpha(selected ? 1 : 0.72);
+      entry.preview
+        .setDisplaySize(selected ? 310 : 292, selected ? 171 : 161)
+        .setAlpha(selected ? 1 : 0.72);
       entry.order.setAlpha(selected ? 1 : 0.7);
       entry.title.setColor(selected ? CSS_COLORS.collect : CSS_COLORS.white);
       entry.description.setAlpha(selected ? 1 : 0.62);

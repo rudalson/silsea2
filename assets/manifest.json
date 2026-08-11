@@ -391,6 +391,7 @@
     { "key": "bg_intro", "type": "image", "url": "/assets/backgrounds/bg_intro.png", "width": 1680, "height": 944 },
     { "key": "bg_character_select", "type": "image", "url": "/assets/backgrounds/bg_character_select.png", "width": 1680, "height": 944 },
     { "key": "bg_stage_select", "type": "image", "url": "/assets/backgrounds/bg_stage_select.png", "width": 1680, "height": 944 },
+    { "key": "bg_stage_select_calm", "type": "image", "url": "/assets/backgrounds/bg_stage_select_calm.png", "width": 1672, "height": 941 },
     { "key": "stage_preview_rainbow_hill", "type": "image", "url": "/assets/backgrounds/stage_preview_rainbow_hill.png", "width": 1680, "height": 944 },
     { "key": "sfx_jump", "type": "audio", "url": "/assets/audio/sfx/sfx_jump.wav", "category": "sfx" },
     { "key": "sfx_land", "type": "audio", "url": "/assets/audio/sfx/sfx_land.wav", "category": "sfx" },

@@ -6,6 +6,7 @@ import { AssetManager } from "../systems/AssetManager.js";
 import { AudioManager } from "../systems/AudioManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
 import { InputManager } from "../systems/InputManager.js";
+import { downloadPlaytestBundle } from "../systems/PlaytestManager.js";
 
 export class ClearScene extends Phaser.Scene {
   constructor() {
@@ -20,6 +21,7 @@ export class ClearScene extends Phaser.Scene {
     const level = getLevel(this.result.levelId);
     const next = getNextLevel(level.id);
     const character = getCharacter(this.result.characterId);
+    const playtestBundle = this.result.playtestBundle ?? null;
     this.cameras.main.setBackgroundColor(COLORS.near);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
@@ -63,12 +65,42 @@ export class ClearScene extends Phaser.Scene {
       fontSize: "20px",
       color: CSS_COLORS.soft
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, 552, next ? `다음 스테이지: ${next.name}` : "모든 Graybox 스테이지 완료", {
+    if (playtestBundle) {
+      const session = playtestBundle.currentSession;
+      const analysis = playtestBundle.analysis;
+      const remaining = analysis.remainingTesters > 0
+        ? `조정 판단까지 서로 다른 테스트 ID ${analysis.remainingTesters}명 더 필요`
+        : "3명 기록 확보 · 두 명 이상 겹친 구간을 JSON에서 확인";
+      this.add.text(
+        GAME_WIDTH / 2,
+        520,
+        `PLAYTEST ${session.testerId} · 피격 ${session.metrics.hits} · 추락 ${session.metrics.falls} · 정체 ${session.metrics.stalls}\n${remaining}`,
+        {
+          align: "center",
+          fontFamily: "system-ui",
+          fontSize: "16px",
+          fontStyle: "700",
+          color: CSS_COLORS.white,
+          lineSpacing: 6
+        }
+      ).setOrigin(0.5);
+      this.exportButton = this.add.text(GAME_WIDTH / 2, 580, "E / 클릭 · 플레이테스트 JSON 저장", {
+        fontFamily: "system-ui",
+        fontSize: "17px",
+        fontStyle: "800",
+        color: CSS_COLORS.near,
+        backgroundColor: CSS_COLORS.collectSoft,
+        padding: { x: 16, y: 8 }
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      this.exportButton.on("pointerdown", () => this.exportPlaytest());
+    }
+
+    this.add.text(GAME_WIDTH / 2, playtestBundle ? 628 : 552, next ? `다음 스테이지: ${next.name}` : "모든 Graybox 스테이지 완료", {
       fontFamily: "system-ui",
       fontSize: "18px",
       color: CSS_COLORS.collectBlue
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, 632, "Space / Z로 스테이지 선택으로", {
+    this.add.text(GAME_WIDTH / 2, playtestBundle ? 678 : 632, "Space / Z로 스테이지 선택으로", {
       fontFamily: "system-ui",
       fontSize: "19px",
       fontStyle: "700",
@@ -83,9 +115,17 @@ export class ClearScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.inputManager.sample().confirmPressed) {
+    const input = this.inputManager.sample();
+    if (this.result.playtestBundle && input.exportPressed) this.exportPlaytest();
+    if (input.confirmPressed) {
       this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
       this.scene.start(SCENE_KEYS.STAGE_SELECT);
     }
+  }
+
+  exportPlaytest() {
+    if (!downloadPlaytestBundle(this.result.playtestBundle)) return;
+    this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.exportButton?.setText("저장 완료 · JSON 파일 확인");
   }
 }

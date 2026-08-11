@@ -93,6 +93,7 @@
   "bg_intro": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "첫 타이틀 화면 전용의 밝은 무지개 계곡. 중앙 제목 영역을 비워 두고, 아동용 모험의 시작과 진행 방향을 보여 주는 황금 길을 사용." },
   "bg_character_select": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "캐릭터 선택 화면 전용의 하늘 정원. 양쪽 무지개·구름·탑 장식은 프레임으로 쓰고, 두 선택 카드가 읽히도록 중앙을 밝게 비워 둠." },
   "bg_stage_select": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "스테이지 선택 전용의 떠 있는 지도 정원. 화면 외곽의 섬과 황금 길은 세계 지도 분위기를 만들고, 중앙은 선택 카드 영역으로 비워 둠." },
+  "bg_stage_select_calm": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "선택 카드와 스테이지 미리보기가 먼저 읽히도록 채도와 대비를 낮춘 월드맵 배경. 구름과 떠 있는 섬을 가장자리에만 배치하고 중앙은 넓게 비워 둠." },
   "stage_preview_rainbow_hill": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "무지개 언덕 스테이지 카드에 쓰는 작은 풍경 미리보기. 무지개·언덕·황금 길·플랫폼 가장자리로 첫 모험의 분위기를 전달." },
 
   "grass_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "팔레트와 흙/잔디 층만 참고해 코드 생성. 이미지 생성 금지." },

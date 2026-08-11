@@ -16,6 +16,7 @@ import { InputManager } from "../systems/InputManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
 import { ObjectiveManager } from "../systems/ObjectiveManager.js";
 import { ParticleEffectsManager } from "../systems/ParticleEffectsManager.js";
+import { PlaytestManager } from "../systems/PlaytestManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 import { ScoreManager } from "../systems/ScoreManager.js";
 import { TerrainMechanicsManager } from "../systems/TerrainMechanicsManager.js";
@@ -63,6 +64,14 @@ export class GameScene extends Phaser.Scene {
     );
     this.particleEffects = new ParticleEffectsManager(this);
     this.createGameplayManagers();
+    this.playtestManager = new PlaytestManager(this, this.player, {
+      enabled: Boolean(this.registry.get("playtestEnabled")),
+      testerId: this.registry.get("playtestTesterId"),
+      level: this.level,
+      characterId: this.character.id,
+      easyMode,
+      persistIncomplete: !this.registry.get("visualReviewSectionId")
+    });
 
     this.bindWorldInteractions();
     this.configureCamera();
@@ -118,6 +127,7 @@ export class GameScene extends Phaser.Scene {
     this.bossController?.update(time, delta);
     this.updateMagnet(delta);
     this.elapsed += delta / 1000;
+    this.playtestManager?.update(this.elapsed, this.player);
     this.objectiveManager.update(this.elapsed);
     this.scoreManager.update(delta);
 
@@ -342,6 +352,11 @@ export class GameScene extends Phaser.Scene {
       .map((objective) => objective.type);
     const score = this.scoreManager.score;
     progressManager.complete(this.level.id, score, achieved);
+    const playtestBundle = this.playtestManager?.complete({
+      elapsedSeconds: this.elapsed,
+      score,
+      achieved
+    });
     this.updateAccessibleStatus(`${this.level.name} 클리어.`);
 
     this.time.delayedCall(320, () => {
@@ -351,7 +366,8 @@ export class GameScene extends Phaser.Scene {
         characterId: this.character.id,
         elapsed: this.elapsed,
         score,
-        achieved
+        achieved,
+        playtestBundle
       });
     });
   }
@@ -430,6 +446,8 @@ export class GameScene extends Phaser.Scene {
     this.debugPanel?.destroy();
     this.debugPanel = null;
     this.inputManager?.destroy();
+    this.playtestManager?.destroy();
+    this.playtestManager = null;
     this.audioManager?.destroy();
     this.cameraEffects?.destroy();
     this.destroyGameplayManagers();

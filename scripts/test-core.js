@@ -19,6 +19,12 @@ import {
   stepFlightGauge
 } from "../src/data/gameplay.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
+import {
+  PLAYTEST_STORAGE_KEY,
+  PlaytestManager,
+  analyzePlaytestSessions,
+  sanitizeTesterId
+} from "../src/systems/PlaytestManager.js";
 import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../src/data/particleEffects.js";
 import {
   ALICORN_LAYER_KEY,
@@ -181,6 +187,104 @@ assert.equal(restHealth.restoreFull(), true);
 assert.equal(restHealth.hp, 3);
 assert.deepEqual(healthEvents.at(-1), { event: "player:hp-changed", payload: { hp: 3, maxHp: 3 } });
 assert.equal(restHealth.restoreFull(), false);
+
+assert.equal(sanitizeTesterId(" 어린이 01 "), "어린이-01");
+const playtestAnalysis = analyzePlaytestSessions([
+  {
+    testerId: "child-01",
+    levelId: "level-01",
+    mode: "normal",
+    completed: true,
+    durationSeconds: 420,
+    events: [{ type: "hit", sectionId: "storm_path" }]
+  },
+  {
+    testerId: "child-02",
+    levelId: "level-01",
+    mode: "easy",
+    completed: true,
+    durationSeconds: 360,
+    events: [{ type: "fall", sectionId: "storm_path" }]
+  },
+  {
+    testerId: "child-03",
+    levelId: "level-01",
+    mode: "normal",
+    completed: true,
+    durationSeconds: 480,
+    events: []
+  }
+], "level-01");
+assert.equal(playtestAnalysis.readyForTuning, true);
+assert.equal(playtestAnalysis.durationCoverageComplete, true);
+assert.equal(playtestAnalysis.durationPass, true);
+assert.deepEqual(playtestAnalysis.adjustmentCandidates, [{
+  sectionId: "storm_path",
+  hits: 1,
+  falls: 1,
+  stalls: 0,
+  affectedTesters: 2,
+  needsAdjustment: true
+}]);
+
+const playtestListeners = new Map();
+const playtestStorage = new Map();
+const playtestScene = {
+  events: {
+    on(event, handler) {
+      const handlers = playtestListeners.get(event) ?? [];
+      handlers.push(handler);
+      playtestListeners.set(event, handlers);
+    },
+    off(event, handler) {
+      playtestListeners.set(event, (playtestListeners.get(event) ?? []).filter((entry) => entry !== handler));
+    },
+    emit(event, payload) {
+      for (const handler of playtestListeners.get(event) ?? []) handler(payload);
+    }
+  }
+};
+const playtestPlayer = { x: 128, y: 576 };
+const playtestManager = new PlaytestManager(playtestScene, playtestPlayer, {
+  enabled: true,
+  testerId: "Child 04",
+  characterId: "silsea",
+  level: level01,
+  storage: {
+    getItem: (key) => playtestStorage.get(key) ?? null,
+    setItem: (key, value) => playtestStorage.set(key, value)
+  },
+  now: () => 1000
+});
+playtestManager.update(0, playtestPlayer);
+playtestScene.events.emit("player:hit", { hp: 2 });
+playtestManager.update(21, playtestPlayer);
+playtestScene.events.emit("player:fell");
+playtestPlayer.x = 320;
+playtestManager.update(22, playtestPlayer);
+const playtestBundle = playtestManager.complete({ elapsedSeconds: 420, score: 1234, achieved: ["collect_stars"] });
+assert.equal(playtestBundle.currentSession.testerId, "child-04");
+assert.equal(playtestBundle.currentSession.metrics.hits, 1);
+assert.equal(playtestBundle.currentSession.metrics.falls, 1);
+assert.ok(playtestBundle.currentSession.metrics.stalls >= 1);
+assert.equal(playtestBundle.currentSession.completed, true);
+assert.equal(playtestBundle.sessions.length, 1);
+playtestManager.destroy();
+const visualReviewManager = new PlaytestManager(playtestScene, playtestPlayer, {
+  enabled: true,
+  testerId: "visual-review",
+  characterId: "silsea",
+  level: level01,
+  persistIncomplete: false,
+  storage: {
+    getItem: (key) => playtestStorage.get(key) ?? null,
+    setItem: (key, value) => playtestStorage.set(key, value)
+  },
+  now: () => 2000
+});
+visualReviewManager.update(6, playtestPlayer);
+visualReviewManager.destroy();
+assert.equal(JSON.parse(playtestStorage.get(PLAYTEST_STORAGE_KEY)).length, 1, "visualReview 기록은 실제 테스트 세션에 섞이면 안 됨");
 
 const comboEvents = [];
 const comboScore = new ScoreManager({ onComboChanged: (snapshot) => comboEvents.push({ ...snapshot }) });
@@ -387,4 +491,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 밝은 환경 팔레트 명도·청록 편향 차단, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 지형 장치 완화, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 밝은 환경 팔레트 명도·청록 편향 차단, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 지형 장치 완화, 플레이테스트 계측·핫스폿 분석, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

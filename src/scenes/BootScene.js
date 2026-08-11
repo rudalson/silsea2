@@ -15,13 +15,15 @@ export class BootScene extends Phaser.Scene {
     AssetManager.queueCharacterPortraits(this);
     AssetManager.queueManifestAsset(this, "bg_intro");
     AssetManager.queueManifestAsset(this, "bg_character_select");
-    AssetManager.queueManifestAsset(this, "bg_stage_select");
+    AssetManager.queueManifestAsset(this, "bg_stage_select_calm");
     AssetManager.queueManifestAsset(this, "stage_preview_rainbow_hill");
   }
 
   create() {
     const query = new URLSearchParams(window.location.search);
     const requestedCharacter = query.get("character");
+    const playtestEnabled = query.get("playtest") === "1";
+    const playtestTesterId = query.get("tester") ?? "anonymous";
     const characterId = CHARACTER_LIST.some(({ id }) => id === requestedCharacter)
       ? requestedCharacter
       : CHARACTER_LIST[0].id;
@@ -48,7 +50,9 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("visualReviewZoom", reviewLevel ? reviewZoom : null);
     this.registry.set("visualReviewPresentation", Boolean(reviewLevel && query.get("presentation") === "1"));
     this.registry.set("debugEnabled", DEBUG_ENABLED);
-    this.registry.set("easyMode", false);
+    this.registry.set("easyMode", query.get("easy") === "1");
+    this.registry.set("playtestEnabled", playtestEnabled);
+    this.registry.set("playtestTesterId", playtestTesterId);
     this.registry.set("screenShakeEnabled", true);
     this.registry.set("audioMuted", false);
     this.registry.set("sfxVolume", 0.72);
