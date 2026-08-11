@@ -359,16 +359,14 @@ export class GameScene extends Phaser.Scene {
     });
     this.updateAccessibleStatus(`${this.level.name} 클리어.`);
 
-    this.time.delayedCall(320, () => {
-      this.scene.stop(SCENE_KEYS.UI);
-      this.scene.start(SCENE_KEYS.CLEAR, {
-        levelId: this.level.id,
-        characterId: this.character.id,
-        elapsed: this.elapsed,
-        score,
-        achieved,
-        playtestBundle
-      });
+    this.scene.stop(SCENE_KEYS.UI);
+    this.scene.start(SCENE_KEYS.CLEAR, {
+      levelId: this.level.id,
+      characterId: this.character.id,
+      elapsed: this.elapsed,
+      score,
+      achieved,
+      playtestBundle
     });
   }
 

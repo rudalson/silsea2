@@ -20,6 +20,8 @@ export class ClearScene extends Phaser.Scene {
   create() {
     const level = getLevel(this.result.levelId);
     const next = getNextLevel(level.id);
+    this.nextLevel = next;
+    this.starting = false;
     const character = getCharacter(this.result.characterId);
     const playtestBundle = this.result.playtestBundle ?? null;
     this.cameras.main.setBackgroundColor(COLORS.near);
@@ -95,19 +97,30 @@ export class ClearScene extends Phaser.Scene {
       this.exportButton.on("pointerdown", () => this.exportPlaytest());
     }
 
-    this.add.text(GAME_WIDTH / 2, playtestBundle ? 628 : 552, next ? `다음 스테이지: ${next.name}` : "모든 Graybox 스테이지 완료", {
+    const actionY = playtestBundle ? 618 : 558;
+    this.add.text(GAME_WIDTH / 2, actionY - 50, next ? `다음 스테이지: ${next.name}` : "모든 스테이지를 완료했습니다!", {
       fontFamily: "system-ui",
       fontSize: "18px",
       color: CSS_COLORS.collectBlue
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, playtestBundle ? 678 : 632, "Space / Z로 스테이지 선택으로", {
-      fontFamily: "system-ui",
-      fontSize: "19px",
-      fontStyle: "700",
-      color: CSS_COLORS.near,
-      backgroundColor: CSS_COLORS.whiteSoft,
-      padding: { x: 18, y: 10 }
-    }).setOrigin(0.5);
+
+    if (next) {
+      this.createActionButton(GAME_WIDTH / 2 - 190, actionY, "다음 스테이지 시작", true, () => this.startNextLevel());
+      this.createActionButton(GAME_WIDTH / 2 + 190, actionY, "스테이지 선택", false, () => this.goToStageSelect());
+    } else {
+      this.createActionButton(GAME_WIDTH / 2, actionY, "스테이지 선택", true, () => this.goToStageSelect());
+    }
+    this.add.text(
+      GAME_WIDTH / 2,
+      actionY + 58,
+      next ? "Space / Z · 다음 스테이지   ·   Esc · 스테이지 선택" : "Space / Z / Esc · 스테이지 선택",
+      {
+        fontFamily: "system-ui",
+        fontSize: "15px",
+        fontStyle: "700",
+        color: CSS_COLORS.white
+      }
+    ).setOrigin(0.5);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.inputManager.destroy();
       this.audioManager.destroy();
@@ -117,10 +130,42 @@ export class ClearScene extends Phaser.Scene {
   update() {
     const input = this.inputManager.sample();
     if (this.result.playtestBundle && input.exportPressed) this.exportPlaytest();
-    if (input.confirmPressed) {
-      this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
-      this.scene.start(SCENE_KEYS.STAGE_SELECT);
+    if (input.confirmPressed) this.startNextLevel();
+    if (input.pausePressed) this.goToStageSelect();
+  }
+
+  createActionButton(x, y, label, primary, onPress) {
+    const button = this.add.text(x, y, label, {
+      fontFamily: "system-ui",
+      fontSize: "19px",
+      fontStyle: "800",
+      color: primary ? CSS_COLORS.near : CSS_COLORS.white,
+      backgroundColor: primary ? CSS_COLORS.collect : CSS_COLORS.panelSoft,
+      padding: { x: 20, y: 11 }
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    button.on("pointerover", () => button.setScale(1.05));
+    button.on("pointerout", () => button.setScale(1));
+    button.on("pointerdown", onPress);
+    return button;
+  }
+
+  startNextLevel() {
+    if (this.starting) return;
+    if (!this.nextLevel) {
+      this.goToStageSelect();
+      return;
     }
+    this.starting = true;
+    this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.registry.set("levelId", this.nextLevel.id);
+    this.scene.start(SCENE_KEYS.PRELOAD, { levelId: this.nextLevel.id });
+  }
+
+  goToStageSelect() {
+    if (this.starting) return;
+    this.starting = true;
+    this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.scene.start(SCENE_KEYS.STAGE_SELECT);
   }
 
   exportPlaytest() {

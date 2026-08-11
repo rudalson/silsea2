@@ -416,7 +416,7 @@ export class LevelLoader {
       );
       label.setOrigin(0.5).setDepth(5);
     }
-    const zone = this.scene.add.zone(x, y - 70, 92, 140);
+    const zone = this.scene.add.zone(x, y - 76, 164, 188);
     this.scene.physics.add.existing(zone, true);
     this.gate = { zone, arch, label };
     return this.gate;

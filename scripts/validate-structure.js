@@ -79,6 +79,15 @@ if (!playtestManager.includes("PLAYTEST_STALL_SECONDS") || !playtestManager.incl
 if (!clearScene.includes("downloadPlaytestBundle") || !clearScene.includes("input.exportPressed")) {
   fail("클리어 화면에 플레이테스트 JSON 저장 경로가 없음");
 }
+if (!gameScene.includes("this.scene.start(SCENE_KEYS.CLEAR") || gameScene.includes("this.time.delayedCall(320")) {
+  fail("게이트 완료 뒤 즉시 클리어 화면으로 전환되지 않음");
+}
+if (!clearScene.includes("startNextLevel") || !clearScene.includes("goToStageSelect")) {
+  fail("클리어 화면에 다음 스테이지·스테이지 선택 이동 경로가 없음");
+}
+if (!clearScene.includes("createActionButton") || !clearScene.includes("input.pausePressed")) {
+  fail("클리어 화면의 직접 선택 버튼 또는 Esc 복귀가 없음");
+}
 
 if (errors.length) {
   console.error(`구조 검증 실패 (${errors.length})`);
@@ -86,4 +95,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: 공용 GameScene, Boss section, InputManager, level-02 레지스트리, visualReview·playtest 진입점, 디버그 표시 격리");
+console.log("구조 검증 통과: 공용 GameScene, Boss section, 클리어 전환·다음 스테이지 경로, InputManager, level-02 레지스트리, visualReview·playtest 진입점, 디버그 표시 격리");
