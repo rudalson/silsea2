@@ -252,7 +252,7 @@ export class UIScene extends Phaser.Scene {
     this.pauseOverlay.add(this.add.text(
       640,
       512,
-      "조작 안내\n이동  ← → / A D / 왼쪽 스틱\n점프  Space / Z / 게임패드 A\n특수  Shift / X / 게임패드 X\n일시정지  Esc / Start   ·   음소거  M   ·   화면 흔들림  V",
+      "조작 안내\n이동  ← → / A D / 왼쪽 스틱\n점프·비행  Space / Z / 게임패드 A\n일시정지  Esc / Start   ·   음소거  M   ·   화면 흔들림  V",
       {
         align: "center",
         fontFamily: "system-ui",

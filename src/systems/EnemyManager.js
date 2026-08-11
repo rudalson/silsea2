@@ -202,7 +202,8 @@ export class EnemyManager {
         this.scene.cameras.main.flash(105, 255, 243, 153);
         this.scene.cameraEffects?.shake("lightning");
         EnemyAnimationManager.play(enemy, "attack", false);
-        enemy.clearTint().setScale(1);
+        this.clearTelegraphColor(enemy);
+        enemy.setScale(1);
         enemy.getData("targetMarker")?.setVisible(false).setScale(1).setAlpha(1);
         enemy.setData({ state: "cooldown", stateUntil: now + (enemy.getData("cooldownMs") ?? 1500) });
       }
@@ -217,7 +218,7 @@ export class EnemyManager {
     const targetY = this.levelLoader.findSafeY(targetX);
     const telegraphMs = enemy.getData("telegraphMs") ?? 700;
     enemy.setData({ state: "telegraph", stateUntil: now + telegraphMs, targetX, targetY });
-    enemy.setTintFill(COLORS.collectBlue);
+    this.applyTelegraphColor(enemy, COLORS.collectBlue);
     EnemyAnimationManager.play(enemy, "warning");
     this.scene.audioManager?.playSfx("sfx_cloud_charge", { randomizeRate: false });
     this.showTargetMarker(enemy, targetX, targetY - 5, COLORS.dangerAlt);
@@ -243,7 +244,7 @@ export class EnemyManager {
         const diveSpeed = enemy.getData("diveSpeed") ?? 620;
         enemy.body.setVelocity(Math.cos(angle) * diveSpeed, Math.sin(angle) * diveSpeed);
         enemy.setData({ state: "dive", stateUntil: now + (enemy.getData("diveDurationMs") ?? 620), activeAttack: true });
-        enemy.clearTint();
+        this.clearTelegraphColor(enemy);
         EnemyAnimationManager.play(enemy, "attack");
       }
     } else if (state === "dive" && now >= enemy.getData("stateUntil")) {
@@ -266,7 +267,7 @@ export class EnemyManager {
     const targetY = this.levelLoader.findSafeY(targetX) - 28;
     const telegraphMs = enemy.getData("telegraphMs") ?? 650;
     enemy.setData({ state: "telegraph", stateUntil: now + telegraphMs, targetX, targetY });
-    enemy.setTintFill(COLORS.danger);
+    this.applyTelegraphColor(enemy, COLORS.danger);
     EnemyAnimationManager.play(enemy, "warning");
     this.scene.audioManager?.playSfx("sfx_magpie_warning", { randomizeRate: false });
     this.showTargetMarker(enemy, targetX, targetY + 24, COLORS.danger);
@@ -364,9 +365,20 @@ export class EnemyManager {
     marker.setPosition(x, y).setFillStyle(color, 0.36).setVisible(true).setScale(1).setAlpha(1);
   }
 
+  applyTelegraphColor(enemy, color) {
+    if (enemy.getData("usesArt")) enemy.setTintFill?.(color);
+    else enemy.setFillStyle?.(color);
+  }
+
+  clearTelegraphColor(enemy) {
+    if (enemy.getData("usesArt")) enemy.clearTint?.();
+    else enemy.setFillStyle?.(enemy.getData("fallbackColor") ?? COLORS.danger);
+  }
+
   cancelTelegraph(enemy) {
     if (!["telegraph", "waiting"].includes(enemy.getData("state"))) return;
-    enemy.clearTint().setScale(1);
+    this.clearTelegraphColor(enemy);
+    enemy.setScale(1);
     enemy.getData("targetMarker")?.setVisible(false).setScale(1).setAlpha(1);
     enemy.setData("state", "idle");
     EnemyAnimationManager.play(enemy, "idle");

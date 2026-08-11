@@ -111,7 +111,7 @@ export class GameScene extends Phaser.Scene {
     if (visualReviewZoom) this.cameras.main.setZoom(visualReviewZoom);
 
     this.updateAccessibleStatus(
-      `${this.level.name} 시작. ${this.character.name} 선택됨.${this.difficulty.enabled ? " 쉬운 모드." : ""}`
+      `${this.level.name} 시작. ${this.character.name} 선택됨.${this.difficulty.enabled ? " 쉬운 모드." : ""}${this.registry.get("forceAssetFallback") ? " 도형·무음 fallback 모드." : ""}`
     );
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }

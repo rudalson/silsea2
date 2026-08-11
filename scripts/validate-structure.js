@@ -30,6 +30,8 @@ const clearScene = await readFile(join(root, "src", "scenes", "ClearScene.js"), 
 const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
 const levelLoader = await readFile(join(root, "src", "systems", "LevelLoader.js"), "utf8");
 const playtestManager = await readFile(join(root, "src", "systems", "PlaytestManager.js"), "utf8");
+const assetManager = await readFile(join(root, "src", "systems", "AssetManager.js"), "utf8");
+const enemyManager = await readFile(join(root, "src", "systems", "EnemyManager.js"), "utf8");
 const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
 for (const forbidden of LEVELS.flatMap((level) => [level.id, level.name])) {
   if (gameScene.includes(forbidden)) fail(`GameScene에 특정 레벨 참조가 있음: ${forbidden}`);
@@ -69,6 +71,12 @@ if (!levelLoader.includes('registry.get("debugEnabled")')) fail("구간 마커�
 if (!uiScene.includes('setVisible(this.registry.get("debugEnabled"))')) fail("FPS 표시가 디버그 상태에 연결되지 않음");
 if (!bootScene.includes('query.get("playtest")') || !bootScene.includes('query.get("tester")')) {
   fail("익명 플레이테스트 진입 쿼리가 없음");
+}
+if (!bootScene.includes('query.get("fallback")') || !assetManager.includes('get?.("forceAssetFallback")')) {
+  fail("이미지·오디오 fallback 전체 검증 진입점이 없음");
+}
+if (!enemyManager.includes("applyTelegraphColor") || !enemyManager.includes("clearTelegraphColor")) {
+  fail("도형 fallback 적의 공격 예고 색상 전환이 안전하지 않음");
 }
 if (!gameScene.includes("new PlaytestManager") || !gameScene.includes("playtestManager?.complete")) {
   fail("GameScene에 플레이테스트 세션 시작·완료가 연결되지 않음");

@@ -10,6 +10,11 @@ export class BootScene extends Phaser.Scene {
     super(SCENE_KEYS.BOOT);
   }
 
+  init() {
+    const query = new URLSearchParams(window.location.search);
+    this.registry.set("forceAssetFallback", query.get("fallback") === "1");
+  }
+
   preload() {
     AssetManager.queueAudioAssets(this);
     AssetManager.queueCharacterPortraits(this);

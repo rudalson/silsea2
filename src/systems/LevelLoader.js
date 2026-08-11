@@ -300,7 +300,8 @@ export class LevelLoader {
         state: "idle",
         stateUntil: 0,
         activeAttack: false,
-        usesArt
+        usesArt,
+        fallbackColor: definition?.color ?? COLORS.danger
       });
       if (usesArt) EnemyAnimationManager.play(marker, enemy.type === "raw_potato" ? "move" : "idle");
       const label = this.track(

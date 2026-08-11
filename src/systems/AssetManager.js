@@ -55,6 +55,7 @@ export class AssetManager {
     const sourceUrl = entry?.url ?? entry?.file;
     const url = sourceUrl ? resolveRuntimeAssetUrl(sourceUrl) : null;
     if (!entry || !url || entry.type === "placeholder") return false;
+    if (scene.registry?.get?.("forceAssetFallback")) return false;
     if (entry.type === "audio") {
       if (!scene.cache.audio.exists(key)) scene.load.audio(key, url);
       return true;

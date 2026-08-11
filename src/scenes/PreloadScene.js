@@ -19,12 +19,18 @@ export class PreloadScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(COLORS.near);
     const barBg = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 520, 26, COLORS.outline).setOrigin(0.5);
     const bar = this.add.rectangle(GAME_WIDTH / 2 - 252, GAME_HEIGHT / 2, 0, 14, COLORS.collect).setOrigin(0, 0.5);
-    const label = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 58, `${this.level.name} 준비 중`, {
-      fontFamily: "system-ui",
-      fontSize: "26px",
-      fontStyle: "700",
-      color: CSS_COLORS.white
-    }).setOrigin(0.5);
+    const usingFallback = Boolean(this.registry.get("forceAssetFallback"));
+    const label = this.add.text(
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2 - 58,
+      usingFallback ? `${this.level.name} 도형·무음 모드 준비 중` : `${this.level.name} 준비 중`,
+      {
+        fontFamily: "system-ui",
+        fontSize: "26px",
+        fontStyle: "700",
+        color: CSS_COLORS.white
+      }
+    ).setOrigin(0.5);
 
     this.load.on(Phaser.Loader.Events.PROGRESS, (progress) => {
       bar.width = 504 * progress;
