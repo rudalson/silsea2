@@ -195,8 +195,8 @@ export class GameScene extends Phaser.Scene {
         this.tweens.add({ targets: checkpoint.visuals, scale: 1.16, duration: 110, yoyo: true });
         this.updateAccessibleStatus(
           checkpoint.data.restoresHealth
-            ? `${checkpoint.data.id} 휴식 지점 도착. 체력과 비행 에너지가 회복되었습니다.`
-            : `${checkpoint.data.id} 체크포인트 도착.`
+            ? "휴식 지점 도착. 체력과 비행 에너지가 회복되었습니다."
+            : "안전 지점이 저장되었습니다."
         );
       });
       this.interactions.push(overlap);

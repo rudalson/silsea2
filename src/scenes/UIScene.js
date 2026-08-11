@@ -107,7 +107,7 @@ export class UIScene extends Phaser.Scene {
 
     this.createPauseOverlay();
 
-    this.onCheckpoint = (checkpoint) => this.showToast(`${checkpoint.id} 체크포인트!`);
+    this.onCheckpoint = () => this.showToast("안전 지점 저장!");
     this.onBossHit = ({ hp, maxHp }) => {
       this.bossText.setText(`감자 대왕  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
     };
