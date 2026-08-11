@@ -7,9 +7,42 @@ import { ObjectPool } from "./ObjectPool.js";
 import { SeededRandom } from "./SeededRandom.js";
 
 const PROJECTILE_STYLES = Object.freeze({
-  ground: Object.freeze({ width: 82, height: 24, color: COLORS.dangerAlt, outline: COLORS.outline, angle: 0 }),
-  sky: Object.freeze({ width: 56, height: 28, color: COLORS.collectBlue, outline: COLORS.white, angle: 10 }),
-  rainbow: Object.freeze({ width: 68, height: 22, color: COLORS.collectPink, outline: COLORS.collect, angle: -8 })
+  ground: Object.freeze({
+    textureKey: "boss_projectile_ground",
+    width: 84,
+    height: 60,
+    hitWidth: 74,
+    hitHeight: 24,
+    bodyColor: COLORS.ground,
+    accentColor: COLORS.danger,
+    trailColor: COLORS.dangerAlt,
+    rotationSpeed: 0.055,
+    angle: 0
+  }),
+  sky: Object.freeze({
+    textureKey: "boss_projectile_sky",
+    width: 66,
+    height: 64,
+    hitWidth: 52,
+    hitHeight: 28,
+    bodyColor: COLORS.collectBlue,
+    accentColor: COLORS.white,
+    trailColor: COLORS.collect,
+    rotationSpeed: 0.08,
+    angle: 10
+  }),
+  rainbow: Object.freeze({
+    textureKey: "boss_projectile_rainbow",
+    width: 78,
+    height: 58,
+    hitWidth: 64,
+    hitHeight: 22,
+    bodyColor: COLORS.collectPink,
+    accentColor: COLORS.collect,
+    trailColor: COLORS.collectBlue,
+    rotationSpeed: 0.045,
+    angle: -8
+  })
 });
 
 const resolveDirection = (direction, toward) => {
@@ -54,6 +87,7 @@ export class BossController {
       .setStrokeStyle(4, COLORS.outline)
       .setDepth(8)
       .setVisible(false);
+    this.createProjectileTextures();
     this.projectilePool = this.createProjectilePool();
     this.onBossHit = ({ hp }) => this.handleBossHit(hp);
     this.onBossDefeated = () => this.handleDefeated();
@@ -65,11 +99,10 @@ export class BossController {
     return new ObjectPool({
       maxSize: 16,
       create: () => {
-        const projectile = this.scene.add.rectangle(0, 0, 72, 24, COLORS.dangerAlt, 0.92)
-          .setStrokeStyle(4, COLORS.outline)
+        const projectile = this.scene.physics.add.image(0, 0, PROJECTILE_STYLES.ground.textureKey)
           .setDepth(6)
           .setVisible(false);
-        this.scene.physics.add.existing(projectile);
+        projectile.trail = this.scene.add.graphics().setDepth(5).setVisible(false);
         projectile.body.setAllowGravity(false);
         projectile.body.enable = false;
         this.interactions.push(this.scene.physics.add.overlap(this.player, projectile, () => {
@@ -85,26 +118,65 @@ export class BossController {
         projectile.projectileStyle = data.style ?? "ground";
         projectile.travelDirection = Math.sign(data.velocityX);
         projectile
+          .setTexture(style.textureKey)
           .setScale(1)
           .setPosition(data.x, data.y)
           .setDisplaySize(style.width, style.height)
-          .setFillStyle(style.color, 0.94)
-          .setStrokeStyle(4, style.outline, 0.92)
           .setAngle(style.angle * projectile.travelDirection)
           .setVisible(true)
           .setActive(true);
         projectile.body.enable = true;
         projectile.body.reset(data.x, data.y);
-        projectile.body.setSize(style.width, style.height, true);
+        projectile.body.setSize(style.hitWidth, style.hitHeight, true);
         projectile.body.setVelocity(data.velocityX, 0);
+        projectile.trail.setVisible(true);
+        this.drawProjectileTrail(projectile, this.scene.time.now);
       },
       deactivate: (projectile) => {
         projectile.setVisible(false).setActive(false).setScale(1).setAngle(0);
+        projectile.trail.clear().setVisible(false);
         projectile.body.enable = false;
         projectile.body.stop();
       },
-      destroy: (projectile) => projectile.destroy()
+      destroy: (projectile) => {
+        projectile.trail.destroy();
+        projectile.destroy();
+      }
     });
+  }
+
+  createProjectileTextures() {
+    const graphics = this.scene.make.graphics({ x: 0, y: 0, add: false });
+    for (const style of Object.values(PROJECTILE_STYLES)) {
+      if (this.scene.textures.exists(style.textureKey)) continue;
+      graphics.clear();
+      graphics.fillStyle(style.trailColor, 0.24).fillCircle(48, 48, 42);
+      graphics.fillStyle(COLORS.outline, 1).fillEllipse(48, 53, 72, 58);
+      graphics.fillStyle(style.bodyColor, 1).fillEllipse(48, 50, 64, 50);
+      graphics.fillStyle(style.accentColor, 0.92).fillEllipse(48, 61, 47, 17);
+      graphics.fillStyle(COLORS.outline, 1).fillCircle(38, 45, 5).fillCircle(58, 45, 5);
+      graphics.fillStyle(COLORS.white, 1).fillCircle(39, 43, 1.8).fillCircle(59, 43, 1.8);
+      graphics.fillStyle(COLORS.outline, 1).fillEllipse(48, 57, 12, 7);
+      graphics.fillStyle(style.accentColor, 1).fillTriangle(45, 27, 49, 10, 53, 27);
+      graphics.fillStyle(COLORS.collect, 1).fillCircle(48, 17, 4);
+      graphics.generateTexture(style.textureKey, 96, 96);
+    }
+    graphics.destroy();
+  }
+
+  drawProjectileTrail(projectile, now) {
+    const style = PROJECTILE_STYLES[projectile.projectileStyle] ?? PROJECTILE_STYLES.ground;
+    const direction = projectile.travelDirection || 1;
+    const trail = projectile.trail;
+    trail.clear();
+    for (let index = 0; index < 4; index += 1) {
+      const distance = 24 + index * 13;
+      const wobble = Math.sin(now / 65 + index * 1.8) * (index + 1) * 2;
+      const size = Math.max(5, 14 - index * 2.4);
+      trail.fillStyle(style.trailColor, 0.48 - index * 0.09);
+      trail.fillEllipse(projectile.x - direction * distance, projectile.y + wobble, size * 1.7, size);
+    }
+    trail.fillStyle(COLORS.white, 0.76).fillCircle(projectile.x + direction * 25, projectile.y - 8, 3);
   }
 
   update(now) {
@@ -124,11 +196,12 @@ export class BossController {
     else if (this.state === "vulnerable" && now >= this.stateUntil) this.closeWeakness(now);
 
     this.projectilePool.forEachActive((projectile) => {
-      if (projectile.projectileStyle === "sky") {
-        projectile.setRotation(projectile.rotation + 0.045 * projectile.travelDirection);
-      } else if (projectile.projectileStyle === "rainbow") {
+      const style = PROJECTILE_STYLES[projectile.projectileStyle] ?? PROJECTILE_STYLES.ground;
+      projectile.setRotation(projectile.rotation + style.rotationSpeed * projectile.travelDirection);
+      if (projectile.projectileStyle === "rainbow") {
         projectile.setScale(1, 0.9 + Math.sin(now / 55) * 0.16);
       }
+      this.drawProjectileTrail(projectile, now);
       if (now >= projectile.expiresAt || !this.isOnScreen(projectile, 96)) this.projectilePool.release(projectile);
     });
   }
