@@ -14,6 +14,7 @@ const orders = new Set();
 
 const fail = (level, message) => errors.push(`[${level.id ?? "unknown"}] ${message}`);
 const inWorld = (level, x, y = 0) => x >= 0 && x <= level.world.width && y >= 0 && y <= level.world.height;
+const isPositiveNumber = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
 
 const assetKeys = (value, parentKey = "") => {
   if (typeof value === "string") {
@@ -95,6 +96,58 @@ for (const level of LEVELS) {
     if (hazard.xEnd !== undefined && hazard.xEnd <= hazard.xStart) fail(level, `hazard ${hazard.id} 범위가 역방향`);
   }
 
+  const mechanicIds = new Set();
+  const mechanics = level.terrainMechanics ?? {};
+  const validateMechanicBounds = (mechanic, group) => {
+    if (!mechanic.id) fail(level, `${group} 장치 id 누락`);
+    if (mechanicIds.has(mechanic.id)) fail(level, `중복 terrain mechanic id: ${mechanic.id}`);
+    mechanicIds.add(mechanic.id);
+    if (!isPositiveNumber(mechanic.width) || !isPositiveNumber(mechanic.height)) {
+      fail(level, `${group} ${mechanic.id} 크기는 양수여야 함`);
+      return;
+    }
+    const distanceX = mechanic.axis === "x" ? Number(mechanic.distance ?? 0) : 0;
+    const distanceY = mechanic.axis === "y" ? Number(mechanic.distance ?? 0) : 0;
+    const minX = Math.min(mechanic.x, mechanic.x + distanceX);
+    const minY = Math.min(mechanic.y, mechanic.y + distanceY);
+    const maxX = Math.max(mechanic.x, mechanic.x + distanceX) + mechanic.width;
+    const maxY = Math.max(mechanic.y, mechanic.y + distanceY) + mechanic.height;
+    if (!inWorld(level, minX, minY) || !inWorld(level, maxX, maxY)) {
+      fail(level, `${group} ${mechanic.id} 이동 범위가 world 밖`);
+    }
+  };
+
+  for (const platform of mechanics.movingPlatforms ?? []) {
+    validateMechanicBounds(platform, "moving platform");
+    if (!["x", "y"].includes(platform.axis)) fail(level, `moving platform ${platform.id} axis는 x 또는 y여야 함`);
+    if (!Number.isFinite(Number(platform.distance)) || Number(platform.distance) === 0) {
+      fail(level, `moving platform ${platform.id} distance는 0이 아니어야 함`);
+    }
+    if (!isPositiveNumber(platform.speed)) fail(level, `moving platform ${platform.id} speed는 양수여야 함`);
+  }
+  for (const updraft of mechanics.updrafts ?? []) {
+    validateMechanicBounds(updraft, "updraft");
+    if (!isPositiveNumber(updraft.liftSpeed)) fail(level, `updraft ${updraft.id} liftSpeed는 양수여야 함`);
+    if (!isPositiveNumber(updraft.liftAcceleration)) fail(level, `updraft ${updraft.id} liftAcceleration은 양수여야 함`);
+  }
+  for (const platform of mechanics.crumblePlatforms ?? []) {
+    validateMechanicBounds(platform, "crumble platform");
+    if (!isPositiveNumber(platform.crumbleDelayMs)) {
+      fail(level, `crumble platform ${platform.id} crumbleDelayMs는 양수여야 함`);
+    }
+    if (!isPositiveNumber(platform.respawnMs)) fail(level, `crumble platform ${platform.id} respawnMs는 양수여야 함`);
+  }
+
+  const easyTerrain = level.difficulty?.easyMode?.terrainMechanics;
+  if (easyTerrain) {
+    const movingMultiplier = Number(easyTerrain.movingSpeedMultiplier);
+    const crumbleMultiplier = Number(easyTerrain.crumbleDelayMultiplier);
+    if (!(movingMultiplier > 0 && movingMultiplier <= 1)) {
+      fail(level, "easyMode movingSpeedMultiplier는 0보다 크고 1 이하여야 함");
+    }
+    if (!(crumbleMultiplier >= 1)) fail(level, "easyMode crumbleDelayMultiplier는 1 이상이어야 함");
+  }
+
   for (const objective of [...level.objectives.required, ...(level.objectives.optional ?? [])]) {
     if (!OBJECTIVE_TYPES.includes(objective.type)) fail(level, `미등록 objective type: ${objective.type}`);
   }
@@ -127,4 +180,3 @@ if (errors.length) {
 }
 
 console.log(`레벨 검증 통과: ${LEVELS.length}개 레벨, ${manifestKeys.size}개 manifest 키`);
-

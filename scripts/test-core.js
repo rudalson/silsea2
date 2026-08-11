@@ -30,6 +30,7 @@ import { createRuntimeLevel, getDifficultySettings } from "../src/systems/Diffic
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { TRANSFORM_CAMERA_EASING } from "../src/systems/TransformationManager.js";
+import { getUpdraftVelocity } from "../src/systems/TerrainMechanicsManager.js";
 import { moveTowards } from "../src/utils/math.js";
 import { PALETTE } from "../data/palette.js";
 
@@ -110,6 +111,9 @@ assert.equal(getRespawnScoreLoss(10000), 75);
 assert.equal(moveTowards(0, 100, 30), 30);
 assert.equal(moveTowards(100, 0, 30), 70);
 assert.equal(moveTowards(95, 100, 30), 100);
+assert.equal(getUpdraftVelocity(120, 420, 1000, 120), 0);
+assert.equal(getUpdraftVelocity(0, 420, 1000, 1000), -420);
+assert.equal(getUpdraftVelocity(-620, 420, 1000, 120), -620, "상승기류가 더 빠른 기존 상승 속도를 늦추면 안 됨");
 
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
@@ -127,6 +131,16 @@ assert.equal(easySettings.player.flightDrainMultiplier, 0.65);
 assert.equal(easySettings.boss.telegraphMultiplier, 1.35);
 assert.equal(easySettings.pitScoreLoss, 0);
 assert.ok(easyLevel.checkpoints.some(({ id }) => id === "cp_easy"));
+for (const platform of level01.terrainMechanics.movingPlatforms) {
+  const easyPlatform = easyLevel.terrainMechanics.movingPlatforms.find(({ id }) => id === platform.id);
+  assert.equal(easyPlatform.speed, platform.speed * 0.72);
+  assert.notEqual(easyPlatform, platform, "쉬운 모드 이동 발판은 원본 객체를 변경하면 안 됨");
+}
+for (const platform of level01.terrainMechanics.crumblePlatforms) {
+  const easyPlatform = easyLevel.terrainMechanics.crumblePlatforms.find(({ id }) => id === platform.id);
+  assert.equal(easyPlatform.crumbleDelayMs, Math.round(platform.crumbleDelayMs * 1.5));
+  assert.notEqual(easyPlatform, platform, "쉬운 모드 무너지는 발판은 원본 객체를 변경하면 안 됨");
+}
 for (const enemyId of ["e_cloud_storm_01", "e_magpie_storm_01"]) {
   assert.ok(!easyLevel.enemies.some(({ id }) => id === enemyId));
   assert.ok(level01.enemies.some(({ id }) => id === enemyId), "원본 레벨 데이터는 변경되면 안 됨");
@@ -323,8 +337,16 @@ assert.equal(level01.enemies.find((enemy) => enemy.type === "raw_potato")?.x, 13
 assert.equal(level01.items.find((item) => item.type === "horn")?.x, 1792);
 assert.equal(level01.items.find((item) => item.id === "magnet_arc")?.x, 2240);
 assert.ok(Math.min(...level01.hazards.filter((hazard) => hazard.type === "pit").map((hazard) => hazard.xStart)) > 4096);
+assert.equal(level01.terrainMechanics.movingPlatforms.length, 2);
+assert.equal(level01.terrainMechanics.updrafts.length, 2);
+assert.equal(level01.terrainMechanics.crumblePlatforms.length, 2);
+assert.equal(
+  new Set(Object.values(level01.terrainMechanics).flat().map(({ id }) => id)).size,
+  6,
+  "지형 장치 id는 중복되면 안 됨"
+);
 const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
 
-console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 밝은 환경 팔레트 명도·청록 편향 차단, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 데이터 변환, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");
+console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 밝은 환경 팔레트 명도·청록 편향 차단, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 지형 장치 완화, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

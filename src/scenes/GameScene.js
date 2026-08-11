@@ -18,6 +18,7 @@ import { ObjectiveManager } from "../systems/ObjectiveManager.js";
 import { ParticleEffectsManager } from "../systems/ParticleEffectsManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 import { ScoreManager } from "../systems/ScoreManager.js";
+import { TerrainMechanicsManager } from "../systems/TerrainMechanicsManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
 import { moveTowards } from "../utils/math.js";
 
@@ -110,6 +111,7 @@ export class GameScene extends Phaser.Scene {
     if (input.debugPressed) this.debugPanel?.toggle();
     const ability = this.transformationManager.prepareMovement(input, delta);
     this.player.updateControls(input, time, delta, ability);
+    this.terrainMechanics?.update(time, delta);
     this.transformationManager.update(time);
     this.healthManager.update(time);
     this.enemyManager.update(time, delta);
@@ -228,6 +230,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   createGameplayManagers() {
+    this.terrainMechanics = new TerrainMechanicsManager(this, this.player, this.level.terrainMechanics);
     this.transformationManager = new TransformationManager(this, this.player, this.levelLoader, this.difficulty);
     this.healthManager = new HealthManager(
       this,
@@ -396,11 +399,14 @@ export class GameScene extends Phaser.Scene {
         maxSize: poolValues.reduce((total, entry) => total + entry.maxSize, 0),
         rejectedCount: poolValues.reduce((total, entry) => total + entry.rejectedCount, 0)
       },
-      particles: this.particleEffects?.getSnapshot() ?? null
+      particles: this.particleEffects?.getSnapshot() ?? null,
+      terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null
     };
   }
 
   destroyGameplayManagers() {
+    this.terrainMechanics?.destroy();
+    this.terrainMechanics = null;
     this.bossController?.destroy();
     this.bossController = null;
     this.enemyManager?.destroy();

@@ -93,8 +93,10 @@ export default {
     { id: "flight_ground_star", type: "star", x: 7808, y: 496 },
     { id: "flight_sky_reward", type: "percent_large", x: 7584, y: 300 },
     { id: "flight_arc_cloud", type: "star_arc", x: 8448, y: 350, count: 10, radius: 190 },
+    { id: "updraft_reward", type: "percent_small", x: 8224, y: 320 },
     { id: "flight_arc_long", type: "star_arc", x: 9408, y: 390, count: 10, radius: 210 },
     { id: "flight_reward", type: "percent_small", x: 9760, y: 520 },
+    { id: "mechanics_combo_arc", type: "star_arc", x: 10272, y: 390, count: 8, radius: 160 },
     { id: "storm_arc", type: "star_arc", x: 10816, y: 410, count: 10, radius: 170 },
     { id: "storm_reward", type: "percent_small", x: 11328, y: 520 },
     { id: "alicorn_intro", type: "alicorn", x: 11648, y: 496 },
@@ -105,6 +107,70 @@ export default {
     { id: "secret_sky_arc", type: "star_arc", x: 13920, y: 304, count: 8, radius: 108 },
     { id: "secret_sky_reward", type: "percent_large", x: 13984, y: 336 }
   ],
+  terrainMechanics: {
+    movingPlatforms: [
+      {
+        id: "moving_cloud_practice",
+        x: 7040,
+        y: 416,
+        width: 160,
+        height: 32,
+        axis: "x",
+        distance: 192,
+        speed: 72
+      },
+      {
+        id: "moving_cloud_combo",
+        x: 10096,
+        y: 456,
+        width: 144,
+        height: 32,
+        axis: "x",
+        distance: 224,
+        speed: 82
+      }
+    ],
+    updrafts: [
+      {
+        id: "updraft_practice",
+        x: 8128,
+        y: 224,
+        width: 192,
+        height: 352,
+        liftSpeed: 420,
+        liftAcceleration: 1050
+      },
+      {
+        id: "updraft_combo",
+        x: 10048,
+        y: 224,
+        width: 416,
+        height: 352,
+        liftSpeed: 370,
+        liftAcceleration: 900
+      }
+    ],
+    crumblePlatforms: [
+      {
+        id: "crumble_practice",
+        x: 9216,
+        y: 432,
+        width: 160,
+        height: 32,
+        crumbleDelayMs: 900,
+        respawnMs: 2000
+      },
+      {
+        id: "crumble_combo",
+        x: 10352,
+        y: 496,
+        width: 144,
+        height: 32,
+        crumbleDelayMs: 760,
+        respawnMs: 2300
+      }
+    ]
+  },
   hazards: [
     { id: "pumpkin_intro", type: "spike_pumpkin", x: 2880, y: 576 },
     { id: "pumpkin_unicorn_gate", type: "spike_pumpkin", x: 4256, y: 576 },
@@ -131,6 +197,7 @@ export default {
       removeEnemies: ["e_cloud_storm_01", "e_magpie_storm_01"],
       player: { extraHp: 2, flightDrainMultiplier: 0.65 },
       boss: { telegraphMultiplier: 1.35 },
+      terrainMechanics: { movingSpeedMultiplier: 0.72, crumbleDelayMultiplier: 1.5 },
       pitScoreLoss: 0
     }
   }
