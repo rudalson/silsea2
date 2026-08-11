@@ -45,6 +45,9 @@ export class AssetManager {
       for (const key of getEnemyAssetKeys(type)) AssetManager.queueManifestAsset(scene, key);
     }
     if (types.has("dark_cloud")) AssetManager.queueManifestAsset(scene, "fx_lightning");
+    if ((level.terrainMechanics?.updrafts?.length ?? 0) > 0) {
+      AssetManager.queueManifestAsset(scene, "fx_updraft_wind");
+    }
   }
 
   static queueManifestAsset(scene, key) {

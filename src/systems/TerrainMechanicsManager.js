@@ -93,15 +93,23 @@ export class TerrainMechanicsManager {
     const centerX = config.x + config.width / 2;
     const centerY = config.y + config.height / 2;
     const container = this.track(this.scene.add.container(centerX, centerY).setDepth(UPDRAFT_DEPTH));
-    const column = this.scene.add.rectangle(0, 0, config.width, config.height, COLORS.collectBlue, 0.1);
-    column.setStrokeStyle(3, COLORS.white, 0.42);
-    const arrows = Array.from({ length: 4 }, (_, index) => {
-      const arrow = this.scene.add.triangle(0, 0, 0, 22, 14, 0, 28, 22, COLORS.white, 0.74);
-      arrow.setStrokeStyle(2, COLORS.collectBlue, 0.68);
-      arrow.setScale(1.1 + index * 0.08);
-      return arrow;
+    const glow = this.scene.add.ellipse(0, 0, config.width * 0.84, config.height * 0.92, COLORS.collectBlue, 0.1);
+    const gustHeight = Math.min(config.height - 46, 286);
+    const gustWidth = gustHeight * (2 / 3);
+    const gustCount = Math.max(1, Math.round(config.width / 200));
+    const gusts = Array.from({ length: gustCount }, (_, index) => {
+      const spread = gustCount === 1 ? 0 : ((index / (gustCount - 1)) - 0.5) * config.width * 0.42;
+      const image = this.scene.add.image(spread, 6, "fx_updraft_wind").setOrigin(0.5);
+      image.setDisplaySize(gustWidth, gustHeight).setAlpha(0.84);
+      return {
+        image,
+        baseX: spread,
+        baseY: 6,
+        baseScaleX: image.scaleX,
+        baseScaleY: image.scaleY
+      };
     });
-    const label = this.scene.add.text(0, config.height / 2 - 22, "↑ 바람", {
+    const label = this.scene.add.text(0, config.height / 2 - 16, "상승기류 ↑", {
       fontFamily: "system-ui",
       fontSize: "15px",
       fontStyle: "700",
@@ -110,12 +118,13 @@ export class TerrainMechanicsManager {
       padding: { x: 7, y: 3 }
     });
     label.setOrigin(0.5, 1);
-    container.add([column, ...arrows, label]);
+    container.add([glow, ...gusts.map(({ image }) => image), label]);
 
     this.updrafts.push({
       ...config,
       container,
-      arrows,
+      glow,
+      gusts,
       liftSpeed: Number(config.liftSpeed),
       liftAcceleration: Number(config.liftAcceleration ?? 980)
     });
@@ -218,11 +227,14 @@ export class TerrainMechanicsManager {
         this.player.setVelocityY(nextVelocity);
       }
       updraft.container.setAlpha(active ? 1 : 0.76);
-      updraft.arrows.forEach((arrow, index) => {
-        const progress = (time * 0.00034 + index / updraft.arrows.length) % 1;
-        arrow.y = updraft.height / 2 - 44 - progress * (updraft.height - 76);
-        arrow.x = Math.sin(time * 0.003 + index * 1.7) * updraft.width * 0.18;
-        arrow.setAlpha(0.3 + Math.sin(progress * Math.PI) * 0.64);
+      updraft.glow.setAlpha(active ? 0.18 : 0.1);
+      updraft.gusts.forEach((gust, index) => {
+        const phase = time * 0.0022 + index * 1.9;
+        const pulse = 1 + Math.sin(phase) * 0.035;
+        gust.image.x = gust.baseX + Math.sin(phase * 1.3) * 7;
+        gust.image.y = gust.baseY - Math.cos(phase) * 5;
+        gust.image.setScale(gust.baseScaleX * pulse, gust.baseScaleY * (1 + Math.cos(phase) * 0.025));
+        gust.image.setAlpha((active ? 0.94 : 0.72) + Math.sin(phase * 1.6) * 0.06);
       });
     }
   }

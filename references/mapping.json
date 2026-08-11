@@ -110,6 +110,7 @@
   "fx_alicorn_overlay": { "styleRefs": ["mylittlepony1.webp", "mario_3.jpg"], "note": "무지개 계열 피버 분위기, 캐릭터 형태 미참조." },
   "fx_attack_marker": { "styleRefs": ["mario_1.jpg", "mario_2.webp"], "note": "위험 위치의 명확한 지면 표식." },
   "fx_lightning": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "밝은 황금 중심, 산호색 외곽과 청록 전기 파편이 있는 세로형 낙뢰 타격 VFX. 지면 충격과 안전한 아동용 카툰 연출에 사용." },
+  "fx_updraft_wind": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "바람 협곡 상승기류용 세로 VFX. 아이보리·민트·청록 리본이 아래에서 위로 감기고 작은 금빛 반짝임이 따라가며, 삼각형 안내선 대신 안전한 양력 구간을 판독하게 함." },
   "fx_quake_wave": { "styleRefs": ["mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "낮은 수평 파동의 가독성." },
   "fx_weakpoint_star": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "별형 약점과 프로젝트 선 처리." },
   "fx_stolen_percent": { "styleRefs": ["mario_1.jpg", "mario_3.jpg"], "note": "즉시 회수하고 싶은 반짝이는 점수 조각." },

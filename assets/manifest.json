@@ -369,6 +369,7 @@
     { "key": "checkpoint_flag", "type": "image", "url": "/assets/items/checkpoint_flag.png" },
     { "key": "rainbow_gate", "type": "image", "url": "/assets/items/rainbow_gate.png" },
     { "key": "fx_lightning", "type": "image", "url": "/assets/effects/fx_lightning.png" },
+    { "key": "fx_updraft_wind", "type": "image", "url": "/assets/effects/fx_updraft_wind.png", "width": 1024, "height": 1536 },
     {
       "key": "grass_tileset",
       "type": "atlas",
