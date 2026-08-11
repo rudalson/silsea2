@@ -15,6 +15,8 @@ export class BootScene extends Phaser.Scene {
     AssetManager.queueCharacterPortraits(this);
     AssetManager.queueManifestAsset(this, "bg_intro");
     AssetManager.queueManifestAsset(this, "bg_character_select");
+    AssetManager.queueManifestAsset(this, "bg_stage_select");
+    AssetManager.queueManifestAsset(this, "stage_preview_rainbow_hill");
   }
 
   create() {
