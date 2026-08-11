@@ -175,11 +175,19 @@ export class GameScene extends Phaser.Scene {
       const overlap = this.physics.add.overlap(this.player, checkpoint.zone, () => {
         if (!this.checkpointManager.activate(checkpoint.data)) return;
         this.transformationManager.restoreFlight();
+        if (checkpoint.data.restoresHealth) {
+          this.healthManager.restoreFull();
+          this.cameras.main.flash(180, 255, 243, 153);
+        }
         const fallbackFlag = checkpoint.visuals.at(-1);
         if (fallbackFlag?.setFillStyle) fallbackFlag.setFillStyle(COLORS.collect);
         for (const visual of checkpoint.visuals) visual.setAlpha(1);
         this.tweens.add({ targets: checkpoint.visuals, scale: 1.16, duration: 110, yoyo: true });
-        this.updateAccessibleStatus(`${checkpoint.data.id} 체크포인트 도착.`);
+        this.updateAccessibleStatus(
+          checkpoint.data.restoresHealth
+            ? `${checkpoint.data.id} 휴식 지점 도착. 체력과 비행 에너지가 회복되었습니다.`
+            : `${checkpoint.data.id} 체크포인트 도착.`
+        );
       });
       this.interactions.push(overlap);
     }

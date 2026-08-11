@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
+import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
 import {
   getCharacterAnimationSpec,
   getCharacterAssetKeys,
@@ -27,6 +28,7 @@ import {
 } from "../src/systems/AudioManager.js";
 import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/CameraEffectsManager.js";
 import { createRuntimeLevel, getDifficultySettings } from "../src/systems/DifficultyManager.js";
+import { HealthManager } from "../src/systems/HealthManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { TRANSFORM_CAMERA_EASING } from "../src/systems/TransformationManager.js";
@@ -115,6 +117,17 @@ assert.equal(getUpdraftVelocity(120, 420, 1000, 120), 0);
 assert.equal(getUpdraftVelocity(0, 420, 1000, 1000), -420);
 assert.equal(getUpdraftVelocity(-620, 420, 1000, 120), -620, "상승기류가 더 빠른 기존 상승 속도를 늦추면 안 됨");
 
+const bossPhaseShotCounts = Object.values(POTATO_KING_PHASES).map((phase) => (
+  phase.volleys.reduce((total, volley) => total + volley.shots.length, 0)
+));
+assert.deepEqual(bossPhaseShotCounts, [1, 3, 5]);
+for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
+  const delays = phase.volleys.map(({ delayMs }) => delayMs);
+  assert.deepEqual(delays, [...delays].sort((left, right) => left - right));
+  assert.ok(phase.vulnerabilityMs >= Math.max(...delays) + 900, `보스 ${phaseNumber}페이즈 반격 시간이 부족함`);
+  assert.equal(getBossPhasePattern("potato_king", Number(phaseNumber)), phase);
+}
+
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
 assert.equal(score.collect("star", 2), 20);
@@ -145,6 +158,29 @@ for (const enemyId of ["e_cloud_storm_01", "e_magpie_storm_01"]) {
   assert.ok(!easyLevel.enemies.some(({ id }) => id === enemyId));
   assert.ok(level01.enemies.some(({ id }) => id === enemyId), "원본 레벨 데이터는 변경되면 안 됨");
 }
+
+const stormCloud = level01.enemies.find(({ id }) => id === "e_cloud_storm_01");
+const stormMagpie = level01.enemies.find(({ id }) => id === "e_magpie_storm_01");
+const cloudAttackStartMs = stormCloud.activationDelayMs + stormCloud.telegraphMs;
+const magpieAttackStartMs = stormMagpie.activationDelayMs + stormMagpie.telegraphMs;
+assert.ok(magpieAttackStartMs - cloudAttackStartMs >= 400, "폭풍 구간 공격 예고가 충분히 엇갈려야 함");
+assert.ok(stormMagpie.triggerX > stormCloud.triggerX, "먹구름을 먼저 소개한 뒤 까치가 진입해야 함");
+
+const healthEvents = [];
+const restHealth = new HealthManager(
+  { time: { now: 0 }, events: { emit: (event, payload) => healthEvents.push({ event, payload }) } },
+  { character: { physics: { maxHp: 3 } } },
+  {},
+  {},
+  {},
+  { invulnerable: false },
+  { player: { extraHp: 0 } }
+);
+restHealth.hp = 1;
+assert.equal(restHealth.restoreFull(), true);
+assert.equal(restHealth.hp, 3);
+assert.deepEqual(healthEvents.at(-1), { event: "player:hp-changed", payload: { hp: 3, maxHp: 3 } });
+assert.equal(restHealth.restoreFull(), false);
 
 const comboEvents = [];
 const comboScore = new ScoreManager({ onComboChanged: (snapshot) => comboEvents.push({ ...snapshot }) });
@@ -348,5 +384,7 @@ assert.equal(
 const boss = level01.sections.find((section) => section.type === "boss")?.boss;
 assert.equal(boss?.hp, 3);
 assert.equal(boss?.phases.length, 3);
+assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
+assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
 console.log("Core Mechanics 테스트 통과: 실제 캐릭터 23개·적 22개 시트 매핑과 frame duration, 밝은 환경 팔레트 명도·청록 편향 차단, 변신 시간·100~180ms 연출, 화면 흔들림 상한·Off 차단, 비행 회복, 점수 손실, 쉬운 모드 지형 장치 완화, Seed, Object Pool, 보스 3단계, BGM 크로스페이드·알리콘 레이어, 오디오 6단계 음계·동시 재생 제한·무음 fallback");

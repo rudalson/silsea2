@@ -79,6 +79,13 @@ export class HealthManager {
     return this.transformationManager.invulnerable || this.scene.time.now < this.invulnerableUntil;
   }
 
+  restoreFull() {
+    const restored = this.hp < this.maxHp;
+    this.hp = this.maxHp;
+    this.emitHp();
+    return restored;
+  }
+
   emitHp() {
     this.scene.events.emit(EVENTS.PLAYER_HP_CHANGED, { hp: Math.max(0, this.hp), maxHp: this.maxHp });
   }

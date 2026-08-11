@@ -47,7 +47,11 @@ export default {
       mood: "boss",
       lockCamera: true,
       bgm: "boss",
-      boss: { key: "potato_king", hp: 3, phases: ["p1", "p2", "p3"] }
+      boss: {
+        key: "potato_king",
+        hp: 3,
+        phases: ["single_ground_wave", "split_wave_and_high_shot", "staggered_crossfire"]
+      }
     }
   ],
   cameraCues: [
@@ -62,7 +66,7 @@ export default {
     { id: "cp2", x: 7296, y: 576 },
     { id: "cp3", x: 9792, y: 576 },
     { id: "cp4", x: 11648, y: 576 },
-    { id: "cp5", x: 14080, y: 576 }
+    { id: "cp5", x: 14176, y: 576, restoresHealth: true }
   ],
   enemies: [
     { id: "e_intro_potato", type: "raw_potato", x: 1344, y: 576, patrol: 192 },
@@ -72,8 +76,26 @@ export default {
     { id: "e_orchard_potato_02", type: "raw_potato", x: 6208, y: 576, patrol: 176 },
     { id: "e_cloud_ravine", type: "dark_cloud", x: 8448, y: 256, triggerX: 8128 },
     { id: "e_magpie_ravine", type: "magpie", x: 9152, y: 224, triggerX: 8832 },
-    { id: "e_cloud_storm_01", type: "dark_cloud", x: 10880, y: 256, triggerX: 10560 },
-    { id: "e_magpie_storm_01", type: "magpie", x: 11456, y: 224, triggerX: 11136 },
+    {
+      id: "e_cloud_storm_01",
+      type: "dark_cloud",
+      x: 10880,
+      y: 256,
+      triggerX: 10560,
+      activationDelayMs: 0,
+      telegraphMs: 720,
+      cooldownMs: 2200
+    },
+    {
+      id: "e_magpie_storm_01",
+      type: "magpie",
+      x: 11456,
+      y: 224,
+      triggerX: 10944,
+      activationDelayMs: 520,
+      telegraphMs: 680,
+      cooldownMs: 2100
+    },
     { id: "e_alicorn_potato", type: "raw_potato", x: 12416, y: 576, patrol: 208 }
   ],
   items: [
@@ -105,7 +127,9 @@ export default {
     { id: "alicorn_reward", type: "percent_large", x: 13184, y: 352 },
     { id: "recovery_arc", type: "star_arc", x: 13760, y: 454, count: 10, radius: 166 },
     { id: "secret_sky_arc", type: "star_arc", x: 13920, y: 304, count: 8, radius: 108 },
-    { id: "secret_sky_reward", type: "percent_large", x: 13984, y: 336 }
+    { id: "secret_sky_reward", type: "percent_large", x: 13984, y: 336 },
+    { id: "boss_rest_reward", type: "percent_small", x: 14144, y: 520 },
+    { id: "boss_rest_star", type: "star", x: 14208, y: 496 }
   ],
   terrainMechanics: {
     movingPlatforms: [

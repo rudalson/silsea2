@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import manifest from "../assets/manifest.json" with { type: "json" };
+import { BOSS_PATTERNS } from "../src/data/bossPatterns.js";
 import { ENEMY_TYPES } from "../src/data/enemies.js";
 import { HAZARD_TYPES, ITEM_TYPES } from "../src/data/items.js";
 import { LEVELS } from "../src/data/levels/index.js";
@@ -71,6 +72,14 @@ for (const level of LEVELS) {
         fail(level, `boss section ${section.id} 필드 누락`);
       }
       if (section.boss?.key && !ENEMY_TYPES.includes(section.boss.key)) fail(level, `미등록 boss key: ${section.boss.key}`);
+      if (section.boss?.hp !== section.boss?.phases?.length) fail(level, `boss ${section.id} hp와 phases 수가 다름`);
+      const registeredPatterns = BOSS_PATTERNS[section.boss?.key];
+      if (registeredPatterns) {
+        const patternIds = Object.values(registeredPatterns).map(({ id }) => id);
+        for (const phaseId of section.boss.phases) {
+          if (!patternIds.includes(phaseId)) fail(level, `boss ${section.id} 미등록 phase pattern: ${phaseId}`);
+        }
+      }
     }
     if (!level.assets.backgrounds[section.mood]) fail(level, `section ${section.id}의 mood가 assets.backgrounds에 없음`);
   }
@@ -84,6 +93,14 @@ for (const level of LEVELS) {
   for (const enemy of level.enemies) {
     if (!ENEMY_TYPES.includes(enemy.type)) fail(level, `미등록 enemy type: ${enemy.type}`);
     if (!inWorld(level, enemy.x, enemy.y)) fail(level, `enemy ${enemy.id} 좌표가 world 밖`);
+    if (enemy.activationDelayMs !== undefined && !(Number(enemy.activationDelayMs) >= 0)) {
+      fail(level, `enemy ${enemy.id} activationDelayMs는 0 이상이어야 함`);
+    }
+    for (const field of ["telegraphMs", "cooldownMs", "diveDurationMs", "stunnedMs"]) {
+      if (enemy[field] !== undefined && !isPositiveNumber(enemy[field])) {
+        fail(level, `enemy ${enemy.id} ${field}는 양수여야 함`);
+      }
+    }
   }
   for (const item of level.items) {
     if (!ITEM_TYPES.includes(item.type)) fail(level, `미등록 item type: ${item.type}`);
@@ -165,6 +182,9 @@ for (const level of LEVELS) {
   for (const checkpoint of level.checkpoints) {
     if (!inWorld(level, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 좌표가 world 밖`);
     if (!hasFloorAt(terrain, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 아래에 바닥이 없음`);
+    if (checkpoint.restoresHealth !== undefined && typeof checkpoint.restoresHealth !== "boolean") {
+      fail(level, `checkpoint ${checkpoint.id} restoresHealth는 boolean이어야 함`);
+    }
   }
   for (const pit of level.hazards.filter((hazard) => hazard.type === "pit")) {
     if (pit.respawnX !== undefined && !hasFloorAt(terrain, pit.respawnX, level.player.spawn.y)) {

@@ -180,13 +180,11 @@ export class EnemyManager {
     const state = enemy.getData("state");
     const triggerX = enemy.getData("triggerX") ?? enemy.x - 320;
     if (state === "idle" && this.player.x >= triggerX && Math.abs(this.player.x - enemy.x) < 720) {
-      const targetX = this.player.x;
-      const targetY = this.levelLoader.findSafeY(targetX);
-      enemy.setData({ state: "telegraph", stateUntil: now + 700, targetX, targetY });
-      enemy.setTintFill(COLORS.collectBlue);
-      EnemyAnimationManager.play(enemy, "warning");
-      this.scene.audioManager?.playSfx("sfx_cloud_charge", { randomizeRate: false });
-      this.showTargetMarker(enemy, targetX, targetY - 5, COLORS.dangerAlt);
+      const activationDelayMs = enemy.getData("activationDelayMs") ?? 0;
+      if (activationDelayMs > 0) enemy.setData({ state: "waiting", stateUntil: now + activationDelayMs });
+      else this.beginDarkCloudTelegraph(enemy, now);
+    } else if (state === "waiting" && now >= enemy.getData("stateUntil")) {
+      this.beginDarkCloudTelegraph(enemy, now);
     } else if (state === "telegraph") {
       enemy.setScale(1 + Math.sin(now / 55) * 0.08);
       const marker = enemy.getData("targetMarker");
@@ -206,12 +204,23 @@ export class EnemyManager {
         EnemyAnimationManager.play(enemy, "attack", false);
         enemy.clearTint().setScale(1);
         enemy.getData("targetMarker")?.setVisible(false).setScale(1).setAlpha(1);
-        enemy.setData({ state: "cooldown", stateUntil: now + 1500 });
+        enemy.setData({ state: "cooldown", stateUntil: now + (enemy.getData("cooldownMs") ?? 1500) });
       }
     } else if (state === "cooldown" && now >= enemy.getData("stateUntil")) {
       enemy.setData("state", "idle");
       EnemyAnimationManager.play(enemy, "idle");
     }
+  }
+
+  beginDarkCloudTelegraph(enemy, now) {
+    const targetX = this.player.x;
+    const targetY = this.levelLoader.findSafeY(targetX);
+    const telegraphMs = enemy.getData("telegraphMs") ?? 700;
+    enemy.setData({ state: "telegraph", stateUntil: now + telegraphMs, targetX, targetY });
+    enemy.setTintFill(COLORS.collectBlue);
+    EnemyAnimationManager.play(enemy, "warning");
+    this.scene.audioManager?.playSfx("sfx_cloud_charge", { randomizeRate: false });
+    this.showTargetMarker(enemy, targetX, targetY - 5, COLORS.dangerAlt);
   }
 
   updateMagpie(enemy, now) {
@@ -222,35 +231,45 @@ export class EnemyManager {
     const state = enemy.getData("state");
     const triggerX = enemy.getData("triggerX") ?? enemy.x - 360;
     if (state === "idle" && this.player.x >= triggerX && Math.abs(this.player.x - enemy.x) < 760) {
-      const targetX = this.player.x;
-      const targetY = this.levelLoader.findSafeY(targetX) - 28;
-      enemy.setData({ state: "telegraph", stateUntil: now + 650, targetX, targetY });
-      enemy.setTintFill(COLORS.danger);
-      EnemyAnimationManager.play(enemy, "warning");
-      this.scene.audioManager?.playSfx("sfx_magpie_warning", { randomizeRate: false });
-      this.showTargetMarker(enemy, targetX, targetY + 24, COLORS.danger);
+      const activationDelayMs = enemy.getData("activationDelayMs") ?? 0;
+      if (activationDelayMs > 0) enemy.setData({ state: "waiting", stateUntil: now + activationDelayMs });
+      else this.beginMagpieTelegraph(enemy, now);
+    } else if (state === "waiting" && now >= enemy.getData("stateUntil")) {
+      this.beginMagpieTelegraph(enemy, now);
     } else if (state === "telegraph") {
       enemy.x += Math.sin(now / 35) * 1.8;
       if (now >= enemy.getData("stateUntil")) {
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, enemy.getData("targetX"), enemy.getData("targetY"));
-        enemy.body.setVelocity(Math.cos(angle) * 620, Math.sin(angle) * 620);
-        enemy.setData({ state: "dive", stateUntil: now + 620, activeAttack: true });
+        const diveSpeed = enemy.getData("diveSpeed") ?? 620;
+        enemy.body.setVelocity(Math.cos(angle) * diveSpeed, Math.sin(angle) * diveSpeed);
+        enemy.setData({ state: "dive", stateUntil: now + (enemy.getData("diveDurationMs") ?? 620), activeAttack: true });
         enemy.clearTint();
         EnemyAnimationManager.play(enemy, "attack");
       }
     } else if (state === "dive" && now >= enemy.getData("stateUntil")) {
       enemy.body.setVelocity(0, 0);
       enemy.setRotation(0.35);
-      enemy.setData({ state: "stunned", stateUntil: now + 1100, activeAttack: false });
+      enemy.setData({ state: "stunned", stateUntil: now + (enemy.getData("stunnedMs") ?? 1100), activeAttack: false });
       EnemyAnimationManager.play(enemy, "stunned");
     } else if (state === "stunned" && now >= enemy.getData("stateUntil")) {
       enemy.setPosition(enemy.getData("spawnX"), enemy.getData("spawnY")).setRotation(0);
       enemy.getData("targetMarker")?.setVisible(false);
-      enemy.setData({ state: "cooldown", stateUntil: now + 1300 });
+      enemy.setData({ state: "cooldown", stateUntil: now + (enemy.getData("cooldownMs") ?? 1300) });
     } else if (state === "cooldown" && now >= enemy.getData("stateUntil")) {
       enemy.setData("state", "idle");
       EnemyAnimationManager.play(enemy, "idle");
     }
+  }
+
+  beginMagpieTelegraph(enemy, now) {
+    const targetX = this.player.x;
+    const targetY = this.levelLoader.findSafeY(targetX) - 28;
+    const telegraphMs = enemy.getData("telegraphMs") ?? 650;
+    enemy.setData({ state: "telegraph", stateUntil: now + telegraphMs, targetX, targetY });
+    enemy.setTintFill(COLORS.danger);
+    EnemyAnimationManager.play(enemy, "warning");
+    this.scene.audioManager?.playSfx("sfx_magpie_warning", { randomizeRate: false });
+    this.showTargetMarker(enemy, targetX, targetY + 24, COLORS.danger);
   }
 
   handleEnemyContact(enemy) {
@@ -272,7 +291,11 @@ export class EnemyManager {
       if (this.healthManager.takeDamage(enemy.x, { steal: true })) {
         const stolen = this.scoreManager.steal();
         this.spawnRecovery(enemy.x, this.levelLoader.findSafeY(enemy.x) - 48, stolen);
-        enemy.setData({ state: "stunned", stateUntil: this.scene.time.now + 1100, activeAttack: false });
+        enemy.setData({
+          state: "stunned",
+          stateUntil: this.scene.time.now + (enemy.getData("stunnedMs") ?? 1100),
+          activeAttack: false
+        });
         enemy.body.setVelocity(0, 0);
       }
       return;
@@ -342,7 +365,7 @@ export class EnemyManager {
   }
 
   cancelTelegraph(enemy) {
-    if (enemy.getData("state") !== "telegraph") return;
+    if (!["telegraph", "waiting"].includes(enemy.getData("state"))) return;
     enemy.clearTint().setScale(1);
     enemy.getData("targetMarker")?.setVisible(false).setScale(1).setAlpha(1);
     enemy.setData("state", "idle");

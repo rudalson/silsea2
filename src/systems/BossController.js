@@ -1,9 +1,23 @@
 import Phaser from "phaser";
 import { COLORS, EVENTS } from "../config/constants.js";
+import { getBossPhasePattern } from "../data/bossPatterns.js";
 import { CORE_RULES } from "../data/gameplay.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
 import { SeededRandom } from "./SeededRandom.js";
+
+const PROJECTILE_STYLES = Object.freeze({
+  ground: Object.freeze({ width: 82, height: 24, color: COLORS.dangerAlt, outline: COLORS.outline, angle: 0 }),
+  sky: Object.freeze({ width: 56, height: 28, color: COLORS.collectBlue, outline: COLORS.white, angle: 10 }),
+  rainbow: Object.freeze({ width: 68, height: 22, color: COLORS.collectPink, outline: COLORS.collect, angle: -8 })
+});
+
+const resolveDirection = (direction, toward) => {
+  if (direction === "left") return -1;
+  if (direction === "right") return 1;
+  if (direction === "away") return -toward;
+  return toward;
+};
 
 export class BossController {
   constructor(
@@ -28,6 +42,7 @@ export class BossController {
     this.state = "idle";
     this.stateUntil = scene.time.now + 900;
     this.interactions = [];
+    this.volleyTimers = [];
     this.defeated = false;
     if (!this.boss) return;
 
@@ -65,14 +80,26 @@ export class BossController {
         return projectile;
       },
       activate: (projectile, data) => {
+        const style = PROJECTILE_STYLES[data.style] ?? PROJECTILE_STYLES.ground;
         projectile.expiresAt = data.expiresAt;
-        projectile.setPosition(data.x, data.y).setVisible(true).setActive(true);
+        projectile.projectileStyle = data.style ?? "ground";
+        projectile.travelDirection = Math.sign(data.velocityX);
+        projectile
+          .setScale(1)
+          .setPosition(data.x, data.y)
+          .setDisplaySize(style.width, style.height)
+          .setFillStyle(style.color, 0.94)
+          .setStrokeStyle(4, style.outline, 0.92)
+          .setAngle(style.angle * projectile.travelDirection)
+          .setVisible(true)
+          .setActive(true);
         projectile.body.enable = true;
         projectile.body.reset(data.x, data.y);
+        projectile.body.setSize(style.width, style.height, true);
         projectile.body.setVelocity(data.velocityX, 0);
       },
       deactivate: (projectile) => {
-        projectile.setVisible(false).setActive(false);
+        projectile.setVisible(false).setActive(false).setScale(1).setAngle(0);
         projectile.body.enable = false;
         projectile.body.stop();
       },
@@ -97,14 +124,20 @@ export class BossController {
     else if (this.state === "vulnerable" && now >= this.stateUntil) this.closeWeakness(now);
 
     this.projectilePool.forEachActive((projectile) => {
+      if (projectile.projectileStyle === "sky") {
+        projectile.setRotation(projectile.rotation + 0.045 * projectile.travelDirection);
+      } else if (projectile.projectileStyle === "rainbow") {
+        projectile.setScale(1, 0.9 + Math.sin(now / 55) * 0.16);
+      }
       if (now >= projectile.expiresAt || !this.isOnScreen(projectile, 96)) this.projectilePool.release(projectile);
     });
   }
 
   beginTelegraph(now) {
     const phase = this.boss.getData("phase");
+    const pattern = getBossPhasePattern(this.boss.getData("key"), phase);
     const telegraphMs = Math.round(
-      (CORE_RULES.bossTelegraphMs + (phase === 1 ? 100 : 0)) * this.telegraphMultiplier
+      (CORE_RULES.bossTelegraphMs + pattern.telegraphOffsetMs) * this.telegraphMultiplier
     );
     this.state = "telegraph";
     this.stateUntil = now + telegraphMs;
@@ -120,7 +153,7 @@ export class BossController {
     this.telegraphShadow.setVisible(true).setAlpha(0.2);
     this.scene.tweens.add({
       targets: this.boss,
-      y: this.baseY - (phase === 1 ? 92 : 68),
+      y: this.baseY - pattern.jumpHeight,
       duration: Math.floor(telegraphMs * 0.46),
       yoyo: true,
       ease: "Sine.InOut"
@@ -136,16 +169,10 @@ export class BossController {
 
   executeAttack(now) {
     const phase = this.boss.getData("phase");
-    const toward = this.player.x < this.boss.x ? -1 : 1;
-    const speed = 285 + phase * 55;
-    const patterns = phase === 1
-      ? [[toward]]
-      : phase === 2
-        ? [[toward, -toward]]
-        : [[-1, 1, toward], [toward, -toward, toward]];
-    const directions = this.random.pick(patterns);
+    const pattern = getBossPhasePattern(this.boss.getData("key"), phase);
 
     this.boss.clearTint().setY(this.baseY);
+    this.boss.setData("patternId", pattern.id);
     this.telegraphShadow.setVisible(false).setScale(1).setAlpha(0.2);
     const landAnimation = EnemyAnimationManager.play(this.boss, "land", false);
     this.animationTimer?.remove(false);
@@ -157,26 +184,56 @@ export class BossController {
     }
     this.scene.audioManager?.playSfx("sfx_boss_land", { randomizeRate: false });
     this.scene.cameraEffects?.shake(phase === 1 ? "bossLandLight" : "bossLand");
-    directions.forEach((direction, index) => {
-      this.projectilePool.acquire({
-        x: this.boss.x + direction * (86 + index * 18),
-        y: this.baseY - 18 - (phase === 3 && index === 2 ? 50 : 0),
-        velocityX: direction * speed,
-        expiresAt: now + 4200
-      });
-    });
+    this.clearVolleyTimers();
+    for (const volley of pattern.volleys) this.scheduleVolley(pattern, volley);
 
     this.state = "vulnerable";
-    this.stateUntil = now + (phase === 1 ? 1650 : phase === 2 ? 1350 : 1150);
+    this.stateUntil = now + pattern.vulnerabilityMs;
     this.boss.setData("vulnerable", true);
     this.weakness.setVisible(true);
   }
 
+  scheduleVolley(pattern, volley) {
+    if (volley.delayMs <= 0) {
+      this.spawnVolley(pattern, volley);
+      return;
+    }
+    let timer = null;
+    timer = this.scene.time.delayedCall(volley.delayMs, () => {
+      this.volleyTimers = this.volleyTimers.filter((entry) => entry !== timer);
+      if (this.state === "vulnerable" && this.boss?.active && !this.defeated) {
+        this.spawnVolley(pattern, volley);
+      }
+    });
+    this.volleyTimers.push(timer);
+  }
+
+  spawnVolley(pattern, volley) {
+    const toward = this.player.x < this.boss.x ? -1 : 1;
+    const launchTime = this.scene.time.now;
+    const shots = volley.shuffleShots && this.random.next() < 0.5
+      ? [...volley.shots].reverse()
+      : volley.shots;
+    shots.forEach((shot, index) => {
+      const direction = resolveDirection(shot.direction, toward);
+      this.projectilePool.acquire({
+        x: this.boss.x + direction * (86 + index * 14),
+        y: this.baseY - shot.laneOffset,
+        velocityX: direction * pattern.projectileSpeed * (shot.speedMultiplier ?? 1),
+        style: shot.style,
+        expiresAt: launchTime + 4200
+      });
+    });
+  }
+
   closeWeakness(now) {
+    const phase = this.boss.getData("phase");
+    const pattern = getBossPhasePattern(this.boss.getData("key"), phase);
+    this.clearVolleyTimers();
     this.boss.setData("vulnerable", false);
     this.weakness.setVisible(false);
     this.state = "idle";
-    this.stateUntil = now + 700;
+    this.stateUntil = now + pattern.recoveryMs;
     EnemyAnimationManager.play(this.boss, "idle");
   }
 
@@ -185,6 +242,7 @@ export class BossController {
     this.boss?.setData("vulnerable", false);
     this.weakness?.setVisible(false);
     this.projectilePool?.releaseAll();
+    this.clearVolleyTimers();
     this.animationTimer?.remove(false);
     this.animationTimer = null;
     EnemyAnimationManager.play(this.boss, "hurt", false);
@@ -198,6 +256,7 @@ export class BossController {
     this.defeated = true;
     this.state = "defeated";
     this.projectilePool?.releaseAll();
+    this.clearVolleyTimers();
     this.animationTimer?.remove(false);
     this.animationTimer = null;
     this.telegraphShadow?.setVisible(false);
@@ -218,6 +277,11 @@ export class BossController {
     EnemyAnimationManager.play(this.boss, "idle");
   }
 
+  clearVolleyTimers() {
+    for (const timer of this.volleyTimers) timer?.remove(false);
+    this.volleyTimers.length = 0;
+  }
+
   isOnScreen(object, margin = 0) {
     const source = this.scene.cameras.main.worldView;
     const view = new Phaser.Geom.Rectangle(source.x, source.y, source.width, source.height);
@@ -236,6 +300,7 @@ export class BossController {
     this.scene.events.off(EVENTS.BOSS_HIT, this.onBossHit);
     this.scene.events.off(EVENTS.BOSS_DEFEATED, this.onBossDefeated);
     this.animationTimer?.remove(false);
+    this.clearVolleyTimers();
     this.scene.tweens.killTweensOf(this.boss);
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;
