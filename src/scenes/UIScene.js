@@ -15,44 +15,77 @@ export class UIScene extends Phaser.Scene {
     this.gameScene = this.scene.get(this.gameSceneKey);
     this.inputManager = new InputManager(this);
 
-    this.add.rectangle(190, 58, 356, 94, COLORS.near, 0.9).setStrokeStyle(3, COLORS.mid).setScrollFactor(0);
-    this.characterText = this.add.text(28, 24, "", {
+    const hasUiArt = this.textures.exists("ui_hud_frame");
+    if (hasUiArt) {
+      this.add.image(208, 76, "ui_hud_frame").setScale(0.3).setScrollFactor(0);
+    } else {
+      this.add.rectangle(208, 76, 382, 132, COLORS.near, 0.92).setStrokeStyle(3, COLORS.mid).setScrollFactor(0);
+    }
+    this.characterText = this.add.text(42, 25, "", {
       fontFamily: "system-ui",
-      fontSize: "18px",
+      fontSize: "20px",
       fontStyle: "800",
-      color: CSS_COLORS.white
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.panel,
+      strokeThickness: 4
     }).setScrollFactor(0);
-    this.hpText = this.add.text(28, 50, "HP ♥ ♥ ♥", {
+    this.hpLabel = this.add.text(43, 57, "마음", {
       fontFamily: "system-ui",
-      fontSize: "16px",
+      fontSize: "13px",
+      fontStyle: "800",
       color: CSS_COLORS.collect
     }).setScrollFactor(0);
-    this.formText = this.add.text(178, 25, "기본형", {
+    this.heartIcons = [];
+    for (let index = 0; index < 3; index += 1) {
+      const heart = hasUiArt
+        ? this.add.image(94 + index * 35, 76, "ui_hud_heart").setScale(0.09)
+        : this.add.text(89 + index * 30, 64, "♥", { fontSize: "24px", color: CSS_COLORS.collect });
+      heart.setScrollFactor(0);
+      this.heartIcons.push(heart);
+    }
+    this.formText = this.add.text(226, 55, "기본형", {
       fontFamily: "system-ui",
       fontSize: "15px",
       fontStyle: "700",
-      color: CSS_COLORS.collectBlue
+      color: CSS_COLORS.collectBlue,
+      stroke: CSS_COLORS.panel,
+      strokeThickness: 3
     }).setScrollFactor(0);
-    this.flightTrack = this.add.rectangle(210, 76, 200, 10, COLORS.mid, 0.8).setOrigin(0, 0.5).setScrollFactor(0);
-    this.flightBar = this.add.rectangle(210, 76, 200, 10, COLORS.collectBlue, 1).setOrigin(0, 0.5).setScrollFactor(0);
+    this.flightIcon = hasUiArt
+      ? this.add.image(244, 75, "ui_hud_wings").setScale(0.075).setScrollFactor(0)
+      : this.add.text(235, 64, "✦", { fontSize: "20px", color: CSS_COLORS.collectBlue }).setScrollFactor(0);
+    this.flightTrack = this.add.rectangle(268, 76, 128, 12, COLORS.panel, 0.84).setOrigin(0, 0.5).setScrollFactor(0)
+      .setStrokeStyle(2, COLORS.mid);
+    this.flightBar = this.add.rectangle(270, 76, 124, 6, COLORS.collectBlue, 1).setOrigin(0, 0.5).setScrollFactor(0);
 
-    this.add.rectangle(GAME_WIDTH / 2, 44, 310, 64, COLORS.near, 0.88).setStrokeStyle(3, COLORS.mid).setScrollFactor(0);
-    this.scoreText = this.add.text(GAME_WIDTH / 2, 31, "PERCENT 0%", {
+    this.add.rectangle(GAME_WIDTH / 2, 44, 324, 68, COLORS.near, 0.9).setStrokeStyle(3, COLORS.collect).setScrollFactor(0);
+    this.scoreCoin = hasUiArt
+      ? this.add.image(GAME_WIDTH / 2 - 126, 43, "ui_hud_percent").setScale(0.115).setScrollFactor(0)
+      : this.add.text(GAME_WIDTH / 2 - 128, 29, "%", { fontSize: "28px", fontStyle: "900", color: CSS_COLORS.collect }).setScrollFactor(0);
+    this.scoreStar = hasUiArt
+      ? this.add.image(GAME_WIDTH / 2 + 126, 43, "ui_hud_badge_star").setScale(0.085).setScrollFactor(0)
+      : null;
+    this.scoreText = this.add.text(GAME_WIDTH / 2, 25, "PERCENT 0%", {
       fontFamily: "system-ui",
-      fontSize: "20px",
+      fontSize: "21px",
       fontStyle: "900",
-      color: CSS_COLORS.collect
-    }).setOrigin(0.5).setScrollFactor(0).setFixedSize(300, 28).setAlign("center");
-    this.objectiveText = this.add.text(GAME_WIDTH / 2, 56, "목표 0/0", {
+      color: CSS_COLORS.collect,
+      stroke: CSS_COLORS.panel,
+      strokeThickness: 4
+    }).setOrigin(0.5).setScrollFactor(0).setFixedSize(250, 28).setAlign("center");
+    this.objectiveText = this.add.text(GAME_WIDTH / 2, 54, "별 목표 0/0", {
       fontFamily: "system-ui",
       fontSize: "13px",
+      fontStyle: "700",
       color: CSS_COLORS.soft
     }).setOrigin(0.5).setScrollFactor(0);
     this.comboText = this.add.text(GAME_WIDTH / 2 + 185, 31, "", {
       fontFamily: "system-ui",
       fontSize: "17px",
       fontStyle: "900",
-      color: CSS_COLORS.collectPink
+      color: CSS_COLORS.collectPink,
+      stroke: CSS_COLORS.white,
+      strokeThickness: 3
     }).setOrigin(0, 0.5).setScrollFactor(0);
 
     this.fpsText = this.add.text(GAME_WIDTH - 24, 136, "FPS —\nEsc 일시정지", {
@@ -142,7 +175,7 @@ export class UIScene extends Phaser.Scene {
     );
     const hp = this.gameScene.healthManager?.hp ?? 0;
     const maxHp = this.gameScene.healthManager?.maxHp ?? 0;
-    this.hpText.setText(`HP ${"♥ ".repeat(hp)}${"♡ ".repeat(Math.max(0, maxHp - hp))}`.trim());
+    this.renderHeartIcons(hp, maxHp);
     this.scoreText.setText(`PERCENT ${Math.round(this.gameScene.scoreManager?.displayScore ?? 0)}%`);
     const combo = this.gameScene.scoreManager?.combo ?? 0;
     this.comboText.setText(combo >= 2 ? `${combo} COMBO` : "");
@@ -152,9 +185,10 @@ export class UIScene extends Phaser.Scene {
     this.flightBar.setScale(Math.max(0.001, ratio), 1);
     this.flightTrack.setVisible(form?.form === "pegasus");
     this.flightBar.setVisible(form?.form === "pegasus");
+    this.flightIcon.setVisible(form?.form === "pegasus");
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
-    this.objectiveText.setText(`목표 ${required.filter((objective) => objective.complete).length}/${required.length}`);
+    this.objectiveText.setText(`별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}`);
     if (this.registry.get("debugEnabled")) {
       this.fpsText.setText(`FPS ${Math.round(this.game.loop.actualFps)}\nEsc 일시정지 · \` 디버그`);
     }
@@ -370,6 +404,22 @@ export class UIScene extends Phaser.Scene {
     this.shakeButton
       .setText(`화면 흔들림 ${enabled ? "ON" : "OFF"} · V`)
       .setColor(enabled ? CSS_COLORS.collectBlue : CSS_COLORS.soft);
+  }
+
+  renderHeartIcons(hp, maxHp) {
+    this.heartIcons.forEach((heart, index) => {
+      const visible = index < maxHp;
+      heart.setVisible(visible);
+      if (!visible) return;
+      const filled = index < hp;
+      if (heart.type === "Text") {
+        heart.setText(filled ? "♥" : "♡").setColor(filled ? CSS_COLORS.collect : CSS_COLORS.soft);
+      } else if (filled) {
+        heart.clearTint().setAlpha(1);
+      } else {
+        heart.setTint(COLORS.soft).setAlpha(0.72);
+      }
+    });
   }
 
   showToast(message) {

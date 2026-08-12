@@ -15,6 +15,12 @@ const resolveRuntimeAssetUrl = (url) => {
 };
 
 export class AssetManager {
+  static queueUiAssets(scene) {
+    for (const key of ["ui_hud_frame", "ui_hud_badge_star", "ui_hud_heart", "ui_hud_wings", "ui_hud_percent"]) {
+      AssetManager.queueManifestAsset(scene, key);
+    }
+  }
+
   static queueLevelAssets(scene, level) {
     scene.load.json(level.assets.tilemapKey, level.assets.tilemap);
     AssetManager.queueAudioAssets(scene);

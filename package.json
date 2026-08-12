@@ -15,6 +15,7 @@
     "audio": "node scripts/generate-audio.js",
     "postprocess:frames": "node scripts/postprocess-pending-frames.js",
     "spritesheets": "node scripts/build-character-sheets.js",
+    "ui:decor": "node scripts/build-ui-decor.js",
     "validate:mapping": "node scripts/validate-asset-mapping.js",
     "validate:assets": "node scripts/validate-assets.js",
     "validate:runtime": "node scripts/validate-runtime-build.js",

@@ -370,6 +370,11 @@
     { "key": "rainbow_gate", "type": "image", "url": "/assets/items/rainbow_gate.png" },
     { "key": "fx_lightning", "type": "image", "url": "/assets/effects/fx_lightning.png" },
     { "key": "fx_updraft_wind", "type": "image", "url": "/assets/effects/fx_updraft_wind.png", "width": 1024, "height": 1536 },
+    { "key": "ui_hud_frame", "type": "image", "url": "/assets/ui/ui_hud_frame.png" },
+    { "key": "ui_hud_badge_star", "type": "image", "url": "/assets/ui/ui_hud_badge_star.png" },
+    { "key": "ui_hud_heart", "type": "image", "url": "/assets/ui/ui_hud_heart.png" },
+    { "key": "ui_hud_wings", "type": "image", "url": "/assets/ui/ui_hud_wings.png" },
+    { "key": "ui_hud_percent", "type": "image", "url": "/assets/ui/ui_hud_percent.png" },
     {
       "key": "grass_tileset",
       "type": "atlas",
