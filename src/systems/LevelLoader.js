@@ -1,4 +1,5 @@
 import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { ENEMY_DEFINITIONS } from "../data/enemies.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
 import { AssetManager } from "./AssetManager.js";
@@ -18,6 +19,7 @@ const BACKGROUND_LAYERS = Object.freeze({
   mid: { depth: -20 },
   near: { depth: -10 }
 });
+const BACKGROUND_TILE_OVERLAP = 4;
 
 export class LevelLoader {
   constructor(scene, level, objectiveManager) {
@@ -107,8 +109,9 @@ export class LevelLoader {
     const tileHeight = source?.height ?? worldHeight;
     const tiles = [];
 
-    // 원본과 좌우 반전본을 교차하면 맞닿는 두 가장자리가 같은 픽셀이 되어,
-    // 개별 일러스트의 좌우 구도가 달라도 반복 지점에 수직 절단선이 생기지 않는다.
+    // 원본과 좌우 반전본을 교차하면 맞닿는 두 가장자리가 같은 픽셀이 된다.
+    // 각 타일을 4px 겹쳐 그려 소수점 카메라 이동·텍스처 필터링으로 생기는
+    // 1px 수직 틈도 가린다. 원본의 가장자리 픽셀은 후처리 단계에서 동일하다.
     for (let index = -1; index * tileWidth < worldWidth + tileWidth; index += 1) {
       const image = this.track(this.scene.add.image(
         index * tileWidth + tileWidth / 2,
@@ -116,7 +119,7 @@ export class LevelLoader {
         textureKey
       ));
       image
-        .setDisplaySize(tileWidth, Math.max(tileHeight, worldHeight))
+        .setDisplaySize(tileWidth + BACKGROUND_TILE_OVERLAP, Math.max(tileHeight, worldHeight))
         .setFlipX(Math.abs(index) % 2 === 1)
         .setScrollFactor(this.level.parallax[layer], 0)
         .setDepth(depth);
@@ -191,7 +194,7 @@ export class LevelLoader {
       line.setDepth(-5);
       const label = this.track(
         this.scene.add.text(section.xStart + 18, 66, `${section.id}\n${section.type}`, {
-          fontFamily: "system-ui",
+          fontFamily: GAME_FONT_FAMILY,
           fontSize: "18px",
           fontStyle: "700",
           color: CSS_COLORS.white,
@@ -307,7 +310,7 @@ export class LevelLoader {
       const label = this.track(
         this.scene.add.text(enemy.x, enemy.y - 70, enemy.type, {
           align: "center",
-          fontFamily: "system-ui",
+          fontFamily: GAME_FONT_FAMILY,
           fontSize: "12px",
           color: CSS_COLORS.white,
           backgroundColor: CSS_COLORS.dangerMedium,
@@ -377,7 +380,7 @@ export class LevelLoader {
     const label = this.track(
       this.scene.add.text(x, y - 176, `감자 대왕 · HP ${section.boss.hp}\n공격 예고 뒤 반짝이는 약점을 밟으세요`, {
         align: "center",
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "18px",
         fontStyle: "700",
         color: CSS_COLORS.collect,
@@ -433,7 +436,7 @@ export class LevelLoader {
       arch.setStrokeStyle(12, COLORS.collect).setDepth(3);
       label = this.track(
         this.scene.add.text(x, y - 190, "무지개 게이트", {
-          fontFamily: "system-ui",
+          fontFamily: GAME_FONT_FAMILY,
           fontSize: "20px",
           fontStyle: "700",
           color: CSS_COLORS.collect,

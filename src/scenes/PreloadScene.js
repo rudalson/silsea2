@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getLevel } from "../data/levels/index.js";
 import { assertLevelShape } from "../data/schema/levelSchema.js";
 import { AssetManager } from "../systems/AssetManager.js";
@@ -41,7 +42,7 @@ export class PreloadScene extends Phaser.Scene {
       GAME_HEIGHT / 2 - 50,
       usingFallback ? `${this.level.name} 도형·무음 모드 준비 중` : `${this.level.name} 준비 중`,
       {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "28px",
         fontStyle: "700",
         color: CSS_COLORS.white,
@@ -50,7 +51,7 @@ export class PreloadScene extends Phaser.Scene {
       }
     ).setOrigin(0.5);
     const status = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 89, "무지개 마법을 모으는 중…", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "15px",
       fontStyle: "700",
       color: CSS_COLORS.soft

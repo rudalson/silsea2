@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { AudioManager } from "../systems/AudioManager.js";
 import { InputManager } from "../systems/InputManager.js";
@@ -23,7 +24,7 @@ export class MenuScene extends Phaser.Scene {
     this.tweens.add({ targets: titlePanel, scale: 1, duration: 540, ease: "Back.Out" });
 
     this.add.text(GAME_WIDTH / 2, 91, "SILSEA'S RAINBOW HILL", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "17px",
       fontStyle: "800",
       letterSpacing: 4,
@@ -31,7 +32,7 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(4);
 
     this.add.text(GAME_WIDTH / 2, 148, "실세아의 무지개 언덕", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "58px",
       fontStyle: "800",
       color: CSS_COLORS.white,
@@ -40,7 +41,7 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(4);
 
     this.add.text(GAME_WIDTH / 2, 205, "별을 모아 무지개 언덕의 길을 밝혀요!", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "20px",
       fontStyle: "700",
       color: CSS_COLORS.soft
@@ -56,7 +57,7 @@ export class MenuScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setDepth(4);
     const startLabel = this.add.text(GAME_WIDTH / 2, 410, "모험 시작  ▶", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "31px",
       fontStyle: "700",
       color: CSS_COLORS.outline
@@ -67,7 +68,7 @@ export class MenuScene extends Phaser.Scene {
     this.tweens.add({ targets: [startButton, startLabel], scale: 1.04, duration: 760, yoyo: true, repeat: -1, ease: "Sine.InOut" });
 
     this.add.text(GAME_WIDTH / 2, 499, "방향키 / WASD 이동   ·   Space / Z 점프", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       fontStyle: "700",
       color: CSS_COLORS.white,

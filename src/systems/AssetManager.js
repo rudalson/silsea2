@@ -1,5 +1,6 @@
 import manifest from "../../assets/manifest.json";
 import { COLORS } from "../config/constants.js";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacterAssetKeys, getCharacterSequenceKey } from "../data/characterAnimations.js";
 import { getEnemyAssetKeys } from "../data/enemyAnimations.js";
 
@@ -115,7 +116,7 @@ export class AssetManager {
     context.fill();
     context.stroke();
     context.fillStyle = toCss(COLORS.white);
-    context.font = "700 13px system-ui";
+    context.font = `700 13px ${GAME_FONT_FAMILY}`;
     context.textAlign = "center";
     context.textBaseline = "middle";
     AssetManager.wrapLabel(context, key, width / 2, height / 2, width - 18, 16);

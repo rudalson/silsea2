@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { LEVELS } from "../data/levels/index.js";
 import { AudioManager } from "../systems/AudioManager.js";
@@ -24,14 +25,14 @@ export class StageSelectScene extends Phaser.Scene {
       .setStrokeStyle(4, COLORS.collect, 0.9)
       .setDepth(2);
     this.add.text(GAME_WIDTH / 2, 63, "WORLD MAP", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "16px",
       fontStyle: "800",
       letterSpacing: 4,
       color: CSS_COLORS.collect
     }).setOrigin(0.5).setDepth(3);
     this.add.text(GAME_WIDTH / 2, 105, "스테이지 선택", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "42px",
       fontStyle: "800",
       color: CSS_COLORS.white,
@@ -59,7 +60,7 @@ export class StageSelectScene extends Phaser.Scene {
         this.add.star(x + 86, 332, 5, 6, 14, COLORS.collectBlue, 0.9).setDepth(6);
       }
       const order = this.add.text(x - 128, 220, String(level.order).padStart(2, "0"), {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "31px",
         fontStyle: "900",
         color: CSS_COLORS.collect,
@@ -67,19 +68,19 @@ export class StageSelectScene extends Phaser.Scene {
         padding: { x: 10, y: 5 }
       }).setOrigin(0.5).setDepth(6);
       const title = this.add.text(x, 433, level.name, {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "27px",
         fontStyle: "800",
         color: CSS_COLORS.white
       }).setOrigin(0.5).setDepth(4);
       const description = this.add.text(x, 470, index === 0 ? "무지개 길을 따라 첫 모험!" : "조작을 익히는 연습 코스", {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "15px",
         fontStyle: "700",
         color: CSS_COLORS.soft
       }).setOrigin(0.5).setDepth(4);
       const status = this.add.text(x, 516, progress.cleared ? `✓ 클리어 · BEST ${progress.bestScore}` : "새 스테이지", {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "17px",
         fontStyle: "700",
         color: progress.cleared ? CSS_COLORS.collect : CSS_COLORS.soft
@@ -95,7 +96,7 @@ export class StageSelectScene extends Phaser.Scene {
     });
 
     this.add.text(GAME_WIDTH / 2, 640, "← → 선택   ·   Space / Z 시작   ·   카드를 클릭해 바로 시작", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       fontStyle: "700",
       color: CSS_COLORS.white,

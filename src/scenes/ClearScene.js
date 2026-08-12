@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacter } from "../data/characters.js";
 import { getLevel, getNextLevel } from "../data/levels/index.js";
 import { AssetManager } from "../systems/AssetManager.js";
@@ -42,7 +43,7 @@ export class ClearScene extends Phaser.Scene {
     }
 
     this.add.text(GAME_WIDTH / 2, 104, "STAGE CLEAR!", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "58px",
       fontStyle: "900",
       color: CSS_COLORS.collect,
@@ -57,13 +58,13 @@ export class ClearScene extends Phaser.Scene {
     const portrait = this.add.sprite(GAME_WIDTH / 2, 290, texture).setScale(1.9).setOrigin(0.5);
     if (hasArt) CharacterAnimationManager.play(portrait, character, "victory");
     this.add.text(GAME_WIDTH / 2, 410, `${character.name} · ${level.name}`, {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "27px",
       fontStyle: "800",
       color: CSS_COLORS.white
     }).setOrigin(0.5);
     this.add.text(GAME_WIDTH / 2, 472, `기록  ${this.result.elapsed.toFixed(1)}초    ·    점수  ${this.result.score}%`, {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "20px",
       color: CSS_COLORS.soft
     }).setOrigin(0.5);
@@ -79,7 +80,7 @@ export class ClearScene extends Phaser.Scene {
         `PLAYTEST ${session.testerId} · 피격 ${session.metrics.hits} · 추락 ${session.metrics.falls} · 정체 ${session.metrics.stalls}\n${remaining}`,
         {
           align: "center",
-          fontFamily: "system-ui",
+          fontFamily: GAME_FONT_FAMILY,
           fontSize: "16px",
           fontStyle: "700",
           color: CSS_COLORS.white,
@@ -87,7 +88,7 @@ export class ClearScene extends Phaser.Scene {
         }
       ).setOrigin(0.5);
       this.exportButton = this.add.text(GAME_WIDTH / 2, 580, "E / 클릭 · 플레이테스트 JSON 저장", {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "17px",
         fontStyle: "800",
         color: CSS_COLORS.near,
@@ -99,7 +100,7 @@ export class ClearScene extends Phaser.Scene {
 
     const actionY = playtestBundle ? 618 : 558;
     this.add.text(GAME_WIDTH / 2, actionY - 50, next ? `다음 스테이지: ${next.name}` : "모든 스테이지를 완료했습니다!", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       color: CSS_COLORS.collectBlue
     }).setOrigin(0.5);
@@ -115,7 +116,7 @@ export class ClearScene extends Phaser.Scene {
       actionY + 58,
       next ? "Space / Z · 다음 스테이지   ·   Esc · 스테이지 선택" : "Space / Z / Esc · 스테이지 선택",
       {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "15px",
         fontStyle: "700",
         color: CSS_COLORS.white
@@ -136,7 +137,7 @@ export class ClearScene extends Phaser.Scene {
 
   createActionButton(x, y, label, primary, onPress) {
     const button = this.add.text(x, y, label, {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "19px",
       fontStyle: "800",
       color: primary ? CSS_COLORS.near : CSS_COLORS.white,

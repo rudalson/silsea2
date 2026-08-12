@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { GAME_FONT_FAMILY } from "../config/font.js";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { CHARACTER_LIST } from "../data/characters.js";
 import { AssetManager } from "../systems/AssetManager.js";
@@ -25,14 +26,14 @@ export class CharacterSelectScene extends Phaser.Scene {
       .setStrokeStyle(4, COLORS.collect, 0.9)
       .setDepth(2);
     this.add.text(GAME_WIDTH / 2, 69, "CHARACTER SELECT", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "16px",
       fontStyle: "800",
       letterSpacing: 4,
       color: CSS_COLORS.collect
     }).setOrigin(0.5).setDepth(3);
     this.add.text(GAME_WIDTH / 2, 111, "누구와 달릴까요?", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "40px",
       fontStyle: "800",
       color: CSS_COLORS.white,
@@ -53,13 +54,13 @@ export class CharacterSelectScene extends Phaser.Scene {
       const portrait = this.add.sprite(x, GAME_HEIGHT / 2 - 18, texture).setScale(1.65).setOrigin(0.5).setDepth(3);
       if (hasArt) CharacterAnimationManager.play(portrait, character, "idle");
       const name = this.add.text(x, GAME_HEIGHT / 2 + 149, character.name, {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "27px",
         fontStyle: "800",
         color: CSS_COLORS.white
       }).setOrigin(0.5).setDepth(3);
       const badge = this.add.text(x, GAME_HEIGHT / 2 + 187, index === 0 ? "빠르고 용감한 친구" : "튼튼하고 다정한 친구", {
-        fontFamily: "system-ui",
+        fontFamily: GAME_FONT_FAMILY,
         fontSize: "16px",
         fontStyle: "700",
         color: CSS_COLORS.soft
@@ -75,7 +76,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
 
     this.add.text(GAME_WIDTH / 2, 650, "← → 선택   ·   Space / Z 결정   ·   카드를 클릭해 바로 시작", {
-      fontFamily: "system-ui",
+      fontFamily: GAME_FONT_FAMILY,
       fontSize: "19px",
       fontStyle: "700",
       color: CSS_COLORS.soft

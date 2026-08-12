@@ -1,6 +1,14 @@
+@font-face {
+  font-family: "Silsea Jua";
+  src: url("/assets/fonts/Jua-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: block;
+}
+
 :root {
   color-scheme: dark;
-  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  font-family: "Silsea Jua", "Jua", "Malgun Gothic", sans-serif;
   background: var(--color-deep);
   color: var(--color-white);
   font-synthesis: none;
