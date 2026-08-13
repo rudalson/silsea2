@@ -30,11 +30,13 @@ export class UIScene extends Phaser.Scene {
       stroke: CSS_COLORS.panel,
       strokeThickness: 4
     }).setScrollFactor(0);
-    this.hpLabel = this.add.text(43, 57, "마음", {
+    this.hpLabel = this.add.text(43, 57, "HP 3 / 3", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "13px",
       fontStyle: "800",
-      color: CSS_COLORS.collect
+      color: CSS_COLORS.collectPink,
+      stroke: CSS_COLORS.panel,
+      strokeThickness: 2
     }).setScrollFactor(0);
     this.heartIcons = [];
     for (let index = 0; index < 3; index += 1) {
@@ -59,26 +61,24 @@ export class UIScene extends Phaser.Scene {
       .setStrokeStyle(2, COLORS.mid);
     this.flightBar = this.add.rectangle(270, 76, 124, 6, COLORS.collectBlue, 1).setOrigin(0, 0.5).setScrollFactor(0);
 
-    this.add.rectangle(GAME_WIDTH / 2, 44, 324, 68, COLORS.near, 0.9).setStrokeStyle(3, COLORS.collect).setScrollFactor(0);
-    this.scoreCoin = hasUiArt
-      ? this.add.image(GAME_WIDTH / 2 - 126, 43, "ui_hud_percent").setScale(0.115).setScrollFactor(0)
-      : this.add.text(GAME_WIDTH / 2 - 128, 29, "%", { fontSize: "28px", fontStyle: "900", color: CSS_COLORS.collect }).setScrollFactor(0);
-    this.scoreStar = hasUiArt
-      ? this.add.image(GAME_WIDTH / 2 + 126, 43, "ui_hud_badge_star").setScale(0.085).setScrollFactor(0)
-      : null;
-    this.scoreText = this.add.text(GAME_WIDTH / 2, 25, "PERCENT 0%", {
+    this.add.rectangle(GAME_WIDTH / 2, 48, 360, 78, COLORS.near, 0.94).setStrokeStyle(3, COLORS.collect).setScrollFactor(0);
+    this.createScoreBadge(GAME_WIDTH / 2 - 142, 48, "%");
+    this.createScoreBadge(GAME_WIDTH / 2 + 142, 48, "★");
+    this.scoreText = this.add.text(GAME_WIDTH / 2, 18, "진행도 0%", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "21px",
+      fontSize: "25px",
       fontStyle: "900",
       color: CSS_COLORS.collect,
       stroke: CSS_COLORS.panel,
-      strokeThickness: 4
-    }).setOrigin(0.5).setScrollFactor(0).setFixedSize(250, 28).setAlign("center");
-    this.objectiveText = this.add.text(GAME_WIDTH / 2, 54, "별 목표 0/0", {
+      strokeThickness: 5
+    }).setOrigin(0.5).setScrollFactor(0).setFixedSize(260, 32).setAlign("center");
+    this.objectiveText = this.add.text(GAME_WIDTH / 2, 56, "별 목표 0/0", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "13px",
+      fontSize: "15px",
       fontStyle: "700",
-      color: CSS_COLORS.soft
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.panel,
+      strokeThickness: 3
     }).setOrigin(0.5).setScrollFactor(0);
     this.comboText = this.add.text(GAME_WIDTH / 2 + 185, 31, "", {
       fontFamily: GAME_FONT_FAMILY,
@@ -177,7 +177,10 @@ export class UIScene extends Phaser.Scene {
     const hp = this.gameScene.healthManager?.hp ?? 0;
     const maxHp = this.gameScene.healthManager?.maxHp ?? 0;
     this.renderHeartIcons(hp, maxHp);
-    this.scoreText.setText(`PERCENT ${Math.round(this.gameScene.scoreManager?.displayScore ?? 0)}%`);
+    this.hpLabel
+      .setText(`HP ${hp} / ${maxHp}`)
+      .setColor(hp <= 1 ? CSS_COLORS.danger : CSS_COLORS.collectPink);
+    this.scoreText.setText(`진행도 ${Math.round(this.gameScene.scoreManager?.displayScore ?? 0)}%`);
     const combo = this.gameScene.scoreManager?.combo ?? 0;
     this.comboText.setText(combo >= 2 ? `${combo} COMBO` : "");
     const form = this.gameScene.transformationManager?.getSnapshot(this.gameScene.time.now);
@@ -414,13 +417,28 @@ export class UIScene extends Phaser.Scene {
       if (!visible) return;
       const filled = index < hp;
       if (heart.type === "Text") {
-        heart.setText(filled ? "♥" : "♡").setColor(filled ? CSS_COLORS.collect : CSS_COLORS.soft);
+        heart.setText(filled ? "♥" : "♡").setColor(filled ? CSS_COLORS.collectPink : CSS_COLORS.soft);
       } else if (filled) {
-        heart.clearTint().setAlpha(1);
+        heart.setTint(COLORS.collectPink).setAlpha(1);
       } else {
-        heart.setTint(COLORS.soft).setAlpha(0.72);
+        heart.setTint(COLORS.outline).setAlpha(0.5);
       }
     });
+  }
+
+  createScoreBadge(x, y, glyph) {
+    const badge = this.add.circle(x, y, 17, COLORS.collect, 1)
+      .setStrokeStyle(3, COLORS.outline)
+      .setScrollFactor(0);
+    const label = this.add.text(x, y - 1, glyph, {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: glyph === "%" ? "17px" : "21px",
+      fontStyle: "900",
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.panel,
+      strokeThickness: 3
+    }).setOrigin(0.5).setScrollFactor(0);
+    return { badge, label };
   }
 
   showToast(message) {

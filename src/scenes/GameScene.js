@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { COLORS, EVENTS, SCENE_KEYS } from "../config/constants.js";
+import { COLORS, EVENTS, GAME_HEIGHT, SCENE_KEYS } from "../config/constants.js";
 import { getCharacter, cloneTuning } from "../data/characters.js";
 import { getLevel } from "../data/levels/index.js";
 import { assertLevelShape } from "../data/schema/levelSchema.js";
@@ -146,7 +146,7 @@ export class GameScene extends Phaser.Scene {
 
   configureCamera() {
     const camera = this.cameras.main;
-    camera.setBounds(0, 0, this.level.world.width, this.level.world.height);
+    camera.setBounds(0, 0, this.level.world.width, GAME_HEIGHT);
     camera.setDeadzone(320, 220);
     camera.startFollow(this.player, true, 0.12, 0.1);
     camera.setFollowOffset(0, 28);
@@ -167,9 +167,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (section?.type === "boss" && section.lockCamera) {
-      this.cameras.main.setBounds(section.xStart, 0, section.xEnd - section.xStart, this.level.world.height);
+      this.cameras.main.setBounds(section.xStart, 0, section.xEnd - section.xStart, GAME_HEIGHT);
     } else {
-      this.cameras.main.setBounds(0, 0, this.level.world.width, this.level.world.height);
+      this.cameras.main.setBounds(0, 0, this.level.world.width, GAME_HEIGHT);
     }
 
     const cue = this.level.cameraCues?.find((candidate) => this.player.x >= candidate.xStart && this.player.x <= candidate.xEnd);

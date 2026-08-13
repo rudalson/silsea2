@@ -8,6 +8,8 @@ export const PALETTE = {
   highlight: ["#F4FBFD", "#CDE5B9"],
   outline: "#42474E",
   danger: ["#D1333D", "#752B5A"],
+  // 호박 적 전용: 기존 제한 팔레트 안에서 따뜻한 주황 실루엣을 보장한다.
+  pumpkin: ["#F47B20", "#FFB52A", "#C8541B"],
   collect: ["#F5DF4F", "#3DBFE3", "#E573A0"],
   bgFar: ["#CDE5B9", "#4691A2"],
   bgMid: ["#BFC596", "#4DABA1"],

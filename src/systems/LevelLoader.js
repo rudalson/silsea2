@@ -1,4 +1,4 @@
-import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
+import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { ENEMY_DEFINITIONS } from "../data/enemies.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
@@ -106,7 +106,7 @@ export class LevelLoader {
   createMirroredBackgroundTiles(layer, textureKey, depth, worldWidth, worldHeight) {
     const source = this.scene.textures.get(textureKey)?.getSourceImage();
     const tileWidth = source?.width ?? 2048;
-    const tileHeight = source?.height ?? worldHeight;
+    const tileHeight = source?.height ?? GAME_HEIGHT;
     const tiles = [];
 
     // 원본과 좌우 반전본을 교차하면 맞닿는 두 가장자리가 같은 픽셀이 된다.
@@ -115,11 +115,13 @@ export class LevelLoader {
     for (let index = -1; index * tileWidth < worldWidth + tileWidth; index += 1) {
       const image = this.track(this.scene.add.image(
         index * tileWidth + tileWidth / 2,
-        worldHeight / 2,
+        GAME_HEIGHT / 2,
         textureKey
       ));
       image
-        .setDisplaySize(tileWidth + BACKGROUND_TILE_OVERLAP, Math.max(tileHeight, worldHeight))
+        // 배경 원본은 2048×720으로 제작되었다. 월드 높이(768)에 맞춰
+        // 늘리면 배경만 흐려지므로, 화면 높이 그대로 표시한다.
+        .setDisplaySize(tileWidth + BACKGROUND_TILE_OVERLAP, tileHeight)
         .setFlipX(Math.abs(index) % 2 === 1)
         .setScrollFactor(this.level.parallax[layer], 0)
         .setDepth(depth);
@@ -287,8 +289,12 @@ export class LevelLoader {
         : this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
       if (usesArt) {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
-        marker.body.setSize(50, 46, false);
-        marker.body.setOffset(39, 112 - 46);
+        const isRawPotato = enemy.type === "raw_potato";
+        const bodyWidth = isRawPotato ? 38 : 50;
+        const bodyHeight = isRawPotato ? 36 : 46;
+        if (isRawPotato) marker.setScale(0.72);
+        marker.body.setSize(bodyWidth, bodyHeight, false);
+        marker.body.setOffset((128 - bodyWidth) / 2, 112 - bodyHeight);
       } else {
         marker.setStrokeStyle(4, COLORS.outline).setDepth(3);
         this.scene.physics.add.existing(marker);
@@ -334,8 +340,9 @@ export class LevelLoader {
       if (usesArt) marker.setOrigin(0.5, 112 / 128).setDepth(3);
       else marker.setOrigin(0.5, 1).setStrokeStyle(4, COLORS.outline).setDepth(3);
       this.scene.physics.add.existing(marker, true);
-      marker.body.setSize(48, 48, false);
-      if (usesArt) marker.body.setOffset(40, 112 - 48);
+      // 가시 전체가 위험 영역임을 보이도록, 호박 몸통과 양옆 가시까지 포함한다.
+      marker.body.setSize(84, 58, false);
+      if (usesArt) marker.body.setOffset((128 - 84) / 2, 112 - 58);
       marker.setDataEnabled();
       marker.setData({ ...hazard, destroyed: false, usesArt });
       if (usesArt) EnemyAnimationManager.play(marker, "idle");
@@ -478,7 +485,15 @@ export class LevelLoader {
   }
 
   getSectionAt(x) {
-    return this.level.sections.find((section) => x >= section.xStart && x < section.xEnd) ?? this.level.sections.at(-1);
+    const sections = this.level.sections;
+
+    // 시작 지점보다 왼쪽으로 잠시 벗어나도 마지막(보스) 섹션으로
+    // fallback되지 않도록, 시작 이전 좌표는 첫 번째 섹션으로 처리한다.
+    if (x < sections[0]?.xStart) {
+      return sections[0] ?? null;
+    }
+
+    return sections.find((section) => x >= section.xStart && x < section.xEnd) ?? sections.at(-1) ?? null;
   }
 
   track(object) {

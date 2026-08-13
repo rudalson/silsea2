@@ -307,20 +307,16 @@ export class EnemyManager {
 
   handleHazardContact(hazard) {
     if (!hazard.active || hazard.getData("destroyed")) return;
-    if (this.transformationManager.canBreakObstacles) {
-      hazard.setData("destroyed", true);
-      hazard.body.enable = false;
-      const defeated = hazard.getData("usesArt") ? EnemyAnimationManager.play(hazard, "defeated", false) : null;
-      if (defeated) {
-        this.scene.time.delayedCall(defeated.durationMs, () => hazard.setVisible(false).setActive(false));
-      } else {
-        hazard.setVisible(false).setActive(false);
-      }
-      this.scoreManager.defeat("spike_pumpkin", this.transformationManager.scoreMultiplier);
-      this.scene.audioManager?.playSfx("sfx_enemy_defeat");
-      return;
+    // 가시 호박은 처치용 오브젝트가 아니라, 어떤 변신 상태에서도 접촉 피해를 주는 장애물이다.
+    const damaged = this.healthManager.takeDamage(hazard.x);
+    if (!damaged) return;
+    if (hazard.getData("usesArt")) {
+      const warning = EnemyAnimationManager.play(hazard, "warning", false);
+      this.scene.time.delayedCall(warning?.durationMs ?? 320, () => {
+        if (hazard.active && !hazard.getData("destroyed")) EnemyAnimationManager.play(hazard, "idle");
+      });
     }
-    this.healthManager.takeDamage(hazard.x);
+    this.scene.cameraEffects?.shake("enemyDefeat");
   }
 
   defeatEnemy(enemy, type) {
