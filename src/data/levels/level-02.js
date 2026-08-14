@@ -3,7 +3,9 @@ const tilemapUrl = new URL("../../../assets/levels/level-02/tilemap.json", impor
 export default {
   schemaVersion: 1,
   id: "level-02",
-  name: "구조 검증 놀이터",
+  name: "별빛 숲",
+  description: "달빛 나뭇가지와 반짝이는 길",
+  visualTheme: "starlit-forest",
   order: 2,
   assets: {
     tilemap: tilemapUrl,
@@ -26,21 +28,79 @@ export default {
     },
     bgm: { field: "bgm_field", clear: "bgm_clear" }
   },
-  world: { width: 2560, height: 768, tileSize: 64 },
+  world: { width: 6144, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
   player: { spawn: { x: 128, y: 576 } },
   sections: [
-    { id: "start", type: "normal", xStart: 0, xEnd: 1536, mood: "normal" },
-    { id: "finish", type: "normal", xStart: 1536, xEnd: 2560, mood: "normal" }
+    { id: "moonlit_trail", type: "normal", xStart: 0, xEnd: 1792, mood: "normal" },
+    { id: "glow_canopy", type: "normal", xStart: 1792, xEnd: 3840, mood: "normal" },
+    { id: "whispering_gap", type: "normal", xStart: 3840, xEnd: 4992, mood: "normal" },
+    { id: "star_tree", type: "normal", xStart: 4992, xEnd: 6144, mood: "normal" }
   ],
-  cameraCues: [],
-  checkpoints: [{ id: "cp_test", x: 1280, y: 576 }],
-  enemies: [],
-  items: [{ id: "star_test", type: "star", x: 832, y: 432 }],
-  hazards: [],
+  cameraCues: [
+    { id: "cue_first_gap", xStart: 1504, xEnd: 2240, lookAhead: 175, targetX: 2304 },
+    { id: "cue_canopy_arc", xStart: 2880, xEnd: 3520, lookAhead: 165, targetX: 3712 },
+    { id: "cue_whispering_gap", xStart: 3648, xEnd: 4800, lookAhead: 190, targetX: 4992 }
+  ],
+  checkpoints: [
+    { id: "cp_moonroot", x: 1664, y: 576 },
+    { id: "cp_fireflies", x: 3520, y: 576 },
+    { id: "cp_star_tree", x: 5120, y: 576, restoresHealth: true }
+  ],
+  enemies: [
+    { id: "e_moonroot_01", type: "raw_potato", x: 896, y: 576, patrol: 160 },
+    { id: "e_canopy_01", type: "raw_potato", x: 2752, y: 576, patrol: 176 },
+    { id: "e_canopy_02", type: "raw_potato", x: 3328, y: 576, patrol: 144 },
+    { id: "e_star_tree_01", type: "raw_potato", x: 5568, y: 576, patrol: 168 }
+  ],
+  items: [
+    { id: "moonlit_star", type: "star", x: 320, y: 496 },
+    { id: "moonlit_arc", type: "star_arc", x: 704, y: 424, count: 8, radius: 132 },
+    { id: "moonlit_horn", type: "horn", x: 1216, y: 496 },
+    { id: "moonlit_reward", type: "percent_small", x: 1536, y: 496 },
+    { id: "wing_glade", type: "wings", x: 2496, y: 496 },
+    { id: "canopy_arc_low", type: "star_arc", x: 2768, y: 430, count: 10, radius: 148 },
+    { id: "canopy_arc_high", type: "star_arc", x: 3264, y: 350, count: 10, radius: 134 },
+    { id: "canopy_reward", type: "percent_large", x: 3648, y: 376 },
+    { id: "gap_arc_01", type: "star_arc", x: 4064, y: 392, count: 9, radius: 130 },
+    { id: "gap_arc_02", type: "star_arc", x: 4608, y: 320, count: 10, radius: 162 },
+    { id: "gap_reward", type: "percent_small", x: 4736, y: 352 },
+    { id: "star_tree_arc", type: "star_arc", x: 5440, y: 402, count: 10, radius: 160 },
+    { id: "star_tree_reward", type: "percent_large", x: 5824, y: 368 },
+    { id: "gate_star", type: "star", x: 5952, y: 496 }
+  ],
+  terrainMechanics: {
+    visualTheme: "starlit-forest",
+    movingPlatforms: [
+      { id: "moon_branch", x: 1856, y: 464, width: 160, height: 32, axis: "x", distance: 224, speed: 64 },
+      { id: "firefly_branch", x: 4504, y: 400, width: 160, height: 32, axis: "y", distance: 112, speed: 56 }
+    ],
+    crumblePlatforms: [
+      { id: "glow_branch_01", x: 4144, y: 448, width: 176, height: 32, crumbleDelayMs: 1100, respawnMs: 2200 }
+    ]
+  },
+  hazards: [
+    { id: "thorn_moonroot", type: "spike_pumpkin", x: 1472, y: 576 },
+    { id: "thorn_canopy", type: "spike_pumpkin", x: 3136, y: 576 },
+    { id: "moon_gap", type: "pit", xStart: 1792, xEnd: 2304, respawnX: 1664 },
+    { id: "whispering_gap", type: "pit", xStart: 3840, xEnd: 4992, respawnX: 3712 },
+    { id: "thorn_star_tree", type: "spike_pumpkin", x: 5696, y: 576 }
+  ],
   objectives: {
     required: [{ type: "reach_gate" }],
-    optional: [{ type: "clear_time", seconds: 45, reward: 100 }]
+    optional: [
+      { type: "collect_stars", count: 35, reward: 450 },
+      { type: "clear_time", seconds: 210, reward: 300 },
+      { type: "no_damage", reward: 700 }
+    ]
   },
-  difficulty: { easyMode: { extraCheckpoints: [], removeEnemies: [], pitScoreLoss: 0 } }
+  difficulty: {
+    easyMode: {
+      extraCheckpoints: [{ id: "cp_easy_gap", x: 3712, y: 576 }],
+      removeEnemies: ["e_canopy_02"],
+      player: { extraHp: 1, flightDrainMultiplier: 0.7 },
+      terrainMechanics: { movingSpeedMultiplier: 0.72, crumbleDelayMultiplier: 1.45 },
+      pitScoreLoss: 0
+    }
+  }
 };

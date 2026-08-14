@@ -16,9 +16,9 @@ export const gameConfig = {
   height: GAME_HEIGHT,
   backgroundColor: CSS_COLORS.skyTop,
   render: {
-    antialias: true,
-    pixelArt: false,
-    roundPixels: false
+    antialias: false,
+    pixelArt: true,
+    roundPixels: true
   },
   scale: {
     mode: Phaser.Scale.FIT,

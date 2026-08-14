@@ -18,5 +18,6 @@ export const PALETTE = {
   environmentFar: ["#FFF6D8", "#DCEB85"],
   environmentMid: ["#82CB70", "#59AE72"],
   environmentNear: ["#51CE87", "#285144", "#9A6535"],
+  environmentNight: ["#172447", "#193A3E", "#214D59"],
   environmentNeutral: ["#45494B", "#A8AA96", "#D09A4E"]
 };

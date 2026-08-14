@@ -6,12 +6,12 @@ import { AssetManager } from "./AssetManager.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
 const ITEM_SCALES = Object.freeze({
-  star: 0.65,
-  percent_small: 0.7,
-  percent_large: 0.68,
-  horn: 0.65,
-  wings: 0.68,
-  alicorn: 0.68
+  star: 0.75,
+  percent_small: 0.75,
+  percent_large: 0.75,
+  horn: 0.75,
+  wings: 0.75,
+  alicorn: 0.75
 });
 
 const BACKGROUND_LAYERS = Object.freeze({
@@ -46,6 +46,7 @@ export class LevelLoader {
 
     this.scene.physics.world.setBounds(0, 0, this.level.world.width, this.level.world.height + 256);
     this.createBackground();
+    this.createAtmosphere();
     this.createTerrain();
     if (this.scene.registry.get("debugEnabled")) this.createSectionMarkers();
     this.createCheckpoints();
@@ -88,6 +89,56 @@ export class LevelLoader {
 
     const near = this.track(this.scene.add.rectangle(width / 2, height - 30, width, 120, COLORS.near, 0.35));
     near.setScrollFactor(this.level.parallax.near, 1).setDepth(-10);
+  }
+
+  createAtmosphere() {
+    if (this.level.visualTheme !== "starlit-forest") return;
+    this.createStarlitForestAtmosphere();
+  }
+
+  createStarlitForestAtmosphere() {
+    const { width, height } = this.level.world;
+    const nightVeil = this.track(this.scene.add.rectangle(width / 2, height / 2, width, height, COLORS.nightVeil, 0.62));
+    nightVeil.setDepth(-9);
+
+    for (let segment = 0; segment <= width; segment += 2048) {
+      const moonGlow = this.track(this.scene.add.circle(segment + 570, 152, 92, COLORS.collectBlue, 0.13));
+      const moon = this.track(this.scene.add.circle(segment + 570, 152, 52, COLORS.white, 0.9));
+      moonGlow.setDepth(-8);
+      moon.setDepth(-8);
+    }
+
+    for (let index = 0; index < Math.ceil(width / 128); index += 1) {
+      const x = 64 + index * 128 + ((index * 37) % 52);
+      const y = 54 + ((index * 83) % 310);
+      const color = index % 5 === 0 ? COLORS.collect : index % 3 === 0 ? COLORS.collectBlue : COLORS.white;
+      const star = this.track(this.scene.add.star(x, y, 4, 2, 6, color, 0.72));
+      star.setDepth(-7);
+      this.scene.tweens.add({
+        targets: star,
+        alpha: { from: 0.28, to: 0.92 },
+        scale: { from: 0.76, to: 1.18 },
+        duration: 860 + (index % 6) * 170,
+        delay: (index % 7) * 90,
+        yoyo: true,
+        repeat: -1
+      });
+    }
+
+    for (let index = 0; index < Math.ceil(width / 384); index += 1) {
+      const x = 168 + index * 384;
+      const trunkHeight = 180 + (index % 3) * 48;
+      const trunk = this.track(this.scene.add.rectangle(x, 576 - trunkHeight / 2, 54, trunkHeight, COLORS.nightTrunk, 0.94));
+      trunk.setDepth(-6);
+      const canopyColor = index % 2 === 0 ? COLORS.nightCanopy : COLORS.near;
+      const canopyA = this.track(this.scene.add.ellipse(x - 34, 360 - (index % 3) * 18, 180, 132, canopyColor, 0.96));
+      const canopyB = this.track(this.scene.add.ellipse(x + 40, 330 - (index % 2) * 24, 164, 144, canopyColor, 0.96));
+      canopyA.setDepth(-6);
+      canopyB.setDepth(-6);
+      const glow = this.track(this.scene.add.circle(x + 46, 450 - (index % 2) * 22, 8, COLORS.collectBlue, 0.8));
+      glow.setDepth(-5);
+      this.scene.tweens.add({ targets: glow, alpha: 0.24, duration: 700 + (index % 4) * 120, yoyo: true, repeat: -1 });
+    }
   }
 
   setBackgroundMood(mood) {

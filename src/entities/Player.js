@@ -39,7 +39,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
     this.baseScaleX = this.scaleX;
     this.baseScaleY = this.scaleY;
-    this.setCollideWorldBounds(false);
+    // 월드 경계로 시작 지점의 왼쪽 밖 이동을 막는다. 낭떠러지 추락은
+    // GameScene이 월드 하단 경계에 닿기 전에 감지해 체크포인트로 되돌린다.
+    this.setCollideWorldBounds(true);
     this.setDepth(10);
   }
 

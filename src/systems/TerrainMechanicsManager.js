@@ -25,6 +25,7 @@ export class TerrainMechanicsManager {
     this.movingPlatforms = [];
     this.updrafts = [];
     this.crumblePlatforms = [];
+    this.visualTheme = config.visualTheme ?? "default";
 
     for (const platform of config.movingPlatforms ?? []) this.createMovingPlatform(platform);
     for (const updraft of config.updrafts ?? []) this.createUpdraft(updraft);
@@ -44,7 +45,11 @@ export class TerrainMechanicsManager {
     platform.body.pushable = false;
     platform.setDepth(MOVING_PLATFORM_DEPTH);
 
-    const visual = this.track(this.createCloudVisual(centerX, centerY, config.width, config.height));
+    const visual = this.track(
+      this.visualTheme === "starlit-forest"
+        ? this.createBranchVisual(centerX, centerY, config.width, config.height)
+        : this.createCloudVisual(centerX, centerY, config.width, config.height)
+    );
     const axis = config.axis === "y" ? "y" : "x";
     const distance = Number(config.distance);
     const speed = Number(config.speed);
@@ -86,6 +91,18 @@ export class TerrainMechanicsManager {
     });
     const glow = this.scene.add.ellipse(0, height * 0.2, width * 0.78, height * 0.46, COLORS.collect, 0.2);
     container.add([glow, base, ...puffs]);
+    return container;
+  }
+
+  createBranchVisual(x, y, width, height) {
+    const container = this.scene.add.container(x, y).setDepth(MOVING_PLATFORM_DEPTH);
+    const branch = this.scene.add.rectangle(0, 0, width, height, COLORS.ground, 0.98);
+    branch.setStrokeStyle(3, COLORS.outline, 0.82);
+    const moss = this.scene.add.rectangle(0, -height * 0.28, width - 12, Math.max(8, height * 0.32), COLORS.grass, 0.96);
+    const leftLeaf = this.scene.add.ellipse(-width * 0.34, -height * 0.52, 34, 20, COLORS.collectBlue, 0.58);
+    const rightLeaf = this.scene.add.ellipse(width * 0.3, -height * 0.5, 30, 18, COLORS.collect, 0.62);
+    const glow = this.scene.add.ellipse(0, height * 0.16, width * 0.68, height * 0.8, COLORS.collectBlue, 0.18);
+    container.add([glow, branch, moss, leftLeaf, rightLeaf]);
     return container;
   }
 

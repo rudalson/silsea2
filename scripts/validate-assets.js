@@ -104,7 +104,10 @@ const itemAssets = [
   ...itemAsset("checkpoint_flag", 91, 96),
   ...itemAsset("rainbow_gate", 108, 112)
 ];
-const collectRgb = PALETTE.collect.map(hexToRgb);
+// 수집물은 수집 팔레트만 쓰되, 밝은 배경에서도 실루엣이 무너지지 않도록
+// 공용 짙은 외곽선과 흰 반짝임을 허용한다.
+const itemRgb = [...PALETTE.collect, PALETTE.outline, PALETTE.highlight[0]].map(hexToRgb);
+const ITEM_PALETTE_EDGE_TOLERANCE = 3;
 const potatoFaceRgb = PALETTE.base.slice(1, 3).map(hexToRgb);
 const assets = [...characterAssets, ...enemyAssets, ...itemAssets];
 const errors = [];
@@ -187,7 +190,7 @@ for (const asset of assets) {
     maxY = Math.max(maxY, y);
     const rgb = [data[index], data[index + 1], data[index + 2]];
     if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
-    if (asset.kind === "item" && Math.min(...collectRgb.map((entry) => colorDistance(rgb, entry))) > 0) {
+    if (asset.kind === "item" && Math.min(...itemRgb.map((entry) => colorDistance(rgb, entry))) > ITEM_PALETTE_EDGE_TOLERANCE) {
       outsideCollect += 1;
     }
   }

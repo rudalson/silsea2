@@ -52,12 +52,16 @@ export class StageSelectScene extends Phaser.Scene {
         .setDepth(3);
       const preview = index === 0
         ? this.add.image(x, 314, "stage_preview_rainbow_hill").setDisplaySize(304, 168).setDepth(4)
-        : this.add.rectangle(x, 314, 304, 168, COLORS.mid, 0.96).setDepth(4);
-      if (index !== 0) {
-        this.add.ellipse(x, 322, 236, 72, COLORS.far, 0.95).setDepth(5);
-        this.add.rectangle(x, 354, 304, 42, COLORS.ground, 0.95).setDepth(5);
-        this.add.star(x - 76, 290, 5, 8, 17, COLORS.collect, 0.9).setDepth(6);
-        this.add.star(x + 86, 332, 5, 6, 14, COLORS.collectBlue, 0.9).setDepth(6);
+        : this.add.rectangle(x, 314, 304, 168, COLORS.nightVeil, 0.98).setDepth(4);
+      if (level.visualTheme === "starlit-forest") {
+        this.add.circle(x + 96, 260, 26, COLORS.white, 0.92).setDepth(5);
+        this.add.ellipse(x - 92, 334, 116, 112, COLORS.nightCanopy, 0.98).setDepth(5);
+        this.add.ellipse(x - 34, 326, 126, 126, COLORS.near, 0.98).setDepth(5);
+        this.add.rectangle(x - 62, 352, 24, 52, COLORS.nightTrunk, 0.98).setDepth(5);
+        this.add.rectangle(x, 354, 304, 42, COLORS.ground, 0.96).setDepth(5);
+        this.add.star(x - 76, 278, 5, 5, 13, COLORS.collect, 0.94).setDepth(6);
+        this.add.star(x + 18, 298, 5, 4, 10, COLORS.collectBlue, 0.94).setDepth(6);
+        this.add.star(x + 70, 338, 5, 4, 10, COLORS.collectPink, 0.92).setDepth(6);
       }
       const order = this.add.text(x - 128, 220, String(level.order).padStart(2, "0"), {
         fontFamily: GAME_FONT_FAMILY,
@@ -73,7 +77,7 @@ export class StageSelectScene extends Phaser.Scene {
         fontStyle: "800",
         color: CSS_COLORS.white
       }).setOrigin(0.5).setDepth(4);
-      const description = this.add.text(x, 470, index === 0 ? "무지개 길을 따라 첫 모험!" : "조작을 익히는 연습 코스", {
+      const description = this.add.text(x, 470, level.description ?? (index === 0 ? "무지개 길을 따라 첫 모험!" : "새로운 모험이 기다리고 있어요"), {
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "15px",
         fontStyle: "700",

@@ -8,9 +8,19 @@
       "id": 1,
       "name": "terrain",
       "objects": [
-        { "height": 192, "id": 1, "name": "ground", "rotation": 0, "type": "ground", "visible": true, "width": 2560, "x": 0, "y": 576 },
-        { "height": 48, "id": 2, "name": "step_a", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 640, "y": 480 },
-        { "height": 48, "id": 3, "name": "step_b", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 960, "y": 416 }
+        { "height": 192, "id": 1, "name": "moonlit_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1792, "x": 0, "y": 576 },
+        { "height": 48, "id": 2, "name": "moonroot_branch", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 448, "y": 480 },
+        { "height": 48, "id": 3, "name": "high_moonroot_branch", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 960, "y": 416 },
+        { "height": 192, "id": 4, "name": "glow_canopy_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1536, "x": 2304, "y": 576 },
+        { "height": 48, "id": 5, "name": "glow_branch_low", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 2624, "y": 448 },
+        { "height": 48, "id": 6, "name": "glow_branch_high", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 3008, "y": 384 },
+        { "height": 48, "id": 7, "name": "glow_branch_exit", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3456, "y": 448 },
+        { "height": 48, "id": 8, "name": "gap_root_01", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3904, "y": 512 },
+        { "height": 48, "id": 9, "name": "gap_root_02", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 4320, "y": 448 },
+        { "height": 48, "id": 10, "name": "gap_root_03", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 4608, "y": 384 },
+        { "height": 192, "id": 11, "name": "star_tree_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1152, "x": 4992, "y": 576 },
+        { "height": 48, "id": 12, "name": "star_tree_branch_low", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5312, "y": 448 },
+        { "height": 48, "id": 13, "name": "star_tree_branch_high", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5632, "y": 384 }
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -20,7 +30,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 4,
+  "nextobjectid": 14,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -29,6 +39,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 40
+  "width": 96
 }
-
