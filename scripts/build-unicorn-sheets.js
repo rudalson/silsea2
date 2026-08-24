@@ -6,16 +6,24 @@ import sharp from "sharp";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const frameSize = 128;
 const partsDirectory = join(root, "assets", "characters", "_parts");
-const hornSource = join(partsDirectory, "unicorn_horn_source.png");
-const hornAsset = join(partsDirectory, "unicorn_horn.png");
+const hornSources = Object.freeze({
+  silsea: Object.freeze({
+    frame: join(root, "assets", "characters", "silsea", "transform_unicorn", "silsea_transform_unicorn_05.png"),
+    extract: Object.freeze({ left: 106, top: 19, width: 6, height: 7 })
+  }),
+  potato89: Object.freeze({
+    frame: join(root, "assets", "characters", "potato89", "transform_unicorn", "potato89_transform_unicorn_05.png"),
+    extract: Object.freeze({ left: 100, top: 16, width: 7, height: 8 })
+  })
+});
 
 // Each coordinate is the point where the horn enters the forehead in a 128x128 frame.
 // Keeping these anchors beside the build makes the baked variants deterministic and
 // lets animation-specific head movement remain perfectly attached to the character.
 const specs = Object.freeze({
   silsea: Object.freeze({
-    hornWidth: 11,
-    hornHeight: 23,
+    hornWidth: 8,
+    hornHeight: 11,
     sequences: Object.freeze({
       idle: [[96, 21, 14], [97, 23, 12], [96, 22, 14], [97, 22, 12]],
       run: [[95, 23, 14], [97, 23, 10], [95, 23, 14], [97, 21, 10], [96, 22, 14], [98, 21, 10], [96, 22, 14], [97, 22, 10]],
@@ -28,18 +36,18 @@ const specs = Object.freeze({
     })
   }),
   potato89: Object.freeze({
-    hornWidth: 12,
-    hornHeight: 24,
+    hornWidth: 9,
+    hornHeight: 11,
     sequences: Object.freeze({
       idle: [[85, 29, 14], [86, 28, 12], [85, 30, 14], [86, 28, 12]],
-      roll: [[85, 28, 14], [86, 26, 10], [92, 33, 24], [86, 26, 14], [85, 27, 14], [87, 25, 10], [85, 27, 14], [86, 26, 10]],
+      roll: [[85, 28, 14], [86, 23, 10], [92, 33, 24], [86, 26, 14], [85, 22, 14], [87, 25, 10], [85, 27, 14], [86, 26, 10]],
       jump_up: [[83, 31, 24], [83, 28, 14]],
       fall: [[86, 25, 14], [87, 24, 14]],
       land: [[84, 34, 22], [86, 29, 14]],
-      hurt: [[78, 25, 25], [85, 28, 14]],
-      stomp: [[83, 27, 14], [82, 22, 14], [91, 36, 24], [85, 28, 14]],
-      fly: [[84, 28, 14], [85, 26, 10], [86, 24, 14], [85, 28, 18], [84, 28, 24], [85, 26, 14]],
-      victory: [[85, 28, 14], [84, 23, 5], [82, 22, 14], [83, 22, 5], [85, 26, 14], [85, 28, 14]]
+      hurt: [[78, 22, 25], [85, 28, 14]],
+      stomp: [[83, 27, 14], [82, 22, 14], [91, 33, 24], [85, 28, 14]],
+      fly: [[84, 25, 14], [85, 26, 10], [86, 24, 14], [85, 28, 18], [84, 28, 24], [85, 23, 14]],
+      victory: [[85, 28, 14], [84, 23, 5], [82, 22, 14], [83, 22, 5], [85, 23, 14], [85, 28, 14]]
     })
   })
 });
@@ -63,36 +71,24 @@ const sheetPath = (character, sequence) => join(
 
 await mkdir(partsDirectory, { recursive: true });
 
-const trimmedHorn = await sharp(hornSource)
-  .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 }, threshold: 8 })
-  .png()
-  .toBuffer();
-const trimmedHornInfo = await sharp(trimmedHorn).metadata();
-const weldHornSource = await sharp(trimmedHorn)
-  // 생성 원본의 벌어진 받침 고리는 합성 티가 나므로 제거한다. 남은 좁은
-  // 단면을 캐릭터 실루엣 안으로 겹쳐 실제 뿔처럼 이어 붙인다.
-  .extract({
-    left: 0,
-    top: 0,
-    width: trimmedHornInfo.width,
-    height: Math.floor(trimmedHornInfo.height * 0.9)
-  })
-  .png()
-  .toBuffer();
+const extractedHornSources = new Map();
+for (const [character, source] of Object.entries(hornSources)) {
+  const data = await sharp(source.frame)
+    .extract(source.extract)
+    .png({ palette: true, colours: 32, dither: 0 })
+    .toBuffer();
+  extractedHornSources.set(character, data);
+  await sharp(data).toFile(join(partsDirectory, `unicorn_horn_${character}.png`));
+}
 
-const prepareHorn = (width, height, angle = 14) => sharp(weldHornSource)
+const prepareHorn = (character, width, height, angle = 14) => sharp(extractedHornSources.get(character))
   .resize({ width, height, fit: "fill", kernel: sharp.kernel.lanczos3 })
-  .rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  // 원화 뿔 자체가 약 14도 기울어 있으므로 프레임 값은 그 기준의 보정각이다.
+  .rotate(angle - 14, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
   .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 }, threshold: 4 });
 
-// This runtime-independent part is retained for inspection. Per-character sizes are
-// produced from the same source below so future rebuilds never accumulate resampling.
-await prepareHorn(10, 24)
-  .png({ palette: true, colours: 64, dither: 0 })
-  .toFile(hornAsset);
-
-const createHorn = async (width, height, angle = 14) => {
-  const { data, info } = await prepareHorn(width, height, angle)
+const createHorn = async (character, width, height, angle = 14) => {
+  const { data, info } = await prepareHorn(character, width, height, angle)
     .png({ palette: true, colours: 64, dither: 0 })
     .toBuffer({ resolveWithObject: true });
   const raw = await sharp(data).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -134,9 +130,9 @@ const createHorn = async (width, height, angle = 14) => {
 };
 
 const hornCache = new Map();
-const getHorn = async (width, height, angle) => {
-  const key = `${width}x${height}@${angle}`;
-  if (!hornCache.has(key)) hornCache.set(key, createHorn(width, height, angle));
+const getHorn = async (character, width, height, angle) => {
+  const key = `${character}:${width}x${height}@${angle}`;
+  if (!hornCache.has(key)) hornCache.set(key, createHorn(character, width, height, angle));
   return hornCache.get(key);
 };
 
@@ -195,7 +191,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
 
   for (let index = 0; index < anchors.length; index += 1) {
     const [anchorX, anchorY, angle] = anchors[index];
-    const horn = await getHorn(width, height, angle);
+    const horn = await getHorn(character, width, height, angle);
     const inputPath = framePath(character, sequence, index);
     const baseAlpha = await readAlpha(inputPath);
     const weld = placeHornAtAnchor(baseAlpha, horn, anchorX, anchorY);
