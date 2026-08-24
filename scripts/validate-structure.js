@@ -27,6 +27,8 @@ if (sceneFiles.some((file) => file.endsWith("BossScene.js"))) fail("BossScene.js
 const gameScene = await readFile(join(root, "src", "scenes", "GameScene.js"), "utf8");
 const bootScene = await readFile(join(root, "src", "scenes", "BootScene.js"), "utf8");
 const clearScene = await readFile(join(root, "src", "scenes", "ClearScene.js"), "utf8");
+const characterSelectScene = await readFile(join(root, "src", "scenes", "CharacterSelectScene.js"), "utf8");
+const stageSelectScene = await readFile(join(root, "src", "scenes", "StageSelectScene.js"), "utf8");
 const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
 const levelLoader = await readFile(join(root, "src", "systems", "LevelLoader.js"), "utf8");
 const playtestManager = await readFile(join(root, "src", "systems", "PlaytestManager.js"), "utf8");
@@ -95,6 +97,12 @@ if (!clearScene.includes("startNextLevel") || !clearScene.includes("goToStageSel
 }
 if (!clearScene.includes("createActionButton") || !clearScene.includes("input.pausePressed")) {
   fail("클리어 화면의 직접 선택 버튼 또는 Esc 복귀가 없음");
+}
+if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
+  fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");
+}
+if (!stageSelectScene.includes("createBackButton") || !stageSelectScene.includes("goBack") || !stageSelectScene.includes("input.pausePressed")) {
+  fail("스테이지 선택 화면의 직접 캐릭터 선택 버튼 또는 Esc 복귀가 없음");
 }
 
 if (errors.length) {

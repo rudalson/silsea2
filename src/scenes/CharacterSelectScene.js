@@ -40,6 +40,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       stroke: CSS_COLORS.outline,
       strokeThickness: 5
     }).setOrigin(0.5).setDepth(3);
+    this.createBackButton();
 
     CHARACTER_LIST.forEach((character, index) => {
       const x = GAME_WIDTH / 2 + (index - 0.5) * 360;
@@ -75,7 +76,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.cards.push({ card, portrait, name, badge });
     });
 
-    this.add.text(GAME_WIDTH / 2, 650, "← → 선택   ·   Space / Z 결정   ·   카드를 클릭해 바로 시작", {
+    this.add.text(GAME_WIDTH / 2, 650, "← → 선택   ·   Space / Z 결정   ·   Esc 이전 메뉴", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "19px",
       fontStyle: "700",
@@ -98,6 +99,21 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
     if (Math.abs(input.moveX) < 0.2) this.axisLocked = false;
     if (input.confirmPressed) this.confirmSelection();
+    if (input.pausePressed) this.goBack();
+  }
+
+  createBackButton() {
+    const button = this.add.text(34, 36, "← 처음으로", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "18px",
+      fontStyle: "800",
+      color: CSS_COLORS.white,
+      backgroundColor: CSS_COLORS.panelSoft,
+      padding: { x: 14, y: 9 }
+    }).setOrigin(0, 0.5).setDepth(4).setInteractive({ useHandCursor: true });
+    button.on("pointerover", () => button.setScale(1.06).setColor(CSS_COLORS.collect));
+    button.on("pointerout", () => button.setScale(1).setColor(CSS_COLORS.white));
+    button.on("pointerdown", () => this.goBack());
   }
 
   renderSelection() {
@@ -118,5 +134,13 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.registry.set("characterId", CHARACTER_LIST[this.selected].id);
     this.cameras.main.fadeOut(170, 255, 245, 188);
     this.time.delayedCall(180, () => this.scene.start(SCENE_KEYS.STAGE_SELECT));
+  }
+
+  goBack() {
+    if (this.starting) return;
+    this.starting = true;
+    this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.cameras.main.fadeOut(170, 255, 245, 188);
+    this.time.delayedCall(180, () => this.scene.start(SCENE_KEYS.MENU));
   }
 }

@@ -102,7 +102,7 @@ const itemAssets = [
   ...itemAsset("item_wings", 96, 55),
   ...itemAsset("item_alicorn", 96, 51),
   ...itemAsset("checkpoint_flag", 91, 96),
-  ...itemAsset("rainbow_gate", 108, 112)
+  ...itemAsset("rainbow_gate", 112, 104)
 ];
 // 수집물은 수집 팔레트만 쓰되, 밝은 배경에서도 실루엣이 무너지지 않도록
 // 공용 짙은 외곽선과 흰 반짝임을 허용한다.

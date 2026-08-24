@@ -39,6 +39,7 @@ export class StageSelectScene extends Phaser.Scene {
       stroke: CSS_COLORS.outline,
       strokeThickness: 6
     }).setOrigin(0.5).setDepth(3);
+    this.createBackButton();
 
     LEVELS.forEach((level, index) => {
       const x = GAME_WIDTH / 2 + (index - (LEVELS.length - 1) / 2) * 390;
@@ -99,7 +100,7 @@ export class StageSelectScene extends Phaser.Scene {
       this.cards.push({ card, previewFrame, preview, order, title, description, status });
     });
 
-    this.add.text(GAME_WIDTH / 2, 640, "← → 선택   ·   Space / Z 시작   ·   카드를 클릭해 바로 시작", {
+    this.add.text(GAME_WIDTH / 2, 640, "← → 선택   ·   Space / Z 시작   ·   Esc 캐릭터 선택", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       fontStyle: "700",
@@ -124,6 +125,21 @@ export class StageSelectScene extends Phaser.Scene {
     }
     if (Math.abs(input.moveX) < 0.2) this.axisLocked = false;
     if (input.confirmPressed) this.confirmStage();
+    if (input.pausePressed) this.goBack();
+  }
+
+  createBackButton() {
+    const button = this.add.text(34, 36, "← 캐릭터 선택", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "18px",
+      fontStyle: "800",
+      color: CSS_COLORS.white,
+      backgroundColor: CSS_COLORS.panelSoft,
+      padding: { x: 14, y: 9 }
+    }).setOrigin(0, 0.5).setDepth(4).setInteractive({ useHandCursor: true });
+    button.on("pointerover", () => button.setScale(1.06).setColor(CSS_COLORS.collect));
+    button.on("pointerout", () => button.setScale(1).setColor(CSS_COLORS.white));
+    button.on("pointerdown", () => this.goBack());
   }
 
   renderSelection() {
@@ -149,5 +165,13 @@ export class StageSelectScene extends Phaser.Scene {
     this.registry.set("levelId", levelId);
     this.cameras.main.fadeOut(170, 255, 245, 188);
     this.time.delayedCall(180, () => this.scene.start(SCENE_KEYS.PRELOAD, { levelId }));
+  }
+
+  goBack() {
+    if (this.starting) return;
+    this.starting = true;
+    this.audioManager.playSfx("sfx_ui_select", { randomizeRate: false });
+    this.cameras.main.fadeOut(170, 255, 245, 188);
+    this.time.delayedCall(180, () => this.scene.start(SCENE_KEYS.CHARACTER_SELECT));
   }
 }

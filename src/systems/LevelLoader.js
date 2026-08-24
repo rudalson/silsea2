@@ -20,6 +20,19 @@ const BACKGROUND_LAYERS = Object.freeze({
   near: { depth: -10 }
 });
 const BACKGROUND_TILE_OVERLAP = 4;
+const GATE_VISUALS = Object.freeze({
+  archScale: 1.45,
+  glowScale: 1.6,
+  hoverDistance: 8,
+  hoverDurationMs: 920,
+  hoverPauseMs: 620,
+  sparkleOffsets: Object.freeze([
+    Object.freeze({ x: -82, y: -50, size: 8, delay: 0 }),
+    Object.freeze({ x: 78, y: -86, size: 10, delay: 190 }),
+    Object.freeze({ x: -68, y: 42, size: 7, delay: 390 }),
+    Object.freeze({ x: 86, y: 30, size: 8, delay: 570 })
+  ])
+});
 
 export class LevelLoader {
   constructor(scene, level, objectiveManager) {
@@ -483,15 +496,28 @@ export class LevelLoader {
     if (this.gate) return this.gate;
     const x = this.level.world.width - 180;
     const y = this.findSafeY(x);
+    const archY = y - 81;
     const key = this.level.assets.objects?.gate;
     let arch;
+    let glow;
     let label = null;
+    let archFinalScale = 1;
     if (key && this.scene.textures.exists(key)) {
-      arch = this.track(this.scene.add.image(x, y - 81, key));
-      arch.setScale(1.45).setDepth(3);
+      archFinalScale = GATE_VISUALS.archScale;
+      glow = this.track(this.scene.add.image(x, archY, key));
+      glow
+        .setScale(GATE_VISUALS.glowScale)
+        .setTint(COLORS.white)
+        .setAlpha(0)
+        .setBlendMode("ADD")
+        .setDepth(2);
+      arch = this.track(this.scene.add.image(x, archY, key));
+      arch.setScale(archFinalScale * 0.78).setAlpha(0).setDepth(3);
     } else {
-      arch = this.track(this.scene.add.rectangle(x, y - 82, 116, 164, COLORS.collectBlue, 0.28));
-      arch.setStrokeStyle(12, COLORS.collect).setDepth(3);
+      glow = this.track(this.scene.add.ellipse(x, archY, 152, 188, COLORS.collectBlue, 0));
+      glow.setStrokeStyle(10, COLORS.white, 0.75).setAlpha(0).setDepth(2);
+      arch = this.track(this.scene.add.rectangle(x, y - 82, 116, 164, COLORS.collectBlue, 0));
+      arch.setStrokeStyle(12, COLORS.collect).setScale(0.78).setAlpha(0).setDepth(3);
       label = this.track(
         this.scene.add.text(x, y - 190, "무지개 게이트", {
           fontFamily: GAME_FONT_FAMILY,
@@ -502,11 +528,69 @@ export class LevelLoader {
           padding: { x: 10, y: 5 }
         })
       );
-      label.setOrigin(0.5).setDepth(5);
+      label.setOrigin(0.5).setAlpha(0).setDepth(5);
     }
+
+    const sparkles = GATE_VISUALS.sparkleOffsets.map((sparkle) => {
+      const star = this.track(
+        this.scene.add.star(x + sparkle.x, archY + sparkle.y, 4, sparkle.size * 0.28, sparkle.size, COLORS.white, 0)
+      );
+      star.setStrokeStyle(2, COLORS.collectBlue, 0.9).setScale(0.45).setDepth(5);
+      return { star, delay: sparkle.delay };
+    });
     const zone = this.scene.add.zone(x, y - 76, 164, 188);
     this.scene.physics.add.existing(zone, true);
-    this.gate = { zone, arch, label };
+    const floatingTargets = [glow, arch, label, ...sparkles.map(({ star }) => star)].filter(Boolean);
+    const tweens = [
+      this.scene.tweens.add({
+        targets: arch,
+        alpha: 1,
+        scale: archFinalScale,
+        duration: 420,
+        ease: "Back.Out"
+      }),
+      this.scene.tweens.add({
+        targets: glow,
+        alpha: { from: 0, to: 0.3 },
+        duration: 460,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 180,
+        ease: "Sine.InOut"
+      }),
+      this.scene.tweens.add({
+        targets: floatingTargets,
+        y: `-=${GATE_VISUALS.hoverDistance}`,
+        delay: 240,
+        duration: GATE_VISUALS.hoverDurationMs,
+        hold: 150,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: GATE_VISUALS.hoverPauseMs,
+        ease: "Sine.InOut"
+      })
+    ];
+
+    if (label) {
+      tweens.push(this.scene.tweens.add({ targets: label, alpha: 1, duration: 260, delay: 160 }));
+    }
+    for (const { star, delay } of sparkles) {
+      tweens.push(this.scene.tweens.add({
+        targets: star,
+        alpha: { from: 0, to: 1 },
+        scale: { from: 0.45, to: 1.12 },
+        angle: 45,
+        duration: 280,
+        delay,
+        hold: 110,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 420 + delay,
+        ease: "Sine.InOut"
+      }));
+    }
+
+    this.gate = { zone, arch, glow, label, sparkles: sparkles.map(({ star }) => star), tweens };
     return this.gate;
   }
 
@@ -558,6 +642,7 @@ export class LevelLoader {
     this.collectibles.length = 0;
     this.enemies.length = 0;
     this.hazards.length = 0;
+    for (const tween of this.gate?.tweens ?? []) tween.stop();
     this.gate?.zone.destroy();
     this.gate = null;
     if (this.terrainBodies?.world?.bodies) {
