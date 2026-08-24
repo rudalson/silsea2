@@ -94,8 +94,15 @@ assert.ok(PARTICLE_LIMITS.transformPerForm >= TRANSFORM_PRESENTATION[FORMS.ALICO
 assert.ok(PARTICLE_LIMITS.pulses > 0);
 assert.equal(getCharacterSequenceKey("silsea", "move"), "silsea_run");
 assert.equal(getCharacterSequenceKey("potato89", "move"), "potato89_roll");
-assert.equal(getCharacterAssetKeys("silsea").length, 11);
-assert.equal(getCharacterAssetKeys("potato89").length, 12);
+assert.equal(getCharacterAnimationSpec("silsea", "jump", "unicorn").textureKey, "silsea_unicorn_jump_up");
+assert.equal(getCharacterAnimationSpec("potato89", "move", "unicorn").textureKey, "potato89_unicorn_roll");
+assert.equal(getCharacterAnimationSpec("silsea", "transform_unicorn", "unicorn").textureKey, "silsea_transform_unicorn");
+assert.notEqual(
+  getCharacterAnimationSpec("silsea", "jump", "unicorn").key,
+  getCharacterAnimationSpec("silsea", "jump").key
+);
+assert.equal(getCharacterAssetKeys("silsea").length, 19);
+assert.equal(getCharacterAssetKeys("potato89").length, 21);
 for (const characterId of ["silsea", "potato89"]) {
   for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "victory"]) {
     const spec = getCharacterAnimationSpec(characterId, sequence);

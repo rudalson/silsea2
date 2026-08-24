@@ -151,9 +151,11 @@ if (/camera\.zoomTo\([^;]+[\"']Sine\./s.test(transformManager)) {
 if (!transformManager.includes("this.transforming || this.form === FORMS.ALICORN")) {
   fail("변신 정지 중 피격 방지가 연결되지 않음");
 }
-if (!transformManager.includes('this.scene.add.image(0, 0, "item_horn")')
-  || !transformManager.includes('this.scene.add.image(0, 0, "item_wings")')) {
-  fail("변신 부착물이 승인된 horn/wings 텍스처를 사용하지 않음");
+if (transformManager.includes('this.scene.add.image(0, 0, "item_horn")')
+  || !transformManager.includes('this.scene.add.image(0, 0, "item_wings")')
+  || !player.includes("setVisualForm(form)")
+  || !characterAnimator.includes("getCharacterAnimationVariants")) {
+  fail("유니콘 뿔 프레임 합성 또는 날개 부착물 연결이 올바르지 않음");
 }
 if (!transformManager.includes('animationKey.endsWith(":fly")')) fail("비행 시트와 날개 부착물의 중복 방지가 없음");
 if (!uiScene.includes("Math.round(this.gameScene.scoreManager?.displayScore ?? 0)")) {

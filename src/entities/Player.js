@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { AssetManager } from "../systems/AssetManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
 import { PlayerStateMachine } from "../systems/PlayerStateMachine.js";
+import { FORMS } from "../data/gameplay.js";
 import { moveTowards } from "../utils/math.js";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
@@ -22,6 +23,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastAbilityMode = "normal";
     this.animationLockedUntil = 0;
     this.feedbackTween = null;
+    this.visualVariant = "base";
+    this.currentVisualSequence = "idle";
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -171,8 +174,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!this.usesCharacterArt) return null;
     const now = this.scene.time.now;
     if (!force && now < this.animationLockedUntil) return null;
-    const spec = CharacterAnimationManager.play(this, this.character, sequence);
+    const spec = CharacterAnimationManager.play(this, this.character, sequence, true, this.visualVariant);
     if (!spec) return null;
+    this.currentVisualSequence = sequence;
     if (lockMs > 0) this.animationLockedUntil = Math.max(this.animationLockedUntil, now + lockMs);
     return spec;
   }
@@ -195,5 +199,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   playVictoryAnimation() {
     this.animationLockedUntil = Infinity;
     return this.playCharacterAnimation("victory", { force: true });
+  }
+
+  setVisualForm(form) {
+    const nextVariant = form === FORMS.UNICORN || form === FORMS.ALICORN ? "unicorn" : "base";
+    if (nextVariant === this.visualVariant) return;
+    this.visualVariant = nextVariant;
+    if (!this.currentVisualSequence.startsWith("transform_")) {
+      this.playCharacterAnimation(this.currentVisualSequence, { force: true });
+    }
   }
 }

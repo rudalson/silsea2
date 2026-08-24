@@ -14,8 +14,8 @@ const FORM_COLORS = Object.freeze({
 });
 
 const ATTACHMENT_LAYOUT = Object.freeze({
-  silsea: Object.freeze({ hornX: 30, hornY: -82, wingsX: -7, wingsY: -61 }),
-  potato89: Object.freeze({ hornX: 18, hornY: -82, wingsX: -5, wingsY: -57 })
+  silsea: Object.freeze({ wingsX: -7, wingsY: -61 }),
+  potato89: Object.freeze({ wingsX: -5, wingsY: -57 })
 });
 
 const toRgb = (color) => [(color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff];
@@ -43,11 +43,6 @@ export class TransformationManager {
   }
 
   createVisuals() {
-    this.horn = this.scene.add.image(0, 0, "item_horn")
-      .setDisplaySize(18, 24)
-      .setOrigin(0.5, 1)
-      .setDepth(12)
-      .setVisible(false);
     this.wings = this.scene.add.image(0, 0, "item_wings")
       .setDisplaySize(128, 73)
       .setDepth(9)
@@ -81,7 +76,6 @@ export class TransformationManager {
     this.rainbowOverlay.setVisible(form === FORMS.ALICORN);
     const animationMs = emphasize ? this.player.playTransformAnimation?.(form) ?? 0 : 0;
     if (animationMs > 0) {
-      this.horn.setVisible(false);
       this.wings.setVisible(false);
       this.formVisualTimer = this.scene.time.delayedCall(animationMs, () => {
         this.syncFormVisuals();
@@ -95,9 +89,8 @@ export class TransformationManager {
   }
 
   syncFormVisuals() {
-    const hasHorn = this.form === FORMS.UNICORN || this.form === FORMS.ALICORN;
     const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
-    this.horn.setVisible(hasHorn);
+    this.player.setVisualForm?.(this.form);
     this.wings.setVisible(hasWings);
   }
 
@@ -214,17 +207,14 @@ export class TransformationManager {
   updateVisualPositions(now) {
     const direction = this.player.flipX ? -1 : 1;
     const layout = ATTACHMENT_LAYOUT[this.player.character.id] ?? ATTACHMENT_LAYOUT.silsea;
-    this.horn.setPosition(this.player.x + direction * layout.hornX, this.player.y + layout.hornY);
     this.wings.setPosition(this.player.x + direction * layout.wingsX, this.player.y + layout.wingsY);
     if (!this.formVisualTimer) {
       const animationKey = this.player.anims.currentAnim?.key ?? "";
-      const hasHorn = this.form === FORMS.UNICORN || this.form === FORMS.ALICORN;
       const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
-      const integratedHorn = animationKey.endsWith(":transform_unicorn") || animationKey.endsWith(":transform_alicorn");
       const integratedWings = animationKey.endsWith(":fly")
+        || animationKey.endsWith(":unicorn:fly")
         || animationKey.endsWith(":transform_pegasus")
         || animationKey.endsWith(":transform_alicorn");
-      this.horn.setVisible(hasHorn && !integratedHorn);
       this.wings.setVisible(hasWings && !integratedWings);
     }
     if (this.rainbowOverlay.visible) this.rainbowOverlay.setAlpha(0.07 + Math.sin(now / 120) * 0.025);
@@ -279,7 +269,6 @@ export class TransformationManager {
   destroy() {
     this.formVisualTimer?.remove(false);
     this.cancelPresentation();
-    this.horn.destroy();
     this.wings.destroy();
     this.rainbowOverlay.destroy();
   }

@@ -28,6 +28,30 @@ const CHARACTER_SEQUENCE_KEYS = Object.freeze({
   })
 });
 
+const UNICORN_SEQUENCE_KEYS = Object.freeze({
+  silsea: Object.freeze({
+    idle: "silsea_unicorn_idle",
+    move: "silsea_unicorn_run",
+    jump: "silsea_unicorn_jump_up",
+    fall: "silsea_unicorn_fall",
+    land: "silsea_unicorn_land",
+    hurt: "silsea_unicorn_hurt",
+    fly: "silsea_unicorn_fly",
+    victory: "silsea_unicorn_victory"
+  }),
+  potato89: Object.freeze({
+    idle: "potato89_unicorn_idle",
+    move: "potato89_unicorn_roll",
+    jump: "potato89_unicorn_jump_up",
+    fall: "potato89_unicorn_fall",
+    land: "potato89_unicorn_land",
+    hurt: "potato89_unicorn_hurt",
+    stomp: "potato89_unicorn_stomp",
+    fly: "potato89_unicorn_fly",
+    victory: "potato89_unicorn_victory"
+  })
+});
+
 const SEQUENCE_TIMINGS = Object.freeze({
   idle: Object.freeze({ durations: [260, 180, 200, 260], repeat: -1 }),
   move: Object.freeze({ durations: [80, 70, 85, 70, 80, 70, 85, 70], repeat: -1 }),
@@ -46,15 +70,18 @@ const SEQUENCE_TIMINGS = Object.freeze({
 export const getCharacterSequenceKey = (characterId, sequence) =>
   CHARACTER_SEQUENCE_KEYS[characterId]?.[sequence] ?? null;
 
-export const getCharacterAnimationKey = (characterId, sequence) =>
-  `character:${characterId}:${sequence}`;
+export const getCharacterAnimationKey = (characterId, sequence, variant = "base") =>
+  variant === "base"
+    ? `character:${characterId}:${sequence}`
+    : `character:${characterId}:${variant}:${sequence}`;
 
-export const getCharacterAnimationSpec = (characterId, sequence) => {
-  const textureKey = getCharacterSequenceKey(characterId, sequence);
+export const getCharacterAnimationSpec = (characterId, sequence, variant = "base") => {
+  const variantTextureKey = variant === "unicorn" ? UNICORN_SEQUENCE_KEYS[characterId]?.[sequence] : null;
+  const textureKey = variantTextureKey ?? getCharacterSequenceKey(characterId, sequence);
   const timing = SEQUENCE_TIMINGS[sequence];
   if (!textureKey || !timing) return null;
   return {
-    key: getCharacterAnimationKey(characterId, sequence),
+    key: getCharacterAnimationKey(characterId, sequence, variantTextureKey ? variant : "base"),
     textureKey,
     durations: timing.durations,
     durationMs: timing.durations.reduce((total, duration) => total + duration, 0),
@@ -63,7 +90,12 @@ export const getCharacterAnimationSpec = (characterId, sequence) => {
 };
 
 export const getCharacterAssetKeys = (characterId) =>
-  [...new Set(Object.values(CHARACTER_SEQUENCE_KEYS[characterId] ?? {}))];
+  [...new Set([
+    ...Object.values(CHARACTER_SEQUENCE_KEYS[characterId] ?? {}),
+    ...Object.values(UNICORN_SEQUENCE_KEYS[characterId] ?? {})
+  ])];
 
 export const getCharacterSequenceNames = (characterId) =>
   Object.keys(CHARACTER_SEQUENCE_KEYS[characterId] ?? {});
+
+export const getCharacterAnimationVariants = () => ["base", "unicorn"];

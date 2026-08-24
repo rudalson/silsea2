@@ -2,6 +2,7 @@
   "$schemaVersion": 2,
   "$delivery": {
     "manifestGroups": {
+      "unicorn_motion_variants": ["silsea_unicorn_idle", "silsea_unicorn_run", "silsea_unicorn_jump_up", "silsea_unicorn_fall", "silsea_unicorn_land", "silsea_unicorn_hurt", "silsea_unicorn_fly", "silsea_unicorn_victory", "potato89_unicorn_idle", "potato89_unicorn_roll", "potato89_unicorn_jump_up", "potato89_unicorn_fall", "potato89_unicorn_land", "potato89_unicorn_hurt", "potato89_unicorn_stomp", "potato89_unicorn_fly", "potato89_unicorn_victory"],
       "raw_potato": ["raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"],
       "spike_pumpkin": ["spike_pumpkin_idle", "spike_pumpkin_warning", "spike_pumpkin_break"],
       "dark_cloud": ["dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated"],
@@ -41,6 +42,7 @@
       "ui_accessibility"
     ]
   },
+  "unicorn_motion_variants": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "유니콘·알리콘 상태에서 뿔이 몸과 함께 움직이도록 각 동작 프레임에 직접 합성한 차분." },
   "silsea_idle": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 원안 외형과 색상선. 기본형 뿔은 제거." },
   "silsea_run": { "styleRefs": ["silsea_run.png", "silsea_sprite-Photoroom.png"], "note": "8프레임 보행 순서와 원안 외형." },
   "silsea_jump_up": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 우향 측면과 공중 포즈." },

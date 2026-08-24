@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { PALETTE } from "../data/palette.js";
 import {
   getCharacterAnimationSpec,
+  getCharacterAnimationVariants,
   getCharacterAssetKeys,
   getCharacterSequenceNames
 } from "../src/data/characterAnimations.js";
@@ -26,6 +27,50 @@ const QUALITY_THRESHOLDS = Object.freeze({
   paletteDistance: 8,
   outsidePaletteRatio: 0.05
 });
+const UNICORN_WELD_ALPHA_THRESHOLD = 40;
+
+const validateUnicornWelds = async ({ basePath, variantPath, frameWidth, frameHeight, frames, textureKey }) => {
+  const [base, variant] = await Promise.all([
+    sharp(basePath).ensureAlpha().raw().toBuffer({ resolveWithObject: true }),
+    sharp(variantPath).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  ]);
+  if (base.info.width !== variant.info.width || base.info.height !== variant.info.height) {
+    errors.push(`${textureKey}: 기본형과 유니콘 시트 크기가 다름`);
+    return;
+  }
+
+  const alphaAt = (image, frame, x, y) => {
+    if (x < 0 || y < 0 || x >= frameWidth || y >= frameHeight) return 0;
+    const sheetX = frame * frameWidth + x;
+    return image.data[(y * image.info.width + sheetX) * 4 + 3];
+  };
+
+  for (let frame = 0; frame < frames; frame += 1) {
+    let addedPixels = 0;
+    let contactPixels = 0;
+    for (let y = 0; y < frameHeight; y += 1) {
+      for (let x = 0; x < frameWidth; x += 1) {
+        const isAdded = alphaAt(variant, frame, x, y) > UNICORN_WELD_ALPHA_THRESHOLD
+          && alphaAt(base, frame, x, y) <= UNICORN_WELD_ALPHA_THRESHOLD;
+        if (!isAdded) continue;
+        addedPixels += 1;
+        let touchesBody = false;
+        for (let offsetY = -1; offsetY <= 1 && !touchesBody; offsetY += 1) {
+          for (let offsetX = -1; offsetX <= 1; offsetX += 1) {
+            if (offsetX === 0 && offsetY === 0) continue;
+            if (alphaAt(base, frame, x + offsetX, y + offsetY) > UNICORN_WELD_ALPHA_THRESHOLD) {
+              touchesBody = true;
+              break;
+            }
+          }
+        }
+        if (touchesBody) contactPixels += 1;
+      }
+    }
+    if (addedPixels === 0) errors.push(`${textureKey}#${frame}: 추가된 뿔 픽셀이 없음`);
+    if (contactPixels === 0) errors.push(`${textureKey}#${frame}: 뿔 실루엣이 몸체와 분리됨`);
+  }
+};
 const sequenceAssets = (character, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${character}_${sequence}_${String(index).padStart(2, "0")}.png`;
   return { name: frame, path: join(root, "assets", "characters", character, sequence, frame), kind: "character" };
@@ -299,25 +344,45 @@ try {
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
   for (const characterId of ["silsea", "potato89"]) {
     const expectedKeys = new Set(getCharacterAssetKeys(characterId));
+    const validatedKeys = new Set();
     for (const sequence of getCharacterSequenceNames(characterId)) {
-      const spec = getCharacterAnimationSpec(characterId, sequence);
-      const entry = manifestEntries.get(spec.textureKey);
-      if (!entry || entry.type !== "spritesheet") {
-        errors.push(`${spec.textureKey}: manifest spritesheet 등록 없음`);
-        continue;
-      }
-      expectedKeys.delete(entry.key);
-      if (entry.frames !== spec.durations.length) {
-        errors.push(`${entry.key}: manifest ${entry.frames}프레임과 duration ${spec.durations.length}개 불일치`);
-      }
-      try {
-        const metadata = await sharp(join(root, entry.url.slice(1))).metadata();
-        if (metadata.width !== entry.frameWidth * entry.frames || metadata.height !== entry.frameHeight) {
-          errors.push(`${entry.key}: 시트 ${metadata.width}x${metadata.height}, 예상 ${entry.frameWidth * entry.frames}x${entry.frameHeight}`);
+      for (const variant of getCharacterAnimationVariants()) {
+        const spec = getCharacterAnimationSpec(characterId, sequence, variant);
+        if (!spec || validatedKeys.has(spec.textureKey)) continue;
+        validatedKeys.add(spec.textureKey);
+        const entry = manifestEntries.get(spec.textureKey);
+        if (!entry || entry.type !== "spritesheet") {
+          errors.push(`${spec.textureKey}: manifest spritesheet 등록 없음`);
+          continue;
         }
-        validatedCharacterSheetCount += 1;
-      } catch (error) {
-        errors.push(`${entry.key}: 캐릭터 시트를 읽을 수 없음 (${error.message})`);
+        expectedKeys.delete(entry.key);
+        if (entry.frames !== spec.durations.length) {
+          errors.push(`${entry.key}: manifest ${entry.frames}프레임과 duration ${spec.durations.length}개 불일치`);
+        }
+        try {
+          const sheetPath = join(root, entry.url.slice(1));
+          const metadata = await sharp(sheetPath).metadata();
+          if (metadata.width !== entry.frameWidth * entry.frames || metadata.height !== entry.frameHeight) {
+            errors.push(`${entry.key}: 시트 ${metadata.width}x${metadata.height}, 예상 ${entry.frameWidth * entry.frames}x${entry.frameHeight}`);
+          }
+          if (variant === "unicorn") {
+            const baseSpec = getCharacterAnimationSpec(characterId, sequence, "base");
+            const baseEntry = manifestEntries.get(baseSpec?.textureKey);
+            if (baseEntry && baseEntry.key !== entry.key) {
+              await validateUnicornWelds({
+                basePath: join(root, baseEntry.url.slice(1)),
+                variantPath: sheetPath,
+                frameWidth: entry.frameWidth,
+                frameHeight: entry.frameHeight,
+                frames: entry.frames,
+                textureKey: entry.key
+              });
+            }
+          }
+          validatedCharacterSheetCount += 1;
+        } catch (error) {
+          errors.push(`${entry.key}: 캐릭터 시트를 읽을 수 없음 (${error.message})`);
+        }
       }
     }
     if (expectedKeys.size) errors.push(`${characterId}: 검증하지 못한 캐릭터 키 ${[...expectedKeys].join(", ")}`);
