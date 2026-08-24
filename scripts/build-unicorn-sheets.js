@@ -1,11 +1,9 @@
-import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const frameSize = 128;
-const partsDirectory = join(root, "assets", "characters", "_parts");
 const hornSources = Object.freeze({
   silsea: Object.freeze({
     frame: join(root, "assets", "characters", "silsea", "transform_unicorn", "silsea_transform_unicorn_05.png"),
@@ -69,8 +67,6 @@ const sheetPath = (character, sequence) => join(
   `${character}_unicorn_${sequence}.png`
 );
 
-await mkdir(partsDirectory, { recursive: true });
-
 const extractedHornSources = new Map();
 for (const [character, source] of Object.entries(hornSources)) {
   const data = await sharp(source.frame)
@@ -78,7 +74,6 @@ for (const [character, source] of Object.entries(hornSources)) {
     .png({ palette: true, colours: 32, dither: 0 })
     .toBuffer();
   extractedHornSources.set(character, data);
-  await sharp(data).toFile(join(partsDirectory, `unicorn_horn_${character}.png`));
 }
 
 const prepareHorn = (character, width, height, angle = 14) => sharp(extractedHornSources.get(character))
