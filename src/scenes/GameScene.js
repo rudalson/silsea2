@@ -2,15 +2,22 @@ import Phaser from "phaser";
 import { COLORS, EVENTS, GAME_HEIGHT, SCENE_KEYS } from "../config/constants.js";
 import { getCharacter, cloneTuning } from "../data/characters.js";
 import { getLevel } from "../data/levels/index.js";
-import { assertLevelShape } from "../data/schema/levelSchema.js";
+import {
+  assertLevelShape,
+  getCameraLookAheadTarget,
+  getProgressionSign,
+  normalizeLevelDefinition
+} from "../data/schema/levelSchema.js";
 import { Player } from "../entities/Player.js";
 import { AudioManager } from "../systems/AudioManager.js";
+import { BreathManager } from "../systems/BreathManager.js";
 import { BossController } from "../systems/BossController.js";
 import { CameraEffectsManager } from "../systems/CameraEffectsManager.js";
 import { CheckpointManager } from "../systems/CheckpointManager.js";
 import { DebugPanel } from "../systems/DebugPanel.js";
 import { createRuntimeLevel, getDifficultySettings } from "../systems/DifficultyManager.js";
 import { EnemyManager } from "../systems/EnemyManager.js";
+import { EnvironmentMechanicsManager } from "../systems/EnvironmentMechanicsManager.js";
 import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
@@ -44,9 +51,10 @@ export class GameScene extends Phaser.Scene {
   create() {
     const sourceLevel = getLevel(this.levelId);
     assertLevelShape(sourceLevel);
+    const normalizedLevel = normalizeLevelDefinition(sourceLevel);
     const easyMode = Boolean(this.registry.get("easyMode"));
-    this.difficulty = getDifficultySettings(sourceLevel, easyMode);
-    this.level = createRuntimeLevel(sourceLevel, easyMode);
+    this.difficulty = getDifficultySettings(normalizedLevel, easyMode);
+    this.level = createRuntimeLevel(normalizedLevel, easyMode);
     this.character = getCharacter(this.registry.get("characterId"));
     this.tuning = cloneTuning(this.character);
     this.inputManager = new InputManager(this);
@@ -87,6 +95,8 @@ export class GameScene extends Phaser.Scene {
         tuning: this.tuning,
         level: this.level,
         objectives: this.objectiveManager,
+        getEnvironmentSnapshot: () => this.environmentMechanics?.getSnapshot(),
+        getBreathSnapshot: () => this.breathManager?.getSnapshot(),
         onWarp: (sectionId) => this.warpToSection(sectionId),
         onReload: () => this.rebuildLevel()
       });
@@ -121,11 +131,18 @@ export class GameScene extends Phaser.Scene {
     const input = this.inputManager.sample();
     this.lastInput = input;
     if (input.debugPressed) this.debugPanel?.toggle();
-    const ability = this.transformationManager.prepareMovement(input, delta);
+    const waterAbility = this.breathManager?.prepareMovement(input, time);
+    const transformationAbility = this.transformationManager.prepareMovement(input, delta, {
+      underwater: waterAbility?.mode === "swim"
+    });
+    const ability = waterAbility ?? transformationAbility;
     this.player.updateControls(input, time, delta, ability);
     this.terrainMechanics?.update(time, delta);
+    this.environmentMechanics?.update(time, delta);
+    this.breathManager?.update(time, delta);
     this.transformationManager.update(time);
     this.healthManager.update(time);
+    this.enemyManager.setPaused(this.environmentMechanics?.pausesEnemies, time);
     this.enemyManager.update(time, delta);
     this.bossController?.update(time, delta);
     this.updateMagnet(delta);
@@ -173,9 +190,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     const cue = this.level.cameraCues?.find((candidate) => this.player.x >= candidate.xStart && this.player.x <= candidate.xEnd);
-    const speedDirection = Math.abs(this.player.body.velocity.x) > 35 ? Math.sign(this.player.body.velocity.x) : 0;
     const distance = section?.type === "boss" ? 0 : cue?.lookAhead ?? 150;
-    const target = -speedDirection * distance;
+    const target = getCameraLookAheadTarget(this.player.body.velocity.x, distance);
     this.lookAhead = Phaser.Math.Linear(this.lookAhead, target, Math.min(1, delta / 220));
     this.cameras.main.setFollowOffset(this.lookAhead, 28);
   }
@@ -267,6 +283,21 @@ export class GameScene extends Phaser.Scene {
       this.objectiveManager,
       this.transformationManager,
       this.difficulty
+    );
+    this.environmentMechanics = new EnvironmentMechanicsManager(
+      this,
+      this.player,
+      this.level,
+      this.healthManager,
+      this.transformationManager
+    );
+    this.breathManager = new BreathManager(
+      this,
+      this.player,
+      this.environmentMechanics,
+      this.healthManager,
+      this.transformationManager,
+      this.level.environment?.breath
     );
     this.enemyManager = new EnemyManager(
       this,
@@ -382,7 +413,10 @@ export class GameScene extends Phaser.Scene {
   warpToSection(sectionId, offset = 160) {
     const section = this.levelLoader.getSection(sectionId);
     if (!section) return;
-    const x = Math.min(section.xEnd - 96, section.xStart + Math.max(0, offset));
+    const direction = getProgressionSign(this.level);
+    const x = direction > 0
+      ? Math.min(section.xEnd - 96, section.xStart + Math.max(0, offset))
+      : Math.max(section.xStart + 96, section.xEnd - Math.max(0, offset));
     const y = this.levelLoader.findSafeY(x);
     this.player.setPosition(x, y - 2).setVelocity(0, 0);
     this.cameras.main.centerOn(x, y - 180);
@@ -431,13 +465,19 @@ export class GameScene extends Phaser.Scene {
         rejectedCount: poolValues.reduce((total, entry) => total + entry.rejectedCount, 0)
       },
       particles: this.particleEffects?.getSnapshot() ?? null,
-      terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null
+      terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null,
+      environmentMechanics: this.environmentMechanics?.getSnapshot() ?? null,
+      breath: this.breathManager?.getSnapshot() ?? null
     };
   }
 
   destroyGameplayManagers() {
     this.terrainMechanics?.destroy();
     this.terrainMechanics = null;
+    this.breathManager?.destroy();
+    this.breathManager = null;
+    this.environmentMechanics?.destroy();
+    this.environmentMechanics = null;
     this.bossController?.destroy();
     this.bossController = null;
     this.enemyManager?.destroy();

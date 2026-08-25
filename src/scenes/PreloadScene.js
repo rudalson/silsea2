@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getLevel } from "../data/levels/index.js";
-import { assertLevelShape } from "../data/schema/levelSchema.js";
+import { assertLevelShape, normalizeLevelDefinition } from "../data/schema/levelSchema.js";
 import { AssetManager } from "../systems/AssetManager.js";
 
 export class PreloadScene extends Phaser.Scene {
@@ -12,8 +12,9 @@ export class PreloadScene extends Phaser.Scene {
 
   init(data) {
     this.levelId = data.levelId ?? this.registry.get("levelId");
-    this.level = getLevel(this.levelId);
-    assertLevelShape(this.level);
+    const sourceLevel = getLevel(this.levelId);
+    assertLevelShape(sourceLevel);
+    this.level = normalizeLevelDefinition(sourceLevel);
   }
 
   preload() {

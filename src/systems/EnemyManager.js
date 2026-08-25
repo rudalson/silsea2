@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { COLORS } from "../config/constants.js";
 import { SCORE_VALUES } from "../data/gameplay.js";
+import { getProgressionSign, hasReachedProgressTrigger } from "../data/schema/levelSchema.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
 
@@ -12,6 +13,10 @@ export class EnemyManager {
     this.healthManager = healthManager;
     this.transformationManager = transformationManager;
     this.scoreManager = scoreManager;
+    this.level = levelLoader.level;
+    this.progressionSign = getProgressionSign(this.level);
+    this.paused = false;
+    this.pausedAt = 0;
     this.interactions = [];
     this.lightningPool = this.createLightningPool();
     this.recoveryPool = this.createRecoveryPool();
@@ -140,6 +145,7 @@ export class EnemyManager {
   }
 
   update(now, delta) {
+    if (this.paused) return;
     for (const enemy of this.levelLoader.enemies) {
       if (!enemy.active || !enemy.body?.enable) continue;
       const type = enemy.getData("type");
@@ -178,8 +184,8 @@ export class EnemyManager {
       return;
     }
     const state = enemy.getData("state");
-    const triggerX = enemy.getData("triggerX") ?? enemy.x - 320;
-    if (state === "idle" && this.player.x >= triggerX && Math.abs(this.player.x - enemy.x) < 720) {
+    const triggerX = enemy.getData("triggerX") ?? enemy.x - this.progressionSign * 320;
+    if (state === "idle" && hasReachedProgressTrigger(this.player.x, triggerX, this.level) && Math.abs(this.player.x - enemy.x) < 720) {
       const activationDelayMs = enemy.getData("activationDelayMs") ?? 0;
       if (activationDelayMs > 0) enemy.setData({ state: "waiting", stateUntil: now + activationDelayMs });
       else this.beginDarkCloudTelegraph(enemy, now);
@@ -230,8 +236,8 @@ export class EnemyManager {
       return;
     }
     const state = enemy.getData("state");
-    const triggerX = enemy.getData("triggerX") ?? enemy.x - 360;
-    if (state === "idle" && this.player.x >= triggerX && Math.abs(this.player.x - enemy.x) < 760) {
+    const triggerX = enemy.getData("triggerX") ?? enemy.x - this.progressionSign * 360;
+    if (state === "idle" && hasReachedProgressTrigger(this.player.x, triggerX, this.level) && Math.abs(this.player.x - enemy.x) < 760) {
       const activationDelayMs = enemy.getData("activationDelayMs") ?? 0;
       if (activationDelayMs > 0) enemy.setData({ state: "waiting", stateUntil: now + activationDelayMs });
       else this.beginMagpieTelegraph(enemy, now);
@@ -390,6 +396,37 @@ export class EnemyManager {
       lightning: this.lightningPool.getSnapshot(),
       recovery: this.recoveryPool.getSnapshot()
     };
+  }
+
+  setPaused(paused, now = this.scene.time.now) {
+    const next = Boolean(paused);
+    if (next === this.paused) return;
+    this.paused = next;
+    if (next) {
+      this.pausedAt = now;
+      for (const enemy of this.levelLoader.enemies) {
+        enemy.setData("environmentPausedVelocity", { x: enemy.body?.velocity.x ?? 0, y: enemy.body?.velocity.y ?? 0 });
+        enemy.body?.setVelocity(0, 0);
+      }
+      return;
+    }
+
+    const pausedDuration = Math.max(0, now - this.pausedAt);
+    for (const enemy of this.levelLoader.enemies) {
+      const velocity = enemy.getData("environmentPausedVelocity");
+      if (velocity && enemy.body?.enable) enemy.body.setVelocity(velocity.x, velocity.y);
+      const stateUntil = enemy.getData("stateUntil");
+      if (Number.isFinite(stateUntil) && stateUntil > 0) enemy.setData("stateUntil", stateUntil + pausedDuration);
+      enemy.setData("environmentPausedVelocity", null);
+    }
+    this.lightningPool.forEachActive((beam) => {
+      beam.startedAt += pausedDuration;
+      beam.expiresAt += pausedDuration;
+    });
+    this.recoveryPool.forEachActive((entry) => {
+      entry.expiresAt += pausedDuration;
+    });
+    this.pausedAt = 0;
   }
 
   destroy() {

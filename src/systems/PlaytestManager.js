@@ -1,7 +1,9 @@
 import { EVENTS } from "../config/constants.js";
+import { getNormalizedProgress, getProgressionDirection } from "../data/schema/levelSchema.js";
 
-export const PLAYTEST_STORAGE_KEY = "silsea:playtests:v1";
-export const PLAYTEST_SCHEMA_VERSION = 1;
+export const PLAYTEST_STORAGE_KEY = "silsea:playtests:v2";
+export const PLAYTEST_LEGACY_STORAGE_KEY = "silsea:playtests:v1";
+export const PLAYTEST_SCHEMA_VERSION = 2;
 export const PLAYTEST_STALL_SECONDS = 20;
 export const PLAYTEST_DURATION_TARGETS = Object.freeze({
   normal: Object.freeze({ minSeconds: 360, maxSeconds: 540 }),
@@ -26,10 +28,21 @@ export const sanitizeTesterId = (value) => {
   return normalized || "anonymous";
 };
 
+const parseReports = (value) => {
+  try {
+    const parsed = JSON.parse(value ?? "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 const readReports = (storage) => {
   try {
-    const parsed = JSON.parse(storage?.getItem(PLAYTEST_STORAGE_KEY) ?? "[]");
-    return Array.isArray(parsed) ? parsed : [];
+    const current = parseReports(storage?.getItem(PLAYTEST_STORAGE_KEY));
+    const legacy = parseReports(storage?.getItem(PLAYTEST_LEGACY_STORAGE_KEY));
+    const reports = [...new Map([...legacy, ...current].map((report) => [report.sessionId, report])).values()];
+    return reports.length ? reports : [...memoryReports];
   } catch {
     return [...memoryReports];
   }
@@ -132,7 +145,9 @@ export class PlaytestManager {
     this.finalized = false;
     this.lastElapsed = 0;
     this.currentSectionId = null;
-    this.progressAnchorX = player?.x ?? 0;
+    this.spawnX = level?.player?.spawn?.x ?? player?.x ?? 0;
+    this.progressionDirection = getProgressionDirection(level);
+    this.progressAnchor = getNormalizedProgress(player?.x ?? this.spawnX, this.spawnX, level);
     this.lastProgressAt = 0;
     this.stallArmed = true;
     this.handlers = [];
@@ -146,6 +161,7 @@ export class PlaytestManager {
       levelId: level.id,
       characterId,
       mode: easyMode ? "easy" : "normal",
+      progressionDirection: this.progressionDirection,
       startedAt: new Date(timestamp).toISOString(),
       completed: false,
       durationSeconds: 0,
@@ -158,6 +174,7 @@ export class PlaytestManager {
         checkpoints: 0,
         bossHits: 0,
         stalls: 0,
+        maxProgress: this.progressAnchor,
         maxProgressX: Math.round(player?.x ?? 0)
       },
       sections: {},
@@ -191,17 +208,20 @@ export class PlaytestManager {
       this.currentSectionId = sectionId;
       const stats = this.ensureSection(sectionId);
       stats.entries += 1;
-      this.progressAnchorX = player.x;
+      this.progressAnchor = getNormalizedProgress(player.x, this.spawnX, this.level);
       this.lastProgressAt = elapsed;
       this.stallArmed = true;
       this.recordEvent("section_enter", { sectionId });
     }
 
     const stats = this.ensureSection(sectionId);
+    const progress = getNormalizedProgress(player.x, this.spawnX, this.level);
+    stats.maxProgress = Math.max(stats.maxProgress, Math.round(progress));
     stats.maxProgressX = Math.max(stats.maxProgressX, Math.round(player.x));
+    this.report.metrics.maxProgress = Math.max(this.report.metrics.maxProgress, Math.round(progress));
     this.report.metrics.maxProgressX = Math.max(this.report.metrics.maxProgressX, Math.round(player.x));
-    if (player.x >= this.progressAnchorX + PROGRESS_RESET_DISTANCE) {
-      this.progressAnchorX = player.x;
+    if (progress >= this.progressAnchor + PROGRESS_RESET_DISTANCE) {
+      this.progressAnchor = progress;
       this.lastProgressAt = elapsed;
       this.stallArmed = true;
     } else if (this.stallArmed && elapsed - this.lastProgressAt >= PLAYTEST_STALL_SECONDS) {
@@ -292,6 +312,7 @@ export class PlaytestManager {
       hits: 0,
       falls: 0,
       stalls: 0,
+      maxProgress: 0,
       maxProgressX: 0
     };
     return this.report.sections[id];

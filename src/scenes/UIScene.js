@@ -60,6 +60,34 @@ export class UIScene extends Phaser.Scene {
     this.flightTrack = this.add.rectangle(268, 76, 128, 12, COLORS.panel, 0.84).setOrigin(0, 0.5).setScrollFactor(0)
       .setStrokeStyle(2, COLORS.mid);
     this.flightBar = this.add.rectangle(270, 76, 124, 6, COLORS.collectBlue, 1).setOrigin(0, 0.5).setScrollFactor(0);
+    this.breathPanel = this.add.rectangle(208, 164, 382, 40, COLORS.near, 0.9)
+      .setStrokeStyle(3, COLORS.collectBlue)
+      .setScrollFactor(0)
+      .setVisible(false);
+    this.breathLabel = this.add.text(42, 151, "숨", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "15px",
+      fontStyle: "800",
+      color: CSS_COLORS.white
+    }).setScrollFactor(0).setVisible(false);
+    this.breathTrack = this.add.rectangle(92, 164, 284, 14, COLORS.panel, 0.9)
+      .setOrigin(0, 0.5)
+      .setStrokeStyle(2, COLORS.mid)
+      .setScrollFactor(0)
+      .setVisible(false);
+    this.breathBar = this.add.rectangle(95, 164, 278, 8, COLORS.collectBlue, 1)
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0)
+      .setVisible(false);
+    this.waveWarning = this.add.text(GAME_WIDTH - 24, 150, "", {
+      align: "right",
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "19px",
+      fontStyle: "900",
+      color: CSS_COLORS.white,
+      backgroundColor: CSS_COLORS.dangerSoft,
+      padding: { x: 14, y: 9 }
+    }).setOrigin(1, 0).setScrollFactor(0).setVisible(false);
 
     this.add.rectangle(GAME_WIDTH / 2, 48, 360, 78, COLORS.near, 0.94).setStrokeStyle(3, COLORS.collect).setScrollFactor(0);
     this.createScoreBadge(GAME_WIDTH / 2 - 142, 48, "%");
@@ -190,6 +218,23 @@ export class UIScene extends Phaser.Scene {
     this.flightTrack.setVisible(form?.form === "pegasus");
     this.flightBar.setVisible(form?.form === "pegasus");
     this.flightIcon.setVisible(form?.form === "pegasus");
+    const breath = this.gameScene.breathManager?.getSnapshot();
+    const showBreath = Boolean(breath && (breath.underwater || breath.recovering));
+    this.breathPanel.setVisible(showBreath);
+    this.breathLabel.setVisible(showBreath).setText(breath?.recovering ? "숨 회복" : "숨");
+    this.breathTrack.setVisible(showBreath);
+    this.breathBar
+      .setVisible(showBreath)
+      .setScale(Math.max(0.001, breath?.ratio ?? 1), 1)
+      .setFillStyle(breath?.warning ? COLORS.danger : COLORS.collectBlue);
+    const environment = this.gameScene.environmentMechanics?.getSnapshot();
+    const showWave = environment?.waveState === "warning" || environment?.waveState === "active";
+    const waveArrow = environment?.direction === "left" ? "←" : "→";
+    this.waveWarning
+      .setVisible(showWave)
+      .setText(showWave
+        ? `${waveArrow} ${environment.waveState === "active" ? "파도 통과 중" : `파도 ${environment.secondsUntilWave.toFixed(1)}초`}`
+        : "");
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
     this.objectiveText.setText(`별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}`);
@@ -231,6 +276,7 @@ export class UIScene extends Phaser.Scene {
       { key: "bgm", label: "BGM 볼륨", adjustable: true },
       { key: "sfx", label: "효과음 볼륨", adjustable: true },
       { key: "mute", label: "음소거" },
+      { key: "effects", label: "화면 효과 강도", adjustable: true },
       { key: "easy", label: "쉬운 모드" }
     ];
     this.pauseRows = [];
@@ -253,7 +299,7 @@ export class UIScene extends Phaser.Scene {
     }).setOrigin(0.5));
 
     this.pauseMenuItems.forEach((item, index) => {
-      const y = 190 + index * 54;
+      const y = 178 + index * 50;
       const row = this.add.text(640, y, "", {
         align: "center",
         fontFamily: GAME_FONT_FAMILY,
@@ -289,7 +335,7 @@ export class UIScene extends Phaser.Scene {
 
     this.pauseOverlay.add(this.add.text(
       640,
-      512,
+      516,
       "조작 안내\n이동  ← → / A D / 왼쪽 스틱\n점프·비행  Space / Z / 게임패드 A\n일시정지  Esc / Start   ·   음소거  M   ·   화면 흔들림  V",
       {
         align: "center",
@@ -325,12 +371,21 @@ export class UIScene extends Phaser.Scene {
     const key = this.pauseMenuItems[index]?.key;
     if (key === "resume") this.togglePause();
     else if (key === "bgm" || key === "sfx") this.adjustPauseOption(index, 1);
+    else if (key === "effects") this.adjustPauseOption(index, 1);
     else if (key === "mute") this.toggleMute();
     else if (key === "easy") this.toggleEasyMode();
   }
 
   adjustPauseOption(index, direction) {
     const key = this.pauseMenuItems[index]?.key;
+    if (key === "effects") {
+      const next = this.registry.get("screenEffectStrength") === "reduced" ? "normal" : "reduced";
+      this.registry.set("screenEffectStrength", next);
+      this.gameScene.audioManager?.playSfx("sfx_ui_select", { randomizeRate: false });
+      this.renderPauseMenu();
+      this.gameScene.updateAccessibleStatus(`화면 효과 강도를 ${next === "reduced" ? "약하게" : "보통"}로 바꿨습니다.`);
+      return;
+    }
     if (key !== "bgm" && key !== "sfx") return;
     const audio = this.gameScene.audioManager;
     const snapshot = audio?.getSnapshot();
@@ -384,6 +439,7 @@ export class UIScene extends Phaser.Scene {
       bgm: `BGM 볼륨  ${Math.round(audio.bgmVolume * 100)}%`,
       sfx: `효과음 볼륨  ${Math.round(audio.sfxVolume * 100)}%`,
       mute: `음소거  ${audio.muted ? "ON" : "OFF"} · M`,
+      effects: `화면 효과 강도  ${this.registry.get("screenEffectStrength") === "reduced" ? "약하게" : "보통"}`,
       easy: `쉬운 모드  ${this.registry.get("easyMode") ? "ON" : "OFF"}`
     };
     this.pauseRows.forEach((row, index) => {

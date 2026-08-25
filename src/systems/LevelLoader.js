@@ -494,8 +494,8 @@ export class LevelLoader {
 
   spawnGate() {
     if (this.gate) return this.gate;
-    const x = this.level.world.width - 180;
-    const y = this.findSafeY(x);
+    const x = this.level.exit?.x ?? this.level.world.width - 180;
+    const y = this.level.exit?.y ?? this.findSafeY(x);
     const archY = y - 81;
     const key = this.level.assets.objects?.gate;
     let arch;

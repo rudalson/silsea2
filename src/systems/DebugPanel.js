@@ -24,6 +24,8 @@ export class DebugPanel {
     this.defaults = { ...options.tuning };
     this.level = options.level;
     this.objectives = options.objectives;
+    this.getEnvironmentSnapshot = options.getEnvironmentSnapshot;
+    this.getBreathSnapshot = options.getBreathSnapshot;
     this.onWarp = options.onWarp;
     this.onReload = options.onReload;
     this.visible = true;
@@ -97,7 +99,15 @@ export class DebugPanel {
     const runtimeCounts = pool && particles
       ? ` · Pool ${pool.activeCount}/${pool.size}/${pool.maxSize} · FX ${particles.activeCount}/${particles.size}/${particles.maxSize}`
       : "";
-    metrics.textContent = `FPS ${Math.round(fps)} · x ${Math.round(player.x)} · y ${Math.round(player.y)} · ${elapsed.toFixed(1)}초${runtimeCounts}`;
+    const environment = this.getEnvironmentSnapshot?.();
+    const breath = this.getBreathSnapshot?.();
+    const environmentStatus = environment
+      ? ` · 진행 ${environment.direction === "left" ? "←" : "→"} · 파도 ${environment.waveState}${environment.secondsUntilWave === null ? "" : ` ${environment.secondsUntilWave.toFixed(1)}초`}`
+      : "";
+    const breathStatus = breath
+      ? ` · 숨 ${Math.round(breath.ratio * 100)}% · 물 ${breath.zoneId ?? "없음"}`
+      : "";
+    metrics.textContent = `FPS ${Math.round(fps)} · x ${Math.round(player.x)} · y ${Math.round(player.y)} · ${elapsed.toFixed(1)}초${environmentStatus}${breathStatus}${runtimeCounts}`;
     const list = this.root.querySelector("[data-objectives]");
     list.replaceChildren();
     for (const objective of this.objectives.getSnapshot()) {

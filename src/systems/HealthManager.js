@@ -44,6 +44,26 @@ export class HealthManager {
     return true;
   }
 
+  takeEnvironmentDamage({ type = "environment" } = {}) {
+    const now = this.scene.time.now;
+    if (this.transformationManager.invulnerable || now < this.invulnerableUntil) return false;
+
+    this.hp -= 1;
+    this.objectiveManager.recordDamage();
+    this.invulnerableUntil = now + CORE_RULES.invulnerableMs;
+    this.player.setTintFill(COLORS.danger);
+    this.scene.time.delayedCall(110, () => this.player?.active && this.player.clearTint());
+    this.scene.events.emit(EVENTS.PLAYER_HIT, {
+      hp: Math.max(0, this.hp),
+      environment: true,
+      type
+    });
+
+    if (this.hp <= 0) this.reviveAtCheckpoint();
+    this.emitHp();
+    return true;
+  }
+
   handleFall() {
     if (this.checkpointManager.respawning) return;
     const now = this.scene.time.now;

@@ -51,13 +51,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   updateControls(input, now, delta, ability = { mode: "normal", moveY: 0 }) {
     if (!this.body.enable) return;
     if (now < (this.controlLockedUntil ?? 0)) return;
-    const grounded = this.body.blocked.down || this.body.touching.down;
+    const swimming = ability.mode === "swim";
+    const grounded = !swimming && (this.body.blocked.down || this.body.touching.down);
+    if (swimming) {
+      this.airborneLandingSpeed = 0;
+      this.bufferedJumpUntil = -Infinity;
+    }
     if (!grounded) this.airborneLandingSpeed = Math.max(this.airborneLandingSpeed, Math.max(0, this.body.velocity.y));
     if (grounded) this.lastGroundedAt = now;
-    if (input.jumpPressed) this.bufferedJumpUntil = now + this.tuning.jumpBuffer;
+    if (input.jumpPressed && !swimming) this.bufferedJumpUntil = now + this.tuning.jumpBuffer;
 
-    const acceleration = grounded ? this.tuning.acceleration : this.tuning.airAcceleration;
-    const targetVelocity = input.moveX * this.tuning.maxSpeed;
+    const acceleration = swimming
+      ? this.tuning.airAcceleration
+      : grounded ? this.tuning.acceleration : this.tuning.airAcceleration;
+    const speedMultiplier = swimming ? ability.horizontalSpeedMultiplier ?? 0.75 : 1;
+    const targetVelocity = input.moveX * this.tuning.maxSpeed * speedMultiplier;
     const rate = input.moveX === 0 ? this.tuning.deceleration : acceleration;
     const nextVelocity = moveTowards(this.body.velocity.x, targetVelocity, (rate * delta) / 1000);
     this.setVelocityX(nextVelocity);
@@ -71,11 +79,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.lastGroundedAt = -Infinity;
     }
 
-    if (input.jumpReleased && this.body.velocity.y < 0) {
+    if (!swimming && input.jumpReleased && this.body.velocity.y < 0) {
       this.setVelocityY(this.body.velocity.y * this.tuning.jumpCutMultiplier);
     }
 
-    if (ability.mode === "fly") {
+    if (swimming) {
+      this.body.setGravityY(this.tuning.gravity * (ability.gravityMultiplier ?? 0.35));
+      if (ability.stroke) this.setVelocityY(ability.strokeVelocity ?? -230);
+      const maxFallSpeed = ability.maxFallSpeed ?? 260;
+      if (this.body.velocity.y > maxFallSpeed) this.setVelocityY(maxFallSpeed);
+    } else if (ability.mode === "fly") {
       this.body.setGravityY(0);
       const targetY = ability.moveY ? ability.moveY * 280 : -90;
       this.setVelocityY(moveTowards(this.body.velocity.y, targetY, (920 * delta) / 1000));
@@ -155,6 +168,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   updateCharacterAnimation(ability, now) {
     if (!this.usesCharacterArt || now < this.animationLockedUntil) return;
+    if (ability.mode === "swim") {
+      this.playCharacterAnimation(Math.abs(this.body.velocity.x) > 28 ? "move" : "idle");
+      return;
+    }
     if (ability.mode === "fly") {
       this.playCharacterAnimation("fly");
       return;

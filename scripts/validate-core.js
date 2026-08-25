@@ -29,6 +29,11 @@ const [
   particleEffects,
   difficultyManager,
   healthManager,
+  environmentManager,
+  breathManager,
+  levelSchema,
+  environmentData,
+  playtestManager,
   scoreManager,
   objectPool,
   soakTest,
@@ -62,6 +67,11 @@ const [
   read("src/systems/ParticleEffectsManager.js"),
   read("src/systems/DifficultyManager.js"),
   read("src/systems/HealthManager.js"),
+  read("src/systems/EnvironmentMechanicsManager.js"),
+  read("src/systems/BreathManager.js"),
+  read("src/data/schema/levelSchema.js"),
+  read("src/data/environment.js"),
+  read("src/systems/PlaytestManager.js"),
   read("src/systems/ScoreManager.js"),
   read("src/systems/ObjectPool.js"),
   read("scripts/test-soak.js"),
@@ -85,6 +95,15 @@ if (Object.values(TRANSFORM_PRESENTATION).some((cue) => cue.emphasisMs < 100 || 
 }
 
 if (!gameScene.includes("TransformationManager") || !gameScene.includes("HealthManager")) fail("GameScene에 핵심 매니저가 연결되지 않음");
+if (!gameScene.includes("new EnvironmentMechanicsManager") || !gameScene.includes("new BreathManager")) {
+  fail("GameScene에 P1 환경·숨 매니저가 연결되지 않음");
+}
+if (!preloadScene.includes("normalizeLevelDefinition") || !gameScene.includes("normalizeLevelDefinition")) {
+  fail("v1 레벨을 v2 런타임 형태로 정규화하는 경로가 없음");
+}
+if (!levelSchema.includes("SUPPORTED_LEVEL_SCHEMA_VERSIONS") || !levelSchema.includes("getCameraLookAheadTarget")) {
+  fail("스키마 v1/v2 호환 또는 역방향 카메라 회귀 계산이 없음");
+}
 if (!gameScene.includes("ParticleEffectsManager") || !particleEffects.includes("scene.add.particles")) {
   fail("GameScene에 Phaser 파티클 효과 매니저가 연결되지 않음");
 }
@@ -200,8 +219,30 @@ if (!uiScene.includes("toggleEasyMode") || !gameScene.includes("getDifficultySet
 if (!difficultyManager.includes("extraCheckpoints") || !difficultyManager.includes("removeEnemies")) {
   fail("쉬운 모드 추가 체크포인트 또는 적 제거 변환이 없음");
 }
+if (!difficultyManager.includes("getEnvironmentDifficulty") || !difficultyManager.includes("environment.tsunami")) {
+  fail("쉬운 모드 환경 수치 변환이 없음");
+}
 if (!healthManager.includes("difficulty.player?.extraHp") || !transformManager.includes("flightDrainMultiplier")) {
   fail("쉬운 모드 추가 HP 또는 비행 소모 완화가 없음");
+}
+if (!healthManager.includes("takeEnvironmentDamage") || !breathManager.includes("takeEnvironmentDamage")) {
+  fail("숨 0 이후 환경 피해가 공통 HP 경로에 연결되지 않음");
+}
+if (!environmentData.includes("stepBreathRatio") || !environmentData.includes("getWaterContact") || !breathManager.includes("getWaterContact")) {
+  fail("수면 경계 또는 숨 소모·회복 계산이 데이터 기반이 아님");
+}
+if (!player.includes('ability.mode === "swim"') || !transformManager.includes("underwater = false")) {
+  fail("수중 이동 또는 수중 비행 차단이 연결되지 않음");
+}
+if (!environmentManager.includes("SeededRandom") || !environmentManager.includes("pauseEnemiesDuringWave") || !enemyManager.includes("setPaused")) {
+  fail("고정 Seed 쓰나미 또는 파도 중 적 일시정지가 없음");
+}
+if (environmentManager.includes("Math.random")) fail("쓰나미 패턴에 고정 Seed 밖의 랜덤 호출이 있음");
+if (!uiScene.includes("breathManager?.getSnapshot") || !uiScene.includes("screenEffectStrength")) {
+  fail("숨 HUD 또는 화면 효과 강도 설정이 없음");
+}
+if (!playtestManager.includes("getNormalizedProgress") || !playtestManager.includes("maxProgressX")) {
+  fail("역방향 플레이테스트 진행도와 원시 좌표 계측이 함께 남지 않음");
 }
 if (!bossController.includes("telegraphMultiplier") || !scoreManager.includes("overrideAmount")) {
   fail("쉬운 모드 보스 예고 연장 또는 낭떠러지 점수 보호가 없음");
@@ -253,7 +294,16 @@ if ([enemyManager, bossController].some((source) => source.includes("Math.random
 if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {
   fail("현재 Phaser 버전에 없는 Math.MoveTowards 호출이 있음");
 }
-if (/#[0-9a-f]{6}\b|0x[0-9a-f]{6}\b/i.test([gameScene, levelLoader, enemyManager, bossController, transformManager, particleEffects].join("\n"))) {
+if (/#[0-9a-f]{6}\b|0x[0-9a-f]{6}\b/i.test([
+  gameScene,
+  levelLoader,
+  enemyManager,
+  bossController,
+  transformManager,
+  particleEffects,
+  environmentManager,
+  breathManager
+].join("\n"))) {
   fail("Core Mechanics 소스에 직접 색상 값이 있음");
 }
 

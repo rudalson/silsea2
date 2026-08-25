@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { DEBUG_ENABLED, SCENE_KEYS } from "../config/constants.js";
 import { CHARACTER_LIST } from "../data/characters.js";
 import { FORMS } from "../data/gameplay.js";
-import { LEVELS } from "../data/levels/index.js";
+import { LEVELS, getLevel } from "../data/levels/index.js";
 import { AssetManager } from "../systems/AssetManager.js";
 
 export class BootScene extends Phaser.Scene {
@@ -35,7 +35,9 @@ export class BootScene extends Phaser.Scene {
       : CHARACTER_LIST[0].id;
     const requestedReviewLevel = query.get("visualReview");
     const reviewLevel = LEVELS.find(({ id }) => id === requestedReviewLevel) ?? null;
-    const levelId = reviewLevel?.id ?? LEVELS[0].id;
+    const p1TestLevel = query.get("p1test") === "1" ? getLevel("p1-environment-test") : null;
+    const directLevel = reviewLevel ?? p1TestLevel;
+    const levelId = directLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
       ? requestedReviewOffset
@@ -60,10 +62,11 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("playtestEnabled", playtestEnabled);
     this.registry.set("playtestTesterId", playtestTesterId);
     this.registry.set("screenShakeEnabled", true);
+    this.registry.set("screenEffectStrength", query.get("effects") === "reduced" ? "reduced" : "normal");
     this.registry.set("audioMuted", false);
     this.registry.set("sfxVolume", 0.72);
     this.registry.set("bgmVolume", 0.46);
-    if (reviewLevel) {
+    if (directLevel) {
       this.scene.start(SCENE_KEYS.PRELOAD, { levelId });
       return;
     }

@@ -164,12 +164,12 @@ export class TransformationManager {
     this.finishTransformPresentation();
   }
 
-  prepareMovement(input, delta) {
+  prepareMovement(input, delta, { underwater = false } = {}) {
     const grounded = this.player.body.blocked.down || this.player.body.touching.down;
     const canFly = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
-    const wantsFlight = canFly && !grounded && input.jumpDown;
+    const wantsFlight = canFly && !underwater && !grounded && input.jumpDown;
 
-    if (this.form === FORMS.PEGASUS) {
+    if (this.form === FORMS.PEGASUS && !underwater) {
       this.flightMs = stepFlightGauge(this.flightMs, delta, {
         grounded,
         flying: wantsFlight && this.flightMs > 0,
@@ -180,7 +180,7 @@ export class TransformationManager {
         this.scene.audioManager?.playSfx("sfx_flight_low", { randomizeRate: false });
       }
       if (grounded && this.flightMs > CORE_RULES.flightMaxMs * 0.25) this.flightLowSent = false;
-    } else if (grounded) {
+    } else if (grounded && !underwater) {
       this.flightMs = stepFlightGauge(this.flightMs, delta, { grounded: true });
     }
 

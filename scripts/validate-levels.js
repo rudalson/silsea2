@@ -4,8 +4,8 @@ import manifest from "../assets/manifest.json" with { type: "json" };
 import { BOSS_PATTERNS } from "../src/data/bossPatterns.js";
 import { ENEMY_TYPES } from "../src/data/enemies.js";
 import { HAZARD_TYPES, ITEM_TYPES } from "../src/data/items.js";
-import { LEVELS } from "../src/data/levels/index.js";
-import { assertLevelShape } from "../src/data/schema/levelSchema.js";
+import { ALL_LEVELS, LEVELS } from "../src/data/levels/index.js";
+import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/levelSchema.js";
 import { OBJECTIVE_TYPES } from "../src/systems/ObjectiveManager.js";
 
 const errors = [];
@@ -16,6 +16,7 @@ const orders = new Set();
 const fail = (level, message) => errors.push(`[${level.id ?? "unknown"}] ${message}`);
 const inWorld = (level, x, y = 0) => x >= 0 && x <= level.world.width && y >= 0 && y <= level.world.height;
 const isPositiveNumber = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
+const inRange = (value, min, max) => Number.isFinite(Number(value)) && Number(value) >= min && Number(value) <= max;
 
 const assetKeys = (value, parentKey = "") => {
   if (typeof value === "string") {
@@ -43,11 +44,13 @@ const hasFloorAt = (terrain, x, y, tolerance = 72) => terrain.some(
   (object) => x >= object.x && x <= object.x + object.width && Math.abs(object.y - y) <= tolerance
 );
 
-for (const level of LEVELS) {
+for (const sourceLevel of ALL_LEVELS) {
+  let level = sourceLevel;
   try {
-    assertLevelShape(level);
+    assertLevelShape(sourceLevel);
+    level = normalizeLevelDefinition(sourceLevel);
   } catch (error) {
-    fail(level, error.message);
+    fail(sourceLevel, error.message);
     continue;
   }
 
@@ -85,6 +88,89 @@ for (const level of LEVELS) {
   }
   if (expectedStart !== level.world.width) fail(level, "sections가 world.width 전체를 덮지 않음");
   if (bossCount > 1) fail(level, "boss section은 최대 1개");
+
+  if (!inWorld(level, level.exit.x, level.exit.y ?? level.player.spawn.y)) fail(level, "exit 좌표가 world 밖");
+  if (level.progression.direction === "left" && level.player.spawn.x <= level.exit.x) {
+    fail(level, "좌향 레벨은 player.spawn.x가 exit.x보다 커야 함");
+  }
+  if (level.progression.direction === "right" && level.player.spawn.x >= level.exit.x) {
+    fail(level, "우향 레벨은 player.spawn.x가 exit.x보다 작아야 함");
+  }
+
+  const tsunami = level.environment.tsunami;
+  if (tsunami) {
+    if (tsunami.direction !== level.progression.direction) fail(level, "쓰나미 방향과 진행 방향이 다름");
+    for (const field of ["firstWarning", "telegraph", "speedMultiplier", "duration", "shelterGrace", "damage", "respawnGrace"]) {
+      if (!isPositiveNumber(tsunami[field])) fail(level, `tsunami.${field}는 양수여야 함`);
+    }
+    if (!isPositiveNumber(tsunami.interval?.min) || Number(tsunami.interval?.max) < Number(tsunami.interval?.min)) {
+      fail(level, "tsunami.interval은 양수이며 max가 min 이상이어야 함");
+    }
+    const shelterIds = new Set();
+    for (const shelter of tsunami.shelters ?? []) {
+      if (!shelter.id || shelterIds.has(shelter.id)) fail(level, `쓰나미 대피처 id 누락/중복: ${shelter.id ?? "unknown"}`);
+      shelterIds.add(shelter.id);
+      if (!(shelter.xStart < shelter.xEnd && shelter.yTop < shelter.yBottom)) {
+        fail(level, `쓰나미 대피처 ${shelter.id} 범위가 잘못됨`);
+      }
+      if (!inWorld(level, shelter.xStart, shelter.yTop) || !inWorld(level, shelter.xEnd, shelter.yBottom)) {
+        fail(level, `쓰나미 대피처 ${shelter.id}가 world 밖`);
+      }
+    }
+  }
+
+  const waterZones = level.environment.waterZones ?? [];
+  if (waterZones.length && !level.environment.breath) fail(level, "waterZones가 있으면 breath 설정이 필요함");
+  const waterIds = new Set();
+  for (const zone of waterZones) {
+    if (!zone.id || waterIds.has(zone.id)) fail(level, `물 영역 id 누락/중복: ${zone.id ?? "unknown"}`);
+    waterIds.add(zone.id);
+    if (!(zone.xStart < zone.xEnd && zone.surfaceY < zone.bottomY)) fail(level, `물 영역 ${zone.id} 범위가 잘못됨`);
+    if (!inWorld(level, zone.xStart, zone.surfaceY) || !inWorld(level, zone.xEnd, zone.bottomY)) {
+      fail(level, `물 영역 ${zone.id}가 world 밖`);
+    }
+    const maxSwimDistance = 360
+      * (level.environment.breath?.underwaterPhysics?.horizontalSpeedMultiplier ?? 0.75)
+      * (level.environment.breath?.depleteSeconds ?? 12);
+    if (zone.xEnd - zone.xStart > maxSwimDistance) fail(level, `물 영역 ${zone.id}가 한 번의 숨으로 통과할 수 없음`);
+    for (const pit of level.hazards.filter((hazard) => hazard.type === "pit")) {
+      if (pit.xStart < zone.xEnd && pit.xEnd > zone.xStart) fail(level, `물 영역 ${zone.id} 안에 pit ${pit.id}가 있음`);
+    }
+  }
+
+  const breath = level.environment.breath;
+  if (breath) {
+    for (const field of ["depleteSeconds", "refillSeconds", "damageInterval", "surfaceMargin"]) {
+      if (!isPositiveNumber(breath[field])) fail(level, `breath.${field}는 양수여야 함`);
+    }
+    if (!inRange(breath.warningRatio, 0, 1)) fail(level, "breath.warningRatio는 0~1이어야 함");
+    for (const field of ["gravityMultiplier", "maxFallSpeed", "horizontalSpeedMultiplier", "strokeCooldown"]) {
+      if (!isPositiveNumber(breath.underwaterPhysics?.[field])) fail(level, `breath.underwaterPhysics.${field}는 양수여야 함`);
+    }
+    if (!(Number(breath.underwaterPhysics?.strokeVelocity) < 0)) fail(level, "수중 strokeVelocity는 음수여야 함");
+  }
+
+  const easyEnvironment = level.difficulty?.easyMode?.environment ?? {};
+  const easyRanges = [
+    [easyEnvironment.tsunami?.firstWarningMultiplier, 1, 1.5, "tsunami.firstWarningMultiplier"],
+    [easyEnvironment.tsunami?.intervalMultiplier, 1, 1.6, "tsunami.intervalMultiplier"],
+    [easyEnvironment.tsunami?.telegraphMultiplier, 1, 2, "tsunami.telegraphMultiplier"],
+    [easyEnvironment.tsunami?.speedMultiplier, 0.8, 1, "tsunami.speedMultiplier"],
+    [easyEnvironment.breath?.drainMultiplier, 0.6, 1, "breath.drainMultiplier"],
+    [easyEnvironment.breath?.refillMultiplier, 1, 1.5, "breath.refillMultiplier"],
+    [easyEnvironment.breath?.damageIntervalMultiplier, 1, 1.6, "breath.damageIntervalMultiplier"],
+    [easyEnvironment.lasers?.cycleMultiplier, 1, 1.6, "lasers.cycleMultiplier"],
+    [easyEnvironment.projectiles?.speedMultiplier, 0.7, 1, "projectiles.speedMultiplier"]
+  ];
+  for (const [value, min, max, field] of easyRanges) {
+    if (value !== undefined && !inRange(value, min, max)) fail(level, `easyMode ${field}가 ${min}~${max} 범위 밖`);
+  }
+
+  const laserIds = new Set((level.environment.lasers ?? []).map(({ id }) => id));
+  for (const laser of level.environment.lasers ?? []) {
+    if (!laser.id || !laser.switchId) fail(level, "laser id와 switchId가 필요함");
+    if (laser.switchId && !laserIds.has(laser.switchId)) fail(level, `laser ${laser.id}의 switchId가 같은 레벨에 없음`);
+  }
 
   for (const key of assetKeys(level.assets)) {
     if (!manifestKeys.has(key)) fail(level, `manifest에 없는 asset key: ${key}`);
@@ -179,6 +265,7 @@ for (const level of LEVELS) {
   const terrain = tilemap.layers.find((layer) => layer.type === "objectgroup" && layer.name === "terrain")?.objects ?? [];
   if (terrain.length === 0) fail(level, "terrain object layer가 비어 있음");
   if (!hasFloorAt(terrain, level.player.spawn.x, level.player.spawn.y)) fail(level, "player spawn 아래에 바닥이 없음");
+  if (!hasFloorAt(terrain, level.exit.x, level.exit.y ?? level.player.spawn.y)) fail(level, "exit 아래에 바닥이 없음");
   for (const checkpoint of level.checkpoints) {
     if (!inWorld(level, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 좌표가 world 밖`);
     if (!hasFloorAt(terrain, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 아래에 바닥이 없음`);
@@ -191,6 +278,10 @@ for (const level of LEVELS) {
       fail(level, `pit ${pit.id} respawnX 아래에 바닥이 없음`);
     }
   }
+  for (const shelter of level.environment.tsunami?.shelters ?? []) {
+    const centerX = (shelter.xStart + shelter.xEnd) / 2;
+    if (!hasFloorAt(terrain, centerX, shelter.yBottom)) fail(level, `대피처 ${shelter.id} 아래에 충돌 지형이 없음`);
+  }
 }
 
 if (errors.length) {
@@ -199,4 +290,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`레벨 검증 통과: ${LEVELS.length}개 레벨, ${manifestKeys.size}개 manifest 키`);
+console.log(`레벨 검증 통과: 플레이 ${LEVELS.length}개·개발 시험 ${ALL_LEVELS.length - LEVELS.length}개, ${manifestKeys.size}개 manifest 키`);

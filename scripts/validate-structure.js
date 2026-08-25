@@ -34,6 +34,9 @@ const levelLoader = await readFile(join(root, "src", "systems", "LevelLoader.js"
 const playtestManager = await readFile(join(root, "src", "systems", "PlaytestManager.js"), "utf8");
 const assetManager = await readFile(join(root, "src", "systems", "AssetManager.js"), "utf8");
 const enemyManager = await readFile(join(root, "src", "systems", "EnemyManager.js"), "utf8");
+const environmentManager = await readFile(join(root, "src", "systems", "EnvironmentMechanicsManager.js"), "utf8");
+const breathManager = await readFile(join(root, "src", "systems", "BreathManager.js"), "utf8");
+const levelSchema = await readFile(join(root, "src", "data", "schema", "levelSchema.js"), "utf8");
 const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
 for (const forbidden of LEVELS.flatMap((level) => [level.id, level.name])) {
   if (gameScene.includes(forbidden)) fail(`GameScene에 특정 레벨 참조가 있음: ${forbidden}`);
@@ -63,6 +66,7 @@ if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02
 if (!levelIndex.includes("[level01, level02]")) fail("LEVELS 배열에 level-02 항목이 없음");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
+if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
 if (!bootScene.includes('query.get("form")')) fail("캐릭터 런타임 검수용 form 선택이 없음");
 if (!bootScene.includes('query.get("animation")')) fail("캐릭터 런타임 검수용 animation 선택이 없음");
@@ -82,6 +86,20 @@ if (!enemyManager.includes("applyTelegraphColor") || !enemyManager.includes("cle
 }
 if (!gameScene.includes("new PlaytestManager") || !gameScene.includes("playtestManager?.complete")) {
   fail("GameScene에 플레이테스트 세션 시작·완료가 연결되지 않음");
+}
+if (!gameScene.includes("new EnvironmentMechanicsManager") || !gameScene.includes("new BreathManager")) {
+  fail("GameScene에 공용 환경·숨 매니저가 연결되지 않음");
+}
+if (!levelSchema.includes("normalizeLevelDefinition") || !levelSchema.includes("SUPPORTED_LEVEL_SCHEMA_VERSIONS")) {
+  fail("Schema v1/v2 정규화 호환 경로가 없음");
+}
+if (!levelLoader.includes("this.level.exit?.x")) fail("게이트가 명시적 exit 좌표를 사용하지 않음");
+if (!enemyManager.includes("hasReachedProgressTrigger")) fail("적 활성화가 진행 방향을 사용하지 않음");
+if (!playtestManager.includes("maxProgress") || !playtestManager.includes("getNormalizedProgress")) {
+  fail("플레이테스트가 역방향 정규화 진행 거리를 기록하지 않음");
+}
+if (!environmentManager.includes("pauseEnemiesDuringWave") || !breathManager.includes("takeEnvironmentDamage")) {
+  fail("쓰나미 중 적 정지 또는 숨 0 환경 피해 경로가 없음");
 }
 if (!playtestManager.includes("PLAYTEST_STALL_SECONDS") || !playtestManager.includes("adjustmentCandidates")) {
   fail("플레이테스트 정체·2명 이상 조정 후보 분석이 없음");
@@ -111,4 +129,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: 공용 GameScene, Boss section, 클리어 전환·다음 스테이지 경로, InputManager, level-02 레지스트리, visualReview·playtest 진입점, 디버그 표시 격리");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨 매니저, P1 시험 진입점, 기존 level-02 확장성");
