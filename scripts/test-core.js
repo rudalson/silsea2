@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
+import level03 from "../src/data/levels/level-03.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
 import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
 import {
@@ -27,9 +28,11 @@ import {
   assertLevelShape
 } from "../src/data/schema/levelSchema.js";
 import {
+  getMistZoneAt,
   getWaterContact,
   getWaveIntervalMs,
   isInsideShelter,
+  resolveMistProfile,
   stepBreathRatio
 } from "../src/data/environment.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
@@ -156,6 +159,7 @@ assert.equal(getUpdraftVelocity(0, 420, 1000, 1000), -420);
 assert.equal(getUpdraftVelocity(-620, 420, 1000, 120), -620, "상승기류가 더 빠른 기존 상승 속도를 늦추면 안 됨");
 
 assert.equal(assertLevelShape(level01), true);
+assert.equal(assertLevelShape(level03), true);
 assert.equal(assertLevelShape(p1EnvironmentTest), true);
 const normalizedLevel01 = normalizeLevelDefinition(level01);
 assert.equal(normalizedLevel01.progression.direction, "right");
@@ -184,6 +188,21 @@ assert.equal(getWaterContact({ x: 800, headY: 312 }, p1EnvironmentTest.environme
 assert.equal(getWaterContact({ x: 800, headY: 316 }, p1EnvironmentTest.environment.waterZones, 8).aboveSurface, false);
 assert.equal(isInsideShelter({ x: 3450, y: 520 }, p1EnvironmentTest.environment.tsunami.shelters), true);
 assert.equal(isInsideShelter({ x: 3200, y: 520 }, p1EnvironmentTest.environment.tsunami.shelters), false);
+const mistZones = level03.environment.mist.zones;
+assert.equal(getMistZoneAt(639, mistZones), null);
+assert.equal(getMistZoneAt(640, mistZones).id, "mist_intro");
+assert.equal(getMistZoneAt(1664, mistZones).id, "mist_practice");
+assert.equal(getMistZoneAt(7168, mistZones), null);
+assert.deepEqual(resolveMistProfile(mistZones[0]), { density: 0.26, visibilityRadius: 430 });
+const reducedMistProfile = resolveMistProfile(mistZones[0], { reduced: true });
+assert.ok(Math.abs(reducedMistProfile.density - 0.143) < 0.0001);
+assert.equal(reducedMistProfile.visibilityRadius, 500);
+for (const zone of mistZones) {
+  const kinds = new Set(level03.environment.mist.guides
+    .filter(({ x }) => x >= zone.xStart && x < zone.xEnd)
+    .map(({ kind }) => kind));
+  assert.deepEqual([...kinds].sort(), ["beacon", "breeze"]);
+}
 
 const createEnvironmentDisplayObject = (type, x = 0, y = 0) => ({
   type,
@@ -272,6 +291,9 @@ assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.hor
 assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.strokeVelocity + 240) < 0.001);
 assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.strokeCooldown - 0.3) < 0.001);
 assert.equal(easyEnvironmentSettings.environment.tsunami.intervalMultiplier, 1.4);
+const easyMistLevel = createRuntimeLevel(level03, true);
+assert.ok(Math.abs(easyMistLevel.environment.mist.zones[3].density - 0.5084) < 0.0001);
+assert.ok(Math.abs(easyMistLevel.environment.mist.zones[3].visibilityRadius - 322) < 0.001);
 
 const bossPhaseShotCounts = Object.values(POTATO_KING_PHASES).map((phase) => (
   phase.volleys.reduce((total, volley) => total + volley.shots.length, 0)
@@ -744,4 +766,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미 간격, 수면·숨 계산과 환경 피해, 쉬운 모드 환경 clamp, 역방향 플레이테스트 계측, 실제 캐릭터 23개·적 22개 시트 매핑, 변신·비행·점수·Seed·Object Pool·보스 3단계·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미 간격, 수면·숨 계산과 환경 피해, 안개 영역·시야 반경·약하게/쉬운 모드 완화, 역방향 플레이테스트 계측, 실제 캐릭터 23개·적 22개 시트 매핑, 변신·비행·점수·Seed·Object Pool·보스 3단계·오디오 fallback");

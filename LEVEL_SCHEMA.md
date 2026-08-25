@@ -94,6 +94,30 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 | `tsunami` | `direction`, `firstWarning`, `telegraph`, `interval`, `speedMultiplier`, `duration`, `shelterGrace`, `damage`, `respawnGrace`, `pauseEnemiesDuringWave` | 진행 방향과 같아야 하며 피해는 HP 단위 |
 | `waterZones` | `id`, `xStart`, `xEnd`, `surfaceY`, `bottomY` | 영역은 world 안에 있고 물 바닥은 충돌 지형이어야 함 |
 | `breath` | `depleteSeconds`, `refillSeconds`, `damageInterval`, `warningRatio`, `surfaceMargin`, `underwaterPhysics` | `waterZones`가 있을 때 필수 |
+| `mist` | `fadeMs`, `defaultVisibilityRadius`, `reducedDensityMultiplier`, `reducedRadiusBonus`, `zones`, `guides` | 각 영역에 `beacon`과 `breeze` 단서를 모두 두고 수치는 승인 범위를 지킴 |
+
+#### `environment.mist`
+
+```js
+mist: {
+  fadeMs: 700,
+  defaultVisibilityRadius: 430,
+  reducedDensityMultiplier: 0.55,
+  reducedRadiusBonus: 70,
+  zones: [
+    { id: "mist_intro", label: "소개", xStart: 640, xEnd: 1664, density: 0.26, visibilityRadius: 430 }
+  ],
+  guides: [
+    { id: "beacon_intro", kind: "beacon", x: 1320, y: 340 },
+    { id: "breeze_intro", kind: "breeze", x: 1520, y: 410, delay: 160 }
+  ]
+}
+```
+
+- `zones`는 겹치지 않고 world 안에 있어야 하며 `density`는 `0.1~0.72`, `visibilityRadius`는 `240~540` 범위다.
+- `reducedDensityMultiplier`는 `0.4~0.8`, `reducedRadiusBonus`는 `40~140` 범위다.
+- 모든 안개 영역에는 밝기·형태 단서 `beacon`과 밝기·움직임 단서 `breeze`가 각각 하나 이상 있어야 한다.
+- 쉬운 모드의 `mist.densityMultiplier`는 `0.65~1`, `mist.radiusMultiplier`는 `1~1.35` 범위다.
 | `lasers` | 빔·스위치의 고유 `id`와 연결 ID | P6 Should 범위. 연결 상태는 같은 레벨에서만 유지 |
 
 `interval`은 `{ min, max }`, `underwaterPhysics`는 `gravityMultiplier`, `maxFallSpeed`, `horizontalSpeedMultiplier`, `strokeVelocity`, `strokeCooldown`을 가진다. 일반·쉬운 모드 기준값과 허용 clamp는 `STAGE_EXPANSION_PLAN.md` 3·4장을 따른다.

@@ -57,13 +57,15 @@ for (const file of allSourceFiles.filter((path) => /\.(?:js|css)$/.test(path))) 
   }
 }
 
-if (LEVELS.length < 2) fail("확장성 검증용 level-02가 없음");
+if (LEVELS.length < 3) fail("안개 골짜기 검증용 level-03이 없음");
 if (!getLevel("level-02")) fail("level-02가 레지스트리에 등록되지 않음");
+if (!getLevel("level-03")) fail("level-03이 레지스트리에 등록되지 않음");
 if (getNextLevel(LEVELS[0].id)?.id !== LEVELS[1].id) fail("getNextLevel 순서가 잘못됨");
 
 const levelIndex = await readFile(join(root, "src", "data", "levels", "index.js"), "utf8");
 if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02 import 한 줄이 없음");
-if (!levelIndex.includes("[level01, level02]")) fail("LEVELS 배열에 level-02 항목이 없음");
+if (!levelIndex.includes('import level03 from "./level-03.js";')) fail("level-03 import 한 줄이 없음");
+if (!levelIndex.includes("[level01, level02, level03]")) fail("LEVELS 배열에 level-03 항목이 없음");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
@@ -101,6 +103,9 @@ if (!playtestManager.includes("maxProgress") || !playtestManager.includes("getNo
 if (!environmentManager.includes("pauseEnemiesDuringWave") || !breathManager.includes("takeEnvironmentDamage")) {
   fail("쓰나미 중 적 정지 또는 숨 0 환경 피해 경로가 없음");
 }
+if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
+  fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");
+}
 if (!playtestManager.includes("PLAYTEST_STALL_SECONDS") || !playtestManager.includes("adjustmentCandidates")) {
   fail("플레이테스트 정체·2명 이상 조정 후보 분석이 없음");
 }
@@ -129,4 +134,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨 매니저, P1 시험 진입점, 기존 level-02 확장성");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개 매니저, P1 시험 진입점, level-02·03 확장성");

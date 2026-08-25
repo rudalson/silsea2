@@ -66,6 +66,17 @@ export class StageSelectScene extends Phaser.Scene {
         this.add.star(x + 18, 298, 5, 4, 10, COLORS.collectBlue, 0.94).setDepth(6);
         this.add.star(x + 70, 338, 5, 4, 10, COLORS.collectPink, 0.92).setDepth(6);
       }
+      if (level.visualTheme === "mist-graybox" && !hasPreview) {
+        this.add.rectangle(x, 348, 304, 58, COLORS.ground, 0.96).setDepth(5);
+        this.add.ellipse(x - 92, 324, 132, 66, COLORS.soft, 0.72).setDepth(5);
+        this.add.ellipse(x + 24, 302, 176, 82, COLORS.white, 0.5).setDepth(5);
+        this.add.ellipse(x + 104, 340, 116, 58, COLORS.soft, 0.68).setDepth(5);
+        this.add.rectangle(x - 48, 330, 7, 70, COLORS.collect, 0.86).setDepth(6);
+        this.add.star(x - 48, 284, 4, 6, 15, COLORS.collect, 0.95).setDepth(6);
+        this.add.triangle(x + 60, 310, 0, 0, 34, 17, 0, 34, COLORS.collectBlue, 0.96)
+          .setStrokeStyle(2, COLORS.white, 0.9)
+          .setDepth(6);
+      }
       const order = this.add.text(x - 128, 220, String(level.order).padStart(2, "0"), {
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "31px",

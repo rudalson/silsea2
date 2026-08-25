@@ -150,6 +150,45 @@ for (const sourceLevel of ALL_LEVELS) {
     if (!(Number(breath.underwaterPhysics?.strokeVelocity) < 0)) fail(level, "수중 strokeVelocity는 음수여야 함");
   }
 
+  const mist = level.environment.mist;
+  if (mist) {
+    if (!Array.isArray(mist.zones) || mist.zones.length === 0) fail(level, "mist.zones는 비어 있지 않아야 함");
+    if (!inRange(mist.reducedDensityMultiplier, 0.4, 0.8)) {
+      fail(level, "mist.reducedDensityMultiplier는 0.4~0.8이어야 함");
+    }
+    if (!inRange(mist.reducedRadiusBonus, 40, 140)) fail(level, "mist.reducedRadiusBonus는 40~140이어야 함");
+    const mistZoneIds = new Set();
+    let previousMistEnd = -1;
+    for (const zone of mist.zones ?? []) {
+      if (!zone.id || mistZoneIds.has(zone.id)) fail(level, `안개 영역 id 누락/중복: ${zone.id ?? "unknown"}`);
+      mistZoneIds.add(zone.id);
+      if (!(zone.xStart < zone.xEnd) || !inWorld(level, zone.xStart) || !inWorld(level, zone.xEnd)) {
+        fail(level, `안개 영역 ${zone.id} 범위가 잘못됨`);
+      }
+      if (zone.xStart < previousMistEnd) fail(level, `안개 영역 ${zone.id}가 앞 영역과 겹침`);
+      previousMistEnd = zone.xEnd;
+      if (!inRange(zone.density, 0.1, 0.72)) fail(level, `안개 영역 ${zone.id} density는 0.1~0.72여야 함`);
+      if (!inRange(zone.visibilityRadius, 240, 540)) {
+        fail(level, `안개 영역 ${zone.id} visibilityRadius는 240~540이어야 함`);
+      }
+    }
+    const guideIds = new Set();
+    for (const guide of mist.guides ?? []) {
+      if (!guide.id || guideIds.has(guide.id)) fail(level, `안개 단서 id 누락/중복: ${guide.id ?? "unknown"}`);
+      guideIds.add(guide.id);
+      if (!["beacon", "breeze"].includes(guide.kind)) fail(level, `안개 단서 ${guide.id} kind가 잘못됨`);
+      if (!inWorld(level, guide.x, guide.y ?? level.player.spawn.y)) fail(level, `안개 단서 ${guide.id}가 world 밖`);
+    }
+    for (const zone of mist.zones ?? []) {
+      const guideKinds = new Set((mist.guides ?? [])
+        .filter(({ x }) => x >= zone.xStart && x < zone.xEnd)
+        .map(({ kind }) => kind));
+      if (!guideKinds.has("beacon") || !guideKinds.has("breeze")) {
+        fail(level, `안개 영역 ${zone.id}에 빛 기둥·바람 화살표 두 단서가 모두 필요함`);
+      }
+    }
+  }
+
   const easyEnvironment = level.difficulty?.easyMode?.environment ?? {};
   const easyRanges = [
     [easyEnvironment.tsunami?.firstWarningMultiplier, 1, 1.5, "tsunami.firstWarningMultiplier"],
@@ -159,6 +198,8 @@ for (const sourceLevel of ALL_LEVELS) {
     [easyEnvironment.breath?.drainMultiplier, 0.6, 1, "breath.drainMultiplier"],
     [easyEnvironment.breath?.refillMultiplier, 1, 1.5, "breath.refillMultiplier"],
     [easyEnvironment.breath?.damageIntervalMultiplier, 1, 1.6, "breath.damageIntervalMultiplier"],
+    [easyEnvironment.mist?.densityMultiplier, 0.65, 1, "mist.densityMultiplier"],
+    [easyEnvironment.mist?.radiusMultiplier, 1, 1.35, "mist.radiusMultiplier"],
     [easyEnvironment.lasers?.cycleMultiplier, 1, 1.6, "lasers.cycleMultiplier"],
     [easyEnvironment.projectiles?.speedMultiplier, 0.7, 1, "projectiles.speedMultiplier"]
   ];
@@ -290,6 +331,17 @@ for (const sourceLevel of ALL_LEVELS) {
   for (const pit of level.hazards.filter((hazard) => hazard.type === "pit")) {
     if (pit.respawnX !== undefined && !hasFloorAt(terrain, pit.respawnX, level.player.spawn.y)) {
       fail(level, `pit ${pit.id} respawnX 아래에 바닥이 없음`);
+    }
+    if (level.environment.mist) {
+      const routePlatforms = terrain
+        .filter((object) => object.type === "platform" && object.x < pit.xEnd && object.x + object.width > pit.xStart)
+        .sort((left, right) => left.x - right.x);
+      let reachableX = pit.xStart;
+      for (const platform of routePlatforms) {
+        if (platform.x - reachableX > 224) fail(level, `안개 pit ${pit.id}의 발판 사이가 224px보다 멂`);
+        reachableX = Math.max(reachableX, platform.x + platform.width);
+      }
+      if (pit.xEnd - reachableX > 224) fail(level, `안개 pit ${pit.id}의 마지막 착지 간격이 224px보다 멂`);
     }
   }
   for (const shelter of level.environment.tsunami?.shelters ?? []) {

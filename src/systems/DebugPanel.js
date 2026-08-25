@@ -102,7 +102,7 @@ export class DebugPanel {
     const environment = this.getEnvironmentSnapshot?.();
     const breath = this.getBreathSnapshot?.();
     const environmentStatus = environment
-      ? ` · 진행 ${environment.direction === "left" ? "←" : "→"} · 파도 ${environment.waveState}${environment.secondsUntilWave === null ? "" : ` ${environment.secondsUntilWave.toFixed(1)}초`}`
+      ? ` · 진행 ${environment.direction === "left" ? "←" : "→"} · 파도 ${environment.waveState}${environment.secondsUntilWave === null ? "" : ` ${environment.secondsUntilWave.toFixed(1)}초`}${environment.mistZone ? ` · 안개 ${environment.mistZone} ${Math.round(environment.mistDensity * 100)}% / ${Math.round(environment.visibilityRadius)}px` : ""}`
       : "";
     const breathStatus = breath
       ? ` · 숨 ${Math.round(breath.ratio * 100)}% · 물 ${breath.zoneId ?? "없음"}`

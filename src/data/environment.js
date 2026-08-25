@@ -8,6 +8,29 @@ export const WAVE_STATES = Object.freeze({
 
 export const clampRatio = (value) => Math.min(1, Math.max(0, finiteOr(value, 0)));
 
+export function getMistZoneAt(x, zones = []) {
+  const position = finiteOr(x, 0);
+  return zones.find((zone) => (
+    position >= finiteOr(zone.xStart, 0)
+    && position < finiteOr(zone.xEnd, 0)
+  )) ?? null;
+}
+
+export function resolveMistProfile(zone, {
+  reduced = false,
+  reducedDensityMultiplier = 0.55,
+  reducedRadiusBonus = 70
+} = {}) {
+  const density = clampRatio(zone?.density ?? 0);
+  const visibilityRadius = Math.max(120, finiteOr(zone?.visibilityRadius, 420));
+  return {
+    density: reduced ? density * clampRatio(reducedDensityMultiplier) : density,
+    visibilityRadius: reduced
+      ? visibilityRadius + Math.max(0, finiteOr(reducedRadiusBonus, 70))
+      : visibilityRadius
+  };
+}
+
 export function stepBreathRatio(currentRatio, deltaMs, {
   underwater = false,
   recovering = false,

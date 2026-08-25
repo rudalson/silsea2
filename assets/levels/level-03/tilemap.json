@@ -1,0 +1,42 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "objects": [
+        { "height": 192, "id": 1, "name": "mist_intro_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1664, "x": 0, "y": 576 },
+        { "height": 48, "id": 2, "name": "practice_step_low", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 1728, "y": 512 },
+        { "height": 48, "id": 3, "name": "practice_step_high", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 1952, "y": 448 },
+        { "height": 192, "id": 4, "name": "mist_practice_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1280, "x": 2176, "y": 576 },
+        { "height": 48, "id": 5, "name": "application_step_01", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 3520, "y": 512 },
+        { "height": 48, "id": 6, "name": "application_step_02", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3840, "y": 448 },
+        { "height": 48, "id": 7, "name": "application_step_03", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 4160, "y": 512 },
+        { "height": 192, "id": 8, "name": "mist_application_ground", "rotation": 0, "type": "ground", "visible": true, "width": 704, "x": 4544, "y": 576 },
+        { "height": 48, "id": 9, "name": "combination_step_01", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 5312, "y": 512 },
+        { "height": 48, "id": 10, "name": "combination_step_02", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 5600, "y": 432 },
+        { "height": 48, "id": 11, "name": "combination_step_03", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 5904, "y": 496 },
+        { "height": 192, "id": 12, "name": "mist_recovery_ground", "rotation": 0, "type": "ground", "visible": true, "width": 896, "x": 6272, "y": 576 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 13,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 112
+}

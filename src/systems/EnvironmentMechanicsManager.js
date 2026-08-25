@@ -1,6 +1,12 @@
-import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT } from "../config/constants.js";
+import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT, GAME_WIDTH } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
-import { WAVE_STATES, getWaveIntervalMs, isInsideShelter } from "../data/environment.js";
+import {
+  WAVE_STATES,
+  getMistZoneAt,
+  getWaveIntervalMs,
+  isInsideShelter,
+  resolveMistProfile
+} from "../data/environment.js";
 import { FORMS } from "../data/gameplay.js";
 import { SeededRandom } from "./SeededRandom.js";
 
@@ -16,7 +22,12 @@ export class EnvironmentMechanicsManager {
     this.config = level.environment ?? {};
     this.waterZones = this.config.waterZones ?? [];
     this.tsunami = this.config.tsunami ?? null;
+    this.mist = this.config.mist ?? null;
+    this.currentMistDensity = 0;
+    this.currentVisibilityRadius = this.mist?.defaultVisibilityRadius ?? 520;
+    this.activeMistZoneId = null;
     this.created = [];
+    this.mistTweens = [];
     this.waveState = WAVE_STATES.IDLE;
     this.waveId = 0;
     this.waveVisual = null;
@@ -30,6 +41,7 @@ export class EnvironmentMechanicsManager {
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
     this.createWaterVisuals();
     this.createShelterVisuals();
+    this.createMistVisuals();
     this.onRespawn = () => this.resetAfterRespawn();
     this.scene.events.on(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
   }
@@ -100,13 +112,137 @@ export class EnvironmentMechanicsManager {
     }
   }
 
+  createMistVisuals() {
+    if (!this.mist) return;
+
+    this.fogOverlay = this.track(
+      this.scene.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, COLORS.soft, 1)
+    );
+    this.fogOverlay.setOrigin(0).setScrollFactor(0).setDepth(18).setAlpha(0);
+    this.mistMaskGraphics = this.track(this.scene.add.graphics().setScrollFactor(0));
+    this.mistMaskGraphics.setAlpha(0);
+    this.mistMask = this.mistMaskGraphics.createGeometryMask();
+    this.mistMask.invertAlpha = true;
+    this.fogOverlay.setMask(this.mistMask);
+
+    for (const zone of this.mist.zones ?? []) {
+      const boundary = this.track(
+        this.scene.add.rectangle(zone.xStart + 2, GAME_HEIGHT / 2, 4, GAME_HEIGHT, COLORS.white, 0.28)
+      );
+      boundary.setDepth(17);
+      const label = this.track(this.scene.add.text(zone.xStart + 18, 128, zone.label ?? zone.id, {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "16px",
+        fontStyle: "700",
+        color: CSS_COLORS.white,
+        backgroundColor: CSS_COLORS.panelSoft,
+        padding: { x: 8, y: 5 }
+      }));
+      label.setDepth(20);
+    }
+
+    for (const guide of this.mist.guides ?? []) this.createMistGuide(guide);
+  }
+
+  createMistGuide(guide) {
+    const y = guide.y ?? 560;
+    if (guide.kind === "beacon") {
+      const beam = this.track(this.scene.add.rectangle(guide.x, y - 72, 9, 116, COLORS.collect, 0.72));
+      const diamond = this.track(this.scene.add.star(guide.x, y - 142, 4, 10, 25, COLORS.collect, 1));
+      beam.setStrokeStyle(2, COLORS.white, 0.8).setDepth(20);
+      diamond.setStrokeStyle(3, COLORS.white, 0.9).setDepth(20);
+      this.mistTweens.push(this.scene.tweens.add({
+        targets: [beam, diamond],
+        alpha: 0.48,
+        duration: 720,
+        yoyo: true,
+        repeat: -1,
+        delay: guide.delay ?? 0
+      }));
+    } else {
+      const arrow = this.track(
+        this.scene.add.triangle(guide.x, y - 92, 0, 0, 42, 20, 0, 40, COLORS.collectBlue, 0.96)
+      );
+      const trail = this.track(this.scene.add.circle(guide.x - 28, y - 92, 7, COLORS.white, 0.82));
+      arrow.setStrokeStyle(3, COLORS.white, 0.88).setDepth(20);
+      trail.setDepth(20);
+      this.mistTweens.push(this.scene.tweens.add({
+        targets: [arrow, trail],
+        x: "+=24",
+        duration: 620,
+        yoyo: true,
+        repeat: -1,
+        delay: guide.delay ?? 0
+      }));
+    }
+
+    if (this.scene.registry.get("debugEnabled") || this.scene.registry.get("forceAssetFallback")) {
+      const cueLabel = this.track(this.scene.add.text(
+        guide.x,
+        y - 184,
+        guide.kind === "beacon" ? "빛 기둥" : "바람 화살표",
+        {
+          fontFamily: GAME_FONT_FAMILY,
+          fontSize: "14px",
+          fontStyle: "700",
+          color: CSS_COLORS.white,
+          backgroundColor: CSS_COLORS.panelSoft,
+          padding: { x: 6, y: 4 }
+        }
+      ));
+      cueLabel.setOrigin(0.5).setDepth(21);
+    }
+  }
+
   update(now, delta) {
     this.updateEffectStrength();
+    this.updateMist(delta);
     if (!this.tsunami) return;
     this.updateShelterState(now);
     if (this.waveState === WAVE_STATES.IDLE && now >= this.nextWaveAt) this.beginWaveWarning(now);
     if (this.waveState === WAVE_STATES.WARNING && now >= this.waveStartsAt) this.activateWave(now);
     if (this.waveState === WAVE_STATES.ACTIVE) this.updateActiveWave(now, delta);
+  }
+
+  updateMist(delta) {
+    if (!this.mist || !this.fogOverlay || !this.mistMaskGraphics) return;
+    const zone = getMistZoneAt(this.player.x, this.mist.zones);
+    const reduced = this.scene.registry.get("screenEffectStrength") === "reduced";
+    const profile = resolveMistProfile(zone ?? {
+      density: 0,
+      visibilityRadius: this.mist.defaultVisibilityRadius
+    }, {
+      reduced,
+      reducedDensityMultiplier: this.mist.reducedDensityMultiplier,
+      reducedRadiusBonus: this.mist.reducedRadiusBonus
+    });
+    const blend = Math.min(1, Math.max(0, delta) / Math.max(1, this.mist.fadeMs ?? 240));
+    this.currentMistDensity += (profile.density - this.currentMistDensity) * blend;
+    this.currentVisibilityRadius += (profile.visibilityRadius - this.currentVisibilityRadius) * blend;
+    this.fogOverlay.setAlpha(this.currentMistDensity);
+
+    const view = this.scene.cameras.main.worldView;
+    const screenX = this.player.x - view.x;
+    const screenY = this.player.y - view.y - 20;
+    this.mistMaskGraphics
+      .clear()
+      .fillStyle(COLORS.white, 1)
+      .fillEllipse(
+        screenX,
+        screenY,
+        this.currentVisibilityRadius * 2,
+        this.currentVisibilityRadius * 1.18
+      );
+
+    const zoneId = zone?.id ?? null;
+    if (zoneId === this.activeMistZoneId) return;
+    this.activeMistZoneId = zoneId;
+    this.scene.events.emit(EVENTS.MIST_ZONE_CHANGED, this.getSnapshot());
+    this.scene.updateAccessibleStatus?.(
+      zone
+        ? `${zone.label ?? "안개 구간"}입니다. 빛 기둥과 움직이는 바람 화살표를 따라가세요.`
+        : "안개가 걷혔습니다."
+    );
   }
 
   beginWaveWarning(now) {
@@ -220,6 +356,10 @@ export class EnvironmentMechanicsManager {
       waveId: this.waveId,
       secondsUntilWave: this.tsunami && Number.isFinite(targetAt) ? Math.max(0, (targetAt - now) / 1000) : null,
       waterZoneCount: this.waterZones.length,
+      mistZone: this.activeMistZoneId ?? null,
+      mistDensity: this.currentMistDensity ?? 0,
+      visibilityRadius: this.currentVisibilityRadius ?? 0,
+      mistGuideKinds: this.mist ? [...new Set((this.mist.guides ?? []).map(({ kind }) => kind))] : [],
       pausesEnemies: this.pausesEnemies
     };
   }
@@ -231,8 +371,15 @@ export class EnvironmentMechanicsManager {
 
   destroy() {
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
+    for (const tween of this.mistTweens) tween?.stop?.();
+    this.mistTweens.length = 0;
+    this.fogOverlay?.clearMask?.();
+    this.mistMask?.destroy?.();
     for (const object of this.created) object?.destroy?.();
     this.created.length = 0;
     this.waveVisual = null;
+    this.fogOverlay = null;
+    this.mistMaskGraphics = null;
+    this.mistMask = null;
   }
 }

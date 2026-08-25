@@ -24,6 +24,7 @@ export const EVENTS = Object.freeze({
   WATER_STATE_CHANGED: "environment:water-state-changed",
   TSUNAMI_WARNING: "environment:tsunami-warning",
   TSUNAMI_STATE_CHANGED: "environment:tsunami-state-changed",
+  MIST_ZONE_CHANGED: "environment:mist-zone-changed",
   FORM_CHANGED: "player:form-changed",
   FORM_WARNING: "player:form-warning",
   ITEM_COLLECTED: "item:collected",

@@ -231,6 +231,9 @@ if (!healthManager.includes("takeEnvironmentDamage") || !breathManager.includes(
 if (!environmentData.includes("stepBreathRatio") || !environmentData.includes("getWaterContact") || !breathManager.includes("getWaterContact")) {
   fail("수면 경계 또는 숨 소모·회복 계산이 데이터 기반이 아님");
 }
+if (!environmentData.includes("getMistZoneAt") || !environmentData.includes("resolveMistProfile") || !environmentManager.includes("createMistVisuals")) {
+  fail("안개 영역·시야 반경·화면 효과 강도 계산이 데이터 기반이 아님");
+}
 if (!player.includes('ability.mode === "swim"') || !transformManager.includes("underwater = false")) {
   fail("수중 이동 또는 수중 비행 차단이 연결되지 않음");
 }

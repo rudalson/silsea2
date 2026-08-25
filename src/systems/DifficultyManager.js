@@ -21,6 +21,7 @@ const DEFAULT_DIFFICULTY = Object.freeze({
       strokeSpeedMultiplier: 1,
       strokeRateMultiplier: 1
     }),
+    mist: Object.freeze({ densityMultiplier: 1, radiusMultiplier: 1 }),
     lasers: Object.freeze({ cycleMultiplier: 1 }),
     projectiles: Object.freeze({ speedMultiplier: 1 })
   }),
@@ -48,6 +49,10 @@ const getEnvironmentDifficulty = (config = {}) => ({
     horizontalSpeedMultiplier: clamp(config.breath?.horizontalSpeedMultiplier, 1, 1.15, 1),
     strokeSpeedMultiplier: clamp(config.breath?.strokeSpeedMultiplier, 1, 1.15, 1),
     strokeRateMultiplier: clamp(config.breath?.strokeRateMultiplier, 1, 1.25, 1)
+  },
+  mist: {
+    densityMultiplier: clamp(config.mist?.densityMultiplier, 0.65, 1, 1),
+    radiusMultiplier: clamp(config.mist?.radiusMultiplier, 1, 1.35, 1)
   },
   lasers: {
     cycleMultiplier: clamp(config.lasers?.cycleMultiplier, 1, 1.6, 1)
@@ -139,12 +144,24 @@ export function createRuntimeLevel(level, easyMode = false) {
         }
       }
     : undefined;
+  const mist = level.environment?.mist
+    ? {
+        ...level.environment.mist,
+        zones: (level.environment.mist.zones ?? []).map((zone) => ({
+          ...zone,
+          density: Math.min(1, zone.density * environmentDifficulty.mist.densityMultiplier),
+          visibilityRadius: zone.visibilityRadius * environmentDifficulty.mist.radiusMultiplier
+        })),
+        guides: (level.environment.mist.guides ?? []).map((guide) => ({ ...guide }))
+      }
+    : undefined;
   const environment = level.environment
     ? {
         ...level.environment,
         waterZones: (level.environment.waterZones ?? []).map((zone) => ({ ...zone })),
         ...(tsunami ? { tsunami } : {}),
-        ...(breath ? { breath } : {})
+        ...(breath ? { breath } : {}),
+        ...(mist ? { mist } : {})
       }
     : undefined;
 
