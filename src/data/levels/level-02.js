@@ -10,9 +10,16 @@ export default {
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-02-map",
-    tileset: "grass_tileset",
+    tileset: "starlight_tileset",
+    preview: "stage_preview_starlight",
     backgrounds: {
-      normal: { far: "bg_normal_far", mid: "bg_normal_mid", near: "bg_normal_near" }
+      normal: { far: "bg_starlight_far", mid: "bg_starlight_mid", near: "bg_starlight_near" }
+    },
+    decorations: {
+      starTree: "decor_star_tree",
+      moonBranch: "decor_moon_branch",
+      firefly: "decor_firefly",
+      starFlower: "decor_star_flower"
     },
     objects: {
       items: {
@@ -26,7 +33,7 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_field", clear: "bgm_clear" }
+    bgm: { field: "bgm_starlight", clear: "bgm_clear" }
   },
   world: { width: 6144, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
@@ -41,6 +48,14 @@ export default {
     { id: "cue_first_gap", xStart: 1504, xEnd: 2240, lookAhead: 175, targetX: 2304 },
     { id: "cue_canopy_arc", xStart: 2880, xEnd: 3520, lookAhead: 165, targetX: 3712 },
     { id: "cue_whispering_gap", xStart: 3648, xEnd: 4800, lookAhead: 190, targetX: 4992 }
+  ],
+  decorations: [
+    { id: "moon_branch_marker", asset: "moonBranch", x: 1480, y: 574, width: 330, height: 220, depth: -5 },
+    { id: "firefly_glade", asset: "firefly", x: 2230, y: 344, width: 176, height: 146, depth: -4, float: true },
+    { id: "star_flower_canopy", asset: "starFlower", x: 3390, y: 574, width: 190, height: 142, depth: -4 },
+    { id: "firefly_gap", asset: "firefly", x: 4410, y: 312, width: 168, height: 140, depth: -4, float: true, delay: 260 },
+    { id: "star_tree_landmark", asset: "starTree", x: 5480, y: 578, width: 570, height: 570, depth: -5 },
+    { id: "star_flower_exit", asset: "starFlower", x: 5820, y: 574, width: 176, height: 132, depth: -4 }
   ],
   checkpoints: [
     { id: "cp_moonroot", x: 1664, y: 576 },

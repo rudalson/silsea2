@@ -126,6 +126,13 @@ const tracks = {
     bass: [72, 76, 77, 79, 72, 76, 77, 79],
     wave: "sine",
     percussion: 0.025
+  },
+  bgm_starlight: {
+    bpm: 96,
+    lead: [69, 72, 76, 79, 76, 72, 69, null, 67, 71, 74, 79, 76, 74, 71, null],
+    bass: [45, 52, 48, 55, 45, 52, 50, 55],
+    wave: "sine",
+    percussion: 0.022
   }
 };
 

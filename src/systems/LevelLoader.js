@@ -60,6 +60,7 @@ export class LevelLoader {
     this.scene.physics.world.setBounds(0, 0, this.level.world.width, this.level.world.height + 256);
     this.createBackground();
     this.createAtmosphere();
+    this.createDecorations();
     this.createTerrain();
     if (this.scene.registry.get("debugEnabled")) this.createSectionMarkers();
     this.createCheckpoints();
@@ -106,7 +107,35 @@ export class LevelLoader {
 
   createAtmosphere() {
     if (this.level.visualTheme !== "starlit-forest") return;
+    const farKey = this.level.assets.backgrounds?.normal?.far;
+    if (farKey && this.scene.textures.exists(farKey)) return;
     this.createStarlitForestAtmosphere();
+  }
+
+  createDecorations() {
+    const assetKeys = this.level.assets.decorations ?? {};
+    for (const decoration of this.level.decorations ?? []) {
+      const key = assetKeys[decoration.asset];
+      if (!key || !this.scene.textures.exists(key)) continue;
+      const image = this.track(this.scene.add.image(decoration.x, decoration.y, key));
+      image
+        .setOrigin(0.5, 1)
+        .setDisplaySize(decoration.width, decoration.height)
+        .setDepth(decoration.depth ?? -4)
+        .setAlpha(decoration.alpha ?? 1);
+      if (decoration.asset === "firefly") image.setBlendMode("ADD");
+      if (decoration.float) {
+        this.scene.tweens.add({
+          targets: image,
+          y: decoration.y - 10,
+          alpha: { from: 0.48, to: decoration.alpha ?? 0.9 },
+          duration: 940,
+          delay: decoration.delay ?? 0,
+          yoyo: true,
+          repeat: -1
+        });
+      }
+    }
   }
 
   createStarlitForestAtmosphere() {

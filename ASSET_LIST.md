@@ -125,7 +125,7 @@
 
 ## 신규 스테이지 확장 에셋
 
-> 확장 P0 승인 · 2026-08-25 / 현재 상태: 제작 대기
+> 확장 P0 승인 · 2026-08-25 / 현재 상태: P2 별빛 숲 최종 에셋 승인 완료, P3 이후 제작 대기
 > 아래 키는 발주 단위를 잠근 계획 키다. 회색 상자와 흑백 앵커 승인 전에는 이미지 생성·manifest·mapping 등록을 하지 않는다.
 
 ### 캐릭터
@@ -153,16 +153,17 @@
 - 각 배경은 far/mid/near 3레이어, 2048×720 이상, 좌우 seamless로 만든다.
 - 선택 카드는 실제 회색 상자 구도를 승인한 뒤 캡처 기반으로 제작한다.
 - 스테이지 2~5 배경은 기존 무지개 언덕의 단순 색상 변형으로 만들지 않는다.
-- P2 별빛 숲은 `references/P2_STARLIGHT_ANCHOR_REVIEW.md`의 흑백 앵커를 사용자 확인 중이다. 승인 전에는 위 키의 최종 파일과 선택 카드를 제작·등록하지 않는다.
+- P2 별빛 숲은 승인된 흑백 앵커를 기반으로 배경 3레이어와 `stage_preview_starlight`를 제작·등록했다. 최종 화면은 `references/P2_STARLIGHT_FINAL_REVIEW.md`에서 확인한다.
 
 ### 타일·장식·환경 효과
 
 | 키 | 우선 | 내용 | 제작 게이트 |
 |---|---|---|---|
-| `starlight_tileset` | M | 별빛 숲 64px 지형 | P2 회색 상자 승인 뒤 |
-| `decor_moon_branch` | M | 달빛 나뭇가지 | P2 흑백 앵커 승인 뒤 |
-| `decor_firefly` | M | 반딧불 장식 | P2 흑백 앵커 승인 뒤 |
-| `decor_star_flower` | M | 별꽃 장식 | P2 흑백 앵커 승인 뒤 |
+| `starlight_tileset` | M | 별빛 숲 64px 지형 | 제작·등록 완료 |
+| `decor_star_tree` | M | 종료 지점 별나무 랜드마크 | 제작·등록 완료 |
+| `decor_moon_branch` | M | 달빛 나뭇가지 | 제작·등록 완료 |
+| `decor_firefly` | M | 반딧불 장식 | 제작·등록 완료 |
+| `decor_star_flower` | M | 별꽃 장식 | 제작·등록 완료 |
 | `mist_tileset` | M | 안개 골짜기 64px 지형 | P3 회색 상자 승인 뒤 |
 | `fx_mist_bank` | M | 반복 안개층 | P3 농도 승인 뒤 |
 | `fx_mist_clear` | M | 안개 걷힘 효과 | P3 농도 승인 뒤 |

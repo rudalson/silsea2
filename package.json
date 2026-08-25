@@ -11,6 +11,7 @@
     "tiles": "node scripts/generate-tiles.js",
     "background": "node scripts/postprocess-background.js",
     "background:preview": "node scripts/build-background-previews.js",
+    "starlight:assets": "node scripts/build-starlight-assets.js && node scripts/generate-starlight-tiles.js",
     "environment:regrade": "node scripts/regrade-environment.js && node scripts/generate-tiles.js && node scripts/build-background-previews.js",
     "audio": "node scripts/generate-audio.js",
     "postprocess:frames": "node scripts/postprocess-pending-frames.js",

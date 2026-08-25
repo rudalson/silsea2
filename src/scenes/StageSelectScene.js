@@ -51,10 +51,12 @@ export class StageSelectScene extends Phaser.Scene {
       const previewFrame = this.add.rectangle(x, 314, 312, 176, COLORS.outline, 0.95)
         .setStrokeStyle(3, COLORS.collect, 0.95)
         .setDepth(3);
-      const preview = index === 0
-        ? this.add.image(x, 314, "stage_preview_rainbow_hill").setDisplaySize(304, 168).setDepth(4)
+      const previewKey = level.assets.preview;
+      const hasPreview = Boolean(previewKey && this.textures.exists(previewKey));
+      const preview = hasPreview
+        ? this.add.image(x, 314, previewKey).setDisplaySize(304, 168).setDepth(4)
         : this.add.rectangle(x, 314, 304, 168, COLORS.nightVeil, 0.98).setDepth(4);
-      if (level.visualTheme === "starlit-forest") {
+      if (level.visualTheme === "starlit-forest" && !hasPreview) {
         this.add.circle(x + 96, 260, 26, COLORS.white, 0.92).setDepth(5);
         this.add.ellipse(x - 92, 334, 116, 112, COLORS.nightCanopy, 0.98).setDepth(5);
         this.add.ellipse(x - 34, 326, 126, 126, COLORS.near, 0.98).setDepth(5);

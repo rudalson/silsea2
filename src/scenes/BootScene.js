@@ -22,7 +22,9 @@ export class BootScene extends Phaser.Scene {
     AssetManager.queueManifestAsset(this, "bg_intro");
     AssetManager.queueManifestAsset(this, "bg_character_select");
     AssetManager.queueManifestAsset(this, "bg_stage_select_calm");
-    AssetManager.queueManifestAsset(this, "stage_preview_rainbow_hill");
+    for (const level of LEVELS) {
+      if (level.assets.preview) AssetManager.queueManifestAsset(this, level.assets.preview);
+    }
   }
 
   create() {
@@ -34,6 +36,7 @@ export class BootScene extends Phaser.Scene {
       ? requestedCharacter
       : CHARACTER_LIST[0].id;
     const requestedReviewLevel = query.get("visualReview");
+    const stageSelectReview = requestedReviewLevel === "stage-select";
     const reviewLevel = LEVELS.find(({ id }) => id === requestedReviewLevel) ?? null;
     const p1TestLevel = query.get("p1test") === "1" ? getLevel("p1-environment-test") : null;
     const directLevel = reviewLevel ?? p1TestLevel;
@@ -66,6 +69,10 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("audioMuted", false);
     this.registry.set("sfxVolume", 0.72);
     this.registry.set("bgmVolume", 0.46);
+    if (stageSelectReview) {
+      this.scene.start(SCENE_KEYS.STAGE_SELECT);
+      return;
+    }
     if (directLevel) {
       this.scene.start(SCENE_KEYS.PRELOAD, { levelId });
       return;

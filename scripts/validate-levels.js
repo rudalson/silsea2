@@ -176,6 +176,20 @@ for (const sourceLevel of ALL_LEVELS) {
     if (!manifestKeys.has(key)) fail(level, `manifest에 없는 asset key: ${key}`);
   }
 
+  const decorationIds = new Set();
+  for (const decoration of level.decorations ?? []) {
+    if (!decoration.id || decorationIds.has(decoration.id)) {
+      fail(level, `장식 id 누락/중복: ${decoration.id ?? "unknown"}`);
+    }
+    decorationIds.add(decoration.id);
+    const key = level.assets.decorations?.[decoration.asset];
+    if (!key || !manifestKeys.has(key)) fail(level, `장식 ${decoration.id}의 asset 별칭이 manifest에 없음`);
+    if (!inWorld(level, decoration.x, decoration.y)) fail(level, `장식 ${decoration.id} 좌표가 world 밖`);
+    if (!isPositiveNumber(decoration.width) || !isPositiveNumber(decoration.height)) {
+      fail(level, `장식 ${decoration.id} 크기는 양수여야 함`);
+    }
+  }
+
   for (const enemy of level.enemies) {
     if (!ENEMY_TYPES.includes(enemy.type)) fail(level, `미등록 enemy type: ${enemy.type}`);
     if (!inWorld(level, enemy.x, enemy.y)) fail(level, `enemy ${enemy.id} 좌표가 world 밖`);
