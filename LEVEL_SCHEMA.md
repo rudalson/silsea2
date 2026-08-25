@@ -1,6 +1,7 @@
 # 레벨 데이터 스키마
 
-> 2026-08-03 사용자 승인 · Schema version 1  
+> Schema version 1 사용자 승인 · 2026-08-03
+> Schema version 2 확장 설계 승인 · 2026-08-25 / 런타임 구현은 확장 P1 대기
 > 목표: 레벨 파일 1개와 레지스트리 2줄만 추가해 새 스테이지를 선택·플레이할 수 있게 한다.
 
 ## 불변 원칙
@@ -34,7 +35,7 @@ Phase 0의 팔레트는 지시서에 따라 `data/palette.js`에 두며, Phase 1
 
 | 필드 | 타입 | 필수 | 규칙 |
 |---|---|---|---|
-| `schemaVersion` | number | 예 | `1` |
+| `schemaVersion` | number | 예 | 현재 런타임은 `1`, 확장 P1 이후 신규 레벨은 `2` |
 | `id` | string | 예 | kebab-case, 전체 레지스트리에서 고유 |
 | `name` | string | 예 | 표시명 |
 | `order` | number | 예 | 양의 정수, 전체 고유 |
@@ -50,6 +51,82 @@ Phase 0의 팔레트는 지시서에 따라 `data/palette.js`에 두며, Phase 1
 | `hazards` | array | 예 | 위험 타입+배치만 |
 | `objectives` | object | 예 | `required`, `optional` 배열 |
 | `difficulty` | object | 예 | `easyMode` 차분 |
+
+## Schema version 2 확장
+
+P0에서 아래 구조를 승인했으며 실제 파서·검증기·런타임 연결은 확장 P1에서 함께 구현한다. 구현 전까지 기존 version 1 파일과 검증 동작은 변경하지 않는다.
+
+### 최상위 추가 필드
+
+| 필드 | 타입 | version 2 | 규칙 |
+|---|---|---|---|
+| `progression` | object | 필수 | `direction`은 `right` 또는 `left` |
+| `exit` | object | 필수 | 게이트 `x`, 선택 `y`, 플레이어 이동 방향인 `enterFrom` |
+| `environment` | object | 필수 | 사용하지 않으면 `{}`. 광역 환경 장치만 포함 |
+
+- `sections[].xStart/xEnd`는 진행 방향과 관계없이 항상 0부터 `world.width`까지 오름차순으로 저장한다.
+- `progression.direction: "left"`인 레벨은 `player.spawn.x > exit.x`여야 한다.
+- `exit.enterFrom`은 게이트가 놓인 쪽이 아니라 플레이어가 게이트에 들어갈 때의 이동 방향이다. 일반 레벨은 `right`, 역방향 레벨은 `left`다.
+- 게이트는 `exit` 좌표를 사용하고, 보스가 없는 레벨도 동일한 규칙으로 생성한다.
+
+### version 1 호환 정규화
+
+확장 P1에서 `normalizeLevelDefinition()`을 단일 호환 지점으로 추가한다. version 1 원본 데이터는 고치지 않고 런타임에 전달하기 전에 아래 기본값을 주입한다.
+
+```js
+{
+  progression: { direction: "right" },
+  exit: { x: level.world.width - 180, enterFrom: "right" },
+  environment: {}
+}
+```
+
+- 허용 버전은 `SUPPORTED_LEVEL_SCHEMA_VERSIONS = [1, 2]`로 명시한다.
+- `assertLevelShape()`는 원본 버전별 필수 필드를 검사하고, 런타임과 `scripts/validate-levels.js`는 같은 정규화 결과를 사용한다.
+- version 2 전용 필드는 version 2 파일에만 요구한다.
+
+### `environment`
+
+모든 하위 필드는 선택이다. 하나의 발판에 붙는 이동·상승기류·붕괴 장치는 계속 지형 데이터가 맡고, 구간 전체와 플레이어 상태에 영향을 주는 장치만 여기에 둔다.
+
+| 필드 | 핵심 데이터 | 규칙 |
+|---|---|---|
+| `tsunami` | `direction`, `firstWarning`, `telegraph`, `interval`, `speedMultiplier`, `duration`, `shelterGrace`, `damage`, `respawnGrace`, `pauseEnemiesDuringWave` | 진행 방향과 같아야 하며 피해는 HP 단위 |
+| `waterZones` | `id`, `xStart`, `xEnd`, `surfaceY`, `bottomY` | 영역은 world 안에 있고 물 바닥은 충돌 지형이어야 함 |
+| `breath` | `depleteSeconds`, `refillSeconds`, `damageInterval`, `warningRatio`, `surfaceMargin`, `underwaterPhysics` | `waterZones`가 있을 때 필수 |
+| `lasers` | 빔·스위치의 고유 `id`와 연결 ID | P6 Should 범위. 연결 상태는 같은 레벨에서만 유지 |
+
+`interval`은 `{ min, max }`, `underwaterPhysics`는 `gravityMultiplier`, `maxFallSpeed`, `horizontalSpeedMultiplier`, `strokeVelocity`, `strokeCooldown`을 가진다. 일반·쉬운 모드 기준값과 허용 clamp는 `STAGE_EXPANSION_PLAN.md` 3·4장을 따른다.
+
+### 확장 예시
+
+```js
+export default {
+  schemaVersion: 2,
+  id: "level-04",
+  name: "쓰나미 마을",
+  order: 4,
+  progression: { direction: "left" },
+  player: { spawn: { x: 12000, y: 512 } },
+  exit: { x: 180, y: 512, enterFrom: "left" },
+  environment: {
+    tsunami: {
+      direction: "left",
+      firstWarning: 6,
+      telegraph: 1.5,
+      interval: { min: 9, max: 12 },
+      speedMultiplier: 1.15,
+      duration: 2.5,
+      shelterGrace: 0.25,
+      damage: 1,
+      respawnGrace: 3,
+      pauseEnemiesDuringWave: true
+    }
+  }
+};
+```
+
+예시는 새 필드의 단위와 방향만 보여준다. 실제 좌표·section·대피처 배치는 P4 회색 상자 승인 뒤 확정한다.
 
 ## 확정 예시
 
@@ -241,6 +318,7 @@ export const getNextLevel = (id) => {
 - 저장 키는 schema version을 포함한다.
 - 파싱/쓰기 실패 시 메모리 저장소로 fallback한다.
 - 스테이지 선택은 `LEVELS`와 진행도만 조합한다.
+- 순차 해금은 `order === 1 || 직전 order 레벨의 progress.cleared`로 계산한다. 새 저장 필드를 추가하지 않고 기존 저장 키와 기록을 유지한다.
 
 ## 자동 검증
 
@@ -250,7 +328,7 @@ export const getNextLevel = (id) => {
 | id/order | 레지스트리 안에서 중복 |
 | world/tilemap | 크기 불일치, tileSize가 64가 아님 |
 | 좌표 | world 경계 밖 |
-| section | 빈 구간, 겹침, 역방향, world 미포함 |
+| section | 빈 구간, 겹침, `xStart > xEnd`, world 미포함 |
 | boss | 2개 이상, 미정의 key, hp/phases 누락 |
 | 체크포인트 | 아래에 충돌 바닥 타일이 없음 |
 | pit respawn | pit 안 또는 바닥 없음 |
@@ -258,6 +336,18 @@ export const getNextLevel = (id) => {
 | 타입 | 미등록 enemy/item/hazard 타입 |
 | objectives | 미등록 handler 타입 |
 | 참조 분리 | level 데이터에 `references/` 경로 포함 |
+
+version 2에서는 아래 검사를 추가한다.
+
+| 검사 | 실패 기준 |
+|---|---|
+| 진행 방향·출구 | `direction` 미지원, 출구가 world 밖, 좌향 spawn이 exit 왼쪽에 있음, 출구 아래 안전 바닥 없음 |
+| 적 활성화·계측 | trigger와 진행 거리 계산이 `progression.direction`을 사용하지 않음 |
+| 쓰나미 | 진행 방향 불일치, 대피처 판정 영역·충돌 지형 누락, 체크포인트와 생성 영역 겹침 |
+| 물·숨 | `surfaceY`가 world 밖, 회복 통로 없음, 침수 구간 안에 `pit` 존재 |
+| 잠수 거리 | 최장 연속 잠수 구간을 승인된 숨 시간과 이동 속도로 통과할 수 없음 |
+| 레이저 | switch 연결 ID가 같은 레벨의 빔과 연결되지 않음 |
+| 쉬운 모드 | 환경 multiplier가 승인 clamp 범위 밖 |
 
 `npm run validate`는 레벨 검증 실패 시 빌드를 중단한다.
 

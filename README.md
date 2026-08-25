@@ -157,6 +157,7 @@ http://localhost:5173/?fallback=1
 ## 관련 문서
 
 - [ROADMAP.md](./ROADMAP.md): Phase별 진행 상태와 승인 게이트
+- [STAGE_EXPANSION_PLAN.md](./STAGE_EXPANSION_PLAN.md): 별빛 숲 이후 신규 스테이지의 에셋·개발 단계·사용자 확인 게이트
 - [GAME_DESIGN.md](./GAME_DESIGN.md): 게임 규칙과 설계 원칙
 - [LEVEL_SCHEMA.md](./LEVEL_SCHEMA.md): 데이터 기반 레벨 규격
 - [ASSET_LIST.md](./ASSET_LIST.md): 이미지 제작 규격과 에셋 키

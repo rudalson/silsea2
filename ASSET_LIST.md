@@ -1,6 +1,6 @@
 # 이미지 에셋 목록
 
-> 모든 키는 `references/mapping.json`에 동일한 이름으로 등록한다.  
+> 제작에 들어간 키는 `references/mapping.json`에 동일한 이름으로 등록한다. 확장 계획 키는 각 회색 상자 승인 뒤 등록한다.
 > 우선순위: M=Must, S=Should, C=Could. Must 검증 전 Should/Could를 제작하지 않는다.
 
 ## 공통 제작 규격
@@ -123,6 +123,89 @@
 | `ui_pause` | M | 일시정지 아이콘 |
 | `ui_accessibility` | S | 접근성 메뉴 아이콘 모음 |
 
+## 신규 스테이지 확장 에셋
+
+> 확장 P0 승인 · 2026-08-25 / 현재 상태: 제작 대기
+> 아래 키는 발주 단위를 잠근 계획 키다. 회색 상자와 흑백 앵커 승인 전에는 이미지 생성·manifest·mapping 등록을 하지 않는다.
+
+### 캐릭터
+
+| 키 | 우선 | 프레임 | 제작 게이트 |
+|---|---|---:|---|
+| `silsea_swim` | M | 6 | P5 수중 조작 회색 상자 승인 뒤 |
+| `potato89_swim` | M | 6 | P5 수중 조작 회색 상자 승인 뒤 |
+| `silsea_breathe` | C | 2 | 코드 피드백만으로 수면 회복이 읽히지 않을 때 |
+| `potato89_breathe` | C | 2 | 코드 피드백만으로 수면 회복이 읽히지 않을 때 |
+| `silsea_wing_guard` | S | 4 | P6 입력·비행 게이지 규칙 승인 뒤 |
+| `potato89_wing_guard` | S | 4 | P6 입력·비행 게이지 규칙 승인 뒤 |
+
+좌향 진행은 기존 우향 프레임을 런타임에서 반전하므로 좌향 달리기·수영 시트를 따로 만들지 않는다.
+
+### 배경과 선택 카드
+
+| 스테이지 | 배경 키 | 선택 카드 | 우선 |
+|---|---|---|---|
+| 별빛 숲 | `bg_starlight_far`, `bg_starlight_mid`, `bg_starlight_near` | `stage_preview_starlight` | M |
+| 안개 골짜기 | `bg_mist_far`, `bg_mist_mid`, `bg_mist_near` | `stage_preview_mist` | M |
+| 쓰나미 마을 | `bg_tsunami_far`, `bg_tsunami_mid`, `bg_tsunami_near` | `stage_preview_tsunami` | M |
+| 물에 잠긴 마을 | `bg_submerged_far`, `bg_submerged_mid`, `bg_submerged_near` | `stage_preview_submerged` | M |
+
+- 각 배경은 far/mid/near 3레이어, 2048×720 이상, 좌우 seamless로 만든다.
+- 선택 카드는 실제 회색 상자 구도를 승인한 뒤 캡처 기반으로 제작한다.
+- 스테이지 2~5 배경은 기존 무지개 언덕의 단순 색상 변형으로 만들지 않는다.
+
+### 타일·장식·환경 효과
+
+| 키 | 우선 | 내용 | 제작 게이트 |
+|---|---|---|---|
+| `starlight_tileset` | M | 별빛 숲 64px 지형 | P2 회색 상자 승인 뒤 |
+| `decor_moon_branch` | M | 달빛 나뭇가지 | P2 흑백 앵커 승인 뒤 |
+| `decor_firefly` | M | 반딧불 장식 | P2 흑백 앵커 승인 뒤 |
+| `decor_star_flower` | M | 별꽃 장식 | P2 흑백 앵커 승인 뒤 |
+| `mist_tileset` | M | 안개 골짜기 64px 지형 | P3 회색 상자 승인 뒤 |
+| `fx_mist_bank` | M | 반복 안개층 | P3 농도 승인 뒤 |
+| `fx_mist_clear` | M | 안개 걷힘 효과 | P3 농도 승인 뒤 |
+| `village_tileset` | M | 집·길·언덕 64px 지형 | P4 대피처 승인 뒤 |
+| `shelter_house_set` | M | 입구가 읽히는 집 2~3종 | P4 대피처 승인 뒤 |
+| `fx_tsunami_wave` | M | 화면 높이 파도 6~8프레임 | P4 속도 승인 뒤 |
+| `fx_tsunami_warning` | M | 오른쪽 접근 경고 표식 | P4 예고 승인 뒤 |
+| `submerged_village_tileset` | M | 침수 집·수면·바닥 64px 지형 | P5 수면 배치 승인 뒤 |
+| `fx_water_surface` | M | 실제 회복 경계를 보여주는 수면 | P5 숨 판정 승인 뒤 |
+| `fx_water_caustics` | M | 물속 빛결 | P5 화면 효과 승인 뒤 |
+| `fx_bubble` | M | 수중 이동 기포 | P5 화면 효과 승인 뒤 |
+
+안개·물·쓰나미의 넓은 화면 효과는 작은 반복 텍스처와 코드 파티클을 조합해 성능 예산을 지킨다.
+
+### UI
+
+| 키 | 우선 | 용도 |
+|---|---|---|
+| `ui_breath_icon` | M | 색만으로 구분하지 않는 숨 식별 아이콘 |
+| `ui_breath_frame` | M | 기존 HUD 화풍의 숨 게이지 프레임 |
+| `ui_reverse_arrow` | M | 문자 없이 왼쪽 진행을 알리는 시작 안내 |
+| `ui_tsunami_warning` | M | 화면 오른쪽의 접근 방향·남은 시간 경고 |
+
+숨 채움 막대와 파도 남은 시간은 코드 도형으로 구현한다. `화면 효과 강도: 약하게`와 화면 흔들림 Off에서도 경고를 판독할 수 있어야 한다.
+
+### P6 Should와 Could
+
+| 키 | 우선 | 구성 | 상태 |
+|---|---|---|---|
+| `potato_archer` | S | idle 2, aim 3, shoot 3, defeated 4 | 최초 등장 스테이지 확정 대기 |
+| `projectile_arrow` | S | 화살 1종, 런타임 회전 | 궁수와 함께 제작 |
+| `laser_emitter` | S | 레이저 발사기 1종 | 배치 스테이지 확정 대기 |
+| `laser_switch_on` | S | 켜진 스위치 | 배치 스테이지 확정 대기 |
+| `laser_switch_off` | S | 꺼진 스위치 | 배치 스테이지 확정 대기 |
+| `fx_laser_beam` | S | 반복 빔 | P6 회색 상자 승인 뒤 |
+| `fx_laser_warning` | S | 발사 예고 | P6 회색 상자 승인 뒤 |
+| `item_air_bubble` | C | 공기주머니 3프레임 또는 코드 도형 | 숨 리듬 보강 필요 시 |
+
+중간 보스 키와 프레임 수는 별도 영상 승인 뒤 추가한다. 외형·패턴을 추측해 선제작하지 않는다.
+
+### Must 제작량 기준선
+
+중간 보스와 P6 Should를 제외하고 배경 4세트·12레이어, 지형 타일 4세트, 선택 카드 4장, 장식·핵심 효과 약 12~14종, 수영 2캐릭터·12프레임, HUD 이미지 4종을 기본 발주량으로 잡는다. 이는 상한이 아니라 중복 제작을 막는 기준선이며 P7에서 승인된 파일을 다시 만들지 않는다.
+
 ## 제작 순서
 
 1. 공용 팔레트와 캐릭터 Locked Description 승인.
@@ -133,3 +216,5 @@
 6. 코드 생성 타일과 장식.
 7. 효과.
 8. 팔레트 양자화, 정렬, 스프라이트 시트 조립, 자동 검증.
+
+확장 에셋은 P2~P6 각 단계에서 `회색 상자 → 흑백 앵커 → 사용자 승인 → 최종본` 순서로 제작한다. P7은 누락 에셋과 manifest·mapping 연결만 마무리한다.
