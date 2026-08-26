@@ -5,16 +5,24 @@ export default {
   id: "level-04",
   name: "쓰나미 마을",
   description: "밀려오는 파도를 피해 왼쪽으로 달리는 길",
-  visualTheme: "tsunami-graybox",
+  visualTheme: "tsunami-village",
   order: 4,
   progression: { direction: "left" },
   exit: { x: 176, y: 576, enterFrom: "left" },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-04-map",
-    tileset: "grass_tileset",
+    tileset: "village_tileset",
+    preview: "stage_preview_tsunami",
     backgrounds: {
-      normal: { far: "bg_normal_far", mid: "bg_normal_mid", near: "bg_normal_near" }
+      normal: { far: "bg_tsunami_far", mid: "bg_tsunami_mid", near: "bg_tsunami_near" }
+    },
+    effects: {
+      tsunamiWave: "fx_tsunami_wave",
+      tsunamiWarning: "fx_tsunami_warning",
+      shelterHouseOpen: "shelter_house_open",
+      shelterHouseWeathered: "shelter_house_weathered",
+      shelterHill: "shelter_hill"
     },
     objects: {
       items: {
@@ -28,7 +36,7 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_field", clear: "bgm_clear" }
+    bgm: { field: "bgm_tsunami", clear: "bgm_clear" }
   },
   world: { width: 8192, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
@@ -67,7 +75,7 @@ export default {
     { id: "tsunami_exit_reward", type: "percent_large", x: 640, y: 480 }
   ],
   terrainMechanics: {
-    visualTheme: "default",
+    visualTheme: "tsunami-village",
     movingPlatforms: [],
     crumblePlatforms: []
   },
@@ -89,10 +97,10 @@ export default {
       pauseEnemiesDuringWave: true,
       flightClearanceY: 270,
       shelters: [
-        { id: "shelter_intro_hill", type: "hill", label: "낮은 언덕 뒤", xStart: 7200, xEnd: 7488, yTop: 416, yBottom: 576 },
-        { id: "shelter_hill", type: "hill", label: "큰 언덕 뒤", xStart: 5952, xEnd: 6240, yTop: 384, yBottom: 576 },
-        { id: "shelter_house_a", type: "house", label: "열린 집 내부", xStart: 4448, xEnd: 4800, yTop: 336, yBottom: 576 },
-        { id: "shelter_house_b", type: "house", label: "무너진 집 내부", xStart: 3264, xEnd: 3616, yTop: 320, yBottom: 576 },
+        { id: "shelter_intro_hill", type: "hill", asset: "shelterHill", label: "낮은 언덕 뒤", xStart: 7200, xEnd: 7488, yTop: 416, yBottom: 576 },
+        { id: "shelter_hill", type: "hill", asset: "shelterHill", label: "큰 언덕 뒤", xStart: 5952, xEnd: 6240, yTop: 384, yBottom: 576 },
+        { id: "shelter_house_a", type: "house", asset: "shelterHouseOpen", label: "열린 집 내부", xStart: 4448, xEnd: 4800, yTop: 336, yBottom: 576 },
+        { id: "shelter_house_b", type: "house", asset: "shelterHouseWeathered", label: "무너진 집 내부", xStart: 3264, xEnd: 3616, yTop: 320, yBottom: 576 },
         { id: "shelter_high", type: "high", label: "높은 지형 위", xStart: 1536, xEnd: 1856, yTop: 230, yBottom: 320 }
       ]
     }

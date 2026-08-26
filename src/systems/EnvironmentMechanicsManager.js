@@ -90,35 +90,52 @@ export class EnvironmentMechanicsManager {
   }
 
   createShelterVisuals() {
+    const effectKeys = this.level.assets.effects ?? {};
+    const forceFallback = this.scene.registry.get("forceAssetFallback");
+    const finalArt = this.level.visualTheme === "tsunami-village" && !forceFallback;
+    const showDebug = this.scene.registry.get("debugEnabled") || forceFallback || !finalArt;
+
     for (const shelter of this.tsunami?.shelters ?? []) {
       const width = shelter.xEnd - shelter.xStart;
       const height = shelter.yBottom - shelter.yTop;
       const centerX = shelter.xStart + width / 2;
       if (shelter.type === "house") {
-        const roof = this.track(this.scene.add.triangle(
-          centerX,
-          shelter.yTop - 24,
-          -width * 0.56,
-          48,
-          0,
-          0,
-          width * 0.56,
-          48,
-          COLORS.dangerAlt,
-          0.76
-        ));
-        roof.setStrokeStyle(5, COLORS.outline, 0.92).setDepth(5);
-        const leftPillar = this.track(this.scene.add.rectangle(shelter.xStart + 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
-        const rightPillar = this.track(this.scene.add.rectangle(shelter.xEnd - 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
-        leftPillar.setDepth(5);
-        rightPillar.setDepth(5);
+        const houseKey = shelter.asset ? effectKeys[shelter.asset] : null;
+        if (finalArt && houseKey && this.scene.textures?.exists?.(houseKey)) {
+          const house = this.track(this.scene.add.image(centerX, shelter.yBottom + 4, houseKey));
+          house.setOrigin(0.5, 1).setDisplaySize(width * 1.22, height + 104).setDepth(5);
+        } else {
+          const roof = this.track(this.scene.add.triangle(
+            centerX,
+            shelter.yTop - 24,
+            -width * 0.56,
+            48,
+            0,
+            0,
+            width * 0.56,
+            48,
+            COLORS.dangerAlt,
+            0.76
+          ));
+          roof.setStrokeStyle(5, COLORS.outline, 0.92).setDepth(5);
+          const leftPillar = this.track(this.scene.add.rectangle(shelter.xStart + 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
+          const rightPillar = this.track(this.scene.add.rectangle(shelter.xEnd - 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
+          leftPillar.setDepth(5);
+          rightPillar.setDepth(5);
+        }
       } else if (shelter.type === "hill") {
-        const hill = this.track(this.scene.add.ellipse(centerX, shelter.yBottom - height * 0.28, width * 1.08, height * 1.05, COLORS.grass, 0.72));
-        hill.setStrokeStyle(5, COLORS.outline, 0.82).setDepth(5);
+        const hillKey = shelter.asset ? effectKeys[shelter.asset] : null;
+        if (finalArt && hillKey && this.scene.textures?.exists?.(hillKey)) {
+          const hill = this.track(this.scene.add.image(centerX, shelter.yBottom + 3, hillKey));
+          hill.setOrigin(0.5, 1).setDisplaySize(width * 1.28, height * 1.05).setDepth(5);
+        } else {
+          const hill = this.track(this.scene.add.ellipse(centerX, shelter.yBottom - height * 0.28, width * 1.08, height * 1.05, COLORS.grass, 0.72));
+          hill.setStrokeStyle(5, COLORS.outline, 0.82).setDepth(5);
+        }
       } else if (shelter.type === "high") {
         const highPlatform = this.track(this.scene.add.rectangle(centerX, shelter.yBottom, width, 24, COLORS.ground, 0.9));
         highPlatform.setStrokeStyle(5, COLORS.collect, 0.92).setDepth(5);
-        for (let index = -1; index <= 1; index += 1) {
+        for (let index = -1; showDebug && index <= 1; index += 1) {
           const chevron = this.track(this.scene.add.triangle(
             centerX + index * 46,
             shelter.yTop + 34,
@@ -134,49 +151,59 @@ export class EnvironmentMechanicsManager {
           chevron.setStrokeStyle(2, COLORS.white, 0.88).setDepth(6);
         }
       }
-      const body = this.track(this.scene.add.rectangle(
-        centerX,
-        shelter.yTop + height / 2,
-        width,
-        height,
-        COLORS.near,
-        0.34
-      ));
-      body.setStrokeStyle(5, COLORS.collect, 0.9).setDepth(6);
-      const label = this.track(this.scene.add.text(
-        centerX,
-        shelter.yTop + 20,
-        shelter.label ?? "안전지대",
-        {
-          fontFamily: GAME_FONT_FAMILY,
-          fontSize: "15px",
-          fontStyle: "700",
-          color: CSS_COLORS.white,
-          backgroundColor: CSS_COLORS.panelSoft,
-          padding: { x: 7, y: 4 }
-        }
-      ));
-      label.setOrigin(0.5).setDepth(7);
+      if (showDebug) {
+        const body = this.track(this.scene.add.rectangle(
+          centerX,
+          shelter.yTop + height / 2,
+          width,
+          height,
+          COLORS.near,
+          0.34
+        ));
+        body.setStrokeStyle(5, COLORS.collect, 0.9).setDepth(6);
+        const label = this.track(this.scene.add.text(
+          centerX,
+          shelter.yTop + 20,
+          shelter.label ?? "안전지대",
+          {
+            fontFamily: GAME_FONT_FAMILY,
+            fontSize: "15px",
+            fontStyle: "700",
+            color: CSS_COLORS.white,
+            backgroundColor: CSS_COLORS.panelSoft,
+            padding: { x: 7, y: 4 }
+          }
+        ));
+        label.setOrigin(0.5).setDepth(7);
+      }
     }
 
     if (!this.tsunami) return;
-    const warningGlow = this.track(this.scene.add.circle(GAME_WIDTH - 70, GAME_HEIGHT / 2, 46, COLORS.danger, 0.42));
-    const warningArrow = this.track(this.scene.add.triangle(
-      GAME_WIDTH - 70,
-      GAME_HEIGHT / 2,
-      48,
-      0,
-      0,
-      26,
-      48,
-      52,
-      COLORS.white,
-      0.96
-    ));
-    warningGlow.setScrollFactor(0).setDepth(24).setVisible(false);
-    warningArrow.setScrollFactor(0).setDepth(25).setVisible(false).setStrokeStyle(4, COLORS.collectBlue, 0.94);
-    if (this.tsunami.direction !== "left") warningArrow.setAngle(180);
-    this.waveWarningVisuals = [warningGlow, warningArrow];
+    const warningKey = effectKeys.tsunamiWarning;
+    if (finalArt && warningKey && this.scene.textures?.exists?.(warningKey)) {
+      const warningArt = this.track(this.scene.add.image(GAME_WIDTH - 70, GAME_HEIGHT / 2, warningKey));
+      warningArt.setScrollFactor(0).setDisplaySize(112, 112).setDepth(25).setVisible(false);
+      if (this.tsunami.direction !== "left") warningArt.setFlipX(true);
+      this.waveWarningVisuals = [warningArt];
+    } else {
+      const warningGlow = this.track(this.scene.add.circle(GAME_WIDTH - 70, GAME_HEIGHT / 2, 46, COLORS.danger, 0.42));
+      const warningArrow = this.track(this.scene.add.triangle(
+        GAME_WIDTH - 70,
+        GAME_HEIGHT / 2,
+        48,
+        0,
+        0,
+        26,
+        48,
+        52,
+        COLORS.white,
+        0.96
+      ));
+      warningGlow.setScrollFactor(0).setDepth(24).setVisible(false);
+      warningArrow.setScrollFactor(0).setDepth(25).setVisible(false).setStrokeStyle(4, COLORS.collectBlue, 0.94);
+      if (this.tsunami.direction !== "left") warningArrow.setAngle(180);
+      this.waveWarningVisuals = [warningGlow, warningArrow];
+    }
     this.waveWarningTween = this.scene.tweens.add({
       targets: this.waveWarningVisuals,
       scale: { from: 0.88, to: 1.16 },
@@ -438,15 +465,37 @@ export class EnvironmentMechanicsManager {
     const view = this.scene.cameras.main.worldView;
     const leftward = this.tsunami.direction === "left";
     const x = leftward ? view.right + WAVE_WIDTH / 2 : view.left - WAVE_WIDTH / 2;
-    this.waveVisual = this.track(this.scene.add.rectangle(
-      x,
-      GAME_HEIGHT * 0.66,
-      WAVE_WIDTH,
-      GAME_HEIGHT * 0.74,
-      COLORS.collectBlue,
-      this.getEffectAlpha(0.72)
-    ));
-    this.waveVisual.setStrokeStyle(8, COLORS.white, this.getEffectAlpha(0.86)).setDepth(22);
+    const effectKeys = this.level.assets.effects ?? {};
+    const waveKey = effectKeys.tsunamiWave;
+    const forceFallback = this.scene.registry.get("forceAssetFallback");
+    if (!forceFallback && waveKey && this.scene.textures?.exists?.(waveKey)) {
+      const animationKey = `${waveKey}-loop`;
+      if (!this.scene.anims.exists(animationKey)) {
+        this.scene.anims.create({
+          key: animationKey,
+          frames: this.scene.anims.generateFrameNumbers(waveKey, { start: 0, end: 7 }),
+          frameRate: 9,
+          repeat: -1
+        });
+      }
+      this.waveVisual = this.track(this.scene.add.sprite(x, GAME_HEIGHT - 42, waveKey, 0));
+      this.waveVisual
+        .setOrigin(0.5, 1)
+        .setDisplaySize(WAVE_WIDTH * 1.16, GAME_HEIGHT * 0.86)
+        .setFlipX(!leftward)
+        .setDepth(22)
+        .play(animationKey);
+    } else {
+      this.waveVisual = this.track(this.scene.add.rectangle(
+        x,
+        GAME_HEIGHT * 0.66,
+        WAVE_WIDTH,
+        GAME_HEIGHT * 0.74,
+        COLORS.collectBlue,
+        this.getEffectAlpha(0.72)
+      ));
+      this.waveVisual.setStrokeStyle(8, COLORS.white, this.getEffectAlpha(0.86)).setDepth(22);
+    }
     this.scene.events.emit(EVENTS.TSUNAMI_STATE_CHANGED, this.getSnapshot());
     this.scene.audioManager?.playSfx("sfx_tsunami_pass", { randomizeRate: false });
   }

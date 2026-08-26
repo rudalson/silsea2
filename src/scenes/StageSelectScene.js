@@ -80,7 +80,7 @@ export class StageSelectScene extends Phaser.Scene {
         add(this.add.triangle(60, 310, 0, 0, 34, 17, 0, 34, COLORS.collectBlue, 0.96))
           .setStrokeStyle(2, COLORS.white, 0.9);
       }
-      if (level.visualTheme === "tsunami-graybox" && !hasPreview) {
+      if (["tsunami-graybox", "tsunami-village"].includes(level.visualTheme) && !hasPreview) {
         add(this.add.rectangle(0, 348, 304, 58, COLORS.ground, 0.96));
         add(this.add.rectangle(54, 307, 92, 82, COLORS.near, 0.9)).setStrokeStyle(3, COLORS.collect);
         add(this.add.triangle(54, 260, -60, 48, 0, 0, 60, 48, COLORS.dangerAlt, 0.95))

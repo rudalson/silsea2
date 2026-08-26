@@ -211,7 +211,7 @@ const requiredAudioKeys = [
   "sfx_enemy_defeat", "sfx_magpie_warning", "sfx_cloud_charge", "sfx_lightning",
   "sfx_boss_appear", "sfx_boss_warning", "sfx_boss_land", "sfx_boss_hit",
   "sfx_boss_defeat", "sfx_checkpoint", "sfx_gate_spawn", "sfx_clear", "sfx_ui_move",
-  "sfx_ui_select", "sfx_pause", "bgm_field", "bgm_starlight", "bgm_mist", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
+  "sfx_ui_select", "sfx_pause", "sfx_tsunami_warning", "sfx_tsunami_pass", "sfx_tsunami_hit", "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
 ];
 let validatedAudioCount = 0;
 let validatedCharacterSheetCount = 0;
@@ -441,7 +441,7 @@ try {
   errors.push(`manifest.json: 적 시트 검증 불가 (${error.message})`);
 }
 
-const tilesetKeys = ["grass_tileset", "starlight_tileset", "mist_tileset"];
+const tilesetKeys = ["grass_tileset", "starlight_tileset", "mist_tileset", "village_tileset"];
 for (const tilesetKey of tilesetKeys) {
 try {
   const tilesetPath = join(root, "assets", "tiles", `${tilesetKey}.png`);

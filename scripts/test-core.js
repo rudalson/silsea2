@@ -192,6 +192,18 @@ assert.equal(level04.environment.tsunami.shelterGrace, 0.25);
 assert.equal(level04.environment.tsunami.respawnGrace, 3);
 assert.equal(level04.environment.tsunami.flightClearanceY, 270);
 assert.equal(level04.environment.tsunami.pauseEnemiesDuringWave, true);
+assert.equal(level04.visualTheme, "tsunami-village");
+assert.equal(level04.assets.tileset, "village_tileset");
+assert.equal(level04.assets.preview, "stage_preview_tsunami");
+assert.deepEqual(level04.assets.backgrounds.normal, { far: "bg_tsunami_far", mid: "bg_tsunami_mid", near: "bg_tsunami_near" });
+assert.deepEqual(level04.assets.effects, {
+  tsunamiWave: "fx_tsunami_wave",
+  tsunamiWarning: "fx_tsunami_warning",
+  shelterHouseOpen: "shelter_house_open",
+  shelterHouseWeathered: "shelter_house_weathered",
+  shelterHill: "shelter_hill"
+});
+assert.equal(level04.assets.bgm.field, "bgm_tsunami");
 assert.deepEqual(
   [...new Set(level04.environment.tsunami.shelters.map(({ type }) => type))].sort(),
   ["high", "hill", "house"]

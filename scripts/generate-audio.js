@@ -54,7 +54,10 @@ const sfx = {
   sfx_clear: { duration: 1.45, tones: [...arpeggio([523, 659, 784, 1047, 1319], 0.13, 0.38, "triangle", 0.28), ...chord(0.78, 0.67, [523, 659, 784], "sine", 0.13)] },
   sfx_ui_move: { duration: 0.08, tones: [tone(0, 0.08, 620, 690, "sine", 0.24)] },
   sfx_ui_select: { duration: 0.16, tones: arpeggio([587, 784], 0.055, 0.105, "triangle", 0.28) },
-  sfx_pause: { duration: 0.2, tones: [tone(0, 0.09, 520, 440, "sine", 0.26), tone(0.11, 0.09, 440, 520, "sine", 0.26)] }
+  sfx_pause: { duration: 0.2, tones: [tone(0, 0.09, 520, 440, "sine", 0.26), tone(0.11, 0.09, 440, 520, "sine", 0.26)] },
+  sfx_tsunami_warning: { duration: 0.62, tones: [tone(0, 0.24, 392, 587, "sine", 0.22), tone(0.22, 0.4, 523, 784, "triangle", 0.2)] },
+  sfx_tsunami_pass: { duration: 1.2, tones: [tone(0, 1.2, 82, 110, "sine", 0.2), tone(0, 1.2, 165, 123, "triangle", 0.11)], noise: 0.12 },
+  sfx_tsunami_hit: { duration: 0.3, tones: [tone(0, 0.27, 196, 92, "sine", 0.28)], noise: 0.08 }
 };
 
 const waveAt = (kind, phase) => {
@@ -140,6 +143,13 @@ const tracks = {
     bass: [43, 50, 45, 52, 43, 50, 47, 52],
     wave: "sine",
     percussion: 0.012
+  },
+  bgm_tsunami: {
+    bpm: 112,
+    lead: [62, null, 65, 69, 67, null, 65, null, 62, null, 67, 70, 69, null, 65, null],
+    bass: [38, 45, 41, 48, 38, 45, 43, 48],
+    wave: "triangle",
+    percussion: 0.045
   }
 };
 
