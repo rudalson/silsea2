@@ -105,6 +105,10 @@ export class GameScene extends Phaser.Scene {
     const visualReviewSectionId = this.registry.get("visualReviewSectionId");
     const visualReviewOffset = this.registry.get("visualReviewOffset");
     if (visualReviewSectionId) this.warpToSection(visualReviewSectionId, visualReviewOffset ?? 160);
+    if (visualReviewSectionId && this.registry.get("visualReviewSurface") === "ground") {
+      this.player.setY(this.level.player.spawn.y - 2).setVelocity(0, 0);
+      this.cameras.main.centerOn(this.player.x, this.player.y - 180);
+    }
     const visualReviewForm = this.registry.get("visualReviewForm");
     if (visualReviewForm) {
       this.transformationManager.setForm(

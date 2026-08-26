@@ -1,0 +1,39 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "objects": [
+        { "height": 192, "id": 1, "name": "village_ground", "rotation": 0, "type": "ground", "visible": true, "width": 8192, "x": 0, "y": 576 },
+        { "height": 48, "id": 2, "name": "intro_hill_roof", "rotation": 0, "type": "platform", "visible": true, "width": 288, "x": 7200, "y": 416 },
+        { "height": 48, "id": 3, "name": "hill_roof", "rotation": 0, "type": "platform", "visible": true, "width": 288, "x": 5952, "y": 384 },
+        { "height": 48, "id": 4, "name": "house_a_roof", "rotation": 0, "type": "platform", "visible": true, "width": 352, "x": 4448, "y": 336 },
+        { "height": 48, "id": 5, "name": "house_b_roof", "rotation": 0, "type": "platform", "visible": true, "width": 352, "x": 3264, "y": 320 },
+        { "height": 48, "id": 6, "name": "high_step_1", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 2464, "y": 512 },
+        { "height": 48, "id": 7, "name": "high_step_2", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 2208, "y": 448 },
+        { "height": 48, "id": 8, "name": "high_step_3", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 1952, "y": 384 },
+        { "height": 48, "id": 9, "name": "high_shelter", "rotation": 0, "type": "platform", "visible": true, "width": 320, "x": 1536, "y": 320 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 10,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 128
+}

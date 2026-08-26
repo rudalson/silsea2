@@ -33,8 +33,15 @@ export class EnvironmentMechanicsManager {
     this.waveVisual = null;
     this.waveEndsAt = 0;
     this.waveStartsAt = 0;
+    const requestedReviewWaveMode = scene.registry.get("visualReviewWaveMode");
+    this.visualReviewWaveMode = ["paused", "warning", "active", "hit"].includes(requestedReviewWaveMode)
+      ? requestedReviewWaveMode
+      : null;
+    this.visualReviewWaveInitialized = false;
     this.nextWaveAt = this.tsunami
-      ? scene.time.now + Math.max(0, this.tsunami.firstWarning ?? 6) * 1000
+      ? this.visualReviewWaveMode
+        ? Number.POSITIVE_INFINITY
+        : scene.time.now + Math.max(0, this.tsunami.firstWarning ?? 6) * 1000
       : Number.POSITIVE_INFINITY;
     this.random = new SeededRandom(level.order * 7919 + 17);
     this.lastHitWaveId = 0;
@@ -86,8 +93,49 @@ export class EnvironmentMechanicsManager {
     for (const shelter of this.tsunami?.shelters ?? []) {
       const width = shelter.xEnd - shelter.xStart;
       const height = shelter.yBottom - shelter.yTop;
+      const centerX = shelter.xStart + width / 2;
+      if (shelter.type === "house") {
+        const roof = this.track(this.scene.add.triangle(
+          centerX,
+          shelter.yTop - 24,
+          -width * 0.56,
+          48,
+          0,
+          0,
+          width * 0.56,
+          48,
+          COLORS.dangerAlt,
+          0.76
+        ));
+        roof.setStrokeStyle(5, COLORS.outline, 0.92).setDepth(5);
+        const leftPillar = this.track(this.scene.add.rectangle(shelter.xStart + 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
+        const rightPillar = this.track(this.scene.add.rectangle(shelter.xEnd - 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
+        leftPillar.setDepth(5);
+        rightPillar.setDepth(5);
+      } else if (shelter.type === "hill") {
+        const hill = this.track(this.scene.add.ellipse(centerX, shelter.yBottom - height * 0.28, width * 1.08, height * 1.05, COLORS.grass, 0.72));
+        hill.setStrokeStyle(5, COLORS.outline, 0.82).setDepth(5);
+      } else if (shelter.type === "high") {
+        const highPlatform = this.track(this.scene.add.rectangle(centerX, shelter.yBottom, width, 24, COLORS.ground, 0.9));
+        highPlatform.setStrokeStyle(5, COLORS.collect, 0.92).setDepth(5);
+        for (let index = -1; index <= 1; index += 1) {
+          const chevron = this.track(this.scene.add.triangle(
+            centerX + index * 46,
+            shelter.yTop + 34,
+            0,
+            24,
+            18,
+            0,
+            36,
+            24,
+            COLORS.collect,
+            0.88
+          ));
+          chevron.setStrokeStyle(2, COLORS.white, 0.88).setDepth(6);
+        }
+      }
       const body = this.track(this.scene.add.rectangle(
-        shelter.xStart + width / 2,
+        centerX,
         shelter.yTop + height / 2,
         width,
         height,
@@ -96,7 +144,7 @@ export class EnvironmentMechanicsManager {
       ));
       body.setStrokeStyle(5, COLORS.collect, 0.9).setDepth(6);
       const label = this.track(this.scene.add.text(
-        shelter.xStart + width / 2,
+        centerX,
         shelter.yTop + 20,
         shelter.label ?? "안전지대",
         {
@@ -110,6 +158,34 @@ export class EnvironmentMechanicsManager {
       ));
       label.setOrigin(0.5).setDepth(7);
     }
+
+    if (!this.tsunami) return;
+    const warningGlow = this.track(this.scene.add.circle(GAME_WIDTH - 70, GAME_HEIGHT / 2, 46, COLORS.danger, 0.42));
+    const warningArrow = this.track(this.scene.add.triangle(
+      GAME_WIDTH - 70,
+      GAME_HEIGHT / 2,
+      48,
+      0,
+      0,
+      26,
+      48,
+      52,
+      COLORS.white,
+      0.96
+    ));
+    warningGlow.setScrollFactor(0).setDepth(24).setVisible(false);
+    warningArrow.setScrollFactor(0).setDepth(25).setVisible(false).setStrokeStyle(4, COLORS.collectBlue, 0.94);
+    if (this.tsunami.direction !== "left") warningArrow.setAngle(180);
+    this.waveWarningVisuals = [warningGlow, warningArrow];
+    this.waveWarningTween = this.scene.tweens.add({
+      targets: this.waveWarningVisuals,
+      scale: { from: 0.88, to: 1.16 },
+      alpha: { from: 0.55, to: 1 },
+      duration: 320,
+      yoyo: true,
+      repeat: -1,
+      paused: true
+    });
   }
 
   createMistVisuals() {
@@ -262,6 +338,11 @@ export class EnvironmentMechanicsManager {
     this.updateMist(delta);
     if (!this.tsunami) return;
     this.updateShelterState(now);
+    if (this.visualReviewWaveMode) {
+      this.initializeVisualReviewWave(now);
+      if (this.waveState === WAVE_STATES.ACTIVE) this.updateActiveWave(now, 0);
+      return;
+    }
     if (this.waveState === WAVE_STATES.IDLE && now >= this.nextWaveAt) this.beginWaveWarning(now);
     if (this.waveState === WAVE_STATES.WARNING && now >= this.waveStartsAt) this.activateWave(now);
     if (this.waveState === WAVE_STATES.ACTIVE) this.updateActiveWave(now, delta);
@@ -315,6 +396,22 @@ export class EnvironmentMechanicsManager {
     );
   }
 
+  initializeVisualReviewWave(now) {
+    if (this.visualReviewWaveInitialized) return;
+    this.visualReviewWaveInitialized = true;
+    if (this.visualReviewWaveMode === "paused") return;
+    if (this.visualReviewWaveMode === "warning") {
+      this.waveState = WAVE_STATES.WARNING;
+      this.waveStartsAt = now + Math.max(0.1, this.tsunami.telegraph ?? 1.5) * 1000;
+      for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(true);
+      this.waveWarningTween?.restart?.();
+      return;
+    }
+    this.activateWave(now);
+    this.waveEndsAt = Number.POSITIVE_INFINITY;
+    if (this.visualReviewWaveMode === "hit") this.waveVisual.x = this.player.x;
+  }
+
   beginWaveWarning(now) {
     this.waveState = WAVE_STATES.WARNING;
     this.waveStartsAt = now + Math.max(0.1, this.tsunami.telegraph ?? 1.5) * 1000;
@@ -325,6 +422,8 @@ export class EnvironmentMechanicsManager {
     });
     this.scene.events.emit(EVENTS.TSUNAMI_STATE_CHANGED, this.getSnapshot());
     this.scene.audioManager?.playSfx("sfx_tsunami_warning", { randomizeRate: false });
+    for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(true);
+    this.waveWarningTween?.restart?.();
     this.scene.updateAccessibleStatus?.(
       `쓰나미가 ${this.tsunami.direction === "left" ? "오른쪽" : "왼쪽"}에서 옵니다. 안전지대로 이동하세요.`
     );
@@ -334,6 +433,8 @@ export class EnvironmentMechanicsManager {
     this.waveState = WAVE_STATES.ACTIVE;
     this.waveId += 1;
     this.waveEndsAt = now + Math.max(0.5, this.tsunami.duration ?? 2.5) * 1000;
+    for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(false);
+    this.waveWarningTween?.pause?.();
     const view = this.scene.cameras.main.worldView;
     const leftward = this.tsunami.direction === "left";
     const x = leftward ? view.right + WAVE_WIDTH / 2 : view.left - WAVE_WIDTH / 2;
@@ -389,6 +490,8 @@ export class EnvironmentMechanicsManager {
     this.waveVisual = null;
     this.waveState = WAVE_STATES.IDLE;
     this.waveEndsAt = 0;
+    for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(false);
+    this.waveWarningTween?.pause?.();
     this.scene.events.emit(EVENTS.TSUNAMI_STATE_CHANGED, this.getSnapshot());
   }
 
@@ -399,6 +502,8 @@ export class EnvironmentMechanicsManager {
     this.waveStartsAt = 0;
     this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+    for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(false);
+    this.waveWarningTween?.pause?.();
   }
 
   get pausesEnemies() {
@@ -420,11 +525,16 @@ export class EnvironmentMechanicsManager {
   getSnapshot() {
     const now = this.scene.time.now;
     const targetAt = this.waveState === WAVE_STATES.WARNING ? this.waveStartsAt : this.nextWaveAt;
+    const secondsUntilWave = this.visualReviewWaveMode === "warning"
+      ? Math.max(0.1, this.tsunami?.telegraph ?? 1.5)
+      : this.tsunami && Number.isFinite(targetAt)
+        ? Math.max(0, (targetAt - now) / 1000)
+        : null;
     return {
       direction: this.level.progression?.direction ?? "right",
       waveState: this.waveState,
       waveId: this.waveId,
-      secondsUntilWave: this.tsunami && Number.isFinite(targetAt) ? Math.max(0, (targetAt - now) / 1000) : null,
+      secondsUntilWave,
       waterZoneCount: this.waterZones.length,
       mistZone: this.activeMistZoneId ?? null,
       mistDensity: this.currentMistDensity ?? 0,
@@ -453,5 +563,8 @@ export class EnvironmentMechanicsManager {
     this.mistMask = null;
     this.mistBankVisuals = null;
     this.mistClearVisual = null;
+    this.waveWarningTween?.stop?.();
+    this.waveWarningVisuals = null;
+    this.waveWarningTween = null;
   }
 }

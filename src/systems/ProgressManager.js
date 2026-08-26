@@ -20,6 +20,12 @@ export class ProgressManager {
     return this.data[levelId] ?? { cleared: false, bestScore: 0, achieved: [] };
   }
 
+  isUnlocked(level, levels = []) {
+    if (level?.order === 1) return true;
+    const previous = levels.find((candidate) => candidate.order === level?.order - 1);
+    return Boolean(previous && this.get(previous.id).cleared);
+  }
+
   complete(levelId, score = 0, achieved = []) {
     const previous = this.get(levelId);
     this.data[levelId] = {
@@ -38,4 +44,3 @@ export class ProgressManager {
 }
 
 export const progressManager = new ProgressManager();
-

@@ -57,15 +57,18 @@ for (const file of allSourceFiles.filter((path) => /\.(?:js|css)$/.test(path))) 
   }
 }
 
-if (LEVELS.length < 3) fail("안개 골짜기 검증용 level-03이 없음");
+if (LEVELS.length < 4) fail("쓰나미 마을 검증용 level-04가 없음");
 if (!getLevel("level-02")) fail("level-02가 레지스트리에 등록되지 않음");
 if (!getLevel("level-03")) fail("level-03이 레지스트리에 등록되지 않음");
+if (!getLevel("level-04")) fail("level-04가 레지스트리에 등록되지 않음");
 if (getNextLevel(LEVELS[0].id)?.id !== LEVELS[1].id) fail("getNextLevel 순서가 잘못됨");
+if (getNextLevel("level-03")?.id !== "level-04") fail("안개 골짜기 다음 레벨이 쓰나미 마을이 아님");
 
 const levelIndex = await readFile(join(root, "src", "data", "levels", "index.js"), "utf8");
 if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02 import 한 줄이 없음");
 if (!levelIndex.includes('import level03 from "./level-03.js";')) fail("level-03 import 한 줄이 없음");
-if (!levelIndex.includes("[level01, level02, level03]")) fail("LEVELS 배열에 level-03 항목이 없음");
+if (!levelIndex.includes('import level04 from "./level-04.js";')) fail("level-04 import 한 줄이 없음");
+if (!levelIndex.includes("[level01, level02, level03, level04]")) fail("LEVELS 배열에 level-04 항목이 없음");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
@@ -130,6 +133,12 @@ if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.
 if (!stageSelectScene.includes("createBackButton") || !stageSelectScene.includes("goBack") || !stageSelectScene.includes("input.pausePressed")) {
   fail("스테이지 선택 화면의 직접 캐릭터 선택 버튼 또는 Esc 복귀가 없음");
 }
+if (!stageSelectScene.includes("pageIndicator") || !stageSelectScene.includes("relative * 390")) {
+  fail("네 번째 스테이지를 위한 좌우 캐러셀·페이지 표시가 없음");
+}
+if (!stageSelectScene.includes("progressManager.isUnlocked") || !stageSelectScene.includes("이전 스테이지를 먼저 클리어")) {
+  fail("직전 스테이지 클리어 기반 순차 해금 경로가 없음");
+}
 
 if (errors.length) {
   console.error(`구조 검증 실패 (${errors.length})`);
@@ -137,4 +146,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개 매니저, P1 시험 진입점, level-02·03 확장성");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1 시험 진입점, level-02~04 확장성");

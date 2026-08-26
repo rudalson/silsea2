@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
+import level02 from "../src/data/levels/level-02.js";
 import level03 from "../src/data/levels/level-03.js";
+import level04 from "../src/data/levels/level-04.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
 import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
 import {
@@ -55,6 +57,7 @@ import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/Came
 import { createRuntimeLevel, getDifficultySettings } from "../src/systems/DifficultyManager.js";
 import { HealthManager } from "../src/systems/HealthManager.js";
 import { EnvironmentMechanicsManager } from "../src/systems/EnvironmentMechanicsManager.js";
+import { ProgressManager } from "../src/systems/ProgressManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { TRANSFORM_CAMERA_EASING, TransformationManager } from "../src/systems/TransformationManager.js";
@@ -160,6 +163,7 @@ assert.equal(getUpdraftVelocity(-620, 420, 1000, 120), -620, "상승기류가 �
 
 assert.equal(assertLevelShape(level01), true);
 assert.equal(assertLevelShape(level03), true);
+assert.equal(assertLevelShape(level04), true);
 assert.equal(assertLevelShape(p1EnvironmentTest), true);
 const normalizedLevel01 = normalizeLevelDefinition(level01);
 assert.equal(normalizedLevel01.progression.direction, "right");
@@ -174,6 +178,38 @@ assert.equal(getNormalizedProgress(3600, 3904, p1EnvironmentTest), 304);
 assert.equal(getCameraLookAheadTarget(180, 150), -150);
 assert.equal(getCameraLookAheadTarget(-180, 150), 150);
 assert.equal(getCameraLookAheadTarget(35, 150), 0);
+assert.equal(level04.order, 4);
+assert.equal(level04.progression.direction, "left");
+assert.ok(level04.player.spawn.x > level04.exit.x);
+assert.equal(level04.environment.tsunami.direction, "left");
+assert.equal(level04.environment.tsunami.damage, 1);
+assert.equal(level04.environment.tsunami.firstWarning, 6);
+assert.equal(level04.environment.tsunami.telegraph, 1.5);
+assert.deepEqual(level04.environment.tsunami.interval, { min: 9, max: 12 });
+assert.equal(level04.environment.tsunami.speedMultiplier, 1.15);
+assert.equal(level04.environment.tsunami.duration, 2.5);
+assert.equal(level04.environment.tsunami.shelterGrace, 0.25);
+assert.equal(level04.environment.tsunami.respawnGrace, 3);
+assert.equal(level04.environment.tsunami.flightClearanceY, 270);
+assert.equal(level04.environment.tsunami.pauseEnemiesDuringWave, true);
+assert.deepEqual(
+  [...new Set(level04.environment.tsunami.shelters.map(({ type }) => type))].sort(),
+  ["high", "hill", "house"]
+);
+assert.equal(isInsideShelter({ x: 7344, y: 520 }, level04.environment.tsunami.shelters), true);
+assert.equal(isInsideShelter({ x: 7000, y: 520 }, level04.environment.tsunami.shelters), false);
+
+const progressStorage = new Map();
+const testProgress = new ProgressManager({
+  getItem: (key) => progressStorage.get(key) ?? null,
+  setItem: (key, value) => progressStorage.set(key, value)
+});
+const playableLevels = [level01, level02, level03, level04];
+assert.equal(testProgress.isUnlocked(level01, playableLevels), true);
+assert.equal(testProgress.isUnlocked(level02, playableLevels), false);
+testProgress.complete(level01.id, 10);
+assert.equal(testProgress.isUnlocked(level02, playableLevels), true);
+assert.equal(testProgress.isUnlocked(level03, playableLevels), false);
 
 assert.equal(stepBreathRatio(1, 6000, { underwater: true, depleteSeconds: 12 }), 0.5);
 assert.equal(stepBreathRatio(0, 1000, { recovering: true, refillSeconds: 2 }), 0.5);
@@ -225,6 +261,10 @@ const createEnvironmentDisplayObject = (type, x = 0, y = 0) => ({
   setStrokeStyle() { return this; },
   setOrigin() { return this; },
   setAlpha() { return this; },
+  setScrollFactor() { return this; },
+  setVisible(value) { this.visible = value; return this; },
+  setScale() { return this; },
+  setAngle() { return this; },
   destroy() { this.active = false; }
 });
 const createEnvironmentScene = () => ({
@@ -232,7 +272,13 @@ const createEnvironmentScene = () => ({
   registry: { get: () => false },
   add: {
     rectangle: (x, y) => createEnvironmentDisplayObject("Rectangle", x, y),
+    ellipse: (x, y) => createEnvironmentDisplayObject("Ellipse", x, y),
+    circle: (x, y) => createEnvironmentDisplayObject("Circle", x, y),
+    triangle: (x, y) => createEnvironmentDisplayObject("Triangle", x, y),
     text: (x, y) => createEnvironmentDisplayObject("Text", x, y)
+  },
+  tweens: {
+    add: () => ({ restart() {}, pause() {}, stop() {} })
   },
   cameras: { main: { worldView: { left: 1920, right: 3200 } } },
   events: { on() {}, off() {}, emit() {} },
@@ -262,16 +308,19 @@ updateEnvironment(environmentManagerA, environmentSceneA, 5999);
 assert.equal(environmentManagerA.waveState, "idle");
 updateEnvironment(environmentManagerA, environmentSceneA, 6000);
 assert.equal(environmentManagerA.waveState, "warning");
+assert.equal(environmentManagerA.pausesEnemies, false, "파도 예고 중에는 적이 움직여야 함");
 const seededNextWaveAt = environmentManagerA.nextWaveAt;
 updateEnvironment(environmentManagerA, environmentSceneA, 7499);
 assert.equal(environmentManagerA.waveState, "warning");
 updateEnvironment(environmentManagerA, environmentSceneA, 7500);
 assert.equal(environmentManagerA.waveState, "active");
+assert.equal(environmentManagerA.pausesEnemies, true, "파도 통과 중에는 적을 정지해야 함");
 updateEnvironment(environmentManagerA, environmentSceneA, 7700, 200);
 updateEnvironment(environmentManagerA, environmentSceneA, 7710);
 assert.equal(waveDamageCount, 1, "같은 파도는 플레이어에게 한 번만 피해를 줘야 함");
 updateEnvironment(environmentManagerA, environmentSceneA, 10000);
 assert.equal(environmentManagerA.waveState, "idle");
+assert.equal(environmentManagerA.pausesEnemies, false, "파도 종료 뒤에는 적 정지를 해제해야 함");
 
 const environmentSceneB = createEnvironmentScene();
 const environmentManagerB = new EnvironmentMechanicsManager(
@@ -283,6 +332,12 @@ const environmentManagerB = new EnvironmentMechanicsManager(
 );
 updateEnvironment(environmentManagerB, environmentSceneB, 6000);
 assert.equal(environmentManagerB.nextWaveAt, seededNextWaveAt, "같은 레벨 Seed는 같은 다음 파도 시점을 만들어야 함");
+environmentManagerB.player.body.bottom = 260;
+assert.equal(environmentManagerB.isPlayerSafe(6000), false, "기본형은 파도보다 높아도 자동 면역이면 안 됨");
+environmentManagerB.transformationManager.form = FORMS.PEGASUS;
+assert.equal(environmentManagerB.isPlayerSafe(6000), true, "페가수스는 승인 높이 위에서 파도를 피해야 함");
+environmentManagerB.transformationManager.form = FORMS.ALICORN;
+assert.equal(environmentManagerB.isPlayerSafe(6000), true, "알리콘은 승인 높이 위에서 파도를 피해야 함");
 environmentManagerA.destroy();
 environmentManagerB.destroy();
 
@@ -302,6 +357,15 @@ assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.hor
 assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.strokeVelocity + 240) < 0.001);
 assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.strokeCooldown - 0.3) < 0.001);
 assert.equal(easyEnvironmentSettings.environment.tsunami.intervalMultiplier, 1.4);
+const easyTsunamiLevel = createRuntimeLevel(level04, true);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.firstWarning - 8) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.telegraph - 2.2) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.interval.min - 12.6) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.interval.max - 16.8) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.speedMultiplier - 1.05) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.duration - 3) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.shelterGrace - 0.4) < 0.001);
+assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.respawnGrace - 4.5) < 0.001);
 const easyMistLevel = createRuntimeLevel(level03, true);
 assert.ok(Math.abs(easyMistLevel.environment.mist.zones[3].density - 0.5084) < 0.0001);
 assert.ok(Math.abs(easyMistLevel.environment.mist.zones[3].visibilityRadius - 322) < 0.001);

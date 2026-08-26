@@ -38,9 +38,12 @@ export class BootScene extends Phaser.Scene {
     const requestedReviewLevel = query.get("visualReview");
     const stageSelectReview = requestedReviewLevel === "stage-select";
     const reviewLevel = LEVELS.find(({ id }) => id === requestedReviewLevel) ?? null;
+    const stageSelectLevel = stageSelectReview
+      ? LEVELS.find(({ id }) => id === query.get("stage")) ?? null
+      : null;
     const p1TestLevel = query.get("p1test") === "1" ? getLevel("p1-environment-test") : null;
     const directLevel = reviewLevel ?? p1TestLevel;
-    const levelId = directLevel?.id ?? LEVELS[0].id;
+    const levelId = directLevel?.id ?? stageSelectLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
       ? requestedReviewOffset
@@ -60,6 +63,8 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("visualReviewAnimation", reviewLevel ? query.get("animation") : null);
     this.registry.set("visualReviewZoom", reviewLevel ? reviewZoom : null);
     this.registry.set("visualReviewPresentation", Boolean(reviewLevel && query.get("presentation") === "1"));
+    this.registry.set("visualReviewWaveMode", reviewLevel ? query.get("wave") : null);
+    this.registry.set("visualReviewSurface", reviewLevel ? query.get("surface") : null);
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", query.get("easy") === "1");
     this.registry.set("playtestEnabled", playtestEnabled);
