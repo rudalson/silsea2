@@ -150,6 +150,18 @@ for (const sourceLevel of ALL_LEVELS) {
     if (!(Number(breath.underwaterPhysics?.strokeVelocity) < 0)) fail(level, "수중 strokeVelocity는 음수여야 함");
   }
 
+  const breathPointIds = new Set();
+  for (const point of level.environment.breathPoints ?? []) {
+    if (!point.id || breathPointIds.has(point.id)) fail(level, `호흡 지점 id 누락/중복: ${point.id ?? "unknown"}`);
+    breathPointIds.add(point.id);
+    const zone = waterZones.find(({ id }) => id === point.zoneId);
+    if (!zone) {
+      fail(level, `호흡 지점 ${point.id}의 zoneId가 물 영역에 없음`);
+      continue;
+    }
+    if (!(point.x >= zone.xStart && point.x <= zone.xEnd)) fail(level, `호흡 지점 ${point.id}가 물 영역 밖`);
+  }
+
   const mist = level.environment.mist;
   if (mist) {
     if (!Array.isArray(mist.zones) || mist.zones.length === 0) fail(level, "mist.zones는 비어 있지 않아야 함");
@@ -327,6 +339,15 @@ for (const sourceLevel of ALL_LEVELS) {
     if (checkpoint.restoresHealth !== undefined && typeof checkpoint.restoresHealth !== "boolean") {
       fail(level, `checkpoint ${checkpoint.id} restoresHealth는 boolean이어야 함`);
     }
+  }
+  for (const point of level.environment.breathPoints ?? []) {
+    const zone = level.environment.waterZones.find(({ id }) => id === point.zoneId);
+    const hasSurfaceTerrain = zone && terrain.some((object) => (
+      point.x >= object.x
+      && point.x <= object.x + object.width
+      && object.y <= zone.surfaceY
+    ));
+    if (!hasSurfaceTerrain) fail(level, `호흡 지점 ${point.id}에 수면 위 충돌 지형이 없음`);
   }
   for (const pit of level.hazards.filter((hazard) => hazard.type === "pit")) {
     if (pit.respawnX !== undefined && !hasFloorAt(terrain, pit.respawnX, level.player.spawn.y)) {

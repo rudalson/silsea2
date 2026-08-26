@@ -57,24 +57,28 @@ for (const file of allSourceFiles.filter((path) => /\.(?:js|css)$/.test(path))) 
   }
 }
 
-if (LEVELS.length < 4) fail("쓰나미 마을 검증용 level-04가 없음");
+if (LEVELS.length < 5) fail("물에 잠긴 마을 검증용 level-05가 없음");
 if (!getLevel("level-02")) fail("level-02가 레지스트리에 등록되지 않음");
 if (!getLevel("level-03")) fail("level-03이 레지스트리에 등록되지 않음");
 if (!getLevel("level-04")) fail("level-04가 레지스트리에 등록되지 않음");
+if (!getLevel("level-05")) fail("level-05가 레지스트리에 등록되지 않음");
 if (getNextLevel(LEVELS[0].id)?.id !== LEVELS[1].id) fail("getNextLevel 순서가 잘못됨");
 if (getNextLevel("level-03")?.id !== "level-04") fail("안개 골짜기 다음 레벨이 쓰나미 마을이 아님");
+if (getNextLevel("level-04")?.id !== "level-05") fail("쓰나미 마을 다음 레벨이 물에 잠긴 마을이 아님");
 
 const levelIndex = await readFile(join(root, "src", "data", "levels", "index.js"), "utf8");
 if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02 import 한 줄이 없음");
 if (!levelIndex.includes('import level03 from "./level-03.js";')) fail("level-03 import 한 줄이 없음");
 if (!levelIndex.includes('import level04 from "./level-04.js";')) fail("level-04 import 한 줄이 없음");
-if (!levelIndex.includes("[level01, level02, level03, level04]")) fail("LEVELS 배열에 level-04 항목이 없음");
+if (!levelIndex.includes('import level05 from "./level-05.js";')) fail("level-05 import 한 줄이 없음");
+if (!levelIndex.includes("[level01, level02, level03, level04, level05]")) fail("LEVELS 배열에 level-05 항목이 없음");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
 if (!bootScene.includes('query.get("form")')) fail("캐릭터 런타임 검수용 form 선택이 없음");
 if (!bootScene.includes('query.get("animation")')) fail("캐릭터 런타임 검수용 animation 선택이 없음");
+if (!bootScene.includes('query.get("breath")')) fail("숨 소모·회복 런타임 검수용 breath 선택이 없음");
 if (!gameScene.includes("visualReviewOffset")) fail("런타임 화풍 검수용 구간 오프셋이 없음");
 if (!gameScene.includes("visualReviewAnimation")) fail("캐릭터 런타임 애니메이션 고정이 없음");
 if (!constants.includes('get("debug") === "1"')) fail("디버그가 명시적인 ?debug=1 없이 활성화됨");
@@ -134,8 +138,9 @@ if (!stageSelectScene.includes("createBackButton") || !stageSelectScene.includes
   fail("스테이지 선택 화면의 직접 캐릭터 선택 버튼 또는 Esc 복귀가 없음");
 }
 if (!stageSelectScene.includes("pageIndicator") || !stageSelectScene.includes("relative * 390")) {
-  fail("네 번째 스테이지를 위한 좌우 캐러셀·페이지 표시가 없음");
+  fail("다섯 번째 스테이지를 위한 좌우 캐러셀·페이지 표시가 없음");
 }
+if (!stageSelectScene.includes('level.visualTheme === "submerged-graybox"')) fail("물에 잠긴 마을 선택 카드 실루엣이 없음");
 if (!stageSelectScene.includes("progressManager.isUnlocked") || !stageSelectScene.includes("이전 스테이지를 먼저 클리어")) {
   fail("직전 스테이지 클리어 기반 순차 해금 경로가 없음");
 }
@@ -146,4 +151,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1 시험 진입점, level-02~04 확장성");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1 시험 진입점, level-02~05 확장성");

@@ -25,7 +25,14 @@ export class BreathManager {
       surfaceMargin: config.surfaceMargin ?? 8,
       underwaterPhysics: { ...DEFAULT_PHYSICS, ...(config.underwaterPhysics ?? {}) }
     };
-    this.ratio = 1;
+    const reviewMode = this.scene.registry?.get?.("visualReviewBreathMode");
+    this.ratio = reviewMode === "zero"
+      ? 0
+      : reviewMode === "low"
+        ? this.config.warningRatio * 0.75
+        : reviewMode === "recovering"
+          ? 0.4
+          : 1;
     this.contact = { zone: null, underwater: false, aboveSurface: true };
     this.recovering = false;
     this.nextDamageAt = Number.POSITIVE_INFINITY;

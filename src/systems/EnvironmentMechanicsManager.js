@@ -21,6 +21,7 @@ export class EnvironmentMechanicsManager {
     this.transformationManager = transformationManager;
     this.config = level.environment ?? {};
     this.waterZones = this.config.waterZones ?? [];
+    this.breathPoints = this.config.breathPoints ?? [];
     this.tsunami = this.config.tsunami ?? null;
     this.mist = this.config.mist ?? null;
     this.currentMistDensity = 0;
@@ -86,6 +87,42 @@ export class EnvironmentMechanicsManager {
         }));
         label.setDepth(9);
       }
+    }
+
+    const showBreathPoints = this.level.visualTheme === "submerged-graybox"
+      || this.scene.registry.get("debugEnabled")
+      || this.scene.registry.get("forceAssetFallback");
+    if (!showBreathPoints) return;
+    for (const point of this.breathPoints) {
+      const zone = this.waterZones.find(({ id }) => id === point.zoneId);
+      if (!zone) continue;
+      const surfaceY = zone.surfaceY;
+      const marker = this.track(this.scene.add.triangle(
+        point.x,
+        surfaceY - 34,
+        0,
+        20,
+        14,
+        0,
+        28,
+        20,
+        COLORS.collect,
+        0.94
+      ));
+      marker.setStrokeStyle(3, COLORS.outline, 0.92).setDepth(9);
+      const bubbleA = this.track(this.scene.add.circle(point.x + 22, surfaceY + 22, 7, COLORS.white, 0.76));
+      const bubbleB = this.track(this.scene.add.circle(point.x + 34, surfaceY + 43, 4, COLORS.white, 0.66));
+      bubbleA.setStrokeStyle(2, COLORS.collectBlue, 0.85).setDepth(9);
+      bubbleB.setStrokeStyle(2, COLORS.collectBlue, 0.85).setDepth(9);
+      const label = this.track(this.scene.add.text(point.x, surfaceY - 62, point.label ?? "숨", {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "15px",
+        fontStyle: "800",
+        color: CSS_COLORS.white,
+        backgroundColor: CSS_COLORS.panelSoft,
+        padding: { x: 7, y: 3 }
+      }));
+      label.setOrigin(0.5).setDepth(9);
     }
   }
 
@@ -585,6 +622,7 @@ export class EnvironmentMechanicsManager {
       waveId: this.waveId,
       secondsUntilWave,
       waterZoneCount: this.waterZones.length,
+      breathPointCount: this.breathPoints.length,
       mistZone: this.activeMistZoneId ?? null,
       mistDensity: this.currentMistDensity ?? 0,
       visibilityRadius: this.currentVisibilityRadius ?? 0,

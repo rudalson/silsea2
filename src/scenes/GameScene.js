@@ -109,6 +109,11 @@ export class GameScene extends Phaser.Scene {
       this.player.setY(this.level.player.spawn.y - 2).setVelocity(0, 0);
       this.cameras.main.centerOn(this.player.x, this.player.y - 180);
     }
+    if (visualReviewSectionId) {
+      this.player.body?.updateFromGameObject?.();
+      this.breathManager?.refreshWaterState();
+      this.breathManager?.emitSnapshot();
+    }
     const visualReviewForm = this.registry.get("visualReviewForm");
     if (visualReviewForm) {
       this.transformationManager.setForm(

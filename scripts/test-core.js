@@ -3,7 +3,9 @@ import level01 from "../src/data/levels/level-01.js";
 import level02 from "../src/data/levels/level-02.js";
 import level03 from "../src/data/levels/level-03.js";
 import level04 from "../src/data/levels/level-04.js";
+import level05 from "../src/data/levels/level-05.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
+import { EVENTS } from "../src/config/constants.js";
 import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
 import {
   getCharacterAnimationSpec,
@@ -164,6 +166,7 @@ assert.equal(getUpdraftVelocity(-620, 420, 1000, 120), -620, "상승기류가 �
 assert.equal(assertLevelShape(level01), true);
 assert.equal(assertLevelShape(level03), true);
 assert.equal(assertLevelShape(level04), true);
+assert.equal(assertLevelShape(level05), true);
 assert.equal(assertLevelShape(p1EnvironmentTest), true);
 const normalizedLevel01 = normalizeLevelDefinition(level01);
 assert.equal(normalizedLevel01.progression.direction, "right");
@@ -210,18 +213,41 @@ assert.deepEqual(
 );
 assert.equal(isInsideShelter({ x: 7344, y: 520 }, level04.environment.tsunami.shelters), true);
 assert.equal(isInsideShelter({ x: 7000, y: 520 }, level04.environment.tsunami.shelters), false);
+assert.equal(level05.order, 5);
+assert.equal(level05.progression.direction, "right");
+assert.ok(level05.player.spawn.x < level05.exit.x);
+assert.equal(level05.visualTheme, "submerged-graybox");
+assert.equal(level05.environment.waterZones.length, 3);
+assert.equal(level05.environment.breathPoints.length, 4);
+assert.equal(level05.environment.breath.depleteSeconds, 12);
+assert.equal(level05.environment.breath.refillSeconds, 2);
+assert.equal(level05.environment.breath.damageInterval, 2.5);
+assert.equal(level05.environment.breath.warningRatio, 0.3);
+assert.equal(level05.environment.breath.surfaceMargin, 8);
+assert.equal(level05.items.some(({ type }) => type === "alicorn"), false);
+assert.equal(level05.hazards.some(({ type }) => type === "pit"), false);
+for (const point of level05.environment.breathPoints) {
+  const zone = level05.environment.waterZones.find(({ id }) => id === point.zoneId);
+  assert.ok(zone && point.x >= zone.xStart && point.x <= zone.xEnd);
+}
 
 const progressStorage = new Map();
 const testProgress = new ProgressManager({
   getItem: (key) => progressStorage.get(key) ?? null,
   setItem: (key, value) => progressStorage.set(key, value)
 });
-const playableLevels = [level01, level02, level03, level04];
+const playableLevels = [level01, level02, level03, level04, level05];
 assert.equal(testProgress.isUnlocked(level01, playableLevels), true);
 assert.equal(testProgress.isUnlocked(level02, playableLevels), false);
 testProgress.complete(level01.id, 10);
 assert.equal(testProgress.isUnlocked(level02, playableLevels), true);
 assert.equal(testProgress.isUnlocked(level03, playableLevels), false);
+testProgress.complete(level02.id, 10);
+testProgress.complete(level03.id, 10);
+assert.equal(testProgress.isUnlocked(level04, playableLevels), true);
+assert.equal(testProgress.isUnlocked(level05, playableLevels), false);
+testProgress.complete(level04.id, 10);
+assert.equal(testProgress.isUnlocked(level05, playableLevels), true);
 
 assert.equal(stepBreathRatio(1, 6000, { underwater: true, depleteSeconds: 12 }), 0.5);
 assert.equal(stepBreathRatio(0, 1000, { recovering: true, refillSeconds: 2 }), 0.5);
@@ -378,6 +404,14 @@ assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.speedMultiplier - 1.05) 
 assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.duration - 3) < 0.001);
 assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.shelterGrace - 0.4) < 0.001);
 assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.respawnGrace - 4.5) < 0.001);
+const easySubmergedLevel = createRuntimeLevel(level05, true);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.depleteSeconds - 17) < 0.001);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.refillSeconds - 1.5) < 0.001);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.damageInterval - 3.5) < 0.001);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.warningRatio - 0.35) < 0.001);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.underwaterPhysics.horizontalSpeedMultiplier - 0.8) < 0.001);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.underwaterPhysics.strokeVelocity + 240) < 0.001);
+assert.ok(Math.abs(easySubmergedLevel.environment.breath.underwaterPhysics.strokeCooldown - 0.3) < 0.001);
 const easyMistLevel = createRuntimeLevel(level03, true);
 assert.ok(Math.abs(easyMistLevel.environment.mist.zones[3].density - 0.5084) < 0.0001);
 assert.ok(Math.abs(easyMistLevel.environment.mist.zones[3].visibilityRadius - 322) < 0.001);
@@ -461,6 +495,8 @@ assert.equal(restHealth.restoreFull(), false);
 
 const environmentHealthEvents = [];
 let environmentDamageCount = 0;
+let environmentRespawnCount = 0;
+let environmentRespawnScoreLossCount = 0;
 const environmentPlayer = {
   active: true,
   character: { physics: { maxHp: 3 } },
@@ -477,8 +513,8 @@ const environmentScene = {
 const environmentHealth = new HealthManager(
   environmentScene,
   environmentPlayer,
-  { respawn() {} },
-  { loseOnRespawn() {} },
+  { respawn() { environmentRespawnCount += 1; } },
+  { loseOnRespawn() { environmentRespawnScoreLossCount += 1; } },
   { recordDamage: () => { environmentDamageCount += 1; } },
   { invulnerable: false },
   { player: { extraHp: 0 } }
@@ -489,6 +525,15 @@ assert.equal(environmentDamageCount, 1);
 assert.equal(environmentPlayer.controlLockedUntil, undefined);
 assert.equal(environmentHealth.takeEnvironmentDamage({ type: "breath" }), false, "환경 피해도 피격 무적을 존중해야 함");
 assert.equal(environmentHealthEvents.at(-2).payload.environment, true);
+environmentScene.time.now = CORE_RULES.invulnerableMs;
+assert.equal(environmentHealth.takeEnvironmentDamage({ type: "breath" }), true);
+assert.equal(environmentHealth.hp, 1);
+environmentScene.time.now = CORE_RULES.invulnerableMs * 2;
+assert.equal(environmentHealth.takeEnvironmentDamage({ type: "breath" }), true);
+assert.equal(environmentHealth.hp, 3, "숨 피해로 HP가 0이면 체크포인트 부활 뒤 HP를 회복해야 함");
+assert.equal(environmentDamageCount, 3);
+assert.equal(environmentRespawnCount, 1);
+assert.equal(environmentRespawnScoreLossCount, 1);
 
 const breathListeners = new Map();
 const breathDamageTimes = [];
@@ -523,7 +568,7 @@ breathPlayer.body.top = 300;
 breathScene.time.now = 3500;
 breath.update(3500, 1000);
 assert.equal(breath.getSnapshot().ratio, 0.5);
-breath.restoreFull();
+breathListeners.get(EVENTS.PLAYER_RESPAWNED)?.();
 assert.equal(breath.getSnapshot().ratio, 1);
 breath.destroy();
 

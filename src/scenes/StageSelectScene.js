@@ -89,6 +89,17 @@ export class StageSelectScene extends Phaser.Scene {
         add(this.add.rectangle(128, 310, 34, 154, COLORS.collectBlue, 0.82)).setStrokeStyle(4, COLORS.white);
         add(this.add.triangle(98, 310, 44, 0, 0, 24, 44, 48, COLORS.white, 0.9));
       }
+      if (level.visualTheme === "submerged-graybox" && !hasPreview) {
+        add(this.add.rectangle(0, 332, 304, 94, COLORS.collectBlue, 0.5));
+        add(this.add.rectangle(0, 286, 304, 6, COLORS.white, 0.92));
+        add(this.add.rectangle(-100, 262, 72, 48, COLORS.near, 0.96)).setStrokeStyle(3, COLORS.outline);
+        add(this.add.triangle(-100, 230, -46, 32, 0, 0, 46, 32, COLORS.dangerAlt, 0.9))
+          .setStrokeStyle(3, COLORS.outline);
+        add(this.add.rectangle(82, 270, 92, 32, COLORS.near, 0.94)).setStrokeStyle(3, COLORS.outline);
+        add(this.add.circle(22, 332, 8, COLORS.white, 0.78));
+        add(this.add.circle(38, 314, 5, COLORS.white, 0.72));
+        add(this.add.triangle(92, 324, 0, 20, 16, 0, 32, 20, COLORS.collect, 0.94));
+      }
       const lockedOverlay = add(this.add.rectangle(0, 314, 304, 168, COLORS.outline, 0.62)).setVisible(!unlocked);
       const lockedLabel = add(this.add.text(0, 314, "잠김\n이전 스테이지를 먼저 클리어하세요", {
         align: "center",
