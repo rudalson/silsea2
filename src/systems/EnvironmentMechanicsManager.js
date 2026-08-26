@@ -115,6 +115,9 @@ export class EnvironmentMechanicsManager {
   createMistVisuals() {
     if (!this.mist) return;
 
+    const effectKeys = this.level.assets.effects ?? {};
+    const forceFallback = this.scene.registry.get("forceAssetFallback");
+
     this.fogOverlay = this.track(
       this.scene.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, COLORS.soft, 1)
     );
@@ -124,6 +127,34 @@ export class EnvironmentMechanicsManager {
     this.mistMask = this.mistMaskGraphics.createGeometryMask();
     this.mistMask.invertAlpha = true;
     this.fogOverlay.setMask(this.mistMask);
+
+    this.mistBankVisuals = [];
+    if (!forceFallback && effectKeys.mistBank && this.scene.textures.exists(effectKeys.mistBank)) {
+      for (let index = 0; index < 4; index += 1) {
+        const bank = this.track(this.scene.add.image(index * 420 - 80, GAME_HEIGHT + 8, effectKeys.mistBank));
+        bank
+          .setOrigin(0, 1)
+          .setScrollFactor(0)
+          .setDisplaySize(500, 168)
+          .setDepth(17)
+          .setAlpha(0);
+        this.mistBankVisuals.push(bank);
+        this.mistTweens.push(this.scene.tweens.add({
+          targets: bank,
+          x: bank.x + 38,
+          duration: 3600 + index * 320,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.InOut"
+        }));
+      }
+    }
+
+    this.mistClearVisual = null;
+    if (!forceFallback && effectKeys.mistClear && this.scene.textures.exists(effectKeys.mistClear)) {
+      this.mistClearVisual = this.track(this.scene.add.image(0, 0, effectKeys.mistClear));
+      this.mistClearVisual.setScrollFactor(0).setDepth(19).setBlendMode("ADD").setAlpha(0);
+    }
 
     for (const zone of this.mist.zones ?? []) {
       const boundary = this.track(
@@ -146,6 +177,38 @@ export class EnvironmentMechanicsManager {
 
   createMistGuide(guide) {
     const y = guide.y ?? 560;
+    const effectKeys = this.level.assets.effects ?? {};
+    const forceFallback = this.scene.registry.get("forceAssetFallback");
+    const artKey = guide.kind === "beacon" ? effectKeys.mistBeacon : effectKeys.mistBreeze;
+    if (!forceFallback && artKey && this.scene.textures.exists(artKey)) {
+      const art = this.track(this.scene.add.image(guide.x, y, artKey));
+      if (guide.kind === "beacon") {
+        art.setOrigin(0.5, 1).setDisplaySize(72, 144).setDepth(20);
+        this.mistTweens.push(this.scene.tweens.add({
+          targets: art,
+          alpha: { from: 0.66, to: 1 },
+          scaleX: { from: 0.72, to: 0.77 },
+          scaleY: { from: 0.72, to: 0.77 },
+          duration: 760,
+          yoyo: true,
+          repeat: -1,
+          delay: guide.delay ?? 0
+        }));
+      } else {
+        art.setOrigin(0.5).setDisplaySize(150, 75).setDepth(20);
+        this.mistTweens.push(this.scene.tweens.add({
+          targets: art,
+          x: guide.x + 24,
+          alpha: { from: 0.7, to: 1 },
+          duration: 640,
+          yoyo: true,
+          repeat: -1,
+          delay: guide.delay ?? 0
+        }));
+      }
+      return;
+    }
+
     if (guide.kind === "beacon") {
       const beam = this.track(this.scene.add.rectangle(guide.x, y - 72, 9, 116, COLORS.collect, 0.72));
       const diamond = this.track(this.scene.add.star(guide.x, y - 142, 4, 10, 25, COLORS.collect, 1));
@@ -233,6 +296,13 @@ export class EnvironmentMechanicsManager {
         this.currentVisibilityRadius * 2,
         this.currentVisibilityRadius * 1.18
       );
+    for (const bank of this.mistBankVisuals ?? []) bank.setAlpha(this.currentMistDensity * 0.46);
+    if (this.mistClearVisual) {
+      this.mistClearVisual
+        .setPosition(screenX, screenY)
+        .setDisplaySize(this.currentVisibilityRadius * 1.9, this.currentVisibilityRadius * 1.2)
+        .setAlpha(this.currentMistDensity * 0.24);
+    }
 
     const zoneId = zone?.id ?? null;
     if (zoneId === this.activeMistZoneId) return;
@@ -381,5 +451,7 @@ export class EnvironmentMechanicsManager {
     this.fogOverlay = null;
     this.mistMaskGraphics = null;
     this.mistMask = null;
+    this.mistBankVisuals = null;
+    this.mistClearVisual = null;
   }
 }

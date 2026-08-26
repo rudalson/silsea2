@@ -189,6 +189,17 @@ assert.equal(getWaterContact({ x: 800, headY: 316 }, p1EnvironmentTest.environme
 assert.equal(isInsideShelter({ x: 3450, y: 520 }, p1EnvironmentTest.environment.tsunami.shelters), true);
 assert.equal(isInsideShelter({ x: 3200, y: 520 }, p1EnvironmentTest.environment.tsunami.shelters), false);
 const mistZones = level03.environment.mist.zones;
+assert.equal(level03.visualTheme, "mist-valley");
+assert.equal(level03.assets.tileset, "mist_tileset");
+assert.equal(level03.assets.preview, "stage_preview_mist");
+assert.deepEqual(level03.assets.backgrounds.normal, { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" });
+assert.deepEqual(level03.assets.effects, {
+  mistBank: "fx_mist_bank",
+  mistClear: "fx_mist_clear",
+  mistBeacon: "fx_mist_beacon",
+  mistBreeze: "fx_mist_breeze"
+});
+assert.equal(level03.assets.bgm.field, "bgm_mist");
 assert.equal(getMistZoneAt(639, mistZones), null);
 assert.equal(getMistZoneAt(640, mistZones).id, "mist_intro");
 assert.equal(getMistZoneAt(1664, mistZones).id, "mist_practice");

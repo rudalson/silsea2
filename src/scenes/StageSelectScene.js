@@ -66,7 +66,7 @@ export class StageSelectScene extends Phaser.Scene {
         this.add.star(x + 18, 298, 5, 4, 10, COLORS.collectBlue, 0.94).setDepth(6);
         this.add.star(x + 70, 338, 5, 4, 10, COLORS.collectPink, 0.92).setDepth(6);
       }
-      if (level.visualTheme === "mist-graybox" && !hasPreview) {
+      if (level.visualTheme === "mist-valley" && !hasPreview) {
         this.add.rectangle(x, 348, 304, 58, COLORS.ground, 0.96).setDepth(5);
         this.add.ellipse(x - 92, 324, 132, 66, COLORS.soft, 0.72).setDepth(5);
         this.add.ellipse(x + 24, 302, 176, 82, COLORS.white, 0.5).setDepth(5);

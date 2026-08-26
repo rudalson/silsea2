@@ -5,16 +5,23 @@ export default {
   id: "level-03",
   name: "안개 골짜기",
   description: "빛 기둥과 바람을 따라가는 길",
-  visualTheme: "mist-graybox",
+  visualTheme: "mist-valley",
   order: 3,
   progression: { direction: "right" },
   exit: { x: 6992, y: 576, enterFrom: "right" },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-03-map",
-    tileset: "grass_tileset",
+    tileset: "mist_tileset",
+    preview: "stage_preview_mist",
     backgrounds: {
-      normal: { far: "bg_normal_far", mid: "bg_normal_mid", near: "bg_normal_near" }
+      normal: { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" }
+    },
+    effects: {
+      mistBank: "fx_mist_bank",
+      mistClear: "fx_mist_clear",
+      mistBeacon: "fx_mist_beacon",
+      mistBreeze: "fx_mist_breeze"
     },
     objects: {
       items: {
@@ -28,7 +35,7 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_field", clear: "bgm_clear" }
+    bgm: { field: "bgm_mist", clear: "bgm_clear" }
   },
   world: { width: 7168, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
@@ -70,7 +77,7 @@ export default {
     { id: "mist_gate_star", type: "star", x: 6848, y: 496 }
   ],
   terrainMechanics: {
-    visualTheme: "default",
+    visualTheme: "mist-valley",
     movingPlatforms: [
       { id: "mist_breeze_platform", x: 4000, y: 448, width: 176, height: 32, axis: "y", distance: 80, speed: 50 },
       { id: "mist_combo_platform", x: 6080, y: 456, width: 176, height: 32, axis: "x", distance: 120, speed: 54 }

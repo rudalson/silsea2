@@ -133,6 +133,13 @@ const tracks = {
     bass: [45, 52, 48, 55, 45, 52, 50, 55],
     wave: "sine",
     percussion: 0.022
+  },
+  bgm_mist: {
+    bpm: 88,
+    lead: [67, 71, 74, null, 69, 72, 76, null, 67, 74, 71, null, 64, 69, 72, null],
+    bass: [43, 50, 45, 52, 43, 50, 47, 52],
+    wave: "sine",
+    percussion: 0.012
   }
 };
 

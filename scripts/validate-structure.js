@@ -106,6 +106,9 @@ if (!environmentManager.includes("pauseEnemiesDuringWave") || !breathManager.inc
 if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
   fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");
 }
+if (!environmentManager.includes("mistBeacon") || !environmentManager.includes("mistBreeze") || !environmentManager.includes("mistClear")) {
+  fail("승인된 P3 비콘·바람 리본·안개 걷힘 에셋 연결이 없음");
+}
 if (!playtestManager.includes("PLAYTEST_STALL_SECONDS") || !playtestManager.includes("adjustmentCandidates")) {
   fail("플레이테스트 정체·2명 이상 조정 후보 분석이 없음");
 }
