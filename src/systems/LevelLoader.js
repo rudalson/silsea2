@@ -259,18 +259,21 @@ export class LevelLoader {
     const columns = Math.ceil(object.width / tileSize);
     const rows = Math.ceil(object.height / tileSize);
     const platform = object.type === "platform";
+    const waterFloor = this.level.visualTheme === "submerged-village" && object.name?.includes("_water_floor");
 
     for (let row = 0; row < rows; row += 1) {
       for (let column = 0; column < columns; column += 1) {
         const isLeft = column === 0;
         const isRight = column === columns - 1;
         let frame;
-        if (platform) {
+        if (waterFloor) {
+          frame = isLeft ? "dirt_left" : isRight ? "dirt_right" : (column * 2 + row) % 5 === 0 ? "dirt_variant" : "dirt";
+        } else if (platform) {
           frame = isLeft ? "platform_left" : isRight ? "platform_right" : "platform_mid";
         } else if (row === 0) {
           frame = isLeft ? "grass_top_left" : isRight ? "grass_top_right" : "grass_top";
         } else {
-          frame = isLeft ? "dirt_left" : isRight ? "dirt_right" : (column + row) % 3 === 0 ? "dirt_variant" : "dirt";
+          frame = isLeft ? "dirt_left" : isRight ? "dirt_right" : (column * 2 + row) % 5 === 0 ? "dirt_variant" : "dirt";
         }
 
         const width = Math.min(tileSize, object.width - column * tileSize);

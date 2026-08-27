@@ -150,6 +150,13 @@ const tracks = {
     bass: [38, 45, 41, 48, 38, 45, 43, 48],
     wave: "triangle",
     percussion: 0.045
+  },
+  bgm_submerged: {
+    bpm: 84,
+    lead: [64, 67, 71, null, 69, 72, 76, null, 64, 71, 74, null, 62, 67, 71, null],
+    bass: [40, 47, 43, 50, 40, 47, 45, 50],
+    wave: "sine",
+    percussion: 0.008
   }
 };
 

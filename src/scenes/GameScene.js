@@ -105,9 +105,21 @@ export class GameScene extends Phaser.Scene {
     const visualReviewSectionId = this.registry.get("visualReviewSectionId");
     const visualReviewOffset = this.registry.get("visualReviewOffset");
     if (visualReviewSectionId) this.warpToSection(visualReviewSectionId, visualReviewOffset ?? 160);
-    if (visualReviewSectionId && this.registry.get("visualReviewSurface") === "ground") {
+    const visualReviewSurface = this.registry.get("visualReviewSurface");
+    if (visualReviewSectionId && visualReviewSurface === "ground") {
       this.player.setY(this.level.player.spawn.y - 2).setVelocity(0, 0);
       this.cameras.main.centerOn(this.player.x, this.player.y - 180);
+    }
+    if (visualReviewSectionId && visualReviewSurface === "underwater") {
+      const reviewWaterZone = this.level.environment?.waterZones?.find(
+        ({ xStart, xEnd }) => this.player.x >= xStart && this.player.x <= xEnd
+      );
+      if (reviewWaterZone) {
+        const reviewDepth = Math.min(reviewWaterZone.bottomY - 96, reviewWaterZone.surfaceY + 80);
+        this.player.setY(reviewDepth).setVelocity(0, 0);
+        this.player.body?.setAllowGravity?.(false);
+        this.cameras.main.centerOn(this.player.x, this.player.y - 120);
+      }
     }
     if (visualReviewSectionId) {
       this.player.body?.updateFromGameObject?.();

@@ -5,16 +5,22 @@ export default {
   id: "level-05",
   name: "물에 잠긴 마을",
   description: "잠긴 지붕 아래를 헤엄치며 수면 위에서 숨을 고르는 길",
-  visualTheme: "submerged-graybox",
+  visualTheme: "submerged-village",
   order: 5,
   progression: { direction: "right" },
   exit: { x: 8016, y: 288, enterFrom: "right" },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-05-map",
-    tileset: "grass_tileset",
+    tileset: "submerged_village_tileset",
+    preview: "stage_preview_submerged",
     backgrounds: {
-      normal: { far: "bg_normal_far", mid: "bg_normal_mid", near: "bg_normal_near" }
+      normal: { far: "bg_submerged_far", mid: "bg_submerged_mid", near: "bg_submerged_near" }
+    },
+    effects: {
+      waterSurface: "fx_water_surface",
+      waterCaustics: "fx_water_caustics",
+      bubble: "fx_bubble"
     },
     objects: {
       items: {
@@ -28,7 +34,7 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_field", clear: "bgm_clear" }
+    bgm: { field: "bgm_submerged", clear: "bgm_clear" }
   },
   world: { width: 8192, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
@@ -66,7 +72,7 @@ export default {
     { id: "final_reward", type: "percent_large", x: 7552, y: 288 }
   ],
   terrainMechanics: {
-    visualTheme: "submerged-graybox",
+    visualTheme: "submerged-village",
     movingPlatforms: [],
     crumblePlatforms: []
   },

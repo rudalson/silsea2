@@ -121,15 +121,18 @@ assert.equal(getCharacterSequenceKey("silsea", "move"), "silsea_run");
 assert.equal(getCharacterSequenceKey("potato89", "move"), "potato89_roll");
 assert.equal(getCharacterAnimationSpec("silsea", "jump", "unicorn").textureKey, "silsea_unicorn_jump_up");
 assert.equal(getCharacterAnimationSpec("potato89", "move", "unicorn").textureKey, "potato89_unicorn_roll");
+assert.equal(getCharacterAnimationSpec("silsea", "swim").textureKey, "silsea_swim");
+assert.equal(getCharacterAnimationSpec("silsea", "swim", "unicorn").textureKey, "silsea_unicorn_swim");
+assert.equal(getCharacterAnimationSpec("potato89", "swim", "unicorn").textureKey, "potato89_unicorn_swim");
 assert.equal(getCharacterAnimationSpec("silsea", "transform_unicorn", "unicorn").textureKey, "silsea_transform_unicorn");
 assert.notEqual(
   getCharacterAnimationSpec("silsea", "jump", "unicorn").key,
   getCharacterAnimationSpec("silsea", "jump").key
 );
-assert.equal(getCharacterAssetKeys("silsea").length, 19);
-assert.equal(getCharacterAssetKeys("potato89").length, 21);
+assert.equal(getCharacterAssetKeys("silsea").length, 21);
+assert.equal(getCharacterAssetKeys("potato89").length, 23);
 for (const characterId of ["silsea", "potato89"]) {
-  for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "victory"]) {
+  for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "swim", "victory"]) {
     const spec = getCharacterAnimationSpec(characterId, sequence);
     assert.ok(spec, `${characterId} ${sequence} 애니메이션 명세가 필요함`);
     assert.equal(spec.durationMs, spec.durations.reduce((total, duration) => total + duration, 0));
@@ -216,7 +219,16 @@ assert.equal(isInsideShelter({ x: 7000, y: 520 }, level04.environment.tsunami.sh
 assert.equal(level05.order, 5);
 assert.equal(level05.progression.direction, "right");
 assert.ok(level05.player.spawn.x < level05.exit.x);
-assert.equal(level05.visualTheme, "submerged-graybox");
+assert.equal(level05.visualTheme, "submerged-village");
+assert.equal(level05.assets.tileset, "submerged_village_tileset");
+assert.equal(level05.assets.preview, "stage_preview_submerged");
+assert.deepEqual(level05.assets.backgrounds.normal, { far: "bg_submerged_far", mid: "bg_submerged_mid", near: "bg_submerged_near" });
+assert.deepEqual(level05.assets.effects, {
+  waterSurface: "fx_water_surface",
+  waterCaustics: "fx_water_caustics",
+  bubble: "fx_bubble"
+});
+assert.equal(level05.assets.bgm.field, "bgm_submerged");
 assert.equal(level05.environment.waterZones.length, 3);
 assert.equal(level05.environment.breathPoints.length, 4);
 assert.equal(level05.environment.breath.depleteSeconds, 12);

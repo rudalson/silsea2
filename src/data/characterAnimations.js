@@ -10,6 +10,7 @@ const CHARACTER_SEQUENCE_KEYS = Object.freeze({
     transform_pegasus: "silsea_transform_pegasus",
     transform_alicorn: "silsea_transform_alicorn",
     fly: "silsea_fly",
+    swim: "silsea_swim",
     victory: "silsea_victory"
   }),
   potato89: Object.freeze({
@@ -24,6 +25,7 @@ const CHARACTER_SEQUENCE_KEYS = Object.freeze({
     transform_pegasus: "potato89_transform_pegasus",
     transform_alicorn: "potato89_transform_alicorn",
     fly: "potato89_fly",
+    swim: "potato89_swim",
     victory: "potato89_victory"
   })
 });
@@ -37,6 +39,7 @@ const UNICORN_SEQUENCE_KEYS = Object.freeze({
     land: "silsea_unicorn_land",
     hurt: "silsea_unicorn_hurt",
     fly: "silsea_unicorn_fly",
+    swim: "silsea_unicorn_swim",
     victory: "silsea_unicorn_victory"
   }),
   potato89: Object.freeze({
@@ -48,6 +51,7 @@ const UNICORN_SEQUENCE_KEYS = Object.freeze({
     hurt: "potato89_unicorn_hurt",
     stomp: "potato89_unicorn_stomp",
     fly: "potato89_unicorn_fly",
+    swim: "potato89_unicorn_swim",
     victory: "potato89_unicorn_victory"
   })
 });
@@ -64,6 +68,7 @@ const SEQUENCE_TIMINGS = Object.freeze({
   transform_pegasus: Object.freeze({ durations: [180, 120, 100, 100, 130, 320], repeat: 0 }),
   transform_alicorn: Object.freeze({ durations: [180, 120, 90, 90, 90, 100, 150, 360], repeat: 0 }),
   fly: Object.freeze({ durations: [110, 90, 100, 110, 90, 100], repeat: -1 }),
+  swim: Object.freeze({ durations: [130, 110, 120, 130, 110, 120], repeat: -1 }),
   victory: Object.freeze({ durations: [150, 110, 110, 140, 180, 280], repeat: -1 })
 });
 

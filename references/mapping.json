@@ -2,7 +2,7 @@
   "$schemaVersion": 2,
   "$delivery": {
     "manifestGroups": {
-      "unicorn_motion_variants": ["silsea_unicorn_idle", "silsea_unicorn_run", "silsea_unicorn_jump_up", "silsea_unicorn_fall", "silsea_unicorn_land", "silsea_unicorn_hurt", "silsea_unicorn_fly", "silsea_unicorn_victory", "potato89_unicorn_idle", "potato89_unicorn_roll", "potato89_unicorn_jump_up", "potato89_unicorn_fall", "potato89_unicorn_land", "potato89_unicorn_hurt", "potato89_unicorn_stomp", "potato89_unicorn_fly", "potato89_unicorn_victory"],
+      "unicorn_motion_variants": ["silsea_unicorn_idle", "silsea_unicorn_run", "silsea_unicorn_jump_up", "silsea_unicorn_fall", "silsea_unicorn_land", "silsea_unicorn_hurt", "silsea_unicorn_fly", "silsea_unicorn_swim", "silsea_unicorn_victory", "potato89_unicorn_idle", "potato89_unicorn_roll", "potato89_unicorn_jump_up", "potato89_unicorn_fall", "potato89_unicorn_land", "potato89_unicorn_hurt", "potato89_unicorn_stomp", "potato89_unicorn_fly", "potato89_unicorn_swim", "potato89_unicorn_victory"],
       "raw_potato": ["raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"],
       "spike_pumpkin": ["spike_pumpkin_idle", "spike_pumpkin_warning", "spike_pumpkin_break"],
       "dark_cloud": ["dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated"],
@@ -53,6 +53,7 @@
   "silsea_transform_pegasus": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "실세아 기본형에 날개만 추가하는 차분." },
   "silsea_transform_alicorn": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp", "mario_3.jpg"], "note": "뿔+날개 판독성과 축제 분위기만 참고." },
   "silsea_fly": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "실세아 비율과 날개 동작 참고." },
+  "silsea_swim": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "기존 실세아 공중 차분을 수평 수영 자세로 기울이고 기포를 더한 6프레임 전용 동작." },
   "silsea_victory": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_3.jpg"], "note": "실세아 원안과 클리어 축제감." },
 
   "potato89_idle": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp", "mario_3.jpg"], "note": "프로젝트 선 처리와 통통한 망아지의 귀여운 분위기. 기존 캐릭터 형태는 미참조." },
@@ -66,6 +67,7 @@
   "potato89_transform_pegasus": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "통통한 기본형에 날개만 추가." },
   "potato89_transform_alicorn": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp", "mario_3.jpg"], "note": "뿔+날개 판독성과 축제감." },
   "potato89_fly": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "통통한 망아지 비율과 날개 동작 참고." },
+  "potato89_swim": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "감자89의 통통한 비율을 유지한 수평 수영 6프레임과 기포 피드백." },
   "potato89_victory": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_3.jpg"], "note": "프로젝트 선 처리와 클리어 축제감." },
 
   "raw_potato": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "프로젝트 색상선과 낮고 둥근 적 실루엣. 상용 오브젝트는 모사하지 않음." },
@@ -95,6 +97,9 @@
   "bg_tsunami_far": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P4 앵커의 밝은 해안 하늘과 왼쪽 언덕 마을, 오른쪽 열린 바다를 옅은 원경으로 구성." },
   "bg_tsunami_mid": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "청록 지붕 집과 석축 섬을 투명 중경 레이어로 분리해 역방향 추격의 진행 공간을 유지." },
   "bg_tsunami_near": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "바람에 눕는 관목·젖은 난간·돌을 하단 띠로 제한해 플레이 영역을 가리지 않음." },
+  "bg_submerged_far": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P5 앵커의 단일 수면선과 물 위 지붕·굴뚝, 물 아래로 흐려지는 마을 기초를 옅은 원경으로 구성." },
+  "bg_submerged_mid": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "서로 떨어진 다른 침수 마을 군집을 투명 중경으로 분리해 수영 통로와 호흡 지붕을 가리지 않음." },
+  "bg_submerged_near": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "수중 돌·수초·기포·빛기둥을 하단과 낮은 투명 장식으로 제한해 플레이 경계를 유지." },
   "bg_pit_far": { "styleRefs": ["maple_2.jpg", "mario_1.jpg"], "note": "비어 있는 깊이와 차가운 하늘 분위기." },
   "bg_pit_mid": { "styleRefs": ["maple_story_1.png", "mario_1.jpg"], "note": "중경 간격으로 낭떠러지 깊이를 전달." },
   "bg_pit_near": { "styleRefs": ["maple_2.jpg", "mario_1.jpg"], "note": "하단 가장자리 장식만 사용." },
@@ -109,11 +114,13 @@
   "stage_preview_starlight": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커의 초승달·세로 나무·별나무 랜드마크를 한 화면에 담은 별빛 숲 선택 카드." },
   "stage_preview_mist": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P3 최종 배경을 축약해 계곡 벽·안개·비콘·바람 리본을 보여 주는 선택 카드." },
   "stage_preview_tsunami": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P4 최종 배경과 열린 집, 오른쪽에서 접근하는 파도 실루엣을 한 화면에 담은 선택 카드." },
+  "stage_preview_submerged": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P5 최종 배경의 수면선·드러난 지붕·잠긴 마을과 빛기둥을 한 화면에 담은 5번 선택 카드." },
 
   "grass_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "팔레트와 흙/잔디 층만 참고해 코드 생성. 이미지 생성 금지." },
   "starlight_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커를 따라 기존 64px 충돌 프레임 계약에 달빛 윗면과 뿌리 무늬를 코드로 추가한 전용 타일." },
   "mist_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P3 앵커를 따라 기존 64px 충돌 프레임 계약에 이끼 윗면과 암석 균열을 코드로 추가한 전용 타일." },
   "village_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P4 앵커를 따라 기존 64px 충돌 프레임 계약에 흰 수선과 젖은 석축 무늬를 코드로 추가한 전용 타일." },
+  "submerged_village_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P5 앵커에 따라 기존 64px·2px extrusion 계약에 황토 지붕 윗면, 회청 수중 벽·바닥, 창과 빛결을 추가한 전용 타일." },
   "decor_star_tree": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커 기반으로 종료 구간에 한 번만 배치되는 별 모양 수관의 고유 랜드마크." },
   "decor_moon_branch": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커의 초승달과 굵은 가지가 결합된 별빛 숲 장식." },
   "decor_firefly": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "진행 리듬을 방해하지 않는 작은 청록 반딧불 무리." },
@@ -141,6 +148,9 @@
   "shelter_hill": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "오른쪽 파도 바람에 식생이 왼쪽으로 눕고 돌기반이 드러난 낮고 넓은 자연 피난처." },
   "fx_tsunami_wave": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "오른쪽에서 왼쪽으로 이동하는 화면 높이 파도. 8프레임의 서로 다른 거품 실루엣으로 방향을 색 외에도 판독." },
   "fx_tsunami_warning": { "styleRefs": ["mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "왼쪽 화살표와 작은 파도 문양을 함께 사용해 흔들림 없이 접근 방향을 표시." },
+  "fx_water_surface": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "4프레임의 흰색·청록 물결선을 겹쳐 색 없이도 수면 경계를 판독." },
+  "fx_water_caustics": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "수영 통로를 가리지 않는 낮은 불투명도의 4프레임 수중 빛결." },
+  "fx_bubble": { "styleRefs": ["silsea_sprite-Photoroom.png", "maple_story_1.png"], "note": "호흡 지점과 수영 동작에 쓰는 단순 원형 기포 6프레임." },
   "fx_quake_wave": { "styleRefs": ["mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "낮은 수평 파동의 가독성." },
   "fx_weakpoint_star": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "별형 약점과 프로젝트 선 처리." },
   "fx_stolen_percent": { "styleRefs": ["mario_1.jpg", "mario_3.jpg"], "note": "즉시 회수하고 싶은 반짝이는 점수 조각." },

@@ -55,6 +55,26 @@ export class EnvironmentMechanicsManager {
   }
 
   createWaterVisuals() {
+    const effectKeys = this.level.assets.effects ?? {};
+    const forceFallback = this.scene.registry.get("forceAssetFallback");
+    const finalArt = this.level.visualTheme === "submerged-village" && !forceFallback;
+    const ensureLoop = (textureKey, suffix, frames, frameRate) => {
+      if (!textureKey || !this.scene.textures?.exists?.(textureKey)) return null;
+      const animationKey = `${textureKey}-${suffix}`;
+      if (!this.scene.anims.exists(animationKey)) {
+        this.scene.anims.create({
+          key: animationKey,
+          frames: this.scene.anims.generateFrameNumbers(textureKey, { start: 0, end: frames - 1 }),
+          frameRate,
+          repeat: -1
+        });
+      }
+      return animationKey;
+    };
+    const surfaceAnimation = finalArt ? ensureLoop(effectKeys.waterSurface, "loop", 4, 7) : null;
+    const causticsAnimation = finalArt ? ensureLoop(effectKeys.waterCaustics, "loop", 4, 4) : null;
+    const bubbleAnimation = finalArt ? ensureLoop(effectKeys.bubble, "loop", 6, 6) : null;
+
     for (const zone of this.waterZones) {
       const width = zone.xEnd - zone.xStart;
       const height = zone.bottomY - zone.surfaceY;
@@ -67,15 +87,29 @@ export class EnvironmentMechanicsManager {
         this.getEffectAlpha(0.22)
       ));
       water.setDepth(7);
-      const surface = this.track(this.scene.add.rectangle(
-        zone.xStart + width / 2,
-        zone.surfaceY,
-        width,
-        8,
-        COLORS.white,
-        this.getEffectAlpha(0.72)
-      ));
-      surface.setDepth(8);
+      if (surfaceAnimation) {
+        for (let left = zone.xStart; left < zone.xEnd; left += 384) {
+          const segmentWidth = Math.min(384, zone.xEnd - left);
+          const surface = this.track(this.scene.add.sprite(left + segmentWidth / 2, zone.surfaceY, effectKeys.waterSurface, 0));
+          surface.setDisplaySize(segmentWidth + 2, 64).setDepth(8).setAlpha(this.getEffectAlpha(0.94)).play(surfaceAnimation);
+        }
+      } else {
+        const surface = this.track(this.scene.add.rectangle(
+          zone.xStart + width / 2,
+          zone.surfaceY,
+          width,
+          8,
+          COLORS.white,
+          this.getEffectAlpha(0.72)
+        ));
+        surface.setDepth(8);
+      }
+      if (causticsAnimation) {
+        for (let x = zone.xStart + 190; x < zone.xEnd; x += 440) {
+          const caustics = this.track(this.scene.add.sprite(x, zone.surfaceY + 112, effectKeys.waterCaustics, 0));
+          caustics.setDisplaySize(256, 128).setDepth(7).setAlpha(this.getEffectAlpha(0.38)).play(causticsAnimation);
+        }
+      }
       if (this.scene.registry.get("debugEnabled") || this.scene.registry.get("forceAssetFallback")) {
         const label = this.track(this.scene.add.text(zone.xStart + 20, zone.surfaceY + 18, `수면 · ${zone.id}`, {
           fontFamily: GAME_FONT_FAMILY,
@@ -86,6 +120,25 @@ export class EnvironmentMechanicsManager {
           padding: { x: 8, y: 4 }
         }));
         label.setDepth(9);
+      }
+    }
+
+    if (finalArt && bubbleAnimation) {
+      for (const point of this.breathPoints) {
+        const zone = this.waterZones.find(({ id }) => id === point.zoneId);
+        if (!zone) continue;
+        const bubble = this.track(this.scene.add.sprite(point.x + 28, zone.surfaceY + 42, effectKeys.bubble, 0));
+        bubble.setDisplaySize(64, 64).setDepth(9).setAlpha(this.getEffectAlpha(0.92)).play(bubbleAnimation);
+        const breathingGlow = this.track(this.scene.add.ellipse(point.x, zone.surfaceY - 3, 116, 25, COLORS.grass, this.getEffectAlpha(0.25)));
+        breathingGlow.setStrokeStyle(3, COLORS.white, this.getEffectAlpha(0.72)).setDepth(8);
+        this.scene.tweens.add({
+          targets: breathingGlow,
+          scaleX: { from: 0.86, to: 1.08 },
+          alpha: { from: this.getEffectAlpha(0.18), to: this.getEffectAlpha(0.4) },
+          duration: 980,
+          yoyo: true,
+          repeat: -1
+        });
       }
     }
 

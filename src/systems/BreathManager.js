@@ -26,6 +26,7 @@ export class BreathManager {
       underwaterPhysics: { ...DEFAULT_PHYSICS, ...(config.underwaterPhysics ?? {}) }
     };
     const reviewMode = this.scene.registry?.get?.("visualReviewBreathMode");
+    this.visualReviewMode = reviewMode;
     this.ratio = reviewMode === "zero"
       ? 0
       : reviewMode === "low"
@@ -96,6 +97,10 @@ export class BreathManager {
       depleteSeconds: this.config.depleteSeconds,
       refillSeconds: this.config.refillSeconds
     });
+    if (this.visualReviewMode === "recovering" && !this.contact.underwater) {
+      this.ratio = 0.4;
+      this.recovering = true;
+    }
 
     if (this.contact.underwater && !immune && this.ratio <= this.config.warningRatio && !this.lowWarningSent) {
       this.lowWarningSent = true;
