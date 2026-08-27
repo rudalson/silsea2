@@ -57,12 +57,15 @@ export class BreathManager {
     );
     this.recovering = !this.contact.underwater && (this.contact.aboveSurface || !this.contact.zone) && this.ratio < 1;
     const zoneId = this.contact.zone?.id ?? null;
-    if (zoneId !== previousZoneId || this.contact.underwater !== previousUnderwater) {
+    const underwaterChanged = this.contact.underwater !== previousUnderwater;
+    if (zoneId !== previousZoneId || underwaterChanged) {
       this.scene.events.emit(EVENTS.WATER_STATE_CHANGED, {
         zoneId,
         underwater: this.contact.underwater,
         aboveSurface: this.contact.aboveSurface
       });
+    }
+    if (underwaterChanged) {
       this.scene.audioManager?.playSfx(
         this.contact.underwater ? "sfx_splash_enter" : "sfx_splash_exit",
         { randomizeRate: false }

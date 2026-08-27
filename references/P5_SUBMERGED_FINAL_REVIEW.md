@@ -16,7 +16,7 @@
 - 수면 효과: 4프레임 수면선, 4프레임 빛결, 6프레임 기포
 - 캐릭터: 실세아·감자89 기본/유니콘 수영 6프레임. 달리기·구르기 시트를 기반으로 해 물속에서 불필요한 날개가 생기지 않고, 유니콘 뿔은 각 프레임에 합쳐진 채 유지된다.
 - 수면 회복: 별도 호흡 시트 대신 수면의 흰 경계·호흡 지점 광택·기포·`숨 회복` HUD로 판독한다.
-- 오디오: 경고음을 가리지 않는 84 BPM의 잔잔한 `bgm_submerged`
+- 오디오: 경고음을 가리지 않는 84 BPM의 잔잔한 `bgm_submerged`, 부드러운 입수·출수·숨 부족·회복 SFX 4종
 
 ## 최종 검토 화면
 
@@ -49,6 +49,10 @@
 - `assets/characters/potato89/potato89_swim.png`
 - `assets/characters/potato89/potato89_unicorn_swim.png`
 - `assets/audio/bgm/bgm_submerged.wav`
+- `assets/audio/sfx/sfx_splash_enter.wav`
+- `assets/audio/sfx/sfx_splash_exit.wav`
+- `assets/audio/sfx/sfx_breath_low.wav`
+- `assets/audio/sfx/sfx_breath_refill.wav`
 
 ### 재현용 생성 원본
 
@@ -56,7 +60,7 @@
 - `assets/_source/submerged/final/bg_submerged_mid_generated.png`
 - `assets/_source/submerged/final/bg_submerged_near_generated.png`
 
-`npm run submerged:assets`는 생성 원본의 밝은 체크 배경을 정리하고 승인 팔레트로 양자화한 뒤 2048×720 반복 배경·수면 효과·선택 카드·검토 이미지를 다시 만든다. `node scripts/generate-submerged-tiles.js`는 64px·2px extrusion 타일셋을, `node scripts/build-swim-assets.js`는 두 캐릭터의 기본/유니콘 수영 시트를, `npm run audio`는 P5 BGM을 결정적으로 재생성한다.
+`npm run submerged:assets`는 생성 원본의 밝은 체크 배경을 정리하고 승인 팔레트로 양자화한 뒤 2048×720 반복 배경·수면 효과·선택 카드·검토 이미지를 다시 만든다. `node scripts/generate-submerged-tiles.js`는 64px·2px extrusion 타일셋을, `node scripts/build-swim-assets.js`는 두 캐릭터의 기본/유니콘 수영 시트를, `npm run audio`는 P5 BGM과 수중 SFX 4종을 결정적으로 재생성한다.
 
 ## 생성 도구와 후처리
 
@@ -114,8 +118,9 @@ Constraints: transparent background and preserved alpha; isolated low decoration
 ## 자동·런타임 확인
 
 - `npm run test`, `npm run build`, `npm run validate` 통과
-- manifest 176개(시각 132·오디오 44), mapping 125개, 런타임 파일 181개 정합성 검사 통과
-- 캐릭터 110프레임·시트 44개, 타일셋 5개, 배경 18개, 환경 효과 7개, 오디오 44개 규격·팔레트·알파·seam·WAV 검사 통과
+- manifest 180개(시각 132·오디오 48), mapping 125개, 런타임 파일 185개 정합성 검사 통과
+- 캐릭터 110프레임·시트 44개, 타일셋 5개, 배경 18개, 환경 효과 7개, 오디오 48개 규격·팔레트·알파·seam·WAV 검사 통과
+- 수중 SFX는 실제 수중 상태가 바뀔 때만 입수·출수음을 재생하며, 숨 부족·회복 안내음과 함께 한 전환당 1회 호출되는 회귀 검사를 통과
 - 5개 타일셋의 64px frame·2px extrusion과 P5 전용 2048×720 배경의 투명도·좌우 seam 검사 통과
 - 실제 브라우저에서 진입·짧은 잠수·유니콘 긴 잠수·감자89 숨 0 피해·수면 회복·fallback·5번 선택 카드를 확인함
 - 최종 검토한 모든 화면에서 브라우저 경고·오류가 없음을 확인함
@@ -127,6 +132,7 @@ Constraints: transparent background and preserved alpha; isolated low decoration
 - 수면 위 지붕과 수중 통로·단단한 바닥·다음 호흡 지점이 한눈에 구분되는가
 - 실세아·감자89의 수영이 날개 없는 수중 동작으로 읽히고 유니콘 뿔이 모든 프레임에서 몸에 붙어 있는가
 - 숨 부족·숨 0 HP 피해·수면 회복이 그림과 HUD만으로 이해되는가
+- 입수·출수·숨 부족·회복 안내음이 각각 한 번만 들리고 BGM을 가리지 않는가
 - BGM과 5번 선택 카드가 앞 스테이지에서 이어지는 분위기에 어울리는가
 
 최종 게이트는 사용자의 `P5 최종 승인` 뒤 통과 처리하고 P5 최종 통합 변경을 완료 커밋한다.

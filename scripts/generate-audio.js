@@ -57,7 +57,11 @@ const sfx = {
   sfx_pause: { duration: 0.2, tones: [tone(0, 0.09, 520, 440, "sine", 0.26), tone(0.11, 0.09, 440, 520, "sine", 0.26)] },
   sfx_tsunami_warning: { duration: 0.62, tones: [tone(0, 0.24, 392, 587, "sine", 0.22), tone(0.22, 0.4, 523, 784, "triangle", 0.2)] },
   sfx_tsunami_pass: { duration: 1.2, tones: [tone(0, 1.2, 82, 110, "sine", 0.2), tone(0, 1.2, 165, 123, "triangle", 0.11)], noise: 0.12 },
-  sfx_tsunami_hit: { duration: 0.3, tones: [tone(0, 0.27, 196, 92, "sine", 0.28)], noise: 0.08 }
+  sfx_tsunami_hit: { duration: 0.3, tones: [tone(0, 0.27, 196, 92, "sine", 0.28)], noise: 0.08 },
+  sfx_splash_enter: { duration: 0.22, tones: [tone(0, 0.2, 520, 190, "sine", 0.32)], noise: 0.14 },
+  sfx_splash_exit: { duration: 0.26, tones: [tone(0, 0.22, 240, 680, "sine", 0.3)], noise: 0.1 },
+  sfx_breath_low: { duration: 0.44, tones: [tone(0, 0.14, 659, 784, "sine", 0.26), tone(0.2, 0.16, 659, 831, "sine", 0.24)] },
+  sfx_breath_refill: { duration: 0.28, tones: arpeggio([523, 659, 784], 0.06, 0.12, "sine", 0.26) }
 };
 
 const waveAt = (kind, phase) => {

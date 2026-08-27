@@ -549,6 +549,7 @@ assert.equal(environmentRespawnScoreLossCount, 1);
 
 const breathListeners = new Map();
 const breathDamageTimes = [];
+const breathSfx = [];
 const breathScene = {
   time: { now: 0 },
   events: {
@@ -556,7 +557,7 @@ const breathScene = {
     off(event) { breathListeners.delete(event); },
     emit() {}
   },
-  audioManager: { playSfx() {} },
+  audioManager: { playSfx(key) { breathSfx.push(key); } },
   updateAccessibleStatus() {}
 };
 const breathPlayer = { x: 800, y: 420, displayHeight: 96, body: { top: 360 } };
@@ -568,8 +569,10 @@ const breath = new BreathManager(
   { form: FORMS.BASE },
   p1EnvironmentTest.environment.breath
 );
+assert.deepEqual(breathSfx, ["sfx_splash_enter"]);
 breath.update(0, 12000);
 assert.equal(breath.getSnapshot().ratio, 0);
+assert.deepEqual(breathSfx, ["sfx_splash_enter", "sfx_breath_low"]);
 breathScene.time.now = 2499;
 breath.update(2499, 0);
 assert.deepEqual(breathDamageTimes, []);
@@ -580,6 +583,18 @@ breathPlayer.body.top = 300;
 breathScene.time.now = 3500;
 breath.update(3500, 1000);
 assert.equal(breath.getSnapshot().ratio, 0.5);
+assert.deepEqual(breathSfx, ["sfx_splash_enter", "sfx_breath_low", "sfx_splash_exit"]);
+breathScene.time.now = 3600;
+breath.update(3600, 100);
+assert.deepEqual(breathSfx, ["sfx_splash_enter", "sfx_breath_low", "sfx_splash_exit", "sfx_breath_refill"]);
+breathPlayer.x = 500;
+breathScene.time.now = 3700;
+breath.update(3700, 100);
+assert.deepEqual(
+  breathSfx,
+  ["sfx_splash_enter", "sfx_breath_low", "sfx_splash_exit", "sfx_breath_refill"],
+  "머리가 물 밖인 채 수역 경계만 넘을 때 출수음을 다시 재생하면 안 됨"
+);
 breathListeners.get(EVENTS.PLAYER_RESPAWNED)?.();
 assert.equal(breath.getSnapshot().ratio, 1);
 breath.destroy();
