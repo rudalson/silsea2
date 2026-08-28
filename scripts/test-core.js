@@ -8,6 +8,14 @@ import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
 import { EVENTS } from "../src/config/constants.js";
 import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
 import {
+  ARCHER_RULES,
+  GUARD_RULES,
+  LASER_PHASES,
+  LASER_RULES,
+  getLaserPhase,
+  isInsideGuardArc
+} from "../src/data/combatDevices.js";
+import {
   getCharacterAnimationSpec,
   getCharacterAssetKeys,
   getCharacterSequenceKey
@@ -82,6 +90,53 @@ assert.equal(CORE_RULES.flightMaxMs, 10000);
 assert.equal(CORE_RULES.flightRecoveryMs, 3000);
 assert.equal(CORE_RULES.alicornDurationMs, 12000);
 assert.equal(CORE_RULES.alicornWarningMs, 3000);
+assert.equal(GUARD_RULES.windupMs, 120);
+assert.equal(GUARD_RULES.cooldownMs, 350);
+assert.equal(GUARD_RULES.drainMultiplier, 1.5);
+assert.equal(GUARD_RULES.moveSpeedMultiplier, 0.55);
+assert.equal(GUARD_RULES.range, 96);
+assert.equal(GUARD_RULES.arcDegrees, 150);
+assert.equal(ARCHER_RULES.arrowSpeed, 320);
+assert.equal(ARCHER_RULES.maxActive, 4);
+assert.deepEqual(LASER_RULES, { warningMs: 900, activeMs: 1400, restMs: 1200 });
+assert.equal(isInsideGuardArc({ playerX: 100, playerY: 100, facing: 1, projectileX: 180, projectileY: 100 }), true);
+assert.equal(isInsideGuardArc({ playerX: 100, playerY: 100, facing: 1, projectileX: 40, projectileY: 100 }), false);
+assert.equal(isInsideGuardArc({ playerX: 100, playerY: 100, facing: -1, projectileX: 40, projectileY: 100 }), true);
+assert.equal(isInsideGuardArc({ playerX: 100, playerY: 100, facing: 1, projectileX: 210, projectileY: 100 }), false);
+assert.equal(getLaserPhase(-1, LASER_RULES), LASER_PHASES.WAITING);
+assert.equal(getLaserPhase(0, LASER_RULES), LASER_PHASES.WARNING);
+assert.equal(getLaserPhase(899, LASER_RULES), LASER_PHASES.WARNING);
+assert.equal(getLaserPhase(900, LASER_RULES), LASER_PHASES.ACTIVE);
+assert.equal(getLaserPhase(2299, LASER_RULES), LASER_PHASES.ACTIVE);
+assert.equal(getLaserPhase(2300, LASER_RULES), LASER_PHASES.REST);
+assert.equal(getLaserPhase(3500, LASER_RULES), LASER_PHASES.WARNING);
+const laserPhaseChanges = [];
+const laserManager = Object.create(EnvironmentMechanicsManager.prototype);
+Object.assign(laserManager, {
+  tsunami: null,
+  laserSwitches: new Map([
+    ["switch-a", {
+      disabled: false,
+      visual: { setFillStyle() { return this; }, setStrokeStyle() { return this; } },
+      icon: { setFillStyle() { return this; } },
+      label: { setText() { return this; } }
+    }]
+  ]),
+  laserEntries: [
+    { config: { id: "beam-a", switchId: "switch-a" }, phase: LASER_PHASES.ACTIVE },
+    { config: { id: "beam-b", switchId: "switch-b" }, phase: LASER_PHASES.ACTIVE }
+  ],
+  scene: { events: { emit() {} }, updateAccessibleStatus() {} },
+  setLaserPhase(entry, phase) {
+    entry.phase = phase;
+    laserPhaseChanges.push(entry.config.id);
+  }
+});
+assert.equal(laserManager.disableLaserSwitch("switch-a"), true);
+assert.equal(laserManager.disableLaserSwitch("switch-a"), false, "같은 스위치는 중복 처리하면 안 됨");
+assert.deepEqual(laserPhaseChanges, ["beam-a"], "같은 switchId의 빔만 꺼야 함");
+laserManager.resetAfterRespawn();
+assert.equal(laserManager.laserSwitches.get("switch-a").disabled, true, "체크포인트 부활 뒤 OFF 상태를 유지해야 함");
 assert.ok(CORE_RULES.bossTelegraphMs >= 700 && CORE_RULES.bossTelegraphMs <= 1000);
 for (const cue of Object.values(TRANSFORM_PRESENTATION)) {
   assert.ok(cue.emphasisMs >= 100 && cue.emphasisMs <= 180);
@@ -102,6 +157,45 @@ assert.doesNotThrow(
   () => transformationTeardown.cancelPresentation(),
   "장면 종료 중 카메라가 먼저 제거되어도 변신 연출 정리가 실패하면 안 됨"
 );
+const guardEvents = [];
+const guardManager = Object.create(TransformationManager.prototype);
+Object.assign(guardManager, {
+  scene: { time: { now: 1000 }, events: { emit: (...args) => guardEvents.push(args) } },
+  player: {
+    x: 100,
+    y: 150,
+    flipX: false,
+    body: { blocked: { down: true }, touching: { down: false } }
+  },
+  form: FORMS.PEGASUS,
+  flightMs: CORE_RULES.flightMaxMs,
+  flightDrainMultiplier: 1,
+  flightLowSent: false,
+  guardPhase: "idle",
+  guardActiveAt: 0,
+  guardCooldownUntil: 0,
+  guardMustRelease: false,
+  visualReviewGuardMode: null,
+  lastMode: "normal"
+});
+let guardAbility = guardManager.prepareMovement({ specialDown: true, jumpDown: false, moveY: 0 }, 1000);
+assert.equal(guardManager.guardPhase, "windup");
+assert.equal(guardManager.flightMs, 8500);
+assert.equal(guardAbility.mode, "guard");
+guardManager.scene.time.now = 1120;
+guardAbility = guardManager.prepareMovement({ specialDown: true, jumpDown: true, moveY: -1 }, 120);
+assert.equal(guardManager.guardPhase, "active");
+assert.equal(guardAbility.mode, "guard", "방어 중 점프 입력이 상승 비행보다 우선해야 함");
+assert.equal(guardManager.canGuardProjectile(180, 108), true);
+assert.equal(guardManager.canGuardProjectile(30, 108), false);
+guardManager.scene.time.now = 1136;
+guardManager.prepareMovement({ specialDown: false, jumpDown: false, moveY: 0 }, 16);
+assert.equal(guardManager.guardPhase, "idle");
+assert.equal(guardManager.guardCooldownUntil, 1486);
+guardManager.scene.time.now = 1200;
+guardManager.prepareMovement({ specialDown: true, jumpDown: false, moveY: 0 }, 16);
+assert.equal(guardManager.guardPhase, "idle", "350ms 재사용 대기 중에는 방어가 다시 켜지면 안 됨");
+assert.ok(guardEvents.length >= 3);
 assert.ok(PALETTE.environmentSky.every((hex) => colorLuma(hex) > 0.78));
 assert.ok(PALETTE.environmentFar.every((hex) => colorLuma(hex) > 0.82));
 for (const hex of PALETTE.environmentMid) {
@@ -167,6 +261,7 @@ assert.equal(getUpdraftVelocity(0, 420, 1000, 1000), -420);
 assert.equal(getUpdraftVelocity(-620, 420, 1000, 120), -620, "상승기류가 더 빠른 기존 상승 속도를 늦추면 안 됨");
 
 assert.equal(assertLevelShape(level01), true);
+assert.equal(assertLevelShape(level02), true);
 assert.equal(assertLevelShape(level03), true);
 assert.equal(assertLevelShape(level04), true);
 assert.equal(assertLevelShape(level05), true);
@@ -184,6 +279,31 @@ assert.equal(getNormalizedProgress(3600, 3904, p1EnvironmentTest), 304);
 assert.equal(getCameraLookAheadTarget(180, 150), -150);
 assert.equal(getCameraLookAheadTarget(-180, 150), 150);
 assert.equal(getCameraLookAheadTarget(35, 150), 0);
+const level02Archers = level02.enemies.filter(({ type }) => type === "potato_archer");
+assert.equal(level02Archers.length, 3);
+assert.equal(level02Archers[0].oneShot, true);
+assert.ok(level02Archers.every(({ x }) => x > 2496), "궁수는 날개 획득 뒤에만 배치해야 함");
+assert.ok(level02Archers.every(({ x }) => x < 3840 || x >= 4992), "낭떠러지 위에 궁수를 배치하면 안 됨");
+assert.equal(level02.hazards.some(({ id }) => id === "thorn_canopy" || id === "thorn_star_tree"), false);
+assert.equal(level02.environment.lasers.switches.length, 2);
+assert.equal(level02.environment.lasers.beams.length, 2);
+const level02SwitchIds = new Set(level02.environment.lasers.switches.map(({ id }) => id));
+for (const beam of level02.environment.lasers.beams) {
+  assert.ok(level02SwitchIds.has(beam.switchId));
+  assert.ok(beam.x >= 4992, "레이저는 낭떠러지 종료 뒤에 배치해야 함");
+  assert.ok(beam.x < 5964, "레이저는 게이트 앞 안전지대를 침범하면 안 됨");
+}
+const normalizedLevel02 = normalizeLevelDefinition(level02);
+const easyLevel02Difficulty = getDifficultySettings(normalizedLevel02, true);
+assert.equal(easyLevel02Difficulty.environment.projectiles.speedMultiplier, 0.75);
+assert.equal(easyLevel02Difficulty.environment.projectiles.telegraphMultiplier, 25 / 18);
+assert.equal(easyLevel02Difficulty.environment.projectiles.cooldownMultiplier, 31 / 24);
+assert.equal(easyLevel02Difficulty.environment.projectiles.maxActive, 3);
+const easyLevel02 = createRuntimeLevel(normalizedLevel02, true);
+assert.equal(easyLevel02.environment.lasers.beams[0].warningMs, 1300);
+assert.equal(easyLevel02.environment.lasers.beams[0].activeMs, 1200);
+assert.equal(easyLevel02.environment.lasers.beams[0].restMs, 1800);
+assert.notEqual(easyLevel02.environment.lasers.beams[0], level02.environment.lasers.beams[0]);
 assert.equal(level04.order, 4);
 assert.equal(level04.progression.direction, "left");
 assert.ok(level04.player.spawn.x > level04.exit.x);
@@ -925,4 +1045,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미 간격, 수면·숨 계산과 환경 피해, 안개 영역·시야 반경·약하게/쉬운 모드 완화, 역방향 플레이테스트 계측, 실제 캐릭터 23개·적 22개 시트 매핑, 변신·비행·점수·Seed·Object Pool·보스 3단계·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 정면 날개 방어·궁수 화살·레이저 스위치와 일반/쉬운 모드, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·보스 3단계·오디오 fallback");

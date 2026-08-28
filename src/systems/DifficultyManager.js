@@ -22,8 +22,13 @@ const DEFAULT_DIFFICULTY = Object.freeze({
       strokeRateMultiplier: 1
     }),
     mist: Object.freeze({ densityMultiplier: 1, radiusMultiplier: 1 }),
-    lasers: Object.freeze({ cycleMultiplier: 1 }),
-    projectiles: Object.freeze({ speedMultiplier: 1 })
+    lasers: Object.freeze({ warningMultiplier: 1, activeMultiplier: 1, restMultiplier: 1 }),
+    projectiles: Object.freeze({
+      speedMultiplier: 1,
+      telegraphMultiplier: 1,
+      cooldownMultiplier: 1,
+      maxActive: 4
+    })
   }),
   pitScoreLoss: null
 });
@@ -55,10 +60,15 @@ const getEnvironmentDifficulty = (config = {}) => ({
     radiusMultiplier: clamp(config.mist?.radiusMultiplier, 1, 1.35, 1)
   },
   lasers: {
-    cycleMultiplier: clamp(config.lasers?.cycleMultiplier, 1, 1.6, 1)
+    warningMultiplier: clamp(config.lasers?.warningMultiplier, 1, 1.6, 1),
+    activeMultiplier: clamp(config.lasers?.activeMultiplier, 0.75, 1, 1),
+    restMultiplier: clamp(config.lasers?.restMultiplier, 1, 1.8, 1)
   },
   projectiles: {
-    speedMultiplier: clamp(config.projectiles?.speedMultiplier, 0.7, 1, 1)
+    speedMultiplier: clamp(config.projectiles?.speedMultiplier, 0.7, 1, 1),
+    telegraphMultiplier: clamp(config.projectiles?.telegraphMultiplier, 1, 1.5, 1),
+    cooldownMultiplier: clamp(config.projectiles?.cooldownMultiplier, 1, 1.5, 1),
+    maxActive: Math.round(clamp(config.projectiles?.maxActive, 1, 4, 4))
   }
 });
 
@@ -155,13 +165,25 @@ export function createRuntimeLevel(level, easyMode = false) {
         guides: (level.environment.mist.guides ?? []).map((guide) => ({ ...guide }))
       }
     : undefined;
+  const lasers = level.environment?.lasers
+    ? {
+        switches: (level.environment.lasers.switches ?? []).map((entry) => ({ ...entry })),
+        beams: (level.environment.lasers.beams ?? []).map((entry) => ({
+          ...entry,
+          warningMs: entry.warningMs * environmentDifficulty.lasers.warningMultiplier,
+          activeMs: entry.activeMs * environmentDifficulty.lasers.activeMultiplier,
+          restMs: entry.restMs * environmentDifficulty.lasers.restMultiplier
+        }))
+      }
+    : undefined;
   const environment = level.environment
     ? {
         ...level.environment,
         waterZones: (level.environment.waterZones ?? []).map((zone) => ({ ...zone })),
         ...(tsunami ? { tsunami } : {}),
         ...(breath ? { breath } : {}),
-        ...(mist ? { mist } : {})
+        ...(mist ? { mist } : {}),
+        ...(lasers ? { lasers } : {})
       }
     : undefined;
 

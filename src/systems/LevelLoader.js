@@ -382,7 +382,9 @@ export class LevelLoader {
       const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
       const marker = usesArt
         ? this.track(this.scene.physics.add.sprite(enemy.x, enemy.y, idle.textureKey))
-        : this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
+        : enemy.type === "potato_archer"
+          ? this.track(this.scene.add.rectangle(enemy.x, enemy.y - 34, 54, 68, definition?.color ?? COLORS.danger))
+          : this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
       if (usesArt) {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
         const isRawPotato = enemy.type === "raw_potato";

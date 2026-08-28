@@ -1,12 +1,13 @@
 import Phaser from "phaser";
 import { COLORS } from "../config/constants.js";
+import { ARCHER_RULES } from "../data/combatDevices.js";
 import { SCORE_VALUES } from "../data/gameplay.js";
 import { getProgressionSign, hasReachedProgressTrigger } from "../data/schema/levelSchema.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
 
 export class EnemyManager {
-  constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager) {
+  constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
     this.scene = scene;
     this.player = player;
     this.levelLoader = levelLoader;
@@ -14,12 +15,14 @@ export class EnemyManager {
     this.transformationManager = transformationManager;
     this.scoreManager = scoreManager;
     this.level = levelLoader.level;
+    this.projectileDifficulty = difficulty.environment?.projectiles ?? {};
     this.progressionSign = getProgressionSign(this.level);
     this.paused = false;
     this.pausedAt = 0;
     this.interactions = [];
     this.lightningPool = this.createLightningPool();
     this.recoveryPool = this.createRecoveryPool();
+    this.arrowPool = this.createArrowPool();
     this.bindInteractions();
   }
 
@@ -144,6 +147,48 @@ export class EnemyManager {
     });
   }
 
+  createArrowPool() {
+    return new ObjectPool({
+      maxSize: this.projectileDifficulty.maxActive ?? ARCHER_RULES.maxActive,
+      create: () => {
+        const arrow = this.scene.add.triangle(0, 0, -20, -7, 20, 0, -20, 7, COLORS.collect, 0.98)
+          .setStrokeStyle(3, COLORS.outline, 0.96)
+          .setDepth(11)
+          .setVisible(false);
+        this.scene.physics.add.existing(arrow);
+        arrow.body.setAllowGravity(false);
+        arrow.body.enable = false;
+        arrow.setDataEnabled();
+        arrow.setData({ guardable: true, projectileType: "arrow" });
+        this.interactions.push(this.scene.physics.add.overlap(this.player, arrow, () => {
+          if (!arrow.poolActive || !this.isOnScreen(arrow, 80)) return;
+          if (arrow.getData("guardable") && this.transformationManager.canGuardProjectile(arrow.x, arrow.y)) {
+            this.transformationManager.registerGuardImpact(arrow.x, arrow.y);
+            this.arrowPool.release(arrow);
+            return;
+          }
+          this.healthManager.takeDamage(arrow.x);
+          this.arrowPool.release(arrow);
+        }));
+        return arrow;
+      },
+      activate: (arrow, data) => {
+        arrow.expiresAt = data.expiresAt;
+        arrow.setPosition(data.x, data.y).setRotation(data.angle).setVisible(true).setActive(true);
+        arrow.body.enable = true;
+        arrow.body.reset(data.x, data.y);
+        arrow.body.setSize(34, 12, true);
+        arrow.body.setVelocity(data.velocityX, data.velocityY);
+      },
+      deactivate: (arrow) => {
+        arrow.setVisible(false).setActive(false).setRotation(0);
+        arrow.body.enable = false;
+        arrow.body.stop();
+      },
+      destroy: (arrow) => arrow.destroy()
+    });
+  }
+
   update(now, delta) {
     if (this.paused) return;
     for (const enemy of this.levelLoader.enemies) {
@@ -152,6 +197,7 @@ export class EnemyManager {
       if (type === "raw_potato") this.updateRawPotato(enemy);
       if (type === "dark_cloud") this.updateDarkCloud(enemy, now);
       if (type === "magpie") this.updateMagpie(enemy, now, delta);
+      if (type === "potato_archer") this.updatePotatoArcher(enemy, now);
       const label = enemy.getData("label");
       label?.setPosition(enemy.x, enemy.y - 48);
     }
@@ -167,6 +213,102 @@ export class EnemyManager {
       entry.visual.setRotation(entry.visual.rotation + delta * 0.004);
       if (now >= entry.expiresAt) this.recoveryPool.release(entry);
     });
+    this.arrowPool.forEachActive((arrow) => {
+      if (now >= arrow.expiresAt || !this.isOnScreen(arrow, 96)) this.arrowPool.release(arrow);
+    });
+  }
+
+  updatePotatoArcher(enemy, now) {
+    if (!this.isOnScreen(enemy, 80)) {
+      this.cancelArcherTelegraph(enemy);
+      return;
+    }
+    const state = enemy.getData("state");
+    const triggerX = enemy.getData("triggerX") ?? enemy.x - this.progressionSign * 420;
+    if (state === "idle" && hasReachedProgressTrigger(this.player.x, triggerX, this.level)) {
+      const activationDelayMs = enemy.getData("activationDelayMs") ?? 0;
+      if (activationDelayMs > 0) enemy.setData({ state: "waiting", stateUntil: now + activationDelayMs });
+      else this.beginArcherTelegraph(enemy, now);
+      return;
+    }
+    if (state === "waiting" && now >= enemy.getData("stateUntil")) {
+      this.beginArcherTelegraph(enemy, now);
+      return;
+    }
+    if (state === "telegraph") {
+      const remaining = Math.max(0, enemy.getData("stateUntil") - now);
+      const ratio = remaining / Math.max(1, enemy.getData("resolvedTelegraphMs"));
+      enemy.setScale(1 + (1 - ratio) * 0.1);
+      enemy.getData("aimLine")?.setAlpha(0.35 + Math.sin(now / 55) * 0.2);
+      if (now >= enemy.getData("stateUntil")) this.fireArcherArrow(enemy, now);
+      return;
+    }
+    if (state === "cooldown" && now >= enemy.getData("stateUntil")) {
+      enemy.setData("state", "idle");
+      EnemyAnimationManager.play(enemy, "idle");
+    }
+  }
+
+  beginArcherTelegraph(enemy, now) {
+    const targetX = this.player.body?.center?.x ?? this.player.x;
+    const targetY = this.player.body?.center?.y ?? this.player.y - 30;
+    const telegraphMs = (enemy.getData("telegraphMs") ?? ARCHER_RULES.telegraphMs)
+      * (this.projectileDifficulty.telegraphMultiplier ?? 1);
+    enemy.setData({
+      state: "telegraph",
+      stateUntil: now + telegraphMs,
+      resolvedTelegraphMs: telegraphMs,
+      targetX,
+      targetY
+    });
+    this.applyTelegraphColor(enemy, COLORS.collect);
+    EnemyAnimationManager.play(enemy, "warning");
+    const aimLine = enemy.getData("aimLine") ?? this.scene.add.graphics().setDepth(10);
+    aimLine
+      .clear()
+      .lineStyle(4, COLORS.collect, 0.55)
+      .beginPath()
+      .moveTo(enemy.x, enemy.y - 36)
+      .lineTo(targetX, targetY)
+      .strokePath();
+    enemy.setData("aimLine", aimLine);
+    this.scene.updateAccessibleStatus?.("궁수가 화살을 조준합니다. 날개로 막거나 점프로 피하세요.");
+  }
+
+  fireArcherArrow(enemy, now) {
+    const originX = enemy.x - this.progressionSign * 28;
+    const originY = enemy.y - 42;
+    const angle = Phaser.Math.Angle.Between(originX, originY, enemy.getData("targetX"), enemy.getData("targetY"));
+    const speed = (enemy.getData("arrowSpeed") ?? ARCHER_RULES.arrowSpeed)
+      * (this.projectileDifficulty.speedMultiplier ?? 1);
+    this.arrowPool.acquire({
+      x: originX,
+      y: originY,
+      angle,
+      velocityX: Math.cos(angle) * speed,
+      velocityY: Math.sin(angle) * speed,
+      expiresAt: now + ARCHER_RULES.arrowLifetimeMs
+    });
+    enemy.getData("aimLine")?.clear().setAlpha(1);
+    this.clearTelegraphColor(enemy);
+    enemy.setScale(1);
+    EnemyAnimationManager.play(enemy, "attack", false);
+    if (enemy.getData("oneShot")) {
+      enemy.setData("state", "spent");
+      return;
+    }
+    const cooldownMs = (enemy.getData("cooldownMs") ?? ARCHER_RULES.cooldownMs)
+      * (this.projectileDifficulty.cooldownMultiplier ?? 1);
+    enemy.setData({ state: "cooldown", stateUntil: now + cooldownMs });
+  }
+
+  cancelArcherTelegraph(enemy) {
+    if (!["telegraph", "waiting"].includes(enemy.getData("state"))) return;
+    this.clearTelegraphColor(enemy);
+    enemy.setScale(1);
+    enemy.getData("aimLine")?.clear().setAlpha(1);
+    enemy.setData("state", "idle");
+    EnemyAnimationManager.play(enemy, "idle");
   }
 
   updateRawPotato(enemy) {
@@ -308,7 +450,7 @@ export class EnemyManager {
       return;
     }
 
-    if (type === "raw_potato") this.healthManager.takeDamage(enemy.x);
+    if (type === "raw_potato" || type === "potato_archer") this.healthManager.takeDamage(enemy.x);
   }
 
   handleHazardContact(hazard) {
@@ -326,6 +468,7 @@ export class EnemyManager {
   }
 
   defeatEnemy(enemy, type) {
+    enemy.getData("aimLine")?.clear();
     enemy.getData("targetMarker")?.setVisible(false);
     enemy.getData("label")?.setVisible(false);
     enemy.body.enable = false;
@@ -386,15 +529,20 @@ export class EnemyManager {
     EnemyAnimationManager.play(enemy, "idle");
   }
 
-  isOnScreen(object) {
+  isOnScreen(object, padding = 0) {
     const view = this.scene.cameras.main.worldView;
-    return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
+    padding = Number(padding) || 0;
+    return object.x >= view.left - padding
+      && object.x <= view.right + padding
+      && object.y >= view.top - padding
+      && object.y <= view.bottom + padding;
   }
 
   getPoolSnapshot() {
     return {
       lightning: this.lightningPool.getSnapshot(),
-      recovery: this.recoveryPool.getSnapshot()
+      recovery: this.recoveryPool.getSnapshot(),
+      arrows: this.arrowPool.getSnapshot()
     };
   }
 
@@ -408,6 +556,10 @@ export class EnemyManager {
         enemy.setData("environmentPausedVelocity", { x: enemy.body?.velocity.x ?? 0, y: enemy.body?.velocity.y ?? 0 });
         enemy.body?.setVelocity(0, 0);
       }
+      this.arrowPool.forEachActive((arrow) => {
+        arrow.setData("environmentPausedVelocity", { x: arrow.body.velocity.x, y: arrow.body.velocity.y });
+        arrow.body.stop();
+      });
       return;
     }
 
@@ -426,14 +578,24 @@ export class EnemyManager {
     this.recoveryPool.forEachActive((entry) => {
       entry.expiresAt += pausedDuration;
     });
+    this.arrowPool.forEachActive((arrow) => {
+      const velocity = arrow.getData("environmentPausedVelocity");
+      if (velocity) arrow.body.setVelocity(velocity.x, velocity.y);
+      arrow.expiresAt += pausedDuration;
+      arrow.setData("environmentPausedVelocity", null);
+    });
     this.pausedAt = 0;
   }
 
   destroy() {
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;
-    for (const enemy of this.levelLoader.enemies) enemy.getData("targetMarker")?.destroy();
+    for (const enemy of this.levelLoader.enemies) {
+      enemy.getData("targetMarker")?.destroy();
+      enemy.getData("aimLine")?.destroy();
+    }
     this.lightningPool.destroy();
     this.recoveryPool.destroy();
+    this.arrowPool.destroy();
   }
 }

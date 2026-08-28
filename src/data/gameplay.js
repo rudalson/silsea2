@@ -34,6 +34,7 @@ export const SCORE_VALUES = Object.freeze({
   spike_pumpkin: 60,
   dark_cloud: 80,
   magpie: 100,
+  potato_archer: 100,
   boss_hit: 150,
   recovery: 1
 });

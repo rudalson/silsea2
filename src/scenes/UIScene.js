@@ -212,7 +212,7 @@ export class UIScene extends Phaser.Scene {
     const combo = this.gameScene.scoreManager?.combo ?? 0;
     this.comboText.setText(combo >= 2 ? `${combo} COMBO` : "");
     const form = this.gameScene.transformationManager?.getSnapshot(this.gameScene.time.now);
-    this.formText.setText(this.formName(form?.form));
+    this.formText.setText(`${this.formName(form?.form)}${form?.guardPhase && form.guardPhase !== "idle" ? " · 날개 방어" : ""}`);
     const ratio = form ? form.flightMs / form.flightMaxMs : 1;
     this.flightBar.setScale(Math.max(0.001, ratio), 1);
     this.flightTrack.setVisible(form?.form === "pegasus");

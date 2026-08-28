@@ -74,6 +74,7 @@ if (!levelIndex.includes('import level05 from "./level-05.js";')) fail("level-05
 if (!levelIndex.includes("[level01, level02, level03, level04, level05]")) fail("LEVELS 배열에 level-05 항목이 없음");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
+if (!bootScene.includes('query.get("guard")')) fail("P6 날개 방어 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
 if (!bootScene.includes('query.get("form")')) fail("캐릭터 런타임 검수용 form 선택이 없음");

@@ -1,5 +1,6 @@
 import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT, GAME_WIDTH } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
+import { LASER_PHASES, LASER_RULES, getLaserPhase } from "../data/combatDevices.js";
 import {
   WAVE_STATES,
   getMistZoneAt,
@@ -24,11 +25,15 @@ export class EnvironmentMechanicsManager {
     this.breathPoints = this.config.breathPoints ?? [];
     this.tsunami = this.config.tsunami ?? null;
     this.mist = this.config.mist ?? null;
+    this.lasers = this.config.lasers ?? null;
     this.currentMistDensity = 0;
     this.currentVisibilityRadius = this.mist?.defaultVisibilityRadius ?? 520;
     this.activeMistZoneId = null;
     this.created = [];
+    this.interactions = [];
     this.mistTweens = [];
+    this.laserEntries = [];
+    this.laserSwitches = new Map();
     this.waveState = WAVE_STATES.IDLE;
     this.waveId = 0;
     this.waveVisual = null;
@@ -50,6 +55,7 @@ export class EnvironmentMechanicsManager {
     this.createWaterVisuals();
     this.createShelterVisuals();
     this.createMistVisuals();
+    this.createLaserVisuals();
     this.onRespawn = () => this.resetAfterRespawn();
     this.scene.events.on(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
   }
@@ -450,9 +456,129 @@ export class EnvironmentMechanicsManager {
     }
   }
 
+  createLaserVisuals() {
+    if (!this.lasers) return;
+    for (const config of this.lasers.switches ?? []) {
+      const visual = this.track(this.scene.add.rectangle(config.x, config.y, 58, 42, COLORS.collectBlue, 0.92));
+      visual.setStrokeStyle(5, COLORS.white, 0.94).setDepth(13);
+      const icon = this.track(this.scene.add.circle(config.x, config.y, 10, COLORS.collect, 1));
+      icon.setStrokeStyle(3, COLORS.outline, 0.92).setDepth(14);
+      const label = this.track(this.scene.add.text(config.x, config.y - 48, "레이저 스위치 · ON", {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "14px",
+        fontStyle: "700",
+        color: CSS_COLORS.white,
+        backgroundColor: CSS_COLORS.panelSoft,
+        padding: { x: 6, y: 4 }
+      }));
+      label.setOrigin(0.5).setDepth(15);
+      const zone = this.track(this.scene.add.zone(config.x, config.y, 72, 64));
+      this.scene.physics.add.existing(zone, true);
+      const entry = { config, visual, icon, label, zone, disabled: false };
+      this.laserSwitches.set(config.id, entry);
+      this.interactions.push(this.scene.physics.add.overlap(this.player, zone, () => this.disableLaserSwitch(config.id)));
+    }
+
+    for (const config of this.lasers.beams ?? []) {
+      const top = Math.min(config.yStart, config.yEnd);
+      const bottom = Math.max(config.yStart, config.yEnd);
+      const height = bottom - top;
+      const emitter = this.track(this.scene.add.rectangle(config.x, top - 14, 66, 28, COLORS.outline, 0.96));
+      emitter.setStrokeStyle(5, COLORS.collectBlue, 0.95).setDepth(13);
+      const warning = this.track(this.scene.add.rectangle(config.x, top + height / 2, 8, height, COLORS.collect, 0.68));
+      warning.setDepth(12).setVisible(false);
+      const beam = this.track(this.scene.add.rectangle(config.x, top + height / 2, 30, height, COLORS.dangerAlt, 0.9));
+      beam.setStrokeStyle(4, COLORS.white, 0.92).setDepth(12).setVisible(false);
+      const label = this.track(this.scene.add.text(config.x + 20, top + 18, "레이저 · 예고 후 통과", {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "13px",
+        fontStyle: "700",
+        color: CSS_COLORS.white,
+        backgroundColor: CSS_COLORS.dangerMedium,
+        padding: { x: 5, y: 3 }
+      }));
+      label.setDepth(15);
+      const hitbox = this.track(this.scene.add.zone(config.x, top + height / 2, 34, height));
+      this.scene.physics.add.existing(hitbox, true);
+      hitbox.body.enable = false;
+      const entry = {
+        config,
+        emitter,
+        warning,
+        beam,
+        label,
+        hitbox,
+        startedAt: this.scene.time.now + Math.max(0, config.startDelayMs ?? 0),
+        phase: LASER_PHASES.WAITING
+      };
+      this.laserEntries.push(entry);
+      this.interactions.push(this.scene.physics.add.overlap(this.player, hitbox, () => {
+        if (entry.phase !== LASER_PHASES.ACTIVE || this.isLaserDisabled(entry)) return;
+        if (this.healthManager.takeDamage(entry.config.x)) {
+          this.scene.updateAccessibleStatus?.("레이저에 닿아 체력이 1 줄었습니다.");
+        }
+      }));
+    }
+  }
+
+  disableLaserSwitch(switchId) {
+    const entry = this.laserSwitches.get(switchId);
+    if (!entry || entry.disabled) return false;
+    entry.disabled = true;
+    entry.visual.setFillStyle(COLORS.near, 0.82).setStrokeStyle(5, COLORS.white, 0.5);
+    entry.icon.setFillStyle(COLORS.white, 0.46);
+    entry.label.setText("레이저 스위치 · OFF");
+    for (const laser of this.laserEntries.filter(({ config }) => config.switchId === switchId)) {
+      this.setLaserPhase(laser, LASER_PHASES.DISABLED);
+    }
+    this.scene.events.emit(EVENTS.LASER_SWITCH_DISABLED, { switchId });
+    this.scene.updateAccessibleStatus?.("스위치를 꺼서 연결된 레이저가 멈췄습니다.");
+    return true;
+  }
+
+  isLaserDisabled(entry) {
+    return Boolean(this.laserSwitches.get(entry.config.switchId)?.disabled);
+  }
+
+  updateLasers(now) {
+    for (const entry of this.laserEntries) {
+      const phase = this.isLaserDisabled(entry)
+        ? LASER_PHASES.DISABLED
+        : getLaserPhase(now - entry.startedAt, {
+            warningMs: entry.config.warningMs ?? LASER_RULES.warningMs,
+            activeMs: entry.config.activeMs ?? LASER_RULES.activeMs,
+            restMs: entry.config.restMs ?? LASER_RULES.restMs
+          });
+      if (phase !== entry.phase) this.setLaserPhase(entry, phase);
+      if (phase === LASER_PHASES.WARNING) entry.warning.setAlpha(0.42 + Math.sin(now / 70) * 0.26);
+      if (phase === LASER_PHASES.ACTIVE) entry.beam.setAlpha(0.76 + Math.sin(now / 38) * 0.2);
+    }
+  }
+
+  setLaserPhase(entry, phase) {
+    entry.phase = phase;
+    const warning = phase === LASER_PHASES.WARNING;
+    const active = phase === LASER_PHASES.ACTIVE;
+    entry.warning.setVisible(warning);
+    entry.beam.setVisible(active);
+    entry.hitbox.body.enable = active;
+    entry.emitter.setFillStyle(active ? COLORS.dangerAlt : warning ? COLORS.collect : COLORS.outline, 0.96);
+    entry.label.setText(
+      phase === LASER_PHASES.DISABLED ? "레이저 · OFF"
+        : warning ? "레이저 · 곧 발사"
+          : active ? "레이저 · 발사 중"
+            : "레이저 · 휴지"
+    );
+    this.scene.events.emit(EVENTS.LASER_STATE_CHANGED, { id: entry.config.id, phase });
+    if (warning && Math.abs(this.player.x - entry.config.x) <= 720) {
+      this.scene.updateAccessibleStatus?.("레이저 예고선이 켜졌습니다. 기다리거나 스위치를 끄세요.");
+    }
+  }
+
   update(now, delta) {
     this.updateEffectStrength();
     this.updateMist(delta);
+    this.updateLasers(now);
     if (!this.tsunami) return;
     this.updateShelterState(now);
     if (this.visualReviewWaveMode) {
@@ -680,6 +806,10 @@ export class EnvironmentMechanicsManager {
       mistDensity: this.currentMistDensity ?? 0,
       visibilityRadius: this.currentVisibilityRadius ?? 0,
       mistGuideKinds: this.mist ? [...new Set((this.mist.guides ?? []).map(({ kind }) => kind))] : [],
+      laserCount: this.laserEntries.length,
+      laserSwitchCount: this.laserSwitches.size,
+      disabledLaserSwitches: [...this.laserSwitches.values()].filter(({ disabled }) => disabled).length,
+      laserPhases: this.laserEntries.map(({ config, phase }) => ({ id: config.id, phase })),
       pausesEnemies: this.pausesEnemies
     };
   }
@@ -691,6 +821,8 @@ export class EnvironmentMechanicsManager {
 
   destroy() {
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
+    for (const interaction of this.interactions) interaction?.destroy();
+    this.interactions.length = 0;
     for (const tween of this.mistTweens) tween?.stop?.();
     this.mistTweens.length = 0;
     this.fogOverlay?.clearMask?.();
@@ -706,5 +838,7 @@ export class EnvironmentMechanicsManager {
     this.waveWarningTween?.stop?.();
     this.waveWarningVisuals = null;
     this.waveWarningTween = null;
+    this.laserEntries.length = 0;
+    this.laserSwitches.clear();
   }
 }

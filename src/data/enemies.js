@@ -15,6 +15,11 @@ export const ENEMY_DEFINITIONS = Object.freeze({
     params: ["triggerX", "activationDelayMs", "telegraphMs", "cooldownMs"],
     color: toNumber(PALETTE.outline)
   },
+  potato_archer: {
+    behavior: "telegraph_projectile",
+    params: ["triggerX", "activationDelayMs", "telegraphMs", "cooldownMs", "arrowSpeed"],
+    color: toNumber(PALETTE.base[3])
+  },
   potato_king: { behavior: "boss_graybox", params: [], color: toNumber(PALETTE.base[3]) }
 });
 

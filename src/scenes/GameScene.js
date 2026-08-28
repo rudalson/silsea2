@@ -326,7 +326,8 @@ export class GameScene extends Phaser.Scene {
       this.levelLoader,
       this.healthManager,
       this.transformationManager,
-      this.scoreManager
+      this.scoreManager,
+      this.difficulty
     );
     this.bossController = this.levelLoader.boss
       ? new BossController(

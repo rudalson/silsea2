@@ -212,17 +212,40 @@ for (const sourceLevel of ALL_LEVELS) {
     [easyEnvironment.breath?.damageIntervalMultiplier, 1, 1.6, "breath.damageIntervalMultiplier"],
     [easyEnvironment.mist?.densityMultiplier, 0.65, 1, "mist.densityMultiplier"],
     [easyEnvironment.mist?.radiusMultiplier, 1, 1.35, "mist.radiusMultiplier"],
-    [easyEnvironment.lasers?.cycleMultiplier, 1, 1.6, "lasers.cycleMultiplier"],
-    [easyEnvironment.projectiles?.speedMultiplier, 0.7, 1, "projectiles.speedMultiplier"]
+    [easyEnvironment.lasers?.warningMultiplier, 1, 1.6, "lasers.warningMultiplier"],
+    [easyEnvironment.lasers?.activeMultiplier, 0.75, 1, "lasers.activeMultiplier"],
+    [easyEnvironment.lasers?.restMultiplier, 1, 1.8, "lasers.restMultiplier"],
+    [easyEnvironment.projectiles?.speedMultiplier, 0.7, 1, "projectiles.speedMultiplier"],
+    [easyEnvironment.projectiles?.telegraphMultiplier, 1, 1.5, "projectiles.telegraphMultiplier"],
+    [easyEnvironment.projectiles?.cooldownMultiplier, 1, 1.5, "projectiles.cooldownMultiplier"],
+    [easyEnvironment.projectiles?.maxActive, 1, 4, "projectiles.maxActive"]
   ];
   for (const [value, min, max, field] of easyRanges) {
     if (value !== undefined && !inRange(value, min, max)) fail(level, `easyMode ${field}가 ${min}~${max} 범위 밖`);
   }
 
-  const laserIds = new Set((level.environment.lasers ?? []).map(({ id }) => id));
-  for (const laser of level.environment.lasers ?? []) {
-    if (!laser.id || !laser.switchId) fail(level, "laser id와 switchId가 필요함");
-    if (laser.switchId && !laserIds.has(laser.switchId)) fail(level, `laser ${laser.id}의 switchId가 같은 레벨에 없음`);
+  const laserConfig = level.environment.lasers;
+  if (laserConfig) {
+    const switchIds = new Set();
+    for (const laserSwitch of laserConfig.switches ?? []) {
+      if (!laserSwitch.id || switchIds.has(laserSwitch.id)) {
+        fail(level, `laser switch id 누락/중복: ${laserSwitch.id ?? "unknown"}`);
+      }
+      switchIds.add(laserSwitch.id);
+      if (!inWorld(level, laserSwitch.x, laserSwitch.y)) fail(level, `laser switch ${laserSwitch.id}가 world 밖`);
+    }
+    const beamIds = new Set();
+    for (const laser of laserConfig.beams ?? []) {
+      if (!laser.id || beamIds.has(laser.id) || !laser.switchId) fail(level, "laser id 중복 또는 switchId 누락");
+      beamIds.add(laser.id);
+      if (!switchIds.has(laser.switchId)) fail(level, `laser ${laser.id}의 switchId가 같은 레벨에 없음`);
+      if (!inWorld(level, laser.x, laser.yStart) || !inWorld(level, laser.x, laser.yEnd) || laser.yEnd <= laser.yStart) {
+        fail(level, `laser ${laser.id} 범위가 잘못됨`);
+      }
+      for (const field of ["warningMs", "activeMs", "restMs"]) {
+        if (!isPositiveNumber(laser[field])) fail(level, `laser ${laser.id} ${field}는 양수여야 함`);
+      }
+    }
   }
 
   for (const key of assetKeys(level.assets)) {

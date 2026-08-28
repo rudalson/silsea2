@@ -59,14 +59,43 @@ export default {
   ],
   checkpoints: [
     { id: "cp_moonroot", x: 1664, y: 576 },
-    { id: "cp_fireflies", x: 3520, y: 576 },
+    { id: "cp_fireflies", x: 3712, y: 576 },
     { id: "cp_star_tree", x: 5120, y: 576, restoresHealth: true }
   ],
   enemies: [
     { id: "e_moonroot_01", type: "raw_potato", x: 896, y: 576, patrol: 160 },
-    { id: "e_canopy_01", type: "raw_potato", x: 2752, y: 576, patrol: 176 },
-    { id: "e_canopy_02", type: "raw_potato", x: 3328, y: 576, patrol: 144 },
-    { id: "e_star_tree_01", type: "raw_potato", x: 5568, y: 576, patrol: 168 }
+    {
+      id: "e_archer_intro",
+      type: "potato_archer",
+      x: 3008,
+      y: 576,
+      triggerX: 2672,
+      telegraphMs: 1100,
+      arrowSpeed: 240,
+      cooldownMs: 1200,
+      oneShot: true
+    },
+    {
+      id: "e_archer_practice",
+      type: "potato_archer",
+      x: 3584,
+      y: 576,
+      triggerX: 3168,
+      telegraphMs: 900,
+      arrowSpeed: 320,
+      cooldownMs: 1200
+    },
+    {
+      id: "e_archer_combination",
+      type: "potato_archer",
+      x: 5824,
+      y: 576,
+      triggerX: 5488,
+      activationDelayMs: 280,
+      telegraphMs: 900,
+      arrowSpeed: 320,
+      cooldownMs: 1200
+    }
   ],
   items: [
     { id: "moonlit_star", type: "star", x: 320, y: 496 },
@@ -96,11 +125,41 @@ export default {
   },
   hazards: [
     { id: "thorn_moonroot", type: "spike_pumpkin", x: 1472, y: 576 },
-    { id: "thorn_canopy", type: "spike_pumpkin", x: 3136, y: 576 },
     { id: "moon_gap", type: "pit", xStart: 1792, xEnd: 2304, respawnX: 1664 },
-    { id: "whispering_gap", type: "pit", xStart: 3840, xEnd: 4992, respawnX: 3712 },
-    { id: "thorn_star_tree", type: "spike_pumpkin", x: 5696, y: 576 }
+    { id: "whispering_gap", type: "pit", xStart: 3840, xEnd: 4992, respawnX: 3712 }
   ],
+  environment: {
+    lasers: {
+      switches: [
+        { id: "laser_switch_application", x: 5144, y: 430 },
+        { id: "laser_switch_combination", x: 5440, y: 398 }
+      ],
+      beams: [
+        {
+          id: "laser_application",
+          switchId: "laser_switch_application",
+          x: 5304,
+          yStart: 284,
+          yEnd: 576,
+          startDelayMs: 0,
+          warningMs: 900,
+          activeMs: 1400,
+          restMs: 1200
+        },
+        {
+          id: "laser_combination",
+          switchId: "laser_switch_combination",
+          x: 5616,
+          yStart: 284,
+          yEnd: 576,
+          startDelayMs: 650,
+          warningMs: 900,
+          activeMs: 1400,
+          restMs: 1200
+        }
+      ]
+    }
+  },
   objectives: {
     required: [{ type: "reach_gate" }],
     optional: [
@@ -112,9 +171,18 @@ export default {
   difficulty: {
     easyMode: {
       extraCheckpoints: [{ id: "cp_easy_gap", x: 3712, y: 576 }],
-      removeEnemies: ["e_canopy_02"],
+      removeEnemies: [],
       player: { extraHp: 1, flightDrainMultiplier: 0.7 },
       terrainMechanics: { movingSpeedMultiplier: 0.72, crumbleDelayMultiplier: 1.45 },
+      environment: {
+        lasers: { warningMultiplier: 13 / 9, activeMultiplier: 6 / 7, restMultiplier: 1.5 },
+        projectiles: {
+          speedMultiplier: 0.75,
+          telegraphMultiplier: 25 / 18,
+          cooldownMultiplier: 31 / 24,
+          maxActive: 3
+        }
+      },
       pitScoreLoss: 0
     }
   }

@@ -95,6 +95,7 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 | `waterZones` | `id`, `xStart`, `xEnd`, `surfaceY`, `bottomY` | 영역은 world 안에 있고 물 바닥은 충돌 지형이어야 함 |
 | `breath` | `depleteSeconds`, `refillSeconds`, `damageInterval`, `warningRatio`, `surfaceMargin`, `underwaterPhysics` | `waterZones`가 있을 때 필수 |
 | `mist` | `fadeMs`, `defaultVisibilityRadius`, `reducedDensityMultiplier`, `reducedRadiusBonus`, `zones`, `guides` | 각 영역에 `beacon`과 `breeze` 단서를 모두 두고 수치는 승인 범위를 지킴 |
+| `lasers` | `switches[]`, `beams[]`와 빔의 `switchId` | 연결 ID는 같은 레벨의 스위치만 참조하고 상태는 레벨 밖으로 전달하지 않음 |
 
 #### `environment.mist`
 
@@ -118,7 +119,35 @@ mist: {
 - `reducedDensityMultiplier`는 `0.4~0.8`, `reducedRadiusBonus`는 `40~140` 범위다.
 - 모든 안개 영역에는 밝기·형태 단서 `beacon`과 밝기·움직임 단서 `breeze`가 각각 하나 이상 있어야 한다.
 - 쉬운 모드의 `mist.densityMultiplier`는 `0.65~1`, `mist.radiusMultiplier`는 `1~1.35` 범위다.
-| `lasers` | 빔·스위치의 고유 `id`와 연결 ID | P6 Should 범위. 연결 상태는 같은 레벨에서만 유지 |
+
+#### `environment.lasers`
+
+```js
+lasers: {
+  switches: [
+    { id: "laser_switch_application", x: 5144, y: 430 }
+  ],
+  beams: [
+    {
+      id: "laser_application",
+      switchId: "laser_switch_application",
+      x: 5304,
+      yStart: 284,
+      yEnd: 576,
+      startDelayMs: 0,
+      warningMs: 900,
+      activeMs: 1400,
+      restMs: 1200
+    }
+  ]
+}
+```
+
+- `switches[].id`와 `beams[].id`는 각 목록에서 고유해야 한다.
+- 모든 빔의 `switchId`는 같은 레벨의 `switches[].id`를 참조해야 한다.
+- 빔의 `yStart < yEnd`이고 좌표는 world 안이어야 하며 `warningMs`, `activeMs`, `restMs`는 양수다.
+- 쉬운 모드는 `warningMultiplier 1~1.6`, `activeMultiplier 0.75~1`, `restMultiplier 1~1.8` 범위에서만 주기를 완화한다.
+- 궁수 투사체 쉬운 모드는 `speedMultiplier 0.7~1`, `telegraphMultiplier 1~1.5`, `cooldownMultiplier 1~1.5`, `maxActive 1~4` 범위다.
 
 `interval`은 `{ min, max }`, `underwaterPhysics`는 `gravityMultiplier`, `maxFallSpeed`, `horizontalSpeedMultiplier`, `strokeVelocity`, `strokeCooldown`을 가진다. 일반·쉬운 모드 기준값과 허용 clamp는 `STAGE_EXPANSION_PLAN.md` 3·4장을 따른다.
 
@@ -370,7 +399,7 @@ version 2에서는 아래 검사를 추가한다.
 | 쓰나미 | 진행 방향 불일치, 대피처 판정 영역·충돌 지형 누락, 체크포인트와 생성 영역 겹침 |
 | 물·숨 | `surfaceY`가 world 밖, 회복 통로 없음, 침수 구간 안에 `pit` 존재 |
 | 잠수 거리 | 최장 연속 잠수 구간을 승인된 숨 시간과 이동 속도로 통과할 수 없음 |
-| 레이저 | switch 연결 ID가 같은 레벨의 빔과 연결되지 않음 |
+| 레이저 | `switches` ID 중복, 빔 ID 중복, `switchId`가 같은 레벨 스위치를 참조하지 않음, 주기·범위 오류 |
 | 쉬운 모드 | 환경 multiplier가 승인 clamp 범위 밖 |
 
 `npm run validate`는 레벨 검증 실패 시 빌드를 중단한다.

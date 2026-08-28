@@ -44,7 +44,8 @@ const [
   gameConfig,
   palette,
   constants,
-  environmentRegrade
+  environmentRegrade,
+  combatDevices
 ] = await Promise.all([
   read("src/scenes/GameScene.js"),
   read("src/entities/Player.js"),
@@ -82,7 +83,8 @@ const [
   read("src/config/gameConfig.js"),
   read("data/palette.js"),
   read("src/config/constants.js"),
-  read("scripts/regrade-environment.js")
+  read("scripts/regrade-environment.js"),
+  read("src/data/combatDevices.js")
 ]);
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
@@ -239,6 +241,18 @@ if (!player.includes('ability.mode === "swim"') || !transformManager.includes("u
 }
 if (!environmentManager.includes("SeededRandom") || !environmentManager.includes("pauseEnemiesDuringWave") || !enemyManager.includes("setPaused")) {
   fail("고정 Seed 쓰나미 또는 파도 중 적 일시정지가 없음");
+}
+if (!combatDevices.includes("GUARD_RULES") || !combatDevices.includes("getLaserPhase") || !combatDevices.includes("isInsideGuardArc")) {
+  fail("P6 날개 방어·레이저 규칙이 공용 데이터 함수로 분리되지 않음");
+}
+if (!transformManager.includes("canGuardProjectile") || !transformManager.includes("GUARD_PHASES.ACTIVE")) {
+  fail("페가수스·알리콘 날개 방어 판정이 변신 시스템에 연결되지 않음");
+}
+if (!enemyManager.includes('guardable: true') || !enemyManager.includes("createArrowPool") || !enemyManager.includes("updatePotatoArcher")) {
+  fail("등록 투사체 방어 또는 궁수 화살 Object Pool 연결이 없음");
+}
+if (!environmentManager.includes("createLaserVisuals") || !environmentManager.includes("disableLaserSwitch")) {
+  fail("레이저 주기 또는 같은 레벨 스위치 연결이 없음");
 }
 if (environmentManager.includes("Math.random")) fail("쓰나미 패턴에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!uiScene.includes("breathManager?.getSnapshot") || !uiScene.includes("screenEffectStrength")) {

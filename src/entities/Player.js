@@ -64,7 +64,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const acceleration = swimming
       ? this.tuning.airAcceleration
       : grounded ? this.tuning.acceleration : this.tuning.airAcceleration;
-    const speedMultiplier = swimming ? ability.horizontalSpeedMultiplier ?? 0.75 : 1;
+    const speedMultiplier = ability.horizontalSpeedMultiplier ?? (swimming ? 0.75 : 1);
     const targetVelocity = input.moveX * this.tuning.maxSpeed * speedMultiplier;
     const rate = input.moveX === 0 ? this.tuning.deceleration : acceleration;
     const nextVelocity = moveTowards(this.body.velocity.x, targetVelocity, (rate * delta) / 1000);

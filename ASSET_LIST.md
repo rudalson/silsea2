@@ -136,8 +136,8 @@
 | `potato89_swim`, `potato89_unicorn_swim` | M | 각 6 | 제작·등록·최종 승인 완료 |
 | `silsea_breathe` | C | 2 | 코드 피드백만으로 수면 회복이 읽히지 않을 때 |
 | `potato89_breathe` | C | 2 | 코드 피드백만으로 수면 회복이 읽히지 않을 때 |
-| `silsea_wing_guard` | S | 4 | P6 입력·비행 게이지 규칙 승인 뒤 |
-| `potato89_wing_guard` | S | 4 | P6 입력·비행 게이지 규칙 승인 뒤 |
+| `silsea_wing_guard` | S | 4 | P6 규칙 승인·도형 방어 연결 완료, 아트 앵커 대기 |
+| `potato89_wing_guard` | S | 4 | P6 규칙 승인·도형 방어 연결 완료, 아트 앵커 대기 |
 
 좌향 진행은 기존 우향 프레임을 런타임에서 반전하므로 좌향 달리기·수영 시트를 따로 만들지 않는다.
 
@@ -199,13 +199,13 @@
 
 | 키 | 우선 | 구성 | 상태 |
 |---|---|---|---|
-| `potato_archer` | S | idle 2, aim 3, shoot 3, defeated 4 | 최초 등장 스테이지 확정 대기 |
-| `projectile_arrow` | S | 화살 1종, 런타임 회전 | 궁수와 함께 제작 |
-| `laser_emitter` | S | 레이저 발사기 1종 | 배치 스테이지 확정 대기 |
-| `laser_switch_on` | S | 켜진 스위치 | 배치 스테이지 확정 대기 |
-| `laser_switch_off` | S | 꺼진 스위치 | 배치 스테이지 확정 대기 |
-| `fx_laser_beam` | S | 반복 빔 | P6 회색 상자 승인 뒤 |
-| `fx_laser_warning` | S | 발사 예고 | P6 회색 상자 승인 뒤 |
+| `potato_archer` | S | idle 2, aim 3, shoot 3, defeated 4 | 별빛 숲 도형 회색 상자·코스 승인 완료, 아트 앵커 제작 중 |
+| `projectile_arrow` | S | 화살 1종, 런타임 회전 | 도형 화살·Object Pool 완료, 아트 앵커 대기 |
+| `laser_emitter` | S | 레이저 발사기 1종 | 별빛 숲 도형 회색 상자·코스 승인 완료, 아트 앵커 제작 중 |
+| `laser_switch_on` | S | 켜진 스위치 | 도형 ON/OFF 상태 완료, 아트 앵커 대기 |
+| `laser_switch_off` | S | 꺼진 스위치 | 도형 ON/OFF 상태 완료, 아트 앵커 대기 |
+| `fx_laser_beam` | S | 반복 빔 | 도형 주기·피해 판정·코스 승인 완료, 아트 앵커 제작 중 |
+| `fx_laser_warning` | S | 발사 예고 | 도형 예고선·코스 승인 완료, 아트 앵커 제작 중 |
 | `item_air_bubble` | C | 공기주머니 3프레임 또는 코드 도형 | 숨 리듬 보강 필요 시 |
 
 중간 보스 키와 프레임 수는 별도 영상 승인 뒤 추가한다. 외형·패턴을 추측해 선제작하지 않는다.
