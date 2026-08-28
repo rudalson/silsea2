@@ -166,7 +166,7 @@ const collectFilesRecursively = async (directory) => {
 };
 
 await collectFilesRecursively(join(assetsRoot, "audio"));
-for (const directory of ["backgrounds", "decorations", "effects", "environment", "items", "tiles", "ui"]) {
+for (const directory of ["backgrounds", "decorations", "effects", "environment", "items", "projectiles", "tiles", "ui"]) {
   await collectDirectFiles(join(assetsRoot, directory));
 }
 for (const rootName of ["characters", "enemies"]) {

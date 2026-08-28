@@ -4,6 +4,12 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     move: "raw_potato_roll",
     defeated: "raw_potato_defeated"
   }),
+  potato_archer: Object.freeze({
+    idle: "potato_archer_idle",
+    warning: "potato_archer_aim",
+    attack: "potato_archer_shoot",
+    defeated: "potato_archer_defeated"
+  }),
   spike_pumpkin: Object.freeze({
     idle: "spike_pumpkin_idle",
     warning: "spike_pumpkin_warning",
@@ -38,6 +44,12 @@ const ENEMY_TIMINGS = Object.freeze({
     idle: Object.freeze({ durations: [300, 300], repeat: -1 }),
     move: Object.freeze({ durations: [90, 85, 90, 85, 90, 100], repeat: -1 }),
     defeated: Object.freeze({ durations: [110, 90, 120, 240], repeat: 0 })
+  }),
+  potato_archer: Object.freeze({
+    idle: Object.freeze({ durations: [320, 320], repeat: -1 }),
+    warning: Object.freeze({ durations: [260, 230, 210], repeat: -1 }),
+    attack: Object.freeze({ durations: [70, 90, 180], repeat: 0 }),
+    defeated: Object.freeze({ durations: [120, 100, 140, 260], repeat: 0 })
   }),
   spike_pumpkin: Object.freeze({
     idle: Object.freeze({ durations: [320, 320], repeat: -1 }),

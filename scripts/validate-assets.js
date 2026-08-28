@@ -220,7 +220,9 @@ const requiredAudioKeys = [
   "sfx_boss_appear", "sfx_boss_warning", "sfx_boss_land", "sfx_boss_hit",
   "sfx_boss_defeat", "sfx_checkpoint", "sfx_gate_spawn", "sfx_clear", "sfx_ui_move",
   "sfx_ui_select", "sfx_pause", "sfx_tsunami_warning", "sfx_tsunami_pass", "sfx_tsunami_hit",
-  "sfx_splash_enter", "sfx_splash_exit", "sfx_breath_low", "sfx_breath_refill", "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
+  "sfx_splash_enter", "sfx_splash_exit", "sfx_breath_low", "sfx_breath_refill",
+  "sfx_projectile_guard", "sfx_laser_warning", "sfx_laser_off",
+  "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
 ];
 let validatedAudioCount = 0;
 let validatedCharacterSheetCount = 0;

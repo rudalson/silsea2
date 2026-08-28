@@ -15,6 +15,7 @@
     "mist:assets": "node scripts/build-mist-assets.js && node scripts/generate-mist-tiles.js",
     "tsunami:assets": "node scripts/build-tsunami-assets.js && node scripts/generate-tsunami-tiles.js",
     "submerged:assets": "node scripts/build-submerged-assets.js && node scripts/generate-submerged-tiles.js && node scripts/build-swim-assets.js",
+    "p6:assets": "node scripts/build-p6-assets.js",
     "environment:regrade": "node scripts/regrade-environment.js && node scripts/generate-tiles.js && node scripts/build-background-previews.js",
     "audio": "node scripts/generate-audio.js",
     "postprocess:frames": "node scripts/postprocess-pending-frames.js",

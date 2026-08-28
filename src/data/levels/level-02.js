@@ -21,6 +21,13 @@ export default {
       firefly: "decor_firefly",
       starFlower: "decor_star_flower"
     },
+    effects: {
+      laserEmitter: "laser_emitter",
+      laserSwitchOn: "laser_switch_on",
+      laserSwitchOff: "laser_switch_off",
+      laserWarning: "fx_laser_warning",
+      laserBeam: "fx_laser_beam"
+    },
     objects: {
       items: {
         star: "item_star",

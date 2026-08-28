@@ -61,7 +61,10 @@ const sfx = {
   sfx_splash_enter: { duration: 0.22, tones: [tone(0, 0.2, 520, 190, "sine", 0.32)], noise: 0.14 },
   sfx_splash_exit: { duration: 0.26, tones: [tone(0, 0.22, 240, 680, "sine", 0.3)], noise: 0.1 },
   sfx_breath_low: { duration: 0.44, tones: [tone(0, 0.14, 659, 784, "sine", 0.26), tone(0.2, 0.16, 659, 831, "sine", 0.24)] },
-  sfx_breath_refill: { duration: 0.28, tones: arpeggio([523, 659, 784], 0.06, 0.12, "sine", 0.26) }
+  sfx_breath_refill: { duration: 0.28, tones: arpeggio([523, 659, 784], 0.06, 0.12, "sine", 0.26) },
+  sfx_projectile_guard: { duration: 0.24, tones: [tone(0, 0.16, 560, 920, "sine", 0.28), tone(0.06, 0.18, 880, 1180, "triangle", 0.2)], noise: 0.018 },
+  sfx_laser_warning: { duration: 0.42, tones: [tone(0, 0.14, 620, 760, "sine", 0.24), tone(0.21, 0.18, 720, 930, "sine", 0.26)] },
+  sfx_laser_off: { duration: 0.38, tones: [tone(0, 0.34, 560, 210, "sine", 0.26), tone(0.08, 0.24, 420, 165, "triangle", 0.14)] }
 };
 
 const waveAt = (kind, phase) => {

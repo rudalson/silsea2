@@ -4,6 +4,8 @@
     "manifestGroups": {
       "unicorn_motion_variants": ["silsea_unicorn_idle", "silsea_unicorn_run", "silsea_unicorn_jump_up", "silsea_unicorn_fall", "silsea_unicorn_land", "silsea_unicorn_hurt", "silsea_unicorn_fly", "silsea_unicorn_swim", "silsea_unicorn_victory", "potato89_unicorn_idle", "potato89_unicorn_roll", "potato89_unicorn_jump_up", "potato89_unicorn_fall", "potato89_unicorn_land", "potato89_unicorn_hurt", "potato89_unicorn_stomp", "potato89_unicorn_fly", "potato89_unicorn_swim", "potato89_unicorn_victory"],
       "raw_potato": ["raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"],
+      "wing_guard": ["silsea_wing_guard", "potato89_wing_guard"],
+      "potato_archer": ["potato_archer_idle", "potato_archer_aim", "potato_archer_shoot", "potato_archer_defeated"],
       "spike_pumpkin": ["spike_pumpkin_idle", "spike_pumpkin_warning", "spike_pumpkin_break"],
       "dark_cloud": ["dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated"],
       "magpie": ["magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"],
@@ -43,6 +45,7 @@
     ]
   },
   "unicorn_motion_variants": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "유니콘·알리콘 상태에서 뿔이 몸과 함께 움직이도록 각 동작 프레임에 직접 합성한 차분." },
+  "wing_guard": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "승인된 P6 앵커의 몸에 붙은 날개를 기준으로 두 플레이어의 정면 방어 4프레임을 제작." },
   "silsea_idle": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 원안 외형과 색상선. 기본형 뿔은 제거." },
   "silsea_run": { "styleRefs": ["silsea_run.png", "silsea_sprite-Photoroom.png"], "note": "8프레임 보행 순서와 원안 외형." },
   "silsea_jump_up": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 우향 측면과 공중 포즈." },
@@ -71,6 +74,13 @@
   "potato89_victory": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_3.jpg"], "note": "프로젝트 선 처리와 클리어 축제감." },
 
   "raw_potato": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "프로젝트 색상선과 낮고 둥근 적 실루엣. 상용 오브젝트는 모사하지 않음." },
+  "potato_archer": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P6 앵커의 생감자 정체성·잎 표식·나뭇가지 활을 유지한 대기·조준·발사·패배 애니메이션." },
+  "projectile_arrow": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "P6 앵커의 둥근 나무 화살 형태와 분홍 깃을 분리 투사체로 제작." },
+  "laser_emitter": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "승인 P6 앵커의 달·별 문양과 식물 받침을 유지한 별빛 숲 바닥형 발사기." },
+  "laser_switch_on": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "돌출된 완전한 별로 ON 상태를 실루엣과 색 모두로 표시." },
+  "laser_switch_off": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "함몰된 갈라진 별로 OFF 상태를 실루엣과 색 모두로 표시." },
+  "fx_laser_warning": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "가는 분홍 점선으로 피해 판정 전 예고 구간을 표시." },
+  "fx_laser_beam": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "흰 중심·청록 안쪽·자주 바깥의 굵은 이중 외곽으로 활성 레이저를 표시." },
   "spike_pumpkin": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "색상선과 뾰족한 위험 실루엣·가독성만 참고." },
   "dark_cloud": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_1.jpg"], "note": "색상선과 지면 공격 표식의 대비 참고." },
   "magpie": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_3.jpg"], "note": "프로젝트 카툰 선 처리와 밝은 무드. 실제 까치 실루엣은 독자 설계." },

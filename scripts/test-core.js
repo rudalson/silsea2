@@ -223,10 +223,10 @@ assert.notEqual(
   getCharacterAnimationSpec("silsea", "jump", "unicorn").key,
   getCharacterAnimationSpec("silsea", "jump").key
 );
-assert.equal(getCharacterAssetKeys("silsea").length, 21);
-assert.equal(getCharacterAssetKeys("potato89").length, 23);
+assert.equal(getCharacterAssetKeys("silsea").length, 22);
+assert.equal(getCharacterAssetKeys("potato89").length, 24);
 for (const characterId of ["silsea", "potato89"]) {
-  for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "swim", "victory"]) {
+  for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "wing_guard", "swim", "victory"]) {
     const spec = getCharacterAnimationSpec(characterId, sequence);
     assert.ok(spec, `${characterId} ${sequence} 애니메이션 명세가 필요함`);
     assert.equal(spec.durationMs, spec.durations.reduce((total, duration) => total + duration, 0));
@@ -235,11 +235,12 @@ for (const characterId of ["silsea", "potato89"]) {
 }
 assert.deepEqual(getCharacterAnimationSpec("silsea", "land").durations, [80, 120]);
 assert.equal(getEnemyAssetKeys("raw_potato").length, 3);
+assert.equal(getEnemyAssetKeys("potato_archer").length, 4);
 assert.equal(getEnemyAssetKeys("spike_pumpkin").length, 3);
 assert.equal(getEnemyAssetKeys("dark_cloud").length, 4);
 assert.equal(getEnemyAssetKeys("magpie").length, 5);
 assert.equal(getEnemyAssetKeys("potato_king").length, 7);
-for (const enemyType of ["raw_potato", "spike_pumpkin", "dark_cloud", "magpie", "potato_king"]) {
+for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "potato_king"]) {
   assert.ok(getEnemyAnimationSpec(enemyType, "idle"));
   assert.ok(getEnemyAnimationSpec(enemyType, "defeated"));
 }

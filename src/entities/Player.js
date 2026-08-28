@@ -168,6 +168,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   updateCharacterAnimation(ability, now) {
     if (!this.usesCharacterArt || now < this.animationLockedUntil) return;
+    if (ability.mode === "guard" && this.visualVariant === "base") {
+      this.playCharacterAnimation("wing_guard");
+      return;
+    }
     if (ability.mode === "swim") {
       this.playCharacterAnimation("swim");
       return;

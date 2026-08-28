@@ -151,15 +151,17 @@ export class EnemyManager {
     return new ObjectPool({
       maxSize: this.projectileDifficulty.maxActive ?? ARCHER_RULES.maxActive,
       create: () => {
-        const arrow = this.scene.add.triangle(0, 0, -20, -7, 20, 0, -20, 7, COLORS.collect, 0.98)
-          .setStrokeStyle(3, COLORS.outline, 0.96)
-          .setDepth(11)
-          .setVisible(false);
+        const usesArt = this.scene.textures.exists("projectile_arrow");
+        const arrow = usesArt
+          ? this.scene.add.image(0, 0, "projectile_arrow").setDisplaySize(56, 28)
+          : this.scene.add.triangle(0, 0, -20, -7, 20, 0, -20, 7, COLORS.collect, 0.98)
+            .setStrokeStyle(3, COLORS.outline, 0.96);
+        arrow.setDepth(11).setVisible(false);
         this.scene.physics.add.existing(arrow);
         arrow.body.setAllowGravity(false);
         arrow.body.enable = false;
         arrow.setDataEnabled();
-        arrow.setData({ guardable: true, projectileType: "arrow" });
+        arrow.setData({ guardable: true, projectileType: "arrow", usesArt });
         this.interactions.push(this.scene.physics.add.overlap(this.player, arrow, () => {
           if (!arrow.poolActive || !this.isOnScreen(arrow, 80)) return;
           if (arrow.getData("guardable") && this.transformationManager.canGuardProjectile(arrow.x, arrow.y)) {
@@ -511,8 +513,11 @@ export class EnemyManager {
   }
 
   applyTelegraphColor(enemy, color) {
-    if (enemy.getData("usesArt")) enemy.setTintFill?.(color);
-    else enemy.setFillStyle?.(color);
+    if (enemy.getData("usesArt")) {
+      if (enemy.getData("type") !== "potato_archer") enemy.setTintFill?.(color);
+      return;
+    }
+    enemy.setFillStyle?.(color);
   }
 
   clearTelegraphColor(enemy) {

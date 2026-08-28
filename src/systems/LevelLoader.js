@@ -388,9 +388,11 @@ export class LevelLoader {
       if (usesArt) {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
         const isRawPotato = enemy.type === "raw_potato";
-        const bodyWidth = isRawPotato ? 38 : 50;
-        const bodyHeight = isRawPotato ? 36 : 46;
+        const isPotatoArcher = enemy.type === "potato_archer";
+        const bodyWidth = isRawPotato ? 38 : isPotatoArcher ? 52 : 50;
+        const bodyHeight = isRawPotato ? 36 : isPotatoArcher ? 52 : 46;
         if (isRawPotato) marker.setScale(0.72);
+        if (isPotatoArcher) marker.setScale(0.82);
         marker.body.setSize(bodyWidth, bodyHeight, false);
         marker.body.setOffset((128 - bodyWidth) / 2, 112 - bodyHeight);
       } else {

@@ -45,6 +45,8 @@ export class TransformationManager {
     this.guardCooldownUntil = 0;
     this.guardMustRelease = false;
     this.guardEffects = new Set();
+    this.guardSfxFrame = -1;
+    this.guardSfxCount = 0;
     this.visualReviewGuardMode = [GUARD_PHASES.WINDUP, GUARD_PHASES.ACTIVE].includes(
       scene.registry.get("visualReviewGuardMode")
     ) ? scene.registry.get("visualReviewGuardMode") : null;
@@ -285,7 +287,15 @@ export class TransformationManager {
         sparkle.destroy();
       }
     });
-    this.scene.audioManager?.playSfx("sfx_projectile_guard", { randomizeRate: false });
+    const frame = this.scene.game.loop.frame;
+    if (frame !== this.guardSfxFrame) {
+      this.guardSfxFrame = frame;
+      this.guardSfxCount = 0;
+    }
+    if (this.guardSfxCount < 2) {
+      this.guardSfxCount += 1;
+      this.scene.audioManager?.playSfx("sfx_projectile_guard", { randomizeRate: false });
+    }
     this.scene.events.emit(EVENTS.PROJECTILE_GUARDED, { x, y });
     this.scene.updateAccessibleStatus?.("날개로 투사체를 막았습니다.");
   }
@@ -311,6 +321,7 @@ export class TransformationManager {
       const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
       const integratedWings = animationKey.endsWith(":fly")
         || animationKey.endsWith(":unicorn:fly")
+        || animationKey.endsWith(":wing_guard")
         || animationKey.endsWith(":transform_pegasus")
         || animationKey.endsWith(":transform_alicorn");
       this.wings.setVisible(hasWings && !integratedWings);
