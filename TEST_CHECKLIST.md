@@ -267,7 +267,7 @@
 - [x] [A] `sfx_projectile_guard`, `sfx_laser_warning`, `sfx_laser_off`가 실제 판정·예고·OFF 프레임에 연결되고 22050Hz mono 16-bit 검사를 통과함. — 2026-08-28
 - [x] [M] 실제 런타임에서 두 캐릭터 방어, 궁수 조준·화살, 레이저 예고·활성·OFF가 최종 이미지로 판독됨. — `references/P6_COMBAT_FINAL_REVIEW.md`
 - [x] [A] `npm run test`, `npm run validate`, `npm run build`가 통과함. — manifest 195·mapping 133·런타임 파일 200·오디오 51
-- [ ] [M] 사용자가 P6 최종 컬러 에셋·효과음·런타임 화면을 승인함. — `P6 최종 승인` 대기
+- [x] [M] 사용자가 P6 최종 컬러 에셋·효과음·런타임 화면을 승인함. — 2026-08-31 `P6 최종 승인`
 
 ## 첫 60초와 학습
 
