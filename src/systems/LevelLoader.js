@@ -328,22 +328,24 @@ export class LevelLoader {
   }
 
   createItemMarkers() {
-    const createVisual = (type, x, y, alpha = 1) => {
+    const createVisuals = (type, x, y, alpha = 1) => {
+      const glow = this.track(this.scene.add.ellipse(x, y + 2, 58, 30, COLORS.collect, 0.18 * alpha));
+      glow.setStrokeStyle(2, COLORS.white, 0.34 * alpha).setDepth(3);
       const key = this.level.assets.objects?.items?.[type];
       if (key && this.scene.textures.exists(key)) {
         const image = this.track(this.scene.add.image(x, y, key));
         image.setScale(ITEM_SCALES[type] ?? 0.65).setAlpha(alpha).setDepth(4);
-        return image;
+        return [glow, image];
       }
       if (type === "star") {
         const star = this.track(this.scene.add.star(x, y, 5, 8, 18, COLORS.collect, alpha));
         star.setStrokeStyle(3, COLORS.outline).setDepth(4);
-        return star;
+        return [glow, star];
       }
       const definition = ITEM_DEFINITIONS[type];
       const marker = this.track(this.scene.add.circle(x, y, 24, definition?.color ?? COLORS.collect, alpha));
       marker.setStrokeStyle(4, COLORS.outline).setDepth(4);
-      return marker;
+      return [glow, marker];
     };
 
     const register = (id, type, x, y, visuals) => {
@@ -356,7 +358,7 @@ export class LevelLoader {
 
     for (const item of this.level.items) {
       if (item.type === "star") {
-        register(item.id, "star", item.x, item.y, [createVisual("star", item.x, item.y)]);
+        register(item.id, "star", item.x, item.y, createVisuals("star", item.x, item.y));
         continue;
       }
       if (item.type === "star_arc") {
@@ -364,13 +366,13 @@ export class LevelLoader {
           const angle = Math.PI + (Math.PI * index) / Math.max(1, item.count - 1);
           const x = item.x + Math.cos(angle) * item.radius;
           const y = item.y + Math.sin(angle) * item.radius;
-          register(`${item.id}-${index}`, "star", x, y, [createVisual("star", x, y, 0.78)]);
+          register(`${item.id}-${index}`, "star", x, y, createVisuals("star", x, y, 0.78));
         }
         continue;
       }
 
       const visualY = item.y - 44;
-      register(item.id, item.type, item.x, visualY, [createVisual(item.type, item.x, visualY)]);
+      register(item.id, item.type, item.x, visualY, createVisuals(item.type, item.x, visualY));
     }
   }
 
@@ -639,6 +641,13 @@ export class LevelLoader {
       .filter((object) => x >= object.x && x <= object.x + object.width)
       .map((object) => object.y);
     return surfaces.length ? Math.min(...surfaces) : this.level.player.spawn.y;
+  }
+
+  findSurfaceBelow(x, y) {
+    const surfaces = this.getTerrainObjects()
+      .filter((object) => x >= object.x && x <= object.x + object.width && object.y >= y - 24)
+      .map((object) => object.y);
+    return surfaces.length ? Math.min(...surfaces) : null;
   }
 
   findNearestSafePoint(x) {

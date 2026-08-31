@@ -25,10 +25,12 @@
     "validate:mapping": "node scripts/validate-asset-mapping.js",
     "validate:assets": "node scripts/validate-assets.js",
     "validate:runtime": "node scripts/validate-runtime-build.js",
-    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js && node scripts/validate-asset-mapping.js && node scripts/validate-assets.js",
+    "validate:integration": "node scripts/validate-integration.js",
+    "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js && node scripts/validate-asset-mapping.js && node scripts/validate-assets.js && node scripts/validate-integration.js",
     "test": "node scripts/test-core.js",
     "test:soak": "node --expose-gc scripts/test-soak.js",
-    "test:release": "npm run build && npm run validate:runtime"
+    "test:release": "npm run build && npm run validate:runtime",
+    "playtest:analyze": "node scripts/analyze-playtests.js"
   },
   "dependencies": {
     "phaser": "3.90.0"

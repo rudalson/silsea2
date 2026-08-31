@@ -73,6 +73,14 @@ export class GameScene extends Phaser.Scene {
       this.character,
       this.tuning
     );
+    this.playerShadow = this.add.ellipse(
+      this.player.x,
+      this.level.player.spawn.y + 2,
+      82,
+      16,
+      COLORS.near,
+      0.24
+    ).setDepth(1);
     this.particleEffects = new ParticleEffectsManager(this);
     this.createGameplayManagers();
     this.playtestManager = new PlaytestManager(this, this.player, {
@@ -158,6 +166,7 @@ export class GameScene extends Phaser.Scene {
     });
     const ability = waterAbility ?? transformationAbility;
     this.player.updateControls(input, time, delta, ability);
+    this.updatePlayerShadow();
     this.terrainMechanics?.update(time, delta);
     this.environmentMechanics?.update(time, delta);
     this.breathManager?.update(time, delta);
@@ -174,7 +183,9 @@ export class GameScene extends Phaser.Scene {
 
     if (this.player.y > this.level.world.height + 140 && !this.checkpointManager.respawning) {
       this.updateAccessibleStatus("낭떠러지에서 마지막 안전 지점으로 돌아갑니다.");
-      this.events.emit(EVENTS.PLAYER_FELL);
+      this.events.emit(EVENTS.PLAYER_FELL, {
+        hpLost: this.healthManager.isInvulnerable() ? 0 : 1
+      });
       this.healthManager.handleFall();
     }
 
@@ -215,6 +226,25 @@ export class GameScene extends Phaser.Scene {
     const target = getCameraLookAheadTarget(this.player.body.velocity.x, distance);
     this.lookAhead = Phaser.Math.Linear(this.lookAhead, target, Math.min(1, delta / 220));
     this.cameras.main.setFollowOffset(this.lookAhead, 28);
+  }
+
+  updatePlayerShadow() {
+    if (!this.playerShadow || !this.player?.body?.enable) {
+      this.playerShadow?.setVisible(false);
+      return;
+    }
+    const surfaceY = this.levelLoader.findSurfaceBelow(this.player.x, this.player.y);
+    if (!Number.isFinite(surfaceY)) {
+      this.playerShadow.setVisible(false);
+      return;
+    }
+    const altitude = Math.max(0, surfaceY - this.player.y);
+    const visibility = Math.max(0, 1 - altitude / 360);
+    this.playerShadow
+      .setVisible(visibility > 0.05)
+      .setPosition(this.player.x, surfaceY + 2)
+      .setScale(Math.max(0.48, 1 - altitude / 620), 1)
+      .setAlpha(0.08 + visibility * 0.2);
   }
 
   bindWorldInteractions() {
@@ -402,23 +432,14 @@ export class GameScene extends Phaser.Scene {
     if (!this.objectiveManager.areRequiredComplete()) return;
     this.isCompleting = true;
     this.events.emit(EVENTS.GATE_ENTERED, { levelId: this.level.id });
-    this.audioManager.stopLoop("sfx_fly_loop");
-    this.audioManager.playSfx("sfx_clear", { randomizeRate: false });
-    this.player.setVelocity(0, 0);
-    this.player.body.enable = false;
-    this.player.playVictoryAnimation?.();
-    this.cameras.main.flash(260, 245, 223, 79);
     const achieved = this.objectiveManager
       .getSnapshot()
       .filter((objective) => !objective.required && objective.complete)
       .map((objective) => objective.type);
     const score = this.scoreManager.score;
-    progressManager.complete(this.level.id, score, achieved);
-    const playtestBundle = this.playtestManager?.complete({
-      elapsedSeconds: this.elapsed,
-      score,
-      achieved
-    });
+    this.completeProgressSafely({ score, achieved });
+    const playtestBundle = this.completePlaytestSafely({ score, achieved });
+    this.playStageClearPresentation();
     this.updateAccessibleStatus(`${this.level.name} 클리어.`);
 
     this.scene.stop(SCENE_KEYS.UI);
@@ -430,6 +451,46 @@ export class GameScene extends Phaser.Scene {
       achieved,
       playtestBundle
     });
+  }
+
+  completeProgressSafely({ score, achieved }) {
+    try {
+      return progressManager.complete(this.level.id, score, achieved);
+    } catch (error) {
+      console.error("[stage-clear] 진행도를 저장하지 못했지만 장면 전환은 계속합니다.", error);
+      return null;
+    }
+  }
+
+  completePlaytestSafely({ score, achieved }) {
+    try {
+      return this.playtestManager?.complete({
+        elapsedSeconds: this.elapsed,
+        score,
+        achieved
+      }) ?? null;
+    } catch (error) {
+      console.error("[stage-clear] 플레이테스트 기록을 저장하지 못했지만 장면 전환은 계속합니다.", error);
+      return null;
+    }
+  }
+
+  playStageClearPresentation() {
+    try {
+      // 다른 카메라 플래시나 줌 타이머가 남아 있으면 종료 중 노란 프레임에
+      // 고정될 수 있으므로 클리어 플래시를 시작하기 전에 먼저 정리한다.
+      this.transformationManager?.cancelPresentation();
+      this.audioManager.stopLoop("sfx_fly_loop");
+      this.audioManager.playSfx("sfx_clear", { randomizeRate: false });
+      this.player.setVelocity(0, 0);
+      this.player.body.enable = false;
+      this.playerShadow?.setVisible(false);
+      this.player.playVictoryAnimation?.();
+      this.cameras.main.flash(260, 245, 223, 79, true);
+    } catch (error) {
+      this.cameras?.main?.flashEffect?.reset?.();
+      console.error("[stage-clear] 클리어 연출을 생략하고 장면 전환을 계속합니다.", error);
+    }
   }
 
   warpToSection(sectionId, offset = 160) {
@@ -525,5 +586,7 @@ export class GameScene extends Phaser.Scene {
     this.particleEffects?.destroy();
     this.particleEffects = null;
     this.levelLoader?.destroy();
+    this.playerShadow?.destroy();
+    this.playerShadow = null;
   }
 }

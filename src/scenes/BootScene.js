@@ -42,7 +42,10 @@ export class BootScene extends Phaser.Scene {
       ? LEVELS.find(({ id }) => id === query.get("stage")) ?? null
       : null;
     const p1TestLevel = query.get("p1test") === "1" ? getLevel("p1-environment-test") : null;
-    const directLevel = reviewLevel ?? p1TestLevel;
+    const playtestLevel = playtestEnabled
+      ? LEVELS.find(({ id }) => id === query.get("level")) ?? null
+      : null;
+    const directLevel = reviewLevel ?? p1TestLevel ?? playtestLevel;
     const levelId = directLevel?.id ?? stageSelectLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
@@ -72,9 +75,9 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("easyMode", query.get("easy") === "1");
     this.registry.set("playtestEnabled", playtestEnabled);
     this.registry.set("playtestTesterId", playtestTesterId);
-    this.registry.set("screenShakeEnabled", true);
+    this.registry.set("screenShakeEnabled", query.get("shake") !== "0");
     this.registry.set("screenEffectStrength", query.get("effects") === "reduced" ? "reduced" : "normal");
-    this.registry.set("audioMuted", false);
+    this.registry.set("audioMuted", query.get("mute") === "1");
     this.registry.set("sfxVolume", 0.72);
     this.registry.set("bgmVolume", 0.46);
     if (stageSelectReview) {

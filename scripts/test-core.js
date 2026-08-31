@@ -382,6 +382,26 @@ assert.equal(testProgress.isUnlocked(level05, playableLevels), false);
 testProgress.complete(level04.id, 10);
 assert.equal(testProgress.isUnlocked(level05, playableLevels), true);
 
+let repairedProgressValue = null;
+const legacyProgress = new ProgressManager({
+  getItem: () => JSON.stringify({
+    "level-01": { cleared: true, bestScore: "125", achieved: null },
+    "level-02": { cleared: true, bestScore: "broken", achieved: ["no_damage", null, "no_damage"] }
+  }),
+  setItem: (key, value) => {
+    repairedProgressValue = value;
+  }
+});
+assert.deepEqual(legacyProgress.get("level-01"), { cleared: true, bestScore: 125, achieved: [] });
+assert.deepEqual(legacyProgress.get("level-02"), { cleared: true, bestScore: 0, achieved: ["no_damage"] });
+assert.doesNotThrow(() => legacyProgress.complete("level-02", 963, ["clear_time"]));
+assert.deepEqual(legacyProgress.get("level-02"), {
+  cleared: true,
+  bestScore: 963,
+  achieved: ["no_damage", "clear_time"]
+});
+assert.ok(repairedProgressValue?.includes('"bestScore":963'));
+
 assert.equal(stepBreathRatio(1, 6000, { underwater: true, depleteSeconds: 12 }), 0.5);
 assert.equal(stepBreathRatio(0, 1000, { recovering: true, refillSeconds: 2 }), 0.5);
 assert.equal(stepBreathRatio(0.4, 6000, { underwater: true, immune: true, depleteSeconds: 12 }), 0.4);
@@ -681,7 +701,18 @@ const breathScene = {
   audioManager: { playSfx(key) { breathSfx.push(key); } },
   updateAccessibleStatus() {}
 };
-const breathPlayer = { x: 800, y: 420, displayHeight: 96, body: { top: 360 } };
+const breathPlayer = {
+  x: 800,
+  y: 420,
+  displayHeight: 96,
+  body: {
+    top: 360,
+    bottom: 418,
+    height: 58,
+    blocked: { down: false },
+    touching: { down: false }
+  }
+};
 const breath = new BreathManager(
   breathScene,
   breathPlayer,
@@ -701,13 +732,23 @@ breathScene.time.now = 2500;
 breath.update(2500, 0);
 assert.deepEqual(breathDamageTimes, [2500]);
 breathPlayer.body.top = 300;
+breathPlayer.body.bottom = 358;
 breathScene.time.now = 3500;
 breath.update(3500, 1000);
 assert.equal(breath.getSnapshot().ratio, 0.5);
+assert.equal(breath.getSnapshot().surfaceExitAssist, true, "머리가 수면을 통과해도 몸이 지붕을 넘을 때까지 수영 상승을 유지해야 함");
+assert.equal(
+  breath.prepareMovement({ jumpPressed: true, moveY: 0 }, 3500)?.mode,
+  "swim",
+  "출수 보조 중에는 Space 상승을 계속 사용할 수 있어야 함"
+);
 assert.deepEqual(breathSfx, ["sfx_splash_enter", "sfx_breath_low", "sfx_splash_exit"]);
 breathScene.time.now = 3600;
 breath.update(3600, 100);
 assert.deepEqual(breathSfx, ["sfx_splash_enter", "sfx_breath_low", "sfx_splash_exit", "sfx_breath_refill"]);
+breathPlayer.body.bottom = 271;
+assert.equal(breath.prepareMovement({ jumpPressed: false, moveY: 0 }, 3650), null);
+assert.equal(breath.getSnapshot().surfaceExitAssist, false, "발끝이 지붕 위로 올라오면 일반 지상 조작으로 돌아가야 함");
 breathPlayer.x = 500;
 breathScene.time.now = 3700;
 breath.update(3700, 100);
@@ -715,6 +756,13 @@ assert.deepEqual(
   breathSfx,
   ["sfx_splash_enter", "sfx_breath_low", "sfx_splash_exit", "sfx_breath_refill"],
   "머리가 물 밖인 채 수역 경계만 넘을 때 출수음을 다시 재생하면 안 됨"
+);
+breathPlayer.x = 800;
+breathPlayer.body.bottom = 358;
+assert.equal(
+  breath.prepareMovement({ jumpPressed: false, moveY: 0 }, 3800),
+  null,
+  "물 밖에서 수역으로 접근할 때는 출수 보조를 새로 켜면 안 됨"
 );
 breathListeners.get(EVENTS.PLAYER_RESPAWNED)?.();
 assert.equal(breath.getSnapshot().ratio, 1);
@@ -789,7 +837,13 @@ const playtestManager = new PlaytestManager(playtestScene, playtestPlayer, {
   now: () => 1000
 });
 playtestManager.update(0, playtestPlayer);
-playtestScene.events.emit("player:hit", { hp: 2 });
+playtestScene.events.emit("player:hit", { hp: 2, type: "tsunami" });
+playtestScene.events.emit(EVENTS.BREATH_CHANGED, { depleted: true, zoneId: "water-a" });
+playtestScene.events.emit(EVENTS.BREATH_CHANGED, { depleted: true, zoneId: "water-a" });
+playtestScene.events.emit(EVENTS.BREATH_CHANGED, { depleted: false, zoneId: "water-a" });
+playtestScene.events.emit(EVENTS.BREATH_CHANGED, { depleted: true, zoneId: "water-a" });
+playtestScene.events.emit(EVENTS.PROJECTILE_GUARDED, { x: 220, y: 410 });
+playtestScene.events.emit(EVENTS.PLAYER_RESPAWNED, { checkpoint: "cp-a", x: 256, y: 574 });
 playtestManager.update(21, playtestPlayer);
 playtestScene.events.emit("player:fell");
 playtestPlayer.x = 320;
@@ -799,6 +853,15 @@ assert.equal(playtestBundle.currentSession.testerId, "child-04");
 assert.equal(playtestBundle.currentSession.schemaVersion, PLAYTEST_SCHEMA_VERSION);
 assert.equal(playtestBundle.currentSession.metrics.hits, 1);
 assert.equal(playtestBundle.currentSession.metrics.falls, 1);
+assert.equal(playtestBundle.currentSession.metrics.hpLosses, 1);
+assert.equal(playtestBundle.currentSession.metrics.tsunamiHits, 1);
+assert.equal(playtestBundle.currentSession.metrics.breathDepletions, 2);
+assert.equal(playtestBundle.currentSession.metrics.projectilesGuarded, 1);
+assert.equal(playtestBundle.currentSession.metrics.respawns, 1);
+assert.deepEqual(
+  playtestBundle.currentSession.events.find(({ type }) => type === "respawn")?.details,
+  { checkpoint: "cp-a", x: 256, y: 574 }
+);
 assert.ok(playtestBundle.currentSession.metrics.stalls >= 1);
 assert.equal(playtestBundle.currentSession.completed, true);
 assert.equal(playtestBundle.sessions.length, 1);

@@ -766,7 +766,7 @@ export class EnvironmentMechanicsManager {
     const overlaps = Math.abs(this.player.x - this.waveVisual.x) <= WAVE_WIDTH / 2 + playerHalfWidth;
     if (overlaps && this.lastHitWaveId !== this.waveId && !this.isPlayerSafe(now)) {
       this.lastHitWaveId = this.waveId;
-      if (this.healthManager.takeDamage(this.waveVisual.x)) {
+      if (this.healthManager.takeDamage(this.waveVisual.x, { type: "tsunami" })) {
         this.scene.audioManager?.playSfx("sfx_tsunami_hit", { randomizeRate: false });
         this.scene.updateAccessibleStatus?.("파도에 맞아 체력이 1 줄었습니다.");
       }

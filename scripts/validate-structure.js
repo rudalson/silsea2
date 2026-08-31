@@ -89,6 +89,12 @@ if (!uiScene.includes('setVisible(this.registry.get("debugEnabled"))')) fail("FP
 if (!bootScene.includes('query.get("playtest")') || !bootScene.includes('query.get("tester")')) {
   fail("익명 플레이테스트 진입 쿼리가 없음");
 }
+if (!bootScene.includes('query.get("level")') || !bootScene.includes("playtestLevel")) {
+  fail("저장 진행도와 분리된 P8 대상 레벨 플레이테스트 진입점이 없음");
+}
+for (const marker of ["tsunamiHits", "breathDepletions", "projectilesGuarded", "hpLosses"]) {
+  if (!playtestManager.includes(marker)) fail(`P8 플레이테스트 계측이 없음: ${marker}`);
+}
 if (!bootScene.includes('query.get("fallback")') || !assetManager.includes('get?.("forceAssetFallback")')) {
   fail("이미지·오디오 fallback 전체 검증 진입점이 없음");
 }
@@ -126,6 +132,17 @@ if (!clearScene.includes("downloadPlaytestBundle") || !clearScene.includes("inpu
 }
 if (!gameScene.includes("this.scene.start(SCENE_KEYS.CLEAR") || gameScene.includes("this.time.delayedCall(320")) {
   fail("게이트 완료 뒤 즉시 클리어 화면으로 전환되지 않음");
+}
+if (!gameScene.includes("completeProgressSafely") || !gameScene.includes("completePlaytestSafely") || !gameScene.includes("playStageClearPresentation")) {
+  fail("클리어 부가 기록·연출 오류가 장면 전환을 막지 않도록 격리되지 않음");
+}
+const gateCompletionStart = gameScene.indexOf("  handleGateEntered() {");
+const gateCompletionBlock = gameScene.slice(
+  gateCompletionStart,
+  gameScene.indexOf("  completeProgressSafely", gateCompletionStart)
+);
+if (gateCompletionBlock.indexOf("playStageClearPresentation()") > gateCompletionBlock.indexOf("this.scene.start(SCENE_KEYS.CLEAR")) {
+  fail("클리어 연출 정리가 장면 전환보다 늦게 실행됨");
 }
 if (!clearScene.includes("startNextLevel") || !clearScene.includes("goToStageSelect")) {
   fail("클리어 화면에 다음 스테이지·스테이지 선택 이동 경로가 없음");

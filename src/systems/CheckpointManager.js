@@ -28,7 +28,11 @@ export class CheckpointManager {
       player.setPosition(this.current.x, this.current.y - 2);
       player.setVelocity(0, 0);
       player.body.enable = true;
-      this.scene.events.emit(EVENTS.PLAYER_RESPAWNED, { checkpoint: this.current.id });
+      this.scene.events.emit(EVENTS.PLAYER_RESPAWNED, {
+        checkpoint: this.current.id,
+        x: this.current.x,
+        y: this.current.y - 2
+      });
       this.scene.tweens.add({
         targets: player,
         alpha: 1,

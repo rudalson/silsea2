@@ -24,7 +24,7 @@ export class HealthManager {
     this.emitHp();
   }
 
-  takeDamage(sourceX = this.player.x, { steal = false } = {}) {
+  takeDamage(sourceX = this.player.x, { steal = false, type = "contact" } = {}) {
     const now = this.scene.time.now;
     if (this.transformationManager.invulnerable || now < this.invulnerableUntil) return false;
 
@@ -37,7 +37,7 @@ export class HealthManager {
     this.player.setVelocity(direction * 300, -260);
     this.player.setTintFill(COLORS.danger);
     this.scene.time.delayedCall(110, () => this.player?.active && this.player.clearTint());
-    this.scene.events.emit(EVENTS.PLAYER_HIT, { hp: Math.max(0, this.hp), steal });
+    this.scene.events.emit(EVENTS.PLAYER_HIT, { hp: Math.max(0, this.hp), steal, type });
 
     if (this.hp <= 0) this.reviveAtCheckpoint();
     this.emitHp();

@@ -7,7 +7,8 @@ const DEFAULT_PHYSICS = Object.freeze({
   maxFallSpeed: 260,
   horizontalSpeedMultiplier: 0.75,
   strokeVelocity: -230,
-  strokeCooldown: 0.35
+  strokeCooldown: 0.35,
+  exitAssistHeight: 48
 });
 
 export class BreathManager {
@@ -38,6 +39,7 @@ export class BreathManager {
     this.recovering = false;
     this.nextDamageAt = Number.POSITIVE_INFINITY;
     this.nextStrokeAt = 0;
+    this.surfaceExitZoneId = null;
     this.lowWarningSent = false;
     this.zeroStartedAt = null;
     this.onRespawn = () => this.restoreFull();
@@ -57,6 +59,10 @@ export class BreathManager {
     );
     this.recovering = !this.contact.underwater && (this.contact.aboveSurface || !this.contact.zone) && this.ratio < 1;
     const zoneId = this.contact.zone?.id ?? null;
+    if (previousUnderwater && !this.contact.underwater && zoneId === previousZoneId) {
+      this.surfaceExitZoneId = zoneId;
+    }
+    this.refreshSurfaceExitAssist();
     const underwaterChanged = this.contact.underwater !== previousUnderwater;
     if (zoneId !== previousZoneId || underwaterChanged) {
       this.scene.events.emit(EVENTS.WATER_STATE_CHANGED, {
@@ -74,9 +80,27 @@ export class BreathManager {
     return this.contact;
   }
 
+  refreshSurfaceExitAssist() {
+    if (!this.surfaceExitZoneId) return false;
+    const body = this.player.body;
+    const zone = this.contact.zone;
+    const grounded = Boolean(body?.blocked?.down || body?.touching?.down);
+    const bodyBottom = Number.isFinite(body?.bottom)
+      ? body.bottom
+      : Number.isFinite(body?.top) && Number.isFinite(body?.height)
+        ? body.top + body.height
+        : this.player.y;
+    const requiredBottomY = zone?.surfaceY - this.config.underwaterPhysics.exitAssistHeight;
+    if (!zone || zone.id !== this.surfaceExitZoneId || grounded || bodyBottom <= requiredBottomY) {
+      this.surfaceExitZoneId = null;
+      return false;
+    }
+    return !this.contact.underwater;
+  }
+
   prepareMovement(input, now) {
     this.refreshWaterState();
-    if (!this.contact.underwater) return null;
+    if (!this.contact.underwater && !this.refreshSurfaceExitAssist()) return null;
     const cooldownMs = Math.max(50, this.config.underwaterPhysics.strokeCooldown * 1000);
     const stroke = Boolean(input.jumpPressed && now >= this.nextStrokeAt);
     if (stroke) this.nextStrokeAt = now + cooldownMs;
@@ -143,6 +167,7 @@ export class BreathManager {
 
   restoreFull() {
     this.ratio = 1;
+    this.surfaceExitZoneId = null;
     this.lowWarningSent = false;
     this.refillCuePlayed = false;
     this.zeroStartedAt = null;
@@ -158,6 +183,7 @@ export class BreathManager {
     return {
       ratio: this.ratio,
       underwater: this.contact.underwater,
+      surfaceExitAssist: this.refreshSurfaceExitAssist(),
       recovering: this.recovering,
       zoneId: this.contact.zone?.id ?? null,
       warning: this.ratio <= this.config.warningRatio,

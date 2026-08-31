@@ -100,7 +100,8 @@ export default {
         maxFallSpeed: 260,
         horizontalSpeedMultiplier: 0.75,
         strokeVelocity: -230,
-        strokeCooldown: 0.35
+        strokeCooldown: 0.35,
+        exitAssistHeight: 48
       }
     }
   },

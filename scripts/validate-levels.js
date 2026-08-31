@@ -144,7 +144,7 @@ for (const sourceLevel of ALL_LEVELS) {
       if (!isPositiveNumber(breath[field])) fail(level, `breath.${field}는 양수여야 함`);
     }
     if (!inRange(breath.warningRatio, 0, 1)) fail(level, "breath.warningRatio는 0~1이어야 함");
-    for (const field of ["gravityMultiplier", "maxFallSpeed", "horizontalSpeedMultiplier", "strokeCooldown"]) {
+    for (const field of ["gravityMultiplier", "maxFallSpeed", "horizontalSpeedMultiplier", "strokeCooldown", "exitAssistHeight"]) {
       if (!isPositiveNumber(breath.underwaterPhysics?.[field])) fail(level, `breath.underwaterPhysics.${field}는 양수여야 함`);
     }
     if (!(Number(breath.underwaterPhysics?.strokeVelocity) < 0)) fail(level, "수중 strokeVelocity는 음수여야 함");

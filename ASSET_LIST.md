@@ -83,24 +83,24 @@
 | 키 | 우선 | 제작 방식/내용 |
 |---|---|---|
 | `grass_tileset` | M | 코드 생성: 중앙, 모서리, 안쪽 모서리, 낭떠러지, 발판, 흙, 잔디, 경사 |
-| `decor_flower` | S | 하단 장식, 충돌 없음 |
-| `decor_grass` | S | 하단 장식, 충돌 없음 |
-| `decor_rock` | S | 하단 장식, 충돌 없음 |
-| `decor_sign` | S | 문자 없는 방향 표지 |
+| `decor_flower` | S | 전용 파일 보류. 승인된 스테이지별 장식(`decor_star_flower` 등)으로 대체 |
+| `decor_grass` | S | 전용 파일 보류. 승인된 배경 전경·타일 장식으로 대체 |
+| `decor_rock` | S | 전용 파일 보류. 승인된 배경 전경·타일 장식으로 대체 |
+| `decor_sign` | S | 전용 파일 보류. 현재 5개 스테이지에 필수 배치 없음 |
 
 ## 효과
 
 | 키 | 우선 | 용도 |
 |---|---|---|
-| `fx_shadow_oval` | M | 캐릭터/적 공용 발 그림자 |
+| `fx_shadow_oval` | M | 코드 타원으로 플레이어·메뉴·보스 접지 그림자 구현 |
 | `fx_dust` | M | 착지 먼지 |
-| `fx_item_glow` | M | 아이템 후광 |
+| `fx_item_glow` | M | 코드 타원으로 수집물 후광 구현 |
 | `fx_magnet_trail` | M | 자석 별 궤적 |
 | `fx_transform_flash` | M | 변신 플래시·별 입자 |
 | `fx_alicorn_overlay` | M | 무지개 피버 오버레이 |
 | `fx_attack_marker` | M | 까치·번개 지면 표식 |
 | `fx_lightning` | M | 먹구름 번개 |
-| `fx_quake_wave` | M | 보스 착지 지진 |
+| `fx_quake_wave` | M | 보스 착지 뒤 코드 생성 지면 투사체·잔상으로 구현 |
 | `fx_weakpoint_star` | M | 보스 약점 표시 |
 | `fx_stolen_percent` | M | 까치에게서 회수할 점수 조각 |
 
@@ -108,20 +108,20 @@
 
 | 키 | 우선 | 용도 |
 |---|---|---|
-| `ui_portrait_silsea` | M | 캐릭터 선택/HUD |
-| `ui_portrait_potato89` | M | 캐릭터 선택/HUD |
-| `ui_form_base` | M | 기본형 상태 |
-| `ui_form_unicorn` | M | 유니콘 상태 |
-| `ui_form_pegasus` | M | 페가수스 상태 |
-| `ui_form_alicorn` | M | 알리콘 상태 |
-| `ui_hp` | M | HP 아이콘 |
-| `ui_flight_gauge` | M | 비행 게이지 프레임 |
-| `ui_fever_gauge` | M | 알리콘 남은 시간 |
-| `ui_boss_hp` | M | 보스 HP 프레임 |
-| `ui_panel` | M | 공용 둥근 패널 9-slice |
-| `ui_button` | M | 공용 버튼 9-slice |
-| `ui_pause` | M | 일시정지 아이콘 |
-| `ui_accessibility` | S | 접근성 메뉴 아이콘 모음 |
+| `ui_portrait_silsea` | M | 승인된 `silsea_idle` 애니메이션을 선택·결과 화면에서 재사용 |
+| `ui_portrait_potato89` | M | 승인된 `potato89_idle` 애니메이션을 선택·결과 화면에서 재사용 |
+| `ui_form_base` | M | HUD 텍스트 상태표시로 구현 |
+| `ui_form_unicorn` | M | HUD 텍스트 상태표시로 구현 |
+| `ui_form_pegasus` | M | HUD 텍스트+`ui_hud_wings`로 구현 |
+| `ui_form_alicorn` | M | HUD 텍스트+무지개 오버레이로 구현 |
+| `ui_hp` | M | `ui_hud_heart`와 HP 텍스트로 구현 |
+| `ui_flight_gauge` | M | `ui_hud_wings`와 코드 게이지로 구현 |
+| `ui_fever_gauge` | M | 상태 텍스트와 변신 연출로 구현 |
+| `ui_boss_hp` | M | 단계 원형과 텍스트로 구현 |
+| `ui_panel` | M | 공통 팔레트 기반 코드 패널로 구현 |
+| `ui_button` | M | 공통 팔레트 기반 코드 버튼으로 구현 |
+| `ui_pause` | M | 텍스트 버튼·오버레이로 구현 |
+| `ui_accessibility` | S | 일시정지 메뉴의 텍스트·수치 설정으로 구현 |
 
 ## 신규 스테이지 확장 에셋
 

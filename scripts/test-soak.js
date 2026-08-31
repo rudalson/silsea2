@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { FORMS, TRANSFORM_PRESENTATION } from "../src/data/gameplay.js";
+import { ARCHER_RULES } from "../src/data/combatDevices.js";
 import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../src/data/particleEffects.js";
 import { ObjectPool } from "../src/systems/ObjectPool.js";
 
@@ -33,6 +34,13 @@ const createLifecyclePool = ({ name, maxSize }) => {
 const poolScenarios = [
   { name: "lightning", maxSize: 6, intervalMs: 32, burst: () => 1, lifetimeMs: 170 },
   { name: "recovery", maxSize: 9, intervalMs: 2100, burst: () => 3, lifetimeMs: 6000 },
+  {
+    name: "arrow",
+    maxSize: ARCHER_RULES.maxActive,
+    intervalMs: ARCHER_RULES.cooldownMs,
+    burst: () => 1,
+    lifetimeMs: ARCHER_RULES.arrowLifetimeMs
+  },
   { name: "bossProjectile", maxSize: 16, intervalMs: 900, burst: () => 3, lifetimeMs: 4200 }
 ].map((scenario) => ({
   ...scenario,
@@ -136,7 +144,7 @@ const runRestartCycles = (cycles) => {
   let createdCount = 0;
   let destroyedCount = 0;
   for (let cycle = 0; cycle < cycles; cycle += 1) {
-    for (const maxSize of [6, 9, 16]) {
+    for (const maxSize of [6, 9, ARCHER_RULES.maxActive, 16]) {
       const pool = new ObjectPool({
         maxSize,
         create: () => ({ id: ++createdCount }),

@@ -64,16 +64,28 @@ export function analyzePlaytestSessions(sessions, levelId) {
   const modeSummary = Object.fromEntries(Object.entries(PLAYTEST_DURATION_TARGETS).map(([mode, target]) => {
     const modeReports = completed.filter((report) => report.mode === mode);
     const durations = modeReports.map(({ durationSeconds }) => durationSeconds);
+    const hpLosses = modeReports.map((report) => Number(report.metrics?.hpLosses) || 0);
     return [mode, {
       ...target,
       count: modeReports.length,
       averageSeconds: durations.length
         ? roundSeconds(durations.reduce((total, value) => total + value, 0) / durations.length)
         : null,
+      averageHpLosses: hpLosses.length
+        ? roundSeconds(hpLosses.reduce((total, value) => total + value, 0) / hpLosses.length)
+        : null,
       withinTarget: modeReports.length > 0
         && durations.every((duration) => duration >= target.minSeconds && duration <= target.maxSeconds)
     }];
   }));
+
+  const mechanicTotals = reports.reduce((totals, report) => {
+    totals.tsunamiHits += Number(report.metrics?.tsunamiHits) || 0;
+    totals.breathDepletions += Number(report.metrics?.breathDepletions) || 0;
+    totals.projectilesGuarded += Number(report.metrics?.projectilesGuarded) || 0;
+    totals.respawns += Number(report.metrics?.respawns) || 0;
+    return totals;
+  }, { tsunamiHits: 0, breathDepletions: 0, projectilesGuarded: 0, respawns: 0 });
 
   const hotspots = new Map();
   for (const report of reports) {
@@ -119,6 +131,7 @@ export function analyzePlaytestSessions(sessions, levelId) {
     durationCoverageComplete: modeSummary.normal.count > 0 && modeSummary.easy.count > 0,
     durationPass: modeSummary.normal.withinTarget && modeSummary.easy.withinTarget,
     modes: modeSummary,
+    mechanicTotals,
     hotspots: hotspotSummary,
     adjustmentCandidates: hotspotSummary.filter(({ needsAdjustment }) => needsAdjustment)
   };
@@ -150,6 +163,7 @@ export class PlaytestManager {
     this.progressAnchor = getNormalizedProgress(player?.x ?? this.spawnX, this.spawnX, level);
     this.lastProgressAt = 0;
     this.stallArmed = true;
+    this.breathDepleted = false;
     this.handlers = [];
 
     if (!this.enabled) return;
@@ -173,6 +187,10 @@ export class PlaytestManager {
         respawns: 0,
         checkpoints: 0,
         bossHits: 0,
+        hpLosses: 0,
+        tsunamiHits: 0,
+        breathDepletions: 0,
+        projectilesGuarded: 0,
         stalls: 0,
         maxProgress: this.progressAnchor,
         maxProgressX: Math.round(player?.x ?? 0)
@@ -188,12 +206,35 @@ export class PlaytestManager {
       this.scene.events.on(event, handler);
       this.handlers.push([event, handler]);
     };
-    bind(EVENTS.PLAYER_HIT, (details = {}) => this.recordOutcome("hit", "hits", details));
-    bind(EVENTS.PLAYER_FELL, (details = {}) => this.recordOutcome("fall", "falls", details));
+    bind(EVENTS.PLAYER_HIT, (details = {}) => {
+      if (!this.enabled || this.finalized) return;
+      this.recordOutcome("hit", "hits", details);
+      this.report.metrics.hpLosses += 1;
+      if (details.type === "tsunami") this.report.metrics.tsunamiHits += 1;
+    });
+    bind(EVENTS.PLAYER_FELL, (details = {}) => {
+      if (!this.enabled || this.finalized) return;
+      this.recordOutcome("fall", "falls", details);
+      this.report.metrics.hpLosses += Math.max(0, Number(details.hpLost) || 0);
+    });
     bind(EVENTS.PLAYER_RESPAWNED, (details = {}) => this.recordOutcome("respawn", "respawns", details));
     bind(EVENTS.CHECKPOINT, (details = {}) => this.recordOutcome("checkpoint", "checkpoints", { id: details.id }));
     bind(EVENTS.BOSS_HIT, (details = {}) => this.recordOutcome("boss_hit", "bossHits", details));
     bind(EVENTS.BOSS_DEFEATED, () => this.recordEvent("boss_defeated"));
+    bind(EVENTS.BREATH_CHANGED, (details = {}) => {
+      if (!this.enabled || this.finalized) return;
+      const depleted = Boolean(details.depleted);
+      if (depleted && !this.breathDepleted) {
+        this.report.metrics.breathDepletions += 1;
+        this.recordEvent("breath_depleted", details);
+      }
+      this.breathDepleted = depleted;
+    });
+    bind(EVENTS.PROJECTILE_GUARDED, (details = {}) => {
+      if (!this.enabled || this.finalized) return;
+      this.report.metrics.projectilesGuarded += 1;
+      this.recordEvent("projectile_guarded", details);
+    });
   }
 
   update(elapsedSeconds, player = this.player) {

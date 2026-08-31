@@ -1,0 +1,1146 @@
+{
+  "schemaVersion": 2,
+  "exportedAt": "2026-08-31T04:52:54.266Z",
+  "currentSession": {
+    "schemaVersion": 2,
+    "sessionId": "child-01-1788151952708",
+    "testerId": "child-01",
+    "levelId": "level-03",
+    "characterId": "silsea",
+    "mode": "normal",
+    "progressionDirection": "right",
+    "startedAt": "2026-08-31T04:52:32.708Z",
+    "completed": true,
+    "durationSeconds": 21.6,
+    "score": 724,
+    "achieved": [
+      "clear_time"
+    ],
+    "metrics": {
+      "hits": 2,
+      "falls": 0,
+      "respawns": 0,
+      "checkpoints": 3,
+      "bossHits": 0,
+      "hpLosses": 2,
+      "tsunamiHits": 0,
+      "breathDepletions": 0,
+      "projectilesGuarded": 0,
+      "stalls": 0,
+      "maxProgress": 6759,
+      "maxProgressX": 6887
+    },
+    "sections": {
+      "mist_intro": {
+        "entries": 1,
+        "seconds": 5.451730000000008,
+        "hits": 0,
+        "falls": 0,
+        "stalls": 0,
+        "maxProgress": 1535,
+        "maxProgressX": 1663
+      },
+      "mist_practice": {
+        "entries": 1,
+        "seconds": 5.899960000000031,
+        "hits": 1,
+        "falls": 0,
+        "stalls": 0,
+        "maxProgress": 3324,
+        "maxProgressX": 3452
+      },
+      "mist_application": {
+        "entries": 1,
+        "seconds": 4.9832800000000255,
+        "hits": 0,
+        "falls": 0,
+        "stalls": 0,
+        "maxProgress": 5118,
+        "maxProgressX": 5246
+      },
+      "mist_combination": {
+        "entries": 1,
+        "seconds": 3.1500200000000227,
+        "hits": 0,
+        "falls": 0,
+        "stalls": 0,
+        "maxProgress": 6270,
+        "maxProgressX": 6398
+      },
+      "mist_recovery": {
+        "entries": 1,
+        "seconds": 2.100000000000005,
+        "hits": 1,
+        "falls": 0,
+        "stalls": 0,
+        "maxProgress": 6759,
+        "maxProgressX": 6887
+      }
+    },
+    "events": [
+      {
+        "type": "section_enter",
+        "elapsedSeconds": 0,
+        "x": 128,
+        "y": 574,
+        "sectionId": "mist_intro",
+        "details": {}
+      },
+      {
+        "type": "checkpoint",
+        "elapsedSeconds": 4.9,
+        "x": 1477,
+        "y": 576,
+        "sectionId": "mist_intro",
+        "details": {
+          "id": "cp_mist_intro"
+        }
+      },
+      {
+        "type": "section_enter",
+        "elapsedSeconds": 5.5,
+        "x": 1669,
+        "y": 507,
+        "sectionId": "mist_practice",
+        "details": {}
+      },
+      {
+        "type": "hit",
+        "elapsedSeconds": 8.7,
+        "x": 2845,
+        "y": 540,
+        "sectionId": "mist_practice",
+        "details": {
+          "hp": 2,
+          "steal": false,
+          "type": "contact"
+        }
+      },
+      {
+        "type": "checkpoint",
+        "elapsedSeconds": 10.8,
+        "x": 3272,
+        "y": 576,
+        "sectionId": "mist_practice",
+        "details": {
+          "id": "cp_mist_practice"
+        }
+      },
+      {
+        "type": "section_enter",
+        "elapsedSeconds": 11.4,
+        "x": 3458,
+        "y": 515,
+        "sectionId": "mist_application",
+        "details": {}
+      },
+      {
+        "type": "checkpoint",
+        "elapsedSeconds": 15.6,
+        "x": 5000,
+        "y": 576,
+        "sectionId": "mist_application",
+        "details": {
+          "id": "cp_mist_application"
+        }
+      },
+      {
+        "type": "section_enter",
+        "elapsedSeconds": 16.3,
+        "x": 5252,
+        "y": 448,
+        "sectionId": "mist_combination",
+        "details": {}
+      },
+      {
+        "type": "section_enter",
+        "elapsedSeconds": 19.5,
+        "x": 6404,
+        "y": 343,
+        "sectionId": "mist_recovery",
+        "details": {}
+      },
+      {
+        "type": "hit",
+        "elapsedSeconds": 20.4,
+        "x": 6722,
+        "y": 515,
+        "sectionId": "mist_recovery",
+        "details": {
+          "hp": 1,
+          "steal": false,
+          "type": "contact"
+        }
+      },
+      {
+        "type": "completed",
+        "elapsedSeconds": 21.6,
+        "x": 6887,
+        "y": 564,
+        "sectionId": "mist_recovery",
+        "details": {
+          "score": 724
+        }
+      }
+    ],
+    "finishedAt": "2026-08-31T04:52:54.266Z"
+  },
+  "sessions": [
+    {
+      "schemaVersion": 2,
+      "sessionId": "child-01-1788150798408",
+      "testerId": "child-01",
+      "levelId": "level-02",
+      "characterId": "silsea",
+      "mode": "normal",
+      "progressionDirection": "right",
+      "startedAt": "2026-08-31T04:33:18.408Z",
+      "completed": true,
+      "durationSeconds": 34.7,
+      "score": 1336,
+      "achieved": [
+        "collect_stars",
+        "clear_time"
+      ],
+      "metrics": {
+        "hits": 1,
+        "falls": 1,
+        "respawns": 1,
+        "checkpoints": 3,
+        "bossHits": 0,
+        "hpLosses": 2,
+        "tsunamiHits": 0,
+        "breathDepletions": 0,
+        "projectilesGuarded": 0,
+        "stalls": 0,
+        "maxProgress": 5779,
+        "maxProgressX": 5907
+      },
+      "sections": {
+        "moonlit_trail": {
+          "entries": 2,
+          "seconds": 12.538059999999993,
+          "hits": 1,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 1662,
+          "maxProgressX": 1790
+        },
+        "glow_canopy": {
+          "entries": 2,
+          "seconds": 14.18326000000007,
+          "hits": 0,
+          "falls": 1,
+          "stalls": 0,
+          "maxProgress": 3706,
+          "maxProgressX": 3834
+        },
+        "whispering_gap": {
+          "entries": 1,
+          "seconds": 3.383330000000079,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 4860,
+          "maxProgressX": 4988
+        },
+        "star_tree": {
+          "entries": 1,
+          "seconds": 4.616579999999924,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 5779,
+          "maxProgressX": 5907
+        }
+      },
+      "events": [
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 0,
+          "x": 128,
+          "y": 574,
+          "sectionId": "moonlit_trail",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 4.2,
+          "x": 835,
+          "y": 576,
+          "sectionId": "moonlit_trail",
+          "details": {
+            "hp": 2,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 10,
+          "x": 1604,
+          "y": 576,
+          "sectionId": "moonlit_trail",
+          "details": {
+            "id": "cp_moonroot"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 10.5,
+          "x": 1796,
+          "y": 524,
+          "sectionId": "glow_canopy",
+          "details": {}
+        },
+        {
+          "type": "fall",
+          "elapsedSeconds": 11.5,
+          "x": 2150,
+          "y": 917,
+          "sectionId": "glow_canopy",
+          "details": {
+            "hpLost": 1
+          }
+        },
+        {
+          "type": "respawn",
+          "elapsedSeconds": 11.7,
+          "x": 1664,
+          "y": 574,
+          "sectionId": "glow_canopy",
+          "details": {
+            "checkpoint": "cp_moonroot",
+            "x": 1664,
+            "y": 574
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 11.7,
+          "x": 1664,
+          "y": 574,
+          "sectionId": "moonlit_trail",
+          "details": {}
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 13.7,
+          "x": 1795,
+          "y": 515,
+          "sectionId": "glow_canopy",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 25.6,
+          "x": 3692,
+          "y": 471,
+          "sectionId": "glow_canopy",
+          "details": {
+            "id": "cp_fireflies"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 26.7,
+          "x": 3840,
+          "y": 482,
+          "sectionId": "whispering_gap",
+          "details": {}
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 30.1,
+          "x": 4994,
+          "y": 567,
+          "sectionId": "star_tree",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 30.3,
+          "x": 5060,
+          "y": 576,
+          "sectionId": "star_tree",
+          "details": {
+            "id": "cp_star_tree"
+          }
+        },
+        {
+          "type": "completed",
+          "elapsedSeconds": 34.7,
+          "x": 5907,
+          "y": 398,
+          "sectionId": "star_tree",
+          "details": {
+            "score": 1336
+          }
+        }
+      ],
+      "finishedAt": "2026-08-31T04:33:53.177Z"
+    },
+    {
+      "schemaVersion": 2,
+      "sessionId": "child-01-1788151013028",
+      "testerId": "child-01",
+      "levelId": "level-03",
+      "characterId": "silsea",
+      "mode": "normal",
+      "progressionDirection": "right",
+      "startedAt": "2026-08-31T04:36:53.028Z",
+      "completed": true,
+      "durationSeconds": 23.3,
+      "score": 350,
+      "achieved": [
+        "clear_time"
+      ],
+      "metrics": {
+        "hits": 3,
+        "falls": 0,
+        "respawns": 0,
+        "checkpoints": 4,
+        "bossHits": 0,
+        "hpLosses": 3,
+        "tsunamiHits": 0,
+        "breathDepletions": 0,
+        "projectilesGuarded": 0,
+        "stalls": 0,
+        "maxProgress": 6758,
+        "maxProgressX": 6886
+      },
+      "sections": {
+        "mist_intro": {
+          "entries": 1,
+          "seconds": 6.100840000000028,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 1535,
+          "maxProgressX": 1663
+        },
+        "mist_practice": {
+          "entries": 1,
+          "seconds": 5.649989999999975,
+          "hits": 1,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 3325,
+          "maxProgressX": 3453
+        },
+        "mist_application": {
+          "entries": 1,
+          "seconds": 4.983339999999938,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 5119,
+          "maxProgressX": 5247
+        },
+        "mist_combination": {
+          "entries": 1,
+          "seconds": 3.133219999999973,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 6267,
+          "maxProgressX": 6395
+        },
+        "mist_recovery": {
+          "entries": 1,
+          "seconds": 3.400079999999985,
+          "hits": 2,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 6758,
+          "maxProgressX": 6886
+        }
+      },
+      "events": [
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 0,
+          "x": 128,
+          "y": 574,
+          "sectionId": "mist_intro",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 5.6,
+          "x": 1477,
+          "y": 576,
+          "sectionId": "mist_intro",
+          "details": {
+            "id": "cp_mist_intro"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 6.1,
+          "x": 1669,
+          "y": 463,
+          "sectionId": "mist_practice",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 9.4,
+          "x": 2845,
+          "y": 576,
+          "sectionId": "mist_practice",
+          "details": {
+            "hp": 2,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 11.2,
+          "x": 3273,
+          "y": 576,
+          "sectionId": "mist_practice",
+          "details": {
+            "id": "cp_mist_practice"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 11.8,
+          "x": 3459,
+          "y": 447,
+          "sectionId": "mist_application",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 16,
+          "x": 5001,
+          "y": 576,
+          "sectionId": "mist_application",
+          "details": {
+            "id": "cp_mist_application"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 16.7,
+          "x": 5253,
+          "y": 460,
+          "sectionId": "mist_combination",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 19.9,
+          "x": 6401,
+          "y": 469,
+          "sectionId": "mist_combination",
+          "details": {
+            "id": "cp_mist_recovery"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 19.9,
+          "x": 6401,
+          "y": 469,
+          "sectionId": "mist_recovery",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 20.2,
+          "x": 6527,
+          "y": 576,
+          "sectionId": "mist_recovery",
+          "details": {
+            "hp": 2,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 23,
+          "x": 6787,
+          "y": 509,
+          "sectionId": "mist_recovery",
+          "details": {
+            "hp": 1,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "completed",
+          "elapsedSeconds": 23.3,
+          "x": 6886,
+          "y": 556,
+          "sectionId": "mist_recovery",
+          "details": {
+            "score": 350
+          }
+        }
+      ],
+      "finishedAt": "2026-08-31T04:37:16.284Z"
+    },
+    {
+      "schemaVersion": 2,
+      "sessionId": "child-01-1788151084486",
+      "testerId": "child-01",
+      "levelId": "level-04",
+      "characterId": "silsea",
+      "mode": "normal",
+      "progressionDirection": "left",
+      "startedAt": "2026-08-31T04:38:04.486Z",
+      "completed": true,
+      "durationSeconds": 25.8,
+      "score": 73,
+      "achieved": [
+        "clear_time"
+      ],
+      "metrics": {
+        "hits": 2,
+        "falls": 0,
+        "respawns": 0,
+        "checkpoints": 4,
+        "bossHits": 0,
+        "hpLosses": 2,
+        "tsunamiHits": 0,
+        "breathDepletions": 0,
+        "projectilesGuarded": 0,
+        "stalls": 0,
+        "maxProgress": 7718,
+        "maxProgressX": 8081
+      },
+      "sections": {
+        "tsunami_intro": {
+          "entries": 1,
+          "seconds": 4.953589999999785,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 1083,
+          "maxProgressX": 8081
+        },
+        "tsunami_hill": {
+          "entries": 1,
+          "seconds": 7.166660000000062,
+          "hits": 1,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 2875,
+          "maxProgressX": 6911
+        },
+        "tsunami_house": {
+          "entries": 1,
+          "seconds": 6.3998600000000305,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 5179,
+          "maxProgressX": 5119
+        },
+        "tsunami_high": {
+          "entries": 1,
+          "seconds": 5.216709999999981,
+          "hits": 1,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 6974,
+          "maxProgressX": 2815
+        },
+        "tsunami_exit": {
+          "entries": 1,
+          "seconds": 2.0333299999999923,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 7718,
+          "maxProgressX": 1020
+        }
+      },
+      "events": [
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 0,
+          "x": 8000,
+          "y": 574,
+          "sectionId": "tsunami_intro",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 4.8,
+          "x": 6971,
+          "y": 576,
+          "sectionId": "tsunami_intro",
+          "details": {
+            "id": "cp_tsunami_intro"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 5,
+          "x": 6911,
+          "y": 576,
+          "sectionId": "tsunami_hill",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 9.8,
+          "x": 5700,
+          "y": 576,
+          "sectionId": "tsunami_hill",
+          "details": {
+            "hp": 2,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 12,
+          "x": 5173,
+          "y": 524,
+          "sectionId": "tsunami_hill",
+          "details": {
+            "id": "cp_tsunami_hill"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 12.1,
+          "x": 5119,
+          "y": 478,
+          "sectionId": "tsunami_house",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 18.4,
+          "x": 2875,
+          "y": 576,
+          "sectionId": "tsunami_house",
+          "details": {
+            "id": "cp_tsunami_house"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 18.5,
+          "x": 2815,
+          "y": 499,
+          "sectionId": "tsunami_high",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 19,
+          "x": 2647,
+          "y": 509,
+          "sectionId": "tsunami_high",
+          "details": {
+            "hp": 2,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 23.6,
+          "x": 1080,
+          "y": 576,
+          "sectionId": "tsunami_high",
+          "details": {
+            "id": "cp_tsunami_exit"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 23.7,
+          "x": 1020,
+          "y": 576,
+          "sectionId": "tsunami_exit",
+          "details": {}
+        },
+        {
+          "type": "completed",
+          "elapsedSeconds": 25.8,
+          "x": 282,
+          "y": 576,
+          "sectionId": "tsunami_exit",
+          "details": {
+            "score": 73
+          }
+        }
+      ],
+      "finishedAt": "2026-08-31T04:38:30.274Z"
+    },
+    {
+      "schemaVersion": 2,
+      "sessionId": "child-01-1788151928485",
+      "testerId": "child-01",
+      "levelId": "level-02",
+      "characterId": "silsea",
+      "mode": "normal",
+      "progressionDirection": "right",
+      "startedAt": "2026-08-31T04:52:08.485Z",
+      "completed": true,
+      "durationSeconds": 18.6,
+      "score": 877,
+      "achieved": [
+        "collect_stars",
+        "clear_time",
+        "no_damage"
+      ],
+      "metrics": {
+        "hits": 0,
+        "falls": 0,
+        "respawns": 0,
+        "checkpoints": 1,
+        "bossHits": 0,
+        "hpLosses": 0,
+        "tsunamiHits": 0,
+        "breathDepletions": 0,
+        "projectilesGuarded": 0,
+        "stalls": 0,
+        "maxProgress": 5762,
+        "maxProgressX": 5890
+      },
+      "sections": {
+        "moonlit_trail": {
+          "entries": 1,
+          "seconds": 7.1294166666666845,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 1661,
+          "maxProgressX": 1789
+        },
+        "glow_canopy": {
+          "entries": 1,
+          "seconds": 5.766619999999983,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 3710,
+          "maxProgressX": 3838
+        },
+        "whispering_gap": {
+          "entries": 1,
+          "seconds": 3.216659999999994,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 4862,
+          "maxProgressX": 4990
+        },
+        "star_tree": {
+          "entries": 1,
+          "seconds": 2.483270000000033,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 5762,
+          "maxProgressX": 5890
+        }
+      },
+      "events": [
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 0,
+          "x": 128,
+          "y": 574,
+          "sectionId": "moonlit_trail",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 6.6,
+          "x": 1603,
+          "y": 576,
+          "sectionId": "moonlit_trail",
+          "details": {
+            "id": "cp_moonroot"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 7.1,
+          "x": 1795,
+          "y": 499,
+          "sectionId": "glow_canopy",
+          "details": {}
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 12.9,
+          "x": 3844,
+          "y": 87,
+          "sectionId": "whispering_gap",
+          "details": {}
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 16.1,
+          "x": 4996,
+          "y": 162,
+          "sectionId": "star_tree",
+          "details": {}
+        },
+        {
+          "type": "completed",
+          "elapsedSeconds": 18.6,
+          "x": 5890,
+          "y": 402,
+          "sectionId": "star_tree",
+          "details": {
+            "score": 877
+          }
+        }
+      ],
+      "finishedAt": "2026-08-31T04:52:27.183Z"
+    },
+    {
+      "schemaVersion": 2,
+      "sessionId": "child-01-1788151952708",
+      "testerId": "child-01",
+      "levelId": "level-03",
+      "characterId": "silsea",
+      "mode": "normal",
+      "progressionDirection": "right",
+      "startedAt": "2026-08-31T04:52:32.708Z",
+      "completed": true,
+      "durationSeconds": 21.6,
+      "score": 724,
+      "achieved": [
+        "clear_time"
+      ],
+      "metrics": {
+        "hits": 2,
+        "falls": 0,
+        "respawns": 0,
+        "checkpoints": 3,
+        "bossHits": 0,
+        "hpLosses": 2,
+        "tsunamiHits": 0,
+        "breathDepletions": 0,
+        "projectilesGuarded": 0,
+        "stalls": 0,
+        "maxProgress": 6759,
+        "maxProgressX": 6887
+      },
+      "sections": {
+        "mist_intro": {
+          "entries": 1,
+          "seconds": 5.451730000000008,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 1535,
+          "maxProgressX": 1663
+        },
+        "mist_practice": {
+          "entries": 1,
+          "seconds": 5.899960000000031,
+          "hits": 1,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 3324,
+          "maxProgressX": 3452
+        },
+        "mist_application": {
+          "entries": 1,
+          "seconds": 4.9832800000000255,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 5118,
+          "maxProgressX": 5246
+        },
+        "mist_combination": {
+          "entries": 1,
+          "seconds": 3.1500200000000227,
+          "hits": 0,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 6270,
+          "maxProgressX": 6398
+        },
+        "mist_recovery": {
+          "entries": 1,
+          "seconds": 2.100000000000005,
+          "hits": 1,
+          "falls": 0,
+          "stalls": 0,
+          "maxProgress": 6759,
+          "maxProgressX": 6887
+        }
+      },
+      "events": [
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 0,
+          "x": 128,
+          "y": 574,
+          "sectionId": "mist_intro",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 4.9,
+          "x": 1477,
+          "y": 576,
+          "sectionId": "mist_intro",
+          "details": {
+            "id": "cp_mist_intro"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 5.5,
+          "x": 1669,
+          "y": 507,
+          "sectionId": "mist_practice",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 8.7,
+          "x": 2845,
+          "y": 540,
+          "sectionId": "mist_practice",
+          "details": {
+            "hp": 2,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 10.8,
+          "x": 3272,
+          "y": 576,
+          "sectionId": "mist_practice",
+          "details": {
+            "id": "cp_mist_practice"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 11.4,
+          "x": 3458,
+          "y": 515,
+          "sectionId": "mist_application",
+          "details": {}
+        },
+        {
+          "type": "checkpoint",
+          "elapsedSeconds": 15.6,
+          "x": 5000,
+          "y": 576,
+          "sectionId": "mist_application",
+          "details": {
+            "id": "cp_mist_application"
+          }
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 16.3,
+          "x": 5252,
+          "y": 448,
+          "sectionId": "mist_combination",
+          "details": {}
+        },
+        {
+          "type": "section_enter",
+          "elapsedSeconds": 19.5,
+          "x": 6404,
+          "y": 343,
+          "sectionId": "mist_recovery",
+          "details": {}
+        },
+        {
+          "type": "hit",
+          "elapsedSeconds": 20.4,
+          "x": 6722,
+          "y": 515,
+          "sectionId": "mist_recovery",
+          "details": {
+            "hp": 1,
+            "steal": false,
+            "type": "contact"
+          }
+        },
+        {
+          "type": "completed",
+          "elapsedSeconds": 21.6,
+          "x": 6887,
+          "y": 564,
+          "sectionId": "mist_recovery",
+          "details": {
+            "score": 724
+          }
+        }
+      ],
+      "finishedAt": "2026-08-31T04:52:54.266Z"
+    }
+  ],
+  "analysis": {
+    "levelId": "level-03",
+    "sessionCount": 2,
+    "completedCount": 2,
+    "uniqueCompletedTesters": 1,
+    "remainingTesters": 2,
+    "readyForTuning": false,
+    "durationCoverageComplete": false,
+    "durationPass": false,
+    "modes": {
+      "normal": {
+        "minSeconds": 360,
+        "maxSeconds": 540,
+        "count": 2,
+        "averageSeconds": 22.5,
+        "averageHpLosses": 2.5,
+        "withinTarget": false
+      },
+      "easy": {
+        "minSeconds": 300,
+        "maxSeconds": 480,
+        "count": 0,
+        "averageSeconds": null,
+        "averageHpLosses": null,
+        "withinTarget": false
+      }
+    },
+    "mechanicTotals": {
+      "tsunamiHits": 0,
+      "breathDepletions": 0,
+      "projectilesGuarded": 0,
+      "respawns": 0
+    },
+    "hotspots": [
+      {
+        "sectionId": "mist_recovery",
+        "hits": 3,
+        "falls": 0,
+        "stalls": 0,
+        "affectedTesters": 1,
+        "needsAdjustment": false
+      },
+      {
+        "sectionId": "mist_practice",
+        "hits": 2,
+        "falls": 0,
+        "stalls": 0,
+        "affectedTesters": 1,
+        "needsAdjustment": false
+      }
+    ],
+    "adjustmentCandidates": []
+  }
+}
