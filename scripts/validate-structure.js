@@ -39,6 +39,8 @@ const breathManager = await readFile(join(root, "src", "systems", "BreathManager
 const bossController = await readFile(join(root, "src", "systems", "BossController.js"), "utf8");
 const bossDefinitions = await readFile(join(root, "src", "data", "bossDefinitions.js"), "utf8");
 const bossBehaviorRegistry = await readFile(join(root, "src", "systems", "bosses", "index.js"), "utf8");
+const hulaKingBehavior = await readFile(join(root, "src", "systems", "bosses", "HulaKingBehavior.js"), "utf8");
+const level04Source = await readFile(join(root, "src", "data", "levels", "level-04.js"), "utf8");
 const levelSchema = await readFile(join(root, "src", "data", "schema", "levelSchema.js"), "utf8");
 const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
 for (const forbidden of LEVELS.flatMap((level) => [level.id, level.name])) {
@@ -134,6 +136,17 @@ if (!levelLoader.includes("createBossEventPayload") || !uiScene.includes('getDat
 }
 if (!gameScene.includes("applyBossEnvironmentPolicy") || !environmentManager.includes("setSuspendedSystems")) {
   fail("P9 선언형 보스 환경 정지 정책이 없음");
+}
+if (!level04Source.includes("P10_HULA_BOSS_ROOM_WIDTH = 2048")
+  || !level04Source.includes('key: "hula_king"')
+  || !level04Source.includes('suspend: ["tsunami"]')) {
+  fail("P10 좌향 보스룸·hula_king·쓰나미 정지 데이터가 없음");
+}
+for (const state of ["spin_guard", "hoop_warning", "hoop_volley", "vulnerable_rest", "recover", "defeated"]) {
+  if (!hulaKingBehavior.includes(`\"${state}\"`)) fail(`P10 훌라후프 상태 누락: ${state}`);
+}
+if (!hulaKingBehavior.includes("new ObjectPool") || !hulaKingBehavior.includes("vulnerabilityMultiplier")) {
+  fail("P10 훌라후프 Object Pool 또는 쉬운 모드 약점 완화가 없음");
 }
 if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
   fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");

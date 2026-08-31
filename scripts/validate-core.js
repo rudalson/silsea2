@@ -14,6 +14,7 @@ const [
   enemyManager,
   bossController,
   potatoKingBehavior,
+  hulaKingBehavior,
   transformManager,
   cameraEffects,
   audioManager,
@@ -54,6 +55,7 @@ const [
   read("src/systems/EnemyManager.js"),
   read("src/systems/BossController.js"),
   read("src/systems/bosses/PotatoKingBehavior.js"),
+  read("src/systems/bosses/HulaKingBehavior.js"),
   read("src/systems/TransformationManager.js"),
   read("src/systems/CameraEffectsManager.js"),
   read("src/systems/AudioManager.js"),
@@ -89,7 +91,7 @@ const [
   read("src/data/combatDevices.js")
 ]);
 
-const bossRuntime = `${bossController}\n${potatoKingBehavior}`;
+const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}`;
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
 if (CORE_RULES.hurtLockMs > 250) fail("피격 경직이 250ms를 초과함");
@@ -137,6 +139,9 @@ if (!objectPool.includes("peakActiveCount") || !objectPool.includes("rejectedCou
 if (!packageJson.includes('"test:soak"') || !soakTest.includes("SIMULATED_MINUTES = 60") || !soakTest.includes("RESTART_CYCLES")) {
   fail("60분 등가 soak 또는 반복 재시작 메모리 테스트가 없음");
 }
+if (!soakTest.includes('name: "hulaHoop"') || !soakTest.includes("maxSize: 10")) {
+  fail("P10 훌라후프 Object Pool soak 시나리오가 없음");
+}
 if (!packageJson.includes('"test:release"') || !viteConfig.includes("copyRuntimeAssets")) {
   fail("프로덕션 빌드의 로컬 런타임 에셋 복사·검증 경로가 없음");
 }
@@ -163,6 +168,12 @@ if (!environmentRegrade.includes("files.length !== 9") || !environmentRegrade.in
   fail("배경 9종의 재현 가능한 환경 리그레이드 경로가 없음");
 }
 if (!bossRuntime.includes("SeededRandom")) fail("보스 패턴에 고정 Seed가 없음");
+if (!hulaKingBehavior.includes("new ObjectPool")
+  || !hulaKingBehavior.includes('this.state = "spin_guard"')
+  || !hulaKingBehavior.includes('this.state = "vulnerable_rest"')) {
+  fail("P10 훌라후프 방어·투사체·약점 상태 전략이 없음");
+}
+if (hulaKingBehavior.includes("Math.random")) fail("P10 훌라후프 패턴에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {
   fail("변신 정지·플래시·카메라 강조가 모두 연결되지 않음");

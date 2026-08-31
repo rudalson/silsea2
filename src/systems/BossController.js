@@ -30,7 +30,9 @@ export class BossController {
       transformationManager,
       scoreManager,
       random: new SeededRandom(seed),
-      telegraphMultiplier: difficulty.boss?.telegraphMultiplier ?? 1
+      telegraphMultiplier: difficulty.boss?.telegraphMultiplier ?? 1,
+      vulnerabilityMultiplier: difficulty.boss?.vulnerabilityMultiplier ?? 1,
+      volleyIntervalMultiplier: difficulty.boss?.volleyIntervalMultiplier ?? 1
     });
     this.onBossHit = (payload) => {
       if (payload.key === this.definition.key) this.behavior?.onBossHit?.(payload);

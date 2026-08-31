@@ -1,10 +1,12 @@
 import { PotatoKingBehavior } from "./PotatoKingBehavior.js";
 import { TrainingDummyBehavior } from "./TrainingDummyBehavior.js";
+import { HulaKingBehavior } from "./HulaKingBehavior.js";
 import { BOSS_BEHAVIOR_TYPES } from "../../data/bossBehaviorTypes.js";
 
 const BOSS_BEHAVIORS = Object.freeze({
   potato_king: PotatoKingBehavior,
-  training_dummy: TrainingDummyBehavior
+  training_dummy: TrainingDummyBehavior,
+  hula_king: HulaKingBehavior
 });
 
 export { BOSS_BEHAVIOR_TYPES };

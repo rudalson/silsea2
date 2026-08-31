@@ -41,7 +41,8 @@ const poolScenarios = [
     burst: () => 1,
     lifetimeMs: ARCHER_RULES.arrowLifetimeMs
   },
-  { name: "bossProjectile", maxSize: 16, intervalMs: 900, burst: () => 3, lifetimeMs: 4200 }
+  { name: "bossProjectile", maxSize: 16, intervalMs: 900, burst: () => 3, lifetimeMs: 4200 },
+  { name: "hulaHoop", maxSize: 10, intervalMs: 1200, burst: () => 2, lifetimeMs: 4500 }
 ].map((scenario) => ({
   ...scenario,
   ...createLifecyclePool(scenario),
@@ -144,7 +145,7 @@ const runRestartCycles = (cycles) => {
   let createdCount = 0;
   let destroyedCount = 0;
   for (let cycle = 0; cycle < cycles; cycle += 1) {
-    for (const maxSize of [6, 9, ARCHER_RULES.maxActive, 16]) {
+    for (const maxSize of [6, 9, ARCHER_RULES.maxActive, 16, 10]) {
       const pool = new ObjectPool({
         maxSize,
         create: () => ({ id: ++createdCount }),

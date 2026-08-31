@@ -227,6 +227,9 @@ for (const sourceLevel of ALL_LEVELS) {
 
   const easyEnvironment = level.difficulty?.easyMode?.environment ?? {};
   const easyRanges = [
+    [level.difficulty?.easyMode?.boss?.telegraphMultiplier, 1, 2, "boss.telegraphMultiplier"],
+    [level.difficulty?.easyMode?.boss?.vulnerabilityMultiplier, 1, 1.6, "boss.vulnerabilityMultiplier"],
+    [level.difficulty?.easyMode?.boss?.volleyIntervalMultiplier, 1, 1.6, "boss.volleyIntervalMultiplier"],
     [easyEnvironment.tsunami?.firstWarningMultiplier, 1, 1.5, "tsunami.firstWarningMultiplier"],
     [easyEnvironment.tsunami?.intervalMultiplier, 1, 1.6, "tsunami.intervalMultiplier"],
     [easyEnvironment.tsunami?.telegraphMultiplier, 1, 2, "tsunami.telegraphMultiplier"],
@@ -368,6 +371,15 @@ for (const sourceLevel of ALL_LEVELS) {
   for (const objective of [...level.objectives.required, ...(level.objectives.optional ?? [])]) {
     if (!OBJECTIVE_TYPES.includes(objective.type)) fail(level, `미등록 objective type: ${objective.type}`);
   }
+  const bossSection = level.sections.find(({ type }) => type === "boss");
+  if (bossSection) {
+    if (!level.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === bossSection.boss.key)) {
+      fail(level, `required objective에 defeat_boss:${bossSection.boss.key}가 없음`);
+    }
+    if (!level.objectives.required.some(({ type }) => type === "reach_gate")) {
+      fail(level, "boss level required objective에 reach_gate가 없음");
+    }
+  }
 
   const serialized = JSON.stringify(level);
   if (serialized.includes("references/")) fail(level, "레벨 데이터에 references 경로가 포함됨");
@@ -377,9 +389,32 @@ for (const sourceLevel of ALL_LEVELS) {
   if (tilemap.width * tilemap.tilewidth !== level.world.width) fail(level, "tilemap 너비와 world.width 불일치");
   if (tilemap.height * tilemap.tileheight !== level.world.height) fail(level, "tilemap 높이와 world.height 불일치");
   const terrain = tilemap.layers.find((layer) => layer.type === "objectgroup" && layer.name === "terrain")?.objects ?? [];
+  if (tilemap.width * tilemap.tilewidth !== level.world.width) fail(level, "tilemap 폭과 world.width가 다름");
   if (terrain.length === 0) fail(level, "terrain object layer가 비어 있음");
   if (!hasFloorAt(terrain, level.player.spawn.x, level.player.spawn.y)) fail(level, "player spawn 아래에 바닥이 없음");
   if (!hasFloorAt(terrain, level.exit.x, level.exit.y ?? level.player.spawn.y)) fail(level, "exit 아래에 바닥이 없음");
+
+  if (level.id === "level-04") {
+    const shift = 2048;
+    const hulaSection = level.sections.find(({ id }) => id === "boss_hula");
+    if (!hulaSection || hulaSection.xStart !== 0 || hulaSection.xEnd !== shift) fail(level, "P10 훌라후프 보스룸이 0~2048이 아님");
+    if (hulaSection?.boss?.key !== "hula_king") fail(level, "P10 boss key가 hula_king이 아님");
+    if (!hulaSection?.boss?.environment?.suspend?.includes("tsunami")) fail(level, "P10 보스룸에서 쓰나미가 정지되지 않음");
+    if (level.world.width !== 8192 + shift || level.player.spawn.x !== 8000 + shift) fail(level, "P10 world/player 좌표 이동 누락");
+    const expectedPoints = [
+      [level.checkpoints.find(({ id }) => id === "cp_tsunami_exit")?.x, 1024 + shift, "checkpoint"],
+      [level.enemies.find(({ id }) => id === "e_tsunami_hill")?.x, 6480 + shift, "enemy"],
+      [level.items.find(({ id }) => id === "tsunami_house_arc_b")?.x, 3376 + shift, "item"],
+      [level.hazards.find(({ id }) => id === "tsunami_thorn_high")?.x, 2688 + shift, "hazard"],
+      [level.environment.tsunami.shelters.find(({ id }) => id === "shelter_house_a")?.xStart, 4448 + shift, "shelter"],
+      [level.cameraCues.find(({ id }) => id === "cue_high_shelter")?.targetX, 896 + shift, "camera cue"],
+      [level.difficulty.easyMode.extraCheckpoints.find(({ id }) => id === "cp_easy_high")?.x, 2176 + shift, "easy checkpoint"],
+      [terrain.find(({ name }) => name === "high_shelter")?.x, 1536 + shift, "tilemap terrain"]
+    ];
+    for (const [actual, expected, label] of expectedPoints) {
+      if (actual !== expected) fail(level, `P10 ${label} 좌표 이동 누락: ${actual} !== ${expected}`);
+    }
+  }
   for (const checkpoint of level.checkpoints) {
     if (!inWorld(level, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 좌표가 world 밖`);
     if (!hasFloorAt(terrain, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 아래에 바닥이 없음`);

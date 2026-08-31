@@ -1,7 +1,7 @@
 const DEFAULT_DIFFICULTY = Object.freeze({
   enabled: false,
   player: Object.freeze({ extraHp: 0, flightDrainMultiplier: 1 }),
-  boss: Object.freeze({ telegraphMultiplier: 1 }),
+  boss: Object.freeze({ telegraphMultiplier: 1, vulnerabilityMultiplier: 1, volleyIntervalMultiplier: 1 }),
   environment: Object.freeze({
     tsunami: Object.freeze({
       firstWarningMultiplier: 1,
@@ -83,7 +83,9 @@ export function getDifficultySettings(level, easyMode = false) {
       flightDrainMultiplier: Math.max(0.1, Math.min(1, finiteOr(config.player?.flightDrainMultiplier, 1)))
     },
     boss: {
-      telegraphMultiplier: Math.max(1, Math.min(2, finiteOr(config.boss?.telegraphMultiplier, 1)))
+      telegraphMultiplier: Math.max(1, Math.min(2, finiteOr(config.boss?.telegraphMultiplier, 1))),
+      vulnerabilityMultiplier: Math.max(1, Math.min(1.6, finiteOr(config.boss?.vulnerabilityMultiplier, 1))),
+      volleyIntervalMultiplier: Math.max(1, Math.min(1.6, finiteOr(config.boss?.volleyIntervalMultiplier, 1)))
     },
     environment: getEnvironmentDifficulty(config.environment),
     pitScoreLoss: config.pitScoreLoss === undefined

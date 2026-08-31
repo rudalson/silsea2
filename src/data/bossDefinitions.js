@@ -73,6 +73,28 @@ export const BOSS_DEFINITIONS = Object.freeze({
       intro: "빛나는 동안 머리 위를 밟으세요",
       hit: "다시 빛날 때 머리 위를 노리세요"
     })
+  }),
+  hula_king: Object.freeze({
+    key: "hula_king",
+    displayName: "훌라후프 대왕",
+    behavior: "hula_king",
+    defaultHp: 3,
+    phaseIds: Object.freeze(["guarded_single_hoop", "alternating_hoops", "bidirectional_hoops"]),
+    completion: "level",
+    animationRoles: Object.freeze([]),
+    spawn: Object.freeze({ edgeOffset: 560 }),
+    render: freezeRender({
+      placeholderColor: COLORS.collectPink,
+      fallback: {
+        origin: { x: 0.5, y: 1 },
+        scale: 1,
+        body: { width: 118, height: 118, center: true }
+      }
+    }),
+    copy: Object.freeze({
+      intro: "회전이 멈춘 순간 머리 위를 밟으세요",
+      hit: "훌라후프를 피하고 정지 순간을 노리세요"
+    })
   })
 });
 

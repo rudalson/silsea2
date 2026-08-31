@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
 import level02 from "../src/data/levels/level-02.js";
 import level03 from "../src/data/levels/level-03.js";
-import level04 from "../src/data/levels/level-04.js";
+import level04, { P10_HULA_BOSS_ROOM_WIDTH } from "../src/data/levels/level-04.js";
 import level05 from "../src/data/levels/level-05.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
 import { p9BossTestLeft, p9BossTestRight } from "../src/data/levels/p9-boss-test.js";
@@ -16,7 +16,14 @@ import {
   resolveBossSpawnX
 } from "../src/data/bossDefinitions.js";
 import { BOSS_BEHAVIOR_TYPES } from "../src/data/bossBehaviorTypes.js";
-import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
+import {
+  HULA_KING_PHASES,
+  POTATO_KING_PHASES,
+  canHitHulaKing,
+  chooseHulaSequence,
+  getBossPhasePattern,
+  getHulaSpinDuration
+} from "../src/data/bossPatterns.js";
 import {
   ARCHER_RULES,
   GUARD_RULES,
@@ -346,8 +353,21 @@ assert.deepEqual(
   [...new Set(level04.environment.tsunami.shelters.map(({ type }) => type))].sort(),
   ["high", "hill", "house"]
 );
-assert.equal(isInsideShelter({ x: 7344, y: 520 }, level04.environment.tsunami.shelters), true);
-assert.equal(isInsideShelter({ x: 7000, y: 520 }, level04.environment.tsunami.shelters), false);
+assert.equal(isInsideShelter({ x: 9392, y: 520 }, level04.environment.tsunami.shelters), true);
+assert.equal(isInsideShelter({ x: 9048, y: 520 }, level04.environment.tsunami.shelters), false);
+assert.equal(P10_HULA_BOSS_ROOM_WIDTH, 2048);
+assert.equal(level04.world.width, 10240);
+assert.equal(level04.player.spawn.x, 10048);
+const hulaBossSection = level04.sections.find(({ id }) => id === "boss_hula");
+assert.deepEqual(
+  { xStart: hulaBossSection.xStart, xEnd: hulaBossSection.xEnd, key: hulaBossSection.boss.key },
+  { xStart: 0, xEnd: 2048, key: "hula_king" }
+);
+assert.deepEqual(hulaBossSection.boss.environment.suspend, ["tsunami"]);
+assert.equal(level04.sections.find(({ id }) => id === "tsunami_exit").xStart, 2048);
+assert.equal(level04.checkpoints.find(({ id }) => id === "cp_tsunami_exit").x, 3072);
+assert.equal(level04.environment.tsunami.shelters.every(({ xStart }) => xStart >= 2048), true);
+assert.equal(level04.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "hula_king"), true);
 assert.equal(level05.order, 5);
 assert.equal(level05.progression.direction, "right");
 assert.ok(level05.player.spawn.x < level05.exit.x);
@@ -523,6 +543,17 @@ assert.equal(waveDamageCount, 1, "같은 파도는 플레이어에게 한 번만
 updateEnvironment(environmentManagerA, environmentSceneA, 10000);
 assert.equal(environmentManagerA.waveState, "idle");
 assert.equal(environmentManagerA.pausesEnemies, false, "파도 종료 뒤에는 적 정지를 해제해야 함");
+environmentManagerA.beginWaveWarning(11000);
+environmentManagerA.activateWave(11900);
+assert.equal(environmentManagerA.waveState, "active");
+environmentManagerA.setSuspendedSystems(["tsunami"]);
+assert.equal(environmentManagerA.waveState, "idle", "보스룸 진입 시 활성 파도를 즉시 정리해야 함");
+assert.equal(environmentManagerA.waveVisual, null);
+assert.equal(environmentManagerA.nextWaveAt, Number.POSITIVE_INFINITY);
+updateEnvironment(environmentManagerA, environmentSceneA, 60000, 48000);
+assert.equal(environmentManagerA.waveState, "idle", "보스룸에서는 새 파도가 생성되면 안 됨");
+environmentManagerA.setSuspendedSystems([]);
+assert.ok(Number.isFinite(environmentManagerA.nextWaveAt), "보스룸 이탈 시 파도 재개 시각을 다시 예약해야 함");
 
 const environmentSceneB = createEnvironmentScene();
 const environmentManagerB = new EnvironmentMechanicsManager(
@@ -560,6 +591,10 @@ assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.str
 assert.ok(Math.abs(easyEnvironmentLevel.environment.breath.underwaterPhysics.strokeCooldown - 0.3) < 0.001);
 assert.equal(easyEnvironmentSettings.environment.tsunami.intervalMultiplier, 1.4);
 const easyTsunamiLevel = createRuntimeLevel(level04, true);
+const easyHulaSettings = getDifficultySettings(level04, true);
+assert.equal(easyHulaSettings.boss.telegraphMultiplier, 1.25);
+assert.equal(easyHulaSettings.boss.vulnerabilityMultiplier, 1.35);
+assert.equal(easyHulaSettings.boss.volleyIntervalMultiplier, 1.2);
 assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.firstWarning - 8) < 0.001);
 assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.telegraph - 2.2) < 0.001);
 assert.ok(Math.abs(easyTsunamiLevel.environment.tsunami.interval.min - 12.6) < 0.001);
@@ -592,8 +627,8 @@ for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
 }
 assert.throws(() => getBossPhasePattern("unknown_boss", 1), /등록되지 않은 보스 패턴/);
 assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은 보스 페이즈/);
-assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy"]);
-assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy"]);
+assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king"]);
+assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king"]);
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
@@ -622,6 +657,26 @@ assert.deepEqual(
   { key: "training_dummy", displayName: "연습 대왕", hp: 2, maxHp: 3, levelId: "p9-boss-test-right" }
 );
 assert.equal(Object.isFrozen(bossPayload), true);
+for (const pattern of Object.values(HULA_KING_PHASES)) {
+  assert.ok(pattern.warningMs >= 900);
+  assert.ok(pattern.spinMinMs >= 2200);
+  assert.ok(pattern.spinMaxMs <= 3200);
+  let previousId = null;
+  const random = new SeededRandom(4100 + pattern.vulnerabilityMs);
+  for (let index = 0; index < 100; index += 1) {
+    const spinMs = getHulaSpinDuration(pattern, random.next());
+    assert.ok(spinMs >= pattern.spinMinMs && spinMs <= pattern.spinMaxMs);
+    const sequence = chooseHulaSequence(pattern, random.next(), previousId);
+    assert.notEqual(sequence.id, previousId, "훌라후프 공격은 같은 sequence를 연속 선택하면 안 됨");
+    previousId = sequence.id;
+  }
+}
+assert.equal(getBossPhasePattern("hula_king", 1), HULA_KING_PHASES[1]);
+for (let attempt = 0; attempt < 20; attempt += 1) {
+  assert.equal(canHitHulaKing("spin_guard", true), false, "회전 방어 중 밟기로 HP가 줄면 안 됨");
+}
+assert.equal(canHitHulaKing("vulnerable_rest", true), true);
+assert.equal(canHitHulaKing("vulnerable_rest", false), false);
 
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
@@ -1152,4 +1207,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 정면 날개 방어·궁수 화살·레이저 스위치와 일반/쉬운 모드, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 레지스트리·전략·이벤트·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프 100 seed·좌표 이동·파도 정지·오디오 fallback");

@@ -107,6 +107,10 @@ assertOrdered("PotatoKingBehavior.js", [
   'EnemyAnimationManager.play(this.boss, "jump", false)',
   'playSfx("sfx_boss_warning"'
 ], "보스 시각·음향 예고");
+assertOrdered("HulaKingBehavior.js", [
+  "this.warningShadow.setVisible(true)",
+  'playSfx("sfx_boss_warning"'
+], "훌라후프 시각·음향 예고");
 assertOrdered("EnemyManager.js", [
   "beginDarkCloudTelegraph",
   "this.applyTelegraphColor(enemy, COLORS.collectBlue)",
