@@ -84,6 +84,9 @@ export const BOSS_PATTERNS = Object.freeze({
 });
 
 export function getBossPhasePattern(bossKey, phase) {
-  const patterns = BOSS_PATTERNS[bossKey] ?? POTATO_KING_PHASES;
-  return patterns[phase] ?? patterns[1];
+  const patterns = BOSS_PATTERNS[bossKey];
+  if (!patterns) throw new Error(`등록되지 않은 보스 패턴입니다: ${bossKey}`);
+  const pattern = patterns[phase];
+  if (!pattern) throw new Error(`등록되지 않은 보스 페이즈입니다: ${bossKey} / ${phase}`);
+  return pattern;
 }

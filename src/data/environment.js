@@ -83,3 +83,4 @@ export function isInsideShelter(bounds, shelters = []) {
     && y <= finiteOr(shelter.yBottom, Number.POSITIVE_INFINITY)
   ));
 }
+export const ENVIRONMENT_SUSPENSION_TYPES = Object.freeze(["tsunami", "mist", "lasers", "breath"]);

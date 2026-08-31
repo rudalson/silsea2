@@ -2,6 +2,7 @@ import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT, GAME_WIDTH } from "../config/c
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { LASER_PHASES, LASER_RULES, getLaserPhase } from "../data/combatDevices.js";
 import {
+  ENVIRONMENT_SUSPENSION_TYPES,
   WAVE_STATES,
   getMistZoneAt,
   getWaveIntervalMs,
@@ -38,6 +39,7 @@ export class EnvironmentMechanicsManager {
     this.mistTweens = [];
     this.laserEntries = [];
     this.laserSwitches = new Map();
+    this.suspendedSystems = new Set();
     this.waveState = WAVE_STATES.IDLE;
     this.waveId = 0;
     this.waveVisual = null;
@@ -618,9 +620,9 @@ export class EnvironmentMechanicsManager {
 
   update(now, delta) {
     this.updateEffectStrength();
-    this.updateMist(delta);
-    this.updateLasers(now);
-    if (!this.tsunami) return;
+    this.updateMist(delta, this.suspendedSystems.has("mist"));
+    if (!this.suspendedSystems.has("lasers")) this.updateLasers(now);
+    if (!this.tsunami || this.suspendedSystems.has("tsunami")) return;
     this.updateShelterState(now);
     if (this.visualReviewWaveMode) {
       this.initializeVisualReviewWave(now);
@@ -632,9 +634,9 @@ export class EnvironmentMechanicsManager {
     if (this.waveState === WAVE_STATES.ACTIVE) this.updateActiveWave(now, delta);
   }
 
-  updateMist(delta) {
+  updateMist(delta, forceClear = false) {
     if (!this.mist || !this.fogOverlay || !this.mistMaskGraphics) return;
-    const zone = getMistZoneAt(this.player.x, this.mist.zones);
+    const zone = forceClear ? null : getMistZoneAt(this.player.x, this.mist.zones);
     const reduced = this.scene.registry.get("screenEffectStrength") === "reduced";
     const profile = resolveMistProfile(zone ?? {
       density: 0,
@@ -801,6 +803,30 @@ export class EnvironmentMechanicsManager {
     this.scene.events.emit(EVENTS.TSUNAMI_STATE_CHANGED, this.getSnapshot());
   }
 
+  setSuspendedSystems(types = []) {
+    const next = new Set(types);
+    for (const type of next) {
+      if (!ENVIRONMENT_SUSPENSION_TYPES.includes(type)) {
+        throw new Error(`지원하지 않는 환경 정지 항목입니다: ${type}`);
+      }
+    }
+    const tsunamiWasSuspended = this.suspendedSystems.has("tsunami");
+    const lasersWereSuspended = this.suspendedSystems.has("lasers");
+    this.suspendedSystems = next;
+
+    if (!tsunamiWasSuspended && next.has("tsunami") && this.tsunami) {
+      this.finishWave();
+      this.waveStartsAt = 0;
+      this.nextWaveAt = Number.POSITIVE_INFINITY;
+    } else if (tsunamiWasSuspended && !next.has("tsunami") && this.tsunami) {
+      this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
+    }
+
+    if (!lasersWereSuspended && next.has("lasers")) {
+      for (const entry of this.laserEntries) this.setLaserPhase(entry, LASER_PHASES.DISABLED);
+    }
+  }
+
   resetAfterRespawn() {
     if (!this.tsunami) return;
     if (this.waveState === WAVE_STATES.ACTIVE) this.finishWave();
@@ -851,6 +877,7 @@ export class EnvironmentMechanicsManager {
       laserSwitchCount: this.laserSwitches.size,
       disabledLaserSwitches: [...this.laserSwitches.values()].filter(({ disabled }) => disabled).length,
       laserPhases: this.laserEntries.map(({ config, phase }) => ({ id: config.id, phase })),
+      suspendedSystems: [...this.suspendedSystems],
       pausesEnemies: this.pausesEnemies
     };
   }

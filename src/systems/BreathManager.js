@@ -40,6 +40,7 @@ export class BreathManager {
     this.nextDamageAt = Number.POSITIVE_INFINITY;
     this.nextStrokeAt = 0;
     this.surfaceExitZoneId = null;
+    this.suspended = false;
     this.lowWarningSent = false;
     this.zeroStartedAt = null;
     this.onRespawn = () => this.restoreFull();
@@ -49,6 +50,7 @@ export class BreathManager {
   }
 
   refreshWaterState() {
+    if (this.suspended) return this.contact;
     const previousZoneId = this.contact.zone?.id ?? null;
     const previousUnderwater = this.contact.underwater;
     const headY = this.player.body?.top ?? this.player.y - (this.player.displayHeight ?? 96);
@@ -99,6 +101,7 @@ export class BreathManager {
   }
 
   prepareMovement(input, now) {
+    if (this.suspended) return null;
     this.refreshWaterState();
     if (!this.contact.underwater && !this.refreshSurfaceExitAssist()) return null;
     const cooldownMs = Math.max(50, this.config.underwaterPhysics.strokeCooldown * 1000);
@@ -113,6 +116,7 @@ export class BreathManager {
   }
 
   update(now, delta) {
+    if (this.suspended) return;
     const previousRatio = this.ratio;
     const previousUnderwater = this.contact.underwater;
     this.refreshWaterState();
@@ -175,6 +179,21 @@ export class BreathManager {
     this.emitSnapshot();
   }
 
+  setSuspended(suspended) {
+    if (this.suspended === suspended) return;
+    this.suspended = suspended;
+    if (suspended) {
+      this.contact = { zone: null, underwater: false, aboveSurface: true };
+      this.recovering = false;
+      this.surfaceExitZoneId = null;
+      this.zeroStartedAt = null;
+      this.nextDamageAt = Number.POSITIVE_INFINITY;
+    } else {
+      this.refreshWaterState();
+    }
+    this.emitSnapshot();
+  }
+
   emitSnapshot() {
     this.scene.events.emit(EVENTS.BREATH_CHANGED, this.getSnapshot());
   }
@@ -182,6 +201,7 @@ export class BreathManager {
   getSnapshot() {
     return {
       ratio: this.ratio,
+      suspended: this.suspended,
       underwater: this.contact.underwater,
       surfaceExitAssist: this.refreshSurfaceExitAssist(),
       recovering: this.recovering,

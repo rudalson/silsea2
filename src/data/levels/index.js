@@ -4,9 +4,10 @@ import level03 from "./level-03.js";
 import level04 from "./level-04.js";
 import level05 from "./level-05.js";
 import p1EnvironmentTest from "./p1-environment-test.js";
+import { p9BossTestLeft, p9BossTestRight } from "./p9-boss-test.js";
 
 export const LEVELS = Object.freeze([level01, level02, level03, level04, level05]);
-export const DEVELOPMENT_LEVELS = Object.freeze([p1EnvironmentTest]);
+export const DEVELOPMENT_LEVELS = Object.freeze([p1EnvironmentTest, p9BossTestRight, p9BossTestLeft]);
 export const ALL_LEVELS = Object.freeze([...LEVELS, ...DEVELOPMENT_LEVELS]);
 export const getLevel = (id) => ALL_LEVELS.find((level) => level.id === id) ?? null;
 export const getNextLevel = (id) => {

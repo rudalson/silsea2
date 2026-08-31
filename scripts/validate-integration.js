@@ -103,7 +103,7 @@ assertOrdered("EnvironmentMechanicsManager.js", [
   "EVENTS.TSUNAMI_WARNING",
   'playSfx("sfx_tsunami_warning"'
 ], "쓰나미 시각·음향 예고");
-assertOrdered("BossController.js", [
+assertOrdered("PotatoKingBehavior.js", [
   'EnemyAnimationManager.play(this.boss, "jump", false)',
   'playSfx("sfx_boss_warning"'
 ], "보스 시각·음향 예고");

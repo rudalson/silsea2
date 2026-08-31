@@ -170,10 +170,10 @@ export class UIScene extends Phaser.Scene {
     this.createPauseOverlay();
 
     this.onCheckpoint = () => this.showToast("안전 지점 저장!");
-    this.onBossHit = ({ hp, maxHp }) => {
-      this.bossText.setText(`감자 대왕  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
+    this.onBossHit = ({ displayName, hp, maxHp }) => {
+      this.bossText.setText(`${displayName}  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
     };
-    this.onBossDefeated = () => this.showToast("보스 격파! 무지개 언덕 클리어!");
+    this.onBossDefeated = ({ displayName, levelName }) => this.showToast(`${displayName} 격파! ${levelName} 클리어!`);
     this.onFormChanged = ({ form }) => this.showToast(`${this.formName(form)} 변신!`);
     this.onFormWarning = () => this.showToast("알리콘 종료까지 3초!");
     this.onItemCollected = ({ type }) => {
@@ -247,7 +247,7 @@ export class UIScene extends Phaser.Scene {
       const boss = this.gameScene.levelLoader.boss;
       const hp = boss.getData("hp");
       const maxHp = boss.getData("maxHp");
-      this.bossText.setText(`감자 대왕  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
+      this.bossText.setText(`${boss.getData("displayName")}  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
     } else if (!this.gameScene.levelLoader?.boss?.active) {
       this.bossText.setVisible(false);
     }

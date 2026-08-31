@@ -42,10 +42,14 @@ export class BootScene extends Phaser.Scene {
       ? LEVELS.find(({ id }) => id === query.get("stage")) ?? null
       : null;
     const p1TestLevel = query.get("p1test") === "1" ? getLevel("p1-environment-test") : null;
+    const p9BossDirection = query.get("p9boss");
+    const p9BossTestLevel = ["left", "right"].includes(p9BossDirection)
+      ? getLevel(`p9-boss-test-${p9BossDirection}`)
+      : null;
     const playtestLevel = playtestEnabled
       ? LEVELS.find(({ id }) => id === query.get("level")) ?? null
       : null;
-    const directLevel = reviewLevel ?? p1TestLevel ?? playtestLevel;
+    const directLevel = reviewLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
     const levelId = directLevel?.id ?? stageSelectLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0

@@ -5,7 +5,17 @@ import level03 from "../src/data/levels/level-03.js";
 import level04 from "../src/data/levels/level-04.js";
 import level05 from "../src/data/levels/level-05.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
+import { p9BossTestLeft, p9BossTestRight } from "../src/data/levels/p9-boss-test.js";
 import { EVENTS } from "../src/config/constants.js";
+import {
+  BOSS_TYPES,
+  createBossEventPayload,
+  getBossDefinition,
+  requireBossDefinition,
+  resolveBossPhase,
+  resolveBossSpawnX
+} from "../src/data/bossDefinitions.js";
+import { BOSS_BEHAVIOR_TYPES } from "../src/data/bossBehaviorTypes.js";
 import { POTATO_KING_PHASES, getBossPhasePattern } from "../src/data/bossPatterns.js";
 import {
   ARCHER_RULES,
@@ -40,6 +50,7 @@ import {
   assertLevelShape
 } from "../src/data/schema/levelSchema.js";
 import {
+  ENVIRONMENT_SUSPENSION_TYPES,
   getMistZoneAt,
   getWaterContact,
   getWaveIntervalMs,
@@ -579,6 +590,38 @@ for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
   assert.ok(phase.vulnerabilityMs >= Math.max(...delays) + 900, `보스 ${phaseNumber}페이즈 반격 시간이 부족함`);
   assert.equal(getBossPhasePattern("potato_king", Number(phaseNumber)), phase);
 }
+assert.throws(() => getBossPhasePattern("unknown_boss", 1), /등록되지 않은 보스 패턴/);
+assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은 보스 페이즈/);
+assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy"]);
+assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy"]);
+assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
+assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
+assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
+assert.equal(resolveBossPhase(3, 2, 3), 2);
+assert.equal(resolveBossPhase(5, 0, 3), 3);
+const rightBossSection = p9BossTestRight.sections.find(({ type }) => type === "boss");
+const leftBossSection = p9BossTestLeft.sections.find(({ type }) => type === "boss");
+assert.equal(resolveBossSpawnX(rightBossSection, "right"), 3536);
+assert.equal(resolveBossSpawnX(leftBossSection, "left"), 560);
+assert.ok(rightBossSection.xStart <= 3536 && 3536 < rightBossSection.xEnd);
+assert.ok(leftBossSection.xStart <= 560 && 560 < leftBossSection.xEnd);
+assert.deepEqual(
+  rightBossSection.boss.environment.suspend,
+  ENVIRONMENT_SUSPENSION_TYPES
+);
+const bossPayload = createBossEventPayload({
+  key: "training_dummy",
+  displayName: "연습 대왕",
+  hp: 2,
+  maxHp: 3,
+  levelId: p9BossTestRight.id,
+  levelName: p9BossTestRight.name
+});
+assert.deepEqual(
+  { key: bossPayload.key, displayName: bossPayload.displayName, hp: bossPayload.hp, maxHp: bossPayload.maxHp, levelId: bossPayload.levelId },
+  { key: "training_dummy", displayName: "연습 대왕", hp: 2, maxHp: 3, levelId: "p9-boss-test-right" }
+);
+assert.equal(Object.isFrozen(bossPayload), true);
 
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
@@ -1109,4 +1152,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 정면 날개 방어·궁수 화살·레이저 스위치와 일반/쉬운 모드, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·보스 3단계·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 정면 날개 방어·궁수 화살·레이저 스위치와 일반/쉬운 모드, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 레지스트리·전략·이벤트·오디오 fallback");

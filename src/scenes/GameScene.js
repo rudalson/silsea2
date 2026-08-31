@@ -206,6 +206,7 @@ export class GameScene extends Phaser.Scene {
     if (section?.id !== this.currentSectionId) {
       this.currentSectionId = section?.id ?? null;
       this.levelLoader.setBackgroundMood(section?.mood);
+      this.applyBossEnvironmentPolicy(section);
       if (section?.type === "boss" && this.level.assets.bgm.boss) {
         this.audioManager.playSfx("sfx_boss_appear", { randomizeRate: false });
         this.audioManager.transitionBgm(this.level.assets.bgm.boss);
@@ -226,6 +227,14 @@ export class GameScene extends Phaser.Scene {
     const target = getCameraLookAheadTarget(this.player.body.velocity.x, distance);
     this.lookAhead = Phaser.Math.Linear(this.lookAhead, target, Math.min(1, delta / 220));
     this.cameras.main.setFollowOffset(this.lookAhead, 28);
+  }
+
+  applyBossEnvironmentPolicy(section) {
+    const suspended = section?.type === "boss"
+      ? section.boss?.environment?.suspend ?? []
+      : [];
+    this.environmentMechanics?.setSuspendedSystems(suspended);
+    this.breathManager?.setSuspended(suspended.includes("breath"));
   }
 
   updatePlayerShadow() {
@@ -292,22 +301,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleBossOverlap() {
-    const boss = this.levelLoader.boss;
-    if (!boss?.active) return;
-    const fallingOntoHead = this.player.body.velocity.y > 120 && this.player.body.bottom <= boss.body.top + 54;
-    if (fallingOntoHead) {
-      const didHit = this.levelLoader.hitBoss(this.player);
-      if (didHit && this.levelLoader.gate && !this.gateBound) {
-        this.gateBound = true;
-        this.bindGate(this.levelLoader.gate);
-      }
-      if (!didHit) this.healthManager.takeDamage(boss.x);
-    } else {
-      this.healthManager.takeDamage(boss.x);
+    const { didHit } = this.bossController?.handlePlayerContact() ?? { didHit: false };
+    if (didHit && this.levelLoader.gate && !this.gateBound) {
+      this.gateBound = true;
+      this.bindGate(this.levelLoader.gate);
     }
   }
 
-  handleBossDefeated() {
+  handleBossDefeated({ displayName = "보스" } = {}) {
     this.transformationManager?.cancelPresentation();
     if (this.levelLoader.gate && !this.gateBound) {
       this.gateBound = true;
@@ -315,7 +316,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.cameraEffects.shake("bossDefeat");
     this.audioManager.playSfx("sfx_gate_spawn", { randomizeRate: false });
-    this.updateAccessibleStatus("감자 대왕을 격파했습니다. 잠시 후 클리어 화면으로 이동합니다.");
+    this.updateAccessibleStatus(`${displayName}을(를) 격파했습니다. 잠시 후 클리어 화면으로 이동합니다.`);
     this.bossClearTimer?.remove(false);
     this.bossClearTimer = this.time.delayedCall(BOSS_CLEAR_DELAY_MS, () => {
       this.bossClearTimer = null;

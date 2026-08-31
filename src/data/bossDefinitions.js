@@ -1,0 +1,112 @@
+import { COLORS } from "../config/constants.js";
+
+const freezeRender = ({ placeholderColor, art = null, fallback }) => Object.freeze({
+  placeholder: Object.freeze({ width: 150, height: 150, color: placeholderColor }),
+  art: art ? Object.freeze({
+    origin: Object.freeze(art.origin),
+    scale: art.scale,
+    body: Object.freeze(art.body)
+  }) : null,
+  fallback: Object.freeze({
+    origin: Object.freeze(fallback.origin),
+    scale: fallback.scale,
+    body: Object.freeze(fallback.body)
+  })
+});
+
+const COMMON_ANIMATION_ROLES = Object.freeze([
+  "idle",
+  "jump",
+  "fall",
+  "land",
+  "attack",
+  "hurt",
+  "defeated"
+]);
+
+export const BOSS_DEFINITIONS = Object.freeze({
+  potato_king: Object.freeze({
+    key: "potato_king",
+    displayName: "감자 대왕",
+    behavior: "potato_king",
+    defaultHp: 3,
+    phaseIds: Object.freeze(["single_ground_wave", "split_wave_and_high_shot", "staggered_crossfire"]),
+    completion: "level",
+    animationRoles: COMMON_ANIMATION_ROLES,
+    spawn: Object.freeze({ edgeOffset: 560 }),
+    render: freezeRender({
+      placeholderColor: COLORS.dangerAlt,
+      art: {
+        origin: { x: 0.5, y: 112 / 128 },
+        scale: 1.5,
+        body: { width: 82, height: 78, offsetX: 23, offsetY: 34, center: false }
+      },
+      fallback: {
+        origin: { x: 0.5, y: 1 },
+        scale: 1,
+        body: { width: 118, height: 118, center: true }
+      }
+    }),
+    copy: Object.freeze({
+      intro: "공격 예고 뒤 반짝이는 약점을 밟으세요",
+      hit: "공격 예고 뒤 약점을 노리세요"
+    })
+  }),
+  training_dummy: Object.freeze({
+    key: "training_dummy",
+    displayName: "연습 대왕",
+    behavior: "training_dummy",
+    defaultHp: 3,
+    phaseIds: Object.freeze(["practice_open_1", "practice_open_2", "practice_open_3"]),
+    completion: "level",
+    animationRoles: Object.freeze([]),
+    spawn: Object.freeze({ edgeOffset: 560 }),
+    render: freezeRender({
+      placeholderColor: COLORS.collectBlue,
+      fallback: {
+        origin: { x: 0.5, y: 1 },
+        scale: 1,
+        body: { width: 118, height: 118, center: true }
+      }
+    }),
+    copy: Object.freeze({
+      intro: "빛나는 동안 머리 위를 밟으세요",
+      hit: "다시 빛날 때 머리 위를 노리세요"
+    })
+  })
+});
+
+export const BOSS_TYPES = Object.freeze(Object.keys(BOSS_DEFINITIONS));
+
+export const getBossDefinition = (key) => BOSS_DEFINITIONS[key] ?? null;
+
+export const requireBossDefinition = (key) => {
+  const definition = getBossDefinition(key);
+  if (!definition) throw new Error(`등록되지 않은 보스 키입니다: ${key}`);
+  return definition;
+};
+
+export const resolveBossSpawnX = (section, direction = "right", definition = null) => {
+  const explicitX = section?.boss?.spawn?.x;
+  if (Number.isFinite(explicitX)) return explicitX;
+  const resolvedDefinition = definition ?? requireBossDefinition(section?.boss?.key);
+  const edgeOffset = section?.boss?.spawn?.edgeOffset ?? resolvedDefinition.spawn.edgeOffset;
+  return direction === "left"
+    ? section.xStart + edgeOffset
+    : section.xEnd - edgeOffset;
+};
+
+export const resolveBossPhase = (maxHp, hp, phaseCount) => Math.min(
+  Math.max(1, phaseCount),
+  Math.max(1, maxHp - hp + 1)
+);
+
+export const createBossEventPayload = ({
+  key,
+  displayName,
+  hp,
+  maxHp,
+  levelId,
+  levelName,
+  completion = "level"
+}) => Object.freeze({ key, displayName, hp, maxHp, levelId, levelName, completion });

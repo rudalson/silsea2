@@ -36,6 +36,9 @@ const assetManager = await readFile(join(root, "src", "systems", "AssetManager.j
 const enemyManager = await readFile(join(root, "src", "systems", "EnemyManager.js"), "utf8");
 const environmentManager = await readFile(join(root, "src", "systems", "EnvironmentMechanicsManager.js"), "utf8");
 const breathManager = await readFile(join(root, "src", "systems", "BreathManager.js"), "utf8");
+const bossController = await readFile(join(root, "src", "systems", "BossController.js"), "utf8");
+const bossDefinitions = await readFile(join(root, "src", "data", "bossDefinitions.js"), "utf8");
+const bossBehaviorRegistry = await readFile(join(root, "src", "systems", "bosses", "index.js"), "utf8");
 const levelSchema = await readFile(join(root, "src", "data", "schema", "levelSchema.js"), "utf8");
 const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
 for (const forbidden of LEVELS.flatMap((level) => [level.id, level.name])) {
@@ -62,6 +65,7 @@ if (!getLevel("level-02")) fail("level-02가 레지스트리에 등록되지 않
 if (!getLevel("level-03")) fail("level-03이 레지스트리에 등록되지 않음");
 if (!getLevel("level-04")) fail("level-04가 레지스트리에 등록되지 않음");
 if (!getLevel("level-05")) fail("level-05가 레지스트리에 등록되지 않음");
+if (!getLevel("p9-boss-test-right") || !getLevel("p9-boss-test-left")) fail("P9 좌·우 보스 시험 레벨이 레지스트리에 없음");
 if (getNextLevel(LEVELS[0].id)?.id !== LEVELS[1].id) fail("getNextLevel 순서가 잘못됨");
 if (getNextLevel("level-03")?.id !== "level-04") fail("안개 골짜기 다음 레벨이 쓰나미 마을이 아님");
 if (getNextLevel("level-04")?.id !== "level-05") fail("쓰나미 마을 다음 레벨이 물에 잠긴 마을이 아님");
@@ -77,6 +81,7 @@ if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검
 if (!bootScene.includes('query.get("guard")')) fail("P6 날개 방어 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("laser")')) fail("P6 레이저 단계 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
+if (!bootScene.includes('query.get("p9boss")')) fail("P9 좌·우 보스 시험 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
 if (!bootScene.includes('query.get("form")')) fail("캐릭터 런타임 검수용 form 선택이 없음");
 if (!bootScene.includes('query.get("animation")')) fail("캐릭터 런타임 검수용 animation 선택이 없음");
@@ -117,6 +122,18 @@ if (!playtestManager.includes("maxProgress") || !playtestManager.includes("getNo
 }
 if (!environmentManager.includes("pauseEnemiesDuringWave") || !breathManager.includes("takeEnvironmentDamage")) {
   fail("쓰나미 중 적 정지 또는 숨 0 환경 피해 경로가 없음");
+}
+if (!bossDefinitions.includes("BOSS_DEFINITIONS") || !bossDefinitions.includes("resolveBossSpawnX")) {
+  fail("P9 보스 단일 정의 레지스트리 또는 방향별 배치 계산이 없음");
+}
+if (!bossBehaviorRegistry.includes("createBossBehavior") || !bossController.includes("handlePlayerContact")) {
+  fail("P9 공통 보스 생명주기와 행동 전략 경계가 없음");
+}
+if (!levelLoader.includes("createBossEventPayload") || !uiScene.includes('getData("displayName")')) {
+  fail("P9 보스 공통 이벤트 payload 또는 일반화 HUD가 없음");
+}
+if (!gameScene.includes("applyBossEnvironmentPolicy") || !environmentManager.includes("setSuspendedSystems")) {
+  fail("P9 선언형 보스 환경 정지 정책이 없음");
 }
 if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
   fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");
@@ -170,4 +187,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1 시험 진입점, level-02~05 확장성");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1·P9 시험 진입점, 보스 정의·전략·환경 정지 기반, level-02~05 확장성");

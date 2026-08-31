@@ -1,8 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import manifest from "../assets/manifest.json" with { type: "json" };
-import { BOSS_PATTERNS } from "../src/data/bossPatterns.js";
+import {
+  getBossDefinition,
+  resolveBossSpawnX
+} from "../src/data/bossDefinitions.js";
+import { BOSS_BEHAVIOR_TYPES } from "../src/data/bossBehaviorTypes.js";
 import { ENEMY_TYPES } from "../src/data/enemies.js";
+import { getEnemyAnimationSpec } from "../src/data/enemyAnimations.js";
+import { ENVIRONMENT_SUSPENSION_TYPES } from "../src/data/environment.js";
 import { HAZARD_TYPES, ITEM_TYPES } from "../src/data/items.js";
 import { ALL_LEVELS, LEVELS } from "../src/data/levels/index.js";
 import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/levelSchema.js";
@@ -74,13 +80,31 @@ for (const sourceLevel of ALL_LEVELS) {
       if (!section.boss?.key || !section.boss?.hp || !Array.isArray(section.boss?.phases)) {
         fail(level, `boss section ${section.id} 필드 누락`);
       }
-      if (section.boss?.key && !ENEMY_TYPES.includes(section.boss.key)) fail(level, `미등록 boss key: ${section.boss.key}`);
+      const definition = getBossDefinition(section.boss?.key);
+      if (section.boss?.key && !definition) fail(level, `미등록 boss key: ${section.boss.key}`);
+      if (definition && !BOSS_BEHAVIOR_TYPES.includes(definition.behavior)) {
+        fail(level, `boss ${section.id} 미등록 behavior: ${definition.behavior}`);
+      }
+      for (const role of definition?.animationRoles ?? []) {
+        if (!getEnemyAnimationSpec(definition.key, role)) {
+          fail(level, `boss ${section.id} 애니메이션 역할 누락: ${role}`);
+        }
+      }
       if (section.boss?.hp !== section.boss?.phases?.length) fail(level, `boss ${section.id} hp와 phases 수가 다름`);
-      const registeredPatterns = BOSS_PATTERNS[section.boss?.key];
-      if (registeredPatterns) {
-        const patternIds = Object.values(registeredPatterns).map(({ id }) => id);
+      if (definition) {
         for (const phaseId of section.boss.phases) {
-          if (!patternIds.includes(phaseId)) fail(level, `boss ${section.id} 미등록 phase pattern: ${phaseId}`);
+          if (!definition.phaseIds.includes(phaseId)) fail(level, `boss ${section.id} 미등록 phase pattern: ${phaseId}`);
+        }
+        const spawnX = resolveBossSpawnX(section, level.progression.direction, definition);
+        if (!(spawnX >= section.xStart && spawnX < section.xEnd)) {
+          fail(level, `boss ${section.id} spawn.x가 section 밖`);
+        }
+      }
+      const suspended = section.boss?.environment?.suspend ?? [];
+      if (!Array.isArray(suspended)) fail(level, `boss ${section.id} environment.suspend는 배열이어야 함`);
+      for (const type of Array.isArray(suspended) ? suspended : []) {
+        if (!ENVIRONMENT_SUSPENSION_TYPES.includes(type)) {
+          fail(level, `boss ${section.id} 미지원 환경 정지 항목: ${type}`);
         }
       }
     }

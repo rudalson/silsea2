@@ -13,6 +13,7 @@ const [
   levelLoader,
   enemyManager,
   bossController,
+  potatoKingBehavior,
   transformManager,
   cameraEffects,
   audioManager,
@@ -52,6 +53,7 @@ const [
   read("src/systems/LevelLoader.js"),
   read("src/systems/EnemyManager.js"),
   read("src/systems/BossController.js"),
+  read("src/systems/bosses/PotatoKingBehavior.js"),
   read("src/systems/TransformationManager.js"),
   read("src/systems/CameraEffectsManager.js"),
   read("src/systems/AudioManager.js"),
@@ -86,6 +88,8 @@ const [
   read("scripts/regrade-environment.js"),
   read("src/data/combatDevices.js")
 ]);
+
+const bossRuntime = `${bossController}\n${potatoKingBehavior}`;
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
 if (CORE_RULES.hurtLockMs > 250) fail("피격 경직이 250ms를 초과함");
@@ -123,7 +127,7 @@ if (!particleEffects.includes("getSnapshot") || !gameScene.includes("getPerforma
 }
 if (!levelLoader.includes('candidate.type === "boss"')) fail("보스가 section 데이터로 로드되지 않음");
 if (!enemyManager.includes("isOnScreen")) fail("화면 밖 공격 차단이 없음");
-if (!enemyManager.includes("new ObjectPool") || !bossController.includes("new ObjectPool")) fail("반복 오브젝트에 Object Pool이 없음");
+if (!enemyManager.includes("new ObjectPool") || !bossRuntime.includes("new ObjectPool")) fail("반복 오브젝트에 Object Pool이 없음");
 if (!enemyManager.includes("getPoolSnapshot") || !bossController.includes("getPoolSnapshot")) {
   fail("Object Pool 런타임 계측이 없음");
 }
@@ -158,7 +162,7 @@ if (!constants.includes("PALETTE.environmentSky") || !constants.includes("PALETT
 if (!environmentRegrade.includes("files.length !== 9") || !environmentRegrade.includes("environmentNeutral")) {
   fail("배경 9종의 재현 가능한 환경 리그레이드 경로가 없음");
 }
-if (!bossController.includes("SeededRandom")) fail("보스 패턴에 고정 Seed가 없음");
+if (!bossRuntime.includes("SeededRandom")) fail("보스 패턴에 고정 Seed가 없음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {
   fail("변신 정지·플래시·카메라 강조가 모두 연결되지 않음");
@@ -182,10 +186,10 @@ if (!transformManager.includes('animationKey.endsWith(":fly")')) fail("비행 �
 if (!uiScene.includes("Math.round(this.gameScene.scoreManager?.displayScore ?? 0)")) {
   fail("HUD 보간 점수가 정수로 표시되지 않음");
 }
-if (!gameScene.includes("CameraEffectsManager") || !bossController.includes("cameraEffects?.shake")) {
+if (!gameScene.includes("CameraEffectsManager") || !bossRuntime.includes("cameraEffects?.shake")) {
   fail("카메라 흔들림이 중앙 CameraEffectsManager를 통하지 않음");
 }
-if ([gameScene, enemyManager, bossController].some((source) => source.includes("cameras.main.shake"))) {
+if ([gameScene, enemyManager, bossRuntime].some((source) => source.includes("cameras.main.shake"))) {
   fail("CameraEffectsManager 밖에 직접 camera shake 호출이 있음");
 }
 if (!cameraEffects.includes("screenShakeEnabled") || !cameraEffects.includes("shakeEffect?.reset")) {
@@ -285,7 +289,7 @@ if (!transformManager.includes("playTransformAnimation") || !gameScene.includes(
 if (!preloadScene.includes("queueEnemyAssets") || !levelLoader.includes("EnemyAnimationManager.play")) {
   fail("레벨 적·보스 시트 프리로드 또는 실제 스프라이트 생성 경로가 없음");
 }
-if (!enemyManager.includes('"warning"') || !enemyManager.includes('"defeated"') || !bossController.includes('"hurt"')) {
+if (!enemyManager.includes('"warning"') || !enemyManager.includes('"defeated"') || !bossRuntime.includes('"hurt"')) {
   fail("적 경고·처치 또는 보스 피격 애니메이션 상태 연결이 없음");
 }
 if (!enemyAnimator.includes("frameRate: 1000")) fail("적 프레임별 duration 등록이 없음");
@@ -307,7 +311,7 @@ if (!transformManager.includes("this.scene?.cameras?.main")) {
 if (!gameScene.includes("BOSS_CLEAR_DELAY_MS") || !gameScene.includes("this.handleGateEntered()")) {
   fail("보스 처치 애니메이션 이후 자동 클리어 전환 경로가 없음");
 }
-if ([enemyManager, bossController].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
+if ([enemyManager, bossRuntime].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
 if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {
   fail("현재 Phaser 버전에 없는 Math.MoveTowards 호출이 있음");
 }
@@ -315,7 +319,7 @@ if (/#[0-9a-f]{6}\b|0x[0-9a-f]{6}\b/i.test([
   gameScene,
   levelLoader,
   enemyManager,
-  bossController,
+  bossRuntime,
   transformManager,
   particleEffects,
   environmentManager,

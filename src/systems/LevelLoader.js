@@ -1,5 +1,11 @@
 import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
+import {
+  createBossEventPayload,
+  requireBossDefinition,
+  resolveBossPhase,
+  resolveBossSpawnX
+} from "../data/bossDefinitions.js";
 import { ENEMY_DEFINITIONS } from "../data/enemies.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
 import { AssetManager } from "./AssetManager.js";
@@ -455,39 +461,45 @@ export class LevelLoader {
   createBoss() {
     const section = this.level.sections.find((candidate) => candidate.type === "boss");
     if (!section?.boss) return;
-    EnemyAnimationManager.register(this.scene, section.boss.key);
-    const idle = EnemyAnimationManager.getSpec(section.boss.key, "idle");
+    const definition = requireBossDefinition(section.boss.key);
+    EnemyAnimationManager.register(this.scene, definition.key);
+    const idle = EnemyAnimationManager.getSpec(definition.key, "idle");
     const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
-    const key = usesArt ? idle.textureKey : `graybox-${section.boss.key}`;
-    if (!usesArt) AssetManager.ensurePlaceholder(this.scene, key, { width: 150, height: 150, color: COLORS.dangerAlt });
-    const x = section.xEnd - 560;
-    const y = this.findSafeY(x);
-    const boss = this.scene.physics.add.sprite(x, y, key);
-    boss.setOrigin(0.5, usesArt ? 112 / 128 : 1).setImmovable(true).setDepth(4);
-    if (usesArt) boss.setScale(1.5);
+    const render = usesArt ? definition.render.art : definition.render.fallback;
+    if (!render) throw new Error(`보스 렌더링 정의가 없습니다: ${definition.key}`);
+    const textureKey = usesArt ? idle.textureKey : `graybox-${definition.key}`;
+    if (!usesArt) AssetManager.ensurePlaceholder(this.scene, textureKey, definition.render.placeholder);
+    const x = resolveBossSpawnX(section, this.level.progression?.direction, definition);
+    const y = Number.isFinite(section.boss.spawn?.y) ? section.boss.spawn.y : this.findSafeY(x);
+    const maxHp = section.boss.hp ?? definition.defaultHp;
+    const phaseCount = section.boss.phases?.length ?? maxHp;
+    const boss = this.scene.physics.add.sprite(x, y, textureKey);
+    boss.setOrigin(render.origin.x, render.origin.y).setScale(render.scale).setImmovable(true).setDepth(4);
     boss.body.setAllowGravity(false);
-    if (usesArt) {
-      boss.body.setSize(82, 78, false);
-      boss.body.setOffset(23, 112 - 78);
-    } else {
-      boss.body.setSize(118, 118, true);
+    boss.body.setSize(render.body.width, render.body.height, render.body.center ?? false);
+    if (Number.isFinite(render.body.offsetX) && Number.isFinite(render.body.offsetY)) {
+      boss.body.setOffset(render.body.offsetX, render.body.offsetY);
     }
     boss.setDataEnabled();
     boss.setData({
-      key: section.boss.key,
-      hp: section.boss.hp,
-      maxHp: section.boss.hp,
+      key: definition.key,
+      displayName: definition.displayName,
+      behavior: definition.behavior,
+      completion: section.boss.completion ?? definition.completion,
+      hp: maxHp,
+      maxHp,
       phase: 1,
+      phaseCount,
       vulnerable: false,
       section,
       usesArt,
-      type: section.boss.key
+      type: definition.key
     });
     if (usesArt) EnemyAnimationManager.play(boss, "idle");
     this.boss = boss;
     this.track(boss);
     const label = this.track(
-      this.scene.add.text(x, y - 176, `감자 대왕 · HP ${section.boss.hp}\n공격 예고 뒤 반짝이는 약점을 밟으세요`, {
+      this.scene.add.text(x, y - 176, `${definition.displayName} · HP ${maxHp}\n${definition.copy.intro}`, {
         align: "center",
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "18px",
@@ -506,13 +518,28 @@ export class LevelLoader {
     this.bossHitLocked = true;
     const hp = this.boss.getData("hp") - 1;
     this.boss.setData("hp", hp);
-    this.boss.setData("phase", Math.min(3, this.boss.getData("maxHp") - hp + 1));
+    this.boss.setData("phase", resolveBossPhase(
+      this.boss.getData("maxHp"),
+      hp,
+      this.boss.getData("phaseCount")
+    ));
     this.boss.setData("vulnerable", false);
+    const definition = requireBossDefinition(this.boss.getData("key"));
+    const displayName = this.boss.getData("displayName");
     const label = this.boss.getData("label");
-    label?.setText(hp > 0 ? `감자 대왕 · HP ${hp}\n공격 예고 뒤 약점을 노리세요` : "감자 대왕 격파!");
+    label?.setText(hp > 0 ? `${displayName} · HP ${hp}\n${definition.copy.hit}` : `${displayName} 격파!`);
     player.setVelocityY(-520);
     this.boss.setTintFill(COLORS.collect);
-    this.scene.events.emit(EVENTS.BOSS_HIT, { hp, maxHp: this.boss.getData("maxHp") });
+    const payload = createBossEventPayload({
+      key: this.boss.getData("key"),
+      displayName,
+      hp,
+      maxHp: this.boss.getData("maxHp"),
+      levelId: this.level.id,
+      levelName: this.level.name,
+      completion: this.boss.getData("completion")
+    });
+    this.scene.events.emit(EVENTS.BOSS_HIT, payload);
 
     this.scene.time.delayedCall(220, () => {
       if (this.boss?.active) this.boss.clearTint();
@@ -520,12 +547,11 @@ export class LevelLoader {
     });
 
     if (hp <= 0) {
-      const key = this.boss.getData("key");
       this.boss.body.enable = false;
       this.boss.setData("defeated", true);
       this.spawnGate();
-      this.objectiveManager.markBossDefeated(key);
-      this.scene.events.emit(EVENTS.BOSS_DEFEATED, key);
+      this.objectiveManager.markBossDefeated(payload.key);
+      this.scene.events.emit(EVENTS.BOSS_DEFEATED, payload);
     }
     return true;
   }
