@@ -387,6 +387,62 @@
       "frameHeight": 128,
       "frames": 8
     },
+    {
+      "key": "hula_king_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "hula_king_spin",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_spin.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
+    {
+      "key": "hula_king_warning",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_warning.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "hula_king_throw",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_throw.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "hula_king_vulnerable",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_vulnerable.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "hula_king_hurt",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_hurt.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3
+    },
+    {
+      "key": "hula_king_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/hula_king/hula_king_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
     { "key": "item_star", "type": "image", "url": "/assets/items/item_star.png" },
     { "key": "item_percent_small", "type": "image", "url": "/assets/items/item_percent_small.png" },
     { "key": "item_percent_large", "type": "image", "url": "/assets/items/item_percent_large.png" },
@@ -397,6 +453,9 @@
     { "key": "rainbow_gate", "type": "image", "url": "/assets/items/rainbow_gate.png" },
     { "key": "fx_lightning", "type": "image", "url": "/assets/effects/fx_lightning.png" },
     { "key": "fx_updraft_wind", "type": "image", "url": "/assets/effects/fx_updraft_wind.png", "width": 1024, "height": 1536 },
+    { "key": "fx_hula_spin", "type": "image", "url": "/assets/effects/fx_hula_spin.png", "width": 256, "height": 112 },
+    { "key": "projectile_hula_hoop_low", "type": "image", "url": "/assets/projectiles/projectile_hula_hoop_low.png", "width": 112, "height": 64 },
+    { "key": "projectile_hula_hoop_jump", "type": "image", "url": "/assets/projectiles/projectile_hula_hoop_jump.png", "width": 80, "height": 112 },
     { "key": "ui_hud_frame", "type": "image", "url": "/assets/ui/ui_hud_frame.png" },
     { "key": "ui_hud_badge_star", "type": "image", "url": "/assets/ui/ui_hud_badge_star.png" },
     { "key": "ui_hud_heart", "type": "image", "url": "/assets/ui/ui_hud_heart.png" },
@@ -547,6 +606,11 @@
     { "key": "sfx_projectile_guard", "type": "audio", "url": "/assets/audio/sfx/sfx_projectile_guard.wav", "category": "sfx" },
     { "key": "sfx_laser_warning", "type": "audio", "url": "/assets/audio/sfx/sfx_laser_warning.wav", "category": "sfx" },
     { "key": "sfx_laser_off", "type": "audio", "url": "/assets/audio/sfx/sfx_laser_off.wav", "category": "sfx" },
+    { "key": "sfx_hula_spin", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_spin.wav", "category": "sfx" },
+    { "key": "sfx_hula_throw", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_throw.wav", "category": "sfx" },
+    { "key": "sfx_hula_guard", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_guard.wav", "category": "sfx" },
+    { "key": "sfx_hula_weakness", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_weakness.wav", "category": "sfx" },
+    { "key": "sfx_hula_defeat", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_defeat.wav", "category": "sfx" },
     { "key": "bgm_field", "type": "audio", "url": "/assets/audio/bgm/bgm_field.wav", "category": "bgm" },
     { "key": "bgm_starlight", "type": "audio", "url": "/assets/audio/bgm/bgm_starlight.wav", "category": "bgm" },
     { "key": "bgm_mist", "type": "audio", "url": "/assets/audio/bgm/bgm_mist.wav", "category": "bgm" },

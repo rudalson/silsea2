@@ -53,6 +53,11 @@ export class AssetManager {
     }
     if (types.has("dark_cloud")) AssetManager.queueManifestAsset(scene, "fx_lightning");
     if (types.has("potato_archer")) AssetManager.queueManifestAsset(scene, "projectile_arrow");
+    if (types.has("hula_king")) {
+      AssetManager.queueManifestAsset(scene, "fx_hula_spin");
+      AssetManager.queueManifestAsset(scene, "projectile_hula_hoop_low");
+      AssetManager.queueManifestAsset(scene, "projectile_hula_hoop_jump");
+    }
     if ((level.terrainMechanics?.updrafts?.length ?? 0) > 0) {
       AssetManager.queueManifestAsset(scene, "fx_updraft_wind");
     }

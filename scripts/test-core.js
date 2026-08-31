@@ -258,12 +258,15 @@ assert.equal(getEnemyAssetKeys("spike_pumpkin").length, 3);
 assert.equal(getEnemyAssetKeys("dark_cloud").length, 4);
 assert.equal(getEnemyAssetKeys("magpie").length, 5);
 assert.equal(getEnemyAssetKeys("potato_king").length, 7);
-for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "potato_king"]) {
+assert.equal(getEnemyAssetKeys("hula_king").length, 7);
+for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "potato_king", "hula_king"]) {
   assert.ok(getEnemyAnimationSpec(enemyType, "idle"));
   assert.ok(getEnemyAnimationSpec(enemyType, "defeated"));
 }
 assert.equal(getEnemyAnimationSpec("dark_cloud", "warning").durationMs, 700);
 assert.ok(getEnemyAnimationSpec("potato_king", "defeated").durationMs >= 1000);
+assert.deepEqual(getEnemyAnimationSpec("hula_king", "spin").durations, [90, 85, 90, 85, 90, 85, 90, 105]);
+assert.ok(getEnemyAnimationSpec("hula_king", "defeated").durationMs >= 1200);
 
 assert.equal(stepFlightGauge(10000, 1000, { flying: true }), 9000);
 assert.equal(stepFlightGauge(10000, 1000, { flying: true, drainMultiplier: 0.65 }), 9350);
@@ -630,6 +633,7 @@ assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은
 assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king"]);
 assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king"]);
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
+assert.deepEqual(getBossDefinition("hula_king")?.animationRoles, ["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]);
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);

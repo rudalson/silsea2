@@ -9,7 +9,8 @@
       "spike_pumpkin": ["spike_pumpkin_idle", "spike_pumpkin_warning", "spike_pumpkin_break"],
       "dark_cloud": ["dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated"],
       "magpie": ["magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"],
-      "potato_king": ["potato_king_idle", "potato_king_jump", "potato_king_fall", "potato_king_land", "potato_king_shoot", "potato_king_hurt", "potato_king_defeated"]
+      "potato_king": ["potato_king_idle", "potato_king_jump", "potato_king_fall", "potato_king_land", "potato_king_shoot", "potato_king_hurt", "potato_king_defeated"],
+      "hula_king": ["hula_king_idle", "hula_king_spin", "hula_king_warning", "hula_king_throw", "hula_king_vulnerable", "hula_king_hurt", "hula_king_defeated"]
     },
     "code": {
       "fx_dust": ["src/systems/ParticleEffectsManager.js", "src/entities/Player.js"],
@@ -85,6 +86,10 @@
   "dark_cloud": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_1.jpg"], "note": "색상선과 지면 공격 표식의 대비 참고." },
   "magpie": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_3.jpg"], "note": "프로젝트 카툰 선 처리와 밝은 무드. 실제 까치 실루엣은 독자 설계." },
   "potato_king": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp", "mario_3.jpg"], "note": "프로젝트 선 처리, 큰 둥근 보스의 크기 대비와 축제감만 참고." },
+  "hula_king": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P10 앵커의 둥근 분홍 보스·왕관·세 겹 훌라후프 정체성을 유지한 7개 상태 애니메이션." },
+  "fx_hula_spin": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P10 앵커의 청록·분홍·금색 3중 링을 분리한 회전 방어 효과." },
+  "projectile_hula_hoop_low": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "낮은 탄도를 실루엣으로 읽을 수 있는 가로형 분홍·청록 링 투사체." },
+  "projectile_hula_hoop_jump": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "점프 회피 탄도를 실루엣으로 읽을 수 있는 세로형 금색·청록 링 투사체." },
 
   "item_star": { "styleRefs": ["mario_1.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "수집 경로 가독성과 프로젝트 선 처리. 상용 별 디자인은 모사하지 않음." },
   "item_percent_small": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "고대비 원형 수집물과 프로젝트 선 처리." },

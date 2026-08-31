@@ -81,10 +81,15 @@ export const BOSS_DEFINITIONS = Object.freeze({
     defaultHp: 3,
     phaseIds: Object.freeze(["guarded_single_hoop", "alternating_hoops", "bidirectional_hoops"]),
     completion: "level",
-    animationRoles: Object.freeze([]),
+    animationRoles: Object.freeze(["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]),
     spawn: Object.freeze({ edgeOffset: 560 }),
     render: freezeRender({
       placeholderColor: COLORS.collectPink,
+      art: {
+        origin: { x: 0.5, y: 112 / 128 },
+        scale: 1.5,
+        body: { width: 82, height: 78, offsetX: 23, offsetY: 34, center: false }
+      },
       fallback: {
         origin: { x: 0.5, y: 1 },
         scale: 1,

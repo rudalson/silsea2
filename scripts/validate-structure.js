@@ -82,6 +82,7 @@ if (!levelIndex.includes("[level01, level02, level03, level04, level05]")) fail(
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
 if (!bootScene.includes('query.get("guard")')) fail("P6 날개 방어 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("laser")')) fail("P6 레이저 단계 visualReview 고정 진입점이 없음");
+if (!bootScene.includes('query.get("hula")')) fail("P10 훌라후프 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("p9boss")')) fail("P9 좌·우 보스 시험 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");

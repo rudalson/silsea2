@@ -173,6 +173,12 @@ if (!hulaKingBehavior.includes("new ObjectPool")
   || !hulaKingBehavior.includes('this.state = "vulnerable_rest"')) {
   fail("P10 훌라후프 방어·투사체·약점 상태 전략이 없음");
 }
+if (!hulaKingBehavior.includes('"fx_hula_spin"')
+  || !hulaKingBehavior.includes('"projectile_hula_hoop_low"')
+  || !hulaKingBehavior.includes('"projectile_hula_hoop_jump"')
+  || !hulaKingBehavior.includes('playSfx("sfx_hula_defeat"')) {
+  fail("P10 최종 링 효과·두 탄도 투사체·전용 SFX 연결이 없음");
+}
 if (hulaKingBehavior.includes("Math.random")) fail("P10 훌라후프 패턴에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {

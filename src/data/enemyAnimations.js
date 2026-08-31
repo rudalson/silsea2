@@ -36,6 +36,15 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     attack: "potato_king_shoot",
     hurt: "potato_king_hurt",
     defeated: "potato_king_defeated"
+  }),
+  hula_king: Object.freeze({
+    idle: "hula_king_idle",
+    spin: "hula_king_spin",
+    warning: "hula_king_warning",
+    throw: "hula_king_throw",
+    vulnerable: "hula_king_vulnerable",
+    hurt: "hula_king_hurt",
+    defeated: "hula_king_defeated"
   })
 });
 
@@ -77,6 +86,15 @@ const ENEMY_TIMINGS = Object.freeze({
     attack: Object.freeze({ durations: [180, 100, 100, 200], repeat: 0 }),
     hurt: Object.freeze({ durations: [100, 100, 160], repeat: 0 }),
     defeated: Object.freeze({ durations: [150, 120, 110, 110, 130, 160, 220, 360], repeat: 0 })
+  }),
+  hula_king: Object.freeze({
+    idle: Object.freeze({ durations: [220, 200, 220, 200], repeat: -1 }),
+    spin: Object.freeze({ durations: [90, 85, 90, 85, 90, 85, 90, 105], repeat: -1 }),
+    warning: Object.freeze({ durations: [240, 210, 220, 230], repeat: -1 }),
+    throw: Object.freeze({ durations: [80, 75, 85, 95, 120, 190], repeat: 0 }),
+    vulnerable: Object.freeze({ durations: [260, 220, 260, 220], repeat: -1 }),
+    hurt: Object.freeze({ durations: [100, 100, 160], repeat: 0 }),
+    defeated: Object.freeze({ durations: [130, 110, 110, 120, 140, 170, 220, 320], repeat: 0 })
   })
 });
 

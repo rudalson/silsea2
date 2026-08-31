@@ -7,8 +7,12 @@ import {
   getHulaSpinDuration
 } from "../../data/bossPatterns.js";
 import { ObjectPool } from "../ObjectPool.js";
+import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 
 const HOOP_TEXTURE_KEY = "boss_projectile_hula_hoop";
+const HOOP_LOW_TEXTURE_KEY = "projectile_hula_hoop_low";
+const HOOP_JUMP_TEXTURE_KEY = "projectile_hula_hoop_jump";
+const SPIN_EFFECT_TEXTURE_KEY = "fx_hula_spin";
 const HOOP_WIDTH = 92;
 const HOOP_HEIGHT = 42;
 
@@ -30,21 +34,32 @@ export class HulaKingBehavior {
     this.lastSequenceId = null;
     this.currentSequence = null;
     this.defeated = false;
+    this.lastGuardSfxAt = Number.NEGATIVE_INFINITY;
     if (!this.boss) return;
 
     this.baseY = this.boss.y;
-    this.createHoopTexture();
+    this.usesArt = Boolean(this.boss.getData("usesArt"));
+    this.usesProjectileArt = this.usesArt
+      && this.scene.textures.exists(HOOP_LOW_TEXTURE_KEY)
+      && this.scene.textures.exists(HOOP_JUMP_TEXTURE_KEY);
+    if (!this.usesProjectileArt) this.createHoopTexture();
     this.projectilePool = this.createProjectilePool();
-    this.guardHoops = [0, 1, 2].map((index) => this.scene.add.ellipse(
-      this.boss.x,
-      this.baseY - 62 - index * 18,
-      172 - index * 18,
-      42,
-      COLORS.collectBlue,
-      0.08
-    ).setStrokeStyle(5, index === 1 ? COLORS.collect : COLORS.collectBlue, 0.95)
-      .setDepth(7 + index)
-      .setVisible(false));
+    this.guardArt = this.usesArt && this.scene.textures.exists(SPIN_EFFECT_TEXTURE_KEY)
+      ? this.scene.add.image(this.boss.x, this.baseY - 64, SPIN_EFFECT_TEXTURE_KEY)
+        .setDisplaySize(236, 104)
+        .setDepth(9)
+        .setVisible(false)
+      : null;
+    this.guardHoops = this.guardArt ? [] : [0, 1, 2].map((index) => this.scene.add.ellipse(
+        this.boss.x,
+        this.baseY - 62 - index * 18,
+        172 - index * 18,
+        42,
+        COLORS.collectBlue,
+        0.08
+      ).setStrokeStyle(5, index === 1 ? COLORS.collect : COLORS.collectBlue, 0.95)
+        .setDepth(7 + index)
+        .setVisible(false));
     this.warningShadow = this.scene.add.ellipse(this.boss.x, this.baseY - 4, 240, 30, COLORS.danger, 0.16)
       .setDepth(3)
       .setVisible(false);
@@ -52,6 +67,30 @@ export class HulaKingBehavior {
       .setStrokeStyle(4, COLORS.outline)
       .setDepth(10)
       .setVisible(false);
+    this.applyVisualReviewState(this.scene.registry.get("visualReviewHulaState"));
+  }
+
+  applyVisualReviewState(requestedState) {
+    const states = {
+      idle: { state: "review_idle", animation: "idle" },
+      spin: { state: "spin_guard", animation: "spin" },
+      warning: { state: "hoop_warning", animation: "warning" },
+      throw: { state: "hoop_volley", animation: "throw" },
+      vulnerable: { state: "vulnerable_rest", animation: "vulnerable", vulnerable: true },
+      hurt: { state: "review_hurt", animation: "hurt" },
+      defeated: { state: "review_defeated", animation: "defeated" }
+    };
+    const review = states[requestedState];
+    if (!review) return;
+    this.state = review.state;
+    this.stateUntil = Number.POSITIVE_INFINITY;
+    this.boss.setData({
+      vulnerable: Boolean(review.vulnerable),
+      bossState: review.state
+    });
+    this.playAnimation(review.animation, false);
+    this.warningShadow.setVisible(review.state === "hoop_warning");
+    this.weakness.setVisible(!this.usesArt && Boolean(review.vulnerable));
   }
 
   createHoopTexture() {
@@ -68,7 +107,8 @@ export class HulaKingBehavior {
     return new ObjectPool({
       maxSize: 10,
       create: () => {
-        const hoop = this.scene.physics.add.image(0, 0, HOOP_TEXTURE_KEY).setDepth(7).setVisible(false);
+        const textureKey = this.usesProjectileArt ? HOOP_LOW_TEXTURE_KEY : HOOP_TEXTURE_KEY;
+        const hoop = this.scene.physics.add.image(0, 0, textureKey).setDepth(7).setVisible(false);
         hoop.body.setAllowGravity(false);
         hoop.body.enable = false;
         this.interactions.push(this.scene.physics.add.overlap(this.player, hoop, () => {
@@ -81,15 +121,19 @@ export class HulaKingBehavior {
       activate: (hoop, data) => {
         hoop.expiresAt = data.expiresAt;
         hoop.travelDirection = Math.sign(data.velocityX) || 1;
+        const isLow = data.lane === "low";
+        const width = this.usesProjectileArt && !isLow ? 58 : HOOP_WIDTH;
+        const height = this.usesProjectileArt && !isLow ? 88 : HOOP_HEIGHT;
+        if (this.usesProjectileArt) hoop.setTexture(isLow ? HOOP_LOW_TEXTURE_KEY : HOOP_JUMP_TEXTURE_KEY);
         hoop
           .setPosition(data.x, data.y)
-          .setDisplaySize(HOOP_WIDTH, HOOP_HEIGHT)
+          .setDisplaySize(width, height)
           .setVisible(true)
           .setActive(true)
           .setRotation(0);
         hoop.body.enable = true;
         hoop.body.reset(data.x, data.y);
-        hoop.body.setSize(76, data.lane === "low" ? 18 : 26, true);
+        hoop.body.setSize(isLow ? 76 : 38, isLow ? 18 : 66, true);
         hoop.body.setVelocity(data.velocityX, 0);
       },
       deactivate: (hoop) => {
@@ -126,6 +170,14 @@ export class HulaKingBehavior {
 
   updateVisuals(now) {
     const guarded = ["spin_guard", "hoop_warning", "hoop_volley"].includes(this.state);
+    if (this.guardArt) {
+      const pulse = 1 + Math.sin(now / 95) * 0.025;
+      this.guardArt
+        .setVisible(guarded)
+        .setPosition(this.boss.x, this.boss.y - 65)
+        .setDisplaySize(236 * pulse, 104 * pulse)
+        .setRotation(Math.sin(now / 180) * 0.035);
+    }
     this.guardHoops.forEach((hoop, index) => {
       const wobble = Math.sin(now / 110 + index * 1.7) * 8;
       hoop
@@ -138,8 +190,19 @@ export class HulaKingBehavior {
       this.warningShadow.setScale(1 + Math.sin(now / 70) * 0.18).setAlpha(0.28 + Math.sin(now / 55) * 0.16);
     }
     this.weakness
+      .setVisible(!this.usesArt && this.state === "vulnerable_rest")
       .setPosition(this.boss.x, this.boss.y - 154)
       .setRotation(this.weakness.rotation + 0.035);
+  }
+
+  playAnimation(sequence, ignoreIfPlaying = true) {
+    if (!this.usesArt) return null;
+    return EnemyAnimationManager.play(this.boss, sequence, ignoreIfPlaying);
+  }
+
+  applyStateTint(color) {
+    if (this.usesArt) return this.boss.clearTint();
+    return this.boss.setTintFill(color);
   }
 
   beginSpin(now) {
@@ -147,9 +210,11 @@ export class HulaKingBehavior {
     this.state = "spin_guard";
     this.stateUntil = now + getHulaSpinDuration(pattern, this.random.next());
     this.boss.setData({ vulnerable: false, bossState: this.state });
-    this.boss.setTintFill(COLORS.collectBlue);
+    this.applyStateTint(COLORS.collectBlue);
+    this.playAnimation("spin", false);
     this.weakness.setVisible(false);
     this.warningShadow.setVisible(false).setScale(1);
+    this.scene.audioManager?.playSfx("sfx_hula_spin", { randomizeRate: false, volume: 0.72 });
     this.scene.updateAccessibleStatus?.("훌라후프 대왕이 회전 방어 중입니다. 거리를 두세요.");
   }
 
@@ -160,7 +225,8 @@ export class HulaKingBehavior {
     this.state = "hoop_warning";
     this.stateUntil = now + Math.max(900, Math.round(pattern.warningMs * this.telegraphMultiplier));
     this.boss.setData({ vulnerable: false, bossState: this.state, patternId: this.currentSequence.id });
-    this.boss.setTintFill(COLORS.danger);
+    this.applyStateTint(COLORS.danger);
+    this.playAnimation("warning", false);
     this.warningShadow.setVisible(true);
     this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.("훌라후프 발사 예고입니다. 링의 높이를 보고 피하세요.");
@@ -170,7 +236,8 @@ export class HulaKingBehavior {
     const pattern = getBossPhasePattern("hula_king", this.boss.getData("phase"));
     this.state = "hoop_volley";
     this.boss.setData("bossState", this.state);
-    this.boss.setTintFill(COLORS.collectPink);
+    this.applyStateTint(COLORS.collectPink);
+    this.playAnimation("throw", false);
     this.warningShadow.setVisible(false).setScale(1);
     this.clearVolleyTimers();
     const intervalMultiplier = this.volleyIntervalMultiplier ?? 1;
@@ -198,6 +265,7 @@ export class HulaKingBehavior {
   spawnVolley(pattern, volley) {
     const toward = this.player.x < this.boss.x ? -1 : 1;
     const launchTime = this.scene.time.now;
+    this.scene.audioManager?.playSfx("sfx_hula_throw", { randomizeRate: false });
     for (const shot of volley.shots) {
       const direction = resolveDirection(shot.direction, toward);
       const lane = shot.lane ?? "jump";
@@ -218,8 +286,11 @@ export class HulaKingBehavior {
     this.state = "vulnerable_rest";
     this.stateUntil = now + Math.round(pattern.vulnerabilityMs * (this.vulnerabilityMultiplier ?? 1));
     this.boss.clearTint().setData({ vulnerable: true, bossState: this.state });
+    this.playAnimation("vulnerable", false);
     this.guardHoops.forEach((hoop) => hoop.setVisible(false));
-    this.weakness.setVisible(true);
+    this.guardArt?.setVisible(false);
+    this.weakness.setVisible(!this.usesArt);
+    this.scene.audioManager?.playSfx("sfx_hula_weakness", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.("회전이 멈췄습니다. 지금 머리 위를 밟으세요.");
   }
 
@@ -227,6 +298,7 @@ export class HulaKingBehavior {
     const pattern = getBossPhasePattern("hula_king", this.boss.getData("phase"));
     this.boss.setData({ vulnerable: false, bossState: "recover" });
     this.weakness.setVisible(false);
+    this.playAnimation("idle", false);
     this.state = "recover";
     this.stateUntil = now + pattern.recoveryMs;
   }
@@ -234,6 +306,11 @@ export class HulaKingBehavior {
   onPlayerContact({ fallingOntoHead, attemptHit, damagePlayer }) {
     const canHit = canHitHulaKing(this.state, fallingOntoHead);
     if (!canHit) {
+      const now = this.scene.time.now;
+      if (this.state === "spin_guard" && now - this.lastGuardSfxAt >= 180) {
+        this.lastGuardSfxAt = now;
+        this.scene.audioManager?.playSfx("sfx_hula_guard", { randomizeRate: false });
+      }
       damagePlayer();
       return { didHit: false };
     }
@@ -247,7 +324,9 @@ export class HulaKingBehavior {
     this.clearVolleyTimers();
     this.projectilePool.releaseAll();
     this.boss?.setData({ vulnerable: false, bossState: "hit" });
+    this.playAnimation("hurt", false);
     this.guardHoops.forEach((hoop) => hoop.setVisible(false));
+    this.guardArt?.setVisible(false);
     this.warningShadow.setVisible(false);
     this.weakness.setVisible(false);
     if (hp > 0) {
@@ -260,13 +339,16 @@ export class HulaKingBehavior {
     this.defeated = true;
     this.state = "defeated";
     this.boss?.setData({ vulnerable: false, bossState: this.state });
+    this.playAnimation("defeated", false);
     this.clearVolleyTimers();
     this.projectilePool.releaseAll();
     this.guardHoops.forEach((hoop) => hoop.setVisible(false));
+    this.guardArt?.setVisible(false);
     this.warningShadow.setVisible(false);
     this.weakness.setVisible(false);
     this.scene.tweens.killTweensOf(this.boss);
-    this.defeatTimer = this.scene.time.delayedCall(400, () => {
+    this.scene.audioManager?.playSfx("sfx_hula_defeat", { randomizeRate: false });
+    this.defeatTimer = this.scene.time.delayedCall(this.usesArt ? 1250 : 400, () => {
       this.defeatTimer = null;
       this.boss?.setActive(false);
     });
@@ -296,6 +378,7 @@ export class HulaKingBehavior {
     this.interactions.length = 0;
     this.scene.tweens.killTweensOf(this.boss);
     this.guardHoops?.forEach((hoop) => hoop.destroy());
+    this.guardArt?.destroy();
     this.warningShadow?.destroy();
     this.weakness?.destroy();
   }

@@ -64,7 +64,12 @@ const sfx = {
   sfx_breath_refill: { duration: 0.28, tones: arpeggio([523, 659, 784], 0.06, 0.12, "sine", 0.26) },
   sfx_projectile_guard: { duration: 0.24, tones: [tone(0, 0.16, 560, 920, "sine", 0.28), tone(0.06, 0.18, 880, 1180, "triangle", 0.2)], noise: 0.018 },
   sfx_laser_warning: { duration: 0.42, tones: [tone(0, 0.14, 620, 760, "sine", 0.24), tone(0.21, 0.18, 720, 930, "sine", 0.26)] },
-  sfx_laser_off: { duration: 0.38, tones: [tone(0, 0.34, 560, 210, "sine", 0.26), tone(0.08, 0.24, 420, 165, "triangle", 0.14)] }
+  sfx_laser_off: { duration: 0.38, tones: [tone(0, 0.34, 560, 210, "sine", 0.26), tone(0.08, 0.24, 420, 165, "triangle", 0.14)] },
+  sfx_hula_spin: { duration: 0.62, tones: [tone(0, 0.62, 240, 520, "sine", 0.19), tone(0, 0.62, 360, 690, "triangle", 0.13)], noise: 0.025 },
+  sfx_hula_throw: { duration: 0.34, tones: [tone(0, 0.3, 760, 310, "sine", 0.31), tone(0.05, 0.25, 980, 520, "triangle", 0.18)], noise: 0.018 },
+  sfx_hula_guard: { duration: 0.22, tones: [tone(0, 0.12, 620, 980, "triangle", 0.28), tone(0.07, 0.15, 1180, 780, "sine", 0.2)], noise: 0.012 },
+  sfx_hula_weakness: { duration: 0.46, tones: arpeggio([659, 784, 988], 0.1, 0.2, "sine", 0.25) },
+  sfx_hula_defeat: { duration: 1.05, tones: [...arpeggio([784, 659, 523, 392], 0.14, 0.28, "triangle", 0.22), ...chord(0.62, 0.43, [523, 659, 784], "sine", 0.11)] }
 };
 
 const waveAt = (kind, phase) => {
