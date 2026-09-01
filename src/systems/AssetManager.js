@@ -58,6 +58,12 @@ export class AssetManager {
       AssetManager.queueManifestAsset(scene, "projectile_hula_hoop_low");
       AssetManager.queueManifestAsset(scene, "projectile_hula_hoop_jump");
     }
+    if (types.has("invisible_king")) {
+      AssetManager.queueManifestAsset(scene, "fx_invisible_reveal");
+      AssetManager.queueManifestAsset(scene, "fx_invisible_afterimage");
+      AssetManager.queueManifestAsset(scene, "fx_invisible_miss");
+      AssetManager.queueManifestAsset(scene, "fx_invisible_crown_impact");
+    }
     if ((level.terrainMechanics?.updrafts?.length ?? 0) > 0) {
       AssetManager.queueManifestAsset(scene, "fx_updraft_wind");
     }

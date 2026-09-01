@@ -204,6 +204,14 @@ data/palette.js 색만 사용, 투명 배경, 문자·숫자·로고 없음.
 
 ## 채택 기록 형식
 
+## P11 투명대왕 최종 생성 기록
+
+- 편집 입력: `assets/_source/p11/p11_invisible_king_anchor_generated_v1.png`
+- 채택 원본: `assets/_source/p11/p11_invisible_king_color_source_v1.png`
+- 요청: 승인된 구형 몸·3봉 왕관·표정·포즈·접촉 시트 배치를 유지하고 몸 `#9ADDF2/#4691A2`, 얼굴 `#F4FBFD`, 외곽선 `#42474E`, 왕관 `#F5DF4F/#D09A4E`, 소멸 `#3DBFE3`, 공격 `#D1333D/#752B5A`, 입 `#E573A0`만 적용한다.
+- 금지: 문자·배경·새 캐릭터·새 소품·실루엣 변경.
+- 후처리: `scripts/build-p11-assets.js`로 연결 중성 배경 제거, 승인 팔레트 양자화, 33개 본체 프레임·16개 효과 프레임·왕관 효과 분리와 시트 조립을 재현한다.
+
 실행 시 각 프레임을 아래 표로 확장한다.
 
 | 에셋 키 | 프레임 | 프롬프트 | Seed | Anchor | StyleRefs | 상태 |

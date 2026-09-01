@@ -263,7 +263,8 @@ assert.equal(getEnemyAssetKeys("dark_cloud").length, 4);
 assert.equal(getEnemyAssetKeys("magpie").length, 5);
 assert.equal(getEnemyAssetKeys("potato_king").length, 7);
 assert.equal(getEnemyAssetKeys("hula_king").length, 7);
-for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "potato_king", "hula_king"]) {
+assert.equal(getEnemyAssetKeys("invisible_king").length, 6);
+for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "potato_king", "hula_king", "invisible_king"]) {
   assert.ok(getEnemyAnimationSpec(enemyType, "idle"));
   assert.ok(getEnemyAnimationSpec(enemyType, "defeated"));
 }
@@ -271,6 +272,9 @@ assert.equal(getEnemyAnimationSpec("dark_cloud", "warning").durationMs, 700);
 assert.ok(getEnemyAnimationSpec("potato_king", "defeated").durationMs >= 1000);
 assert.deepEqual(getEnemyAnimationSpec("hula_king", "spin").durations, [90, 85, 90, 85, 90, 85, 90, 105]);
 assert.ok(getEnemyAnimationSpec("hula_king", "defeated").durationMs >= 1200);
+assert.equal(getEnemyAnimationSpec("invisible_king", "reveal").durationMs, 1200);
+assert.equal(getEnemyAnimationSpec("invisible_king", "hide").durationMs, 420);
+assert.ok(getEnemyAnimationSpec("invisible_king", "defeated").durationMs >= 1200);
 
 assert.equal(stepFlightGauge(10000, 1000, { flying: true }), 9000);
 assert.equal(stepFlightGauge(10000, 1000, { flying: true, drainMultiplier: 0.65 }), 9350);
@@ -641,6 +645,8 @@ assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_ki
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
 assert.deepEqual(getBossDefinition("hula_king")?.animationRoles, ["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]);
 assert.equal(getBossDefinition("invisible_king")?.displayName, "투명 대왕");
+assert.deepEqual(getBossDefinition("invisible_king")?.animationRoles, ["idle", "reveal", "hide", "attack", "hurt", "defeated"]);
+assert.deepEqual(getBossDefinition("training_dummy")?.animationRoles, []);
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);

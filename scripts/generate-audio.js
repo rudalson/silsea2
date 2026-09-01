@@ -69,7 +69,12 @@ const sfx = {
   sfx_hula_throw: { duration: 0.34, tones: [tone(0, 0.3, 760, 310, "sine", 0.31), tone(0.05, 0.25, 980, 520, "triangle", 0.18)], noise: 0.018 },
   sfx_hula_guard: { duration: 0.22, tones: [tone(0, 0.12, 620, 980, "triangle", 0.28), tone(0.07, 0.15, 1180, 780, "sine", 0.2)], noise: 0.012 },
   sfx_hula_weakness: { duration: 0.46, tones: arpeggio([659, 784, 988], 0.1, 0.2, "sine", 0.25) },
-  sfx_hula_defeat: { duration: 1.05, tones: [...arpeggio([784, 659, 523, 392], 0.14, 0.28, "triangle", 0.22), ...chord(0.62, 0.43, [523, 659, 784], "sine", 0.11)] }
+  sfx_hula_defeat: { duration: 1.05, tones: [...arpeggio([784, 659, 523, 392], 0.14, 0.28, "triangle", 0.22), ...chord(0.62, 0.43, [523, 659, 784], "sine", 0.11)] },
+  sfx_invisible_warning: { duration: 0.68, tones: [tone(0, 0.68, 520, 880, "sine", 0.2), tone(0.18, 0.42, 740, 1120, "triangle", 0.13)], noise: 0.014 },
+  sfx_invisible_reveal: { duration: 0.72, tones: [...arpeggio([659, 784, 988, 1175], 0.11, 0.27, "sine", 0.25), ...chord(0.4, 0.3, [659, 988], "triangle", 0.1)] },
+  sfx_invisible_hide: { duration: 0.48, tones: [tone(0, 0.48, 980, 330, "sine", 0.28), tone(0.08, 0.36, 620, 210, "triangle", 0.13)], noise: 0.025 },
+  sfx_invisible_attack: { duration: 0.64, tones: [tone(0, 0.28, 740, 320, "square", 0.19), tone(0.16, 0.48, 190, 90, "sine", 0.36)], noise: 0.12 },
+  sfx_invisible_defeat: { duration: 1.05, tones: [...arpeggio([988, 784, 659, 523], 0.13, 0.3, "triangle", 0.21), ...chord(0.61, 0.44, [523, 659, 784], "sine", 0.12)] }
 };
 
 const waveAt = (kind, phase) => {

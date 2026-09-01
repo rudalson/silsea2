@@ -10,7 +10,8 @@
       "dark_cloud": ["dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated"],
       "magpie": ["magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"],
       "potato_king": ["potato_king_idle", "potato_king_jump", "potato_king_fall", "potato_king_land", "potato_king_shoot", "potato_king_hurt", "potato_king_defeated"],
-      "hula_king": ["hula_king_idle", "hula_king_spin", "hula_king_warning", "hula_king_throw", "hula_king_vulnerable", "hula_king_hurt", "hula_king_defeated"]
+      "hula_king": ["hula_king_idle", "hula_king_spin", "hula_king_warning", "hula_king_throw", "hula_king_vulnerable", "hula_king_hurt", "hula_king_defeated"],
+      "invisible_king": ["invisible_king_idle", "invisible_king_reveal", "invisible_king_hide", "invisible_king_attack", "invisible_king_hurt", "invisible_king_defeated"]
     },
     "code": {
       "fx_dust": ["src/systems/ParticleEffectsManager.js", "src/entities/Player.js"],
@@ -90,6 +91,11 @@
   "fx_hula_spin": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P10 앵커의 청록·분홍·금색 3중 링을 분리한 회전 방어 효과." },
   "projectile_hula_hoop_low": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "낮은 탄도를 실루엣으로 읽을 수 있는 가로형 분홍·청록 링 투사체." },
   "projectile_hula_hoop_jump": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "점프 회피 탄도를 실루엣으로 읽을 수 있는 세로형 금색·청록 링 투사체." },
+  "invisible_king": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P11 앵커의 하늘색 구형 몸·3봉 왕관·점 소멸·찌그러진 피격·납작한 격파 정체성을 유지한 6개 상태 애니메이션." },
+  "fx_invisible_reveal": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "금색 세로 빛기둥과 바닥 원형 표식으로 공개 위치를 색과 형태로 함께 전달하는 6프레임 효과." },
+  "fx_invisible_afterimage": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "숨기 직후 직전 위치에 짧게 남는 청록 구형 윤곽 4프레임 효과." },
+  "fx_invisible_miss": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "기억 실패 뒤 큰 원과 흰 십자가 함께 확장되는 6프레임 공격 예고 효과." },
+  "fx_invisible_crown_impact": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "피격·격파 시 분리된 왕관과 방사선을 강조하는 투명 효과." },
 
   "item_star": { "styleRefs": ["mario_1.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "수집 경로 가독성과 프로젝트 선 처리. 상용 별 디자인은 모사하지 않음." },
   "item_percent_small": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "고대비 원형 수집물과 프로젝트 선 처리." },

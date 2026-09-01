@@ -45,6 +45,14 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     vulnerable: "hula_king_vulnerable",
     hurt: "hula_king_hurt",
     defeated: "hula_king_defeated"
+  }),
+  invisible_king: Object.freeze({
+    idle: "invisible_king_idle",
+    reveal: "invisible_king_reveal",
+    hide: "invisible_king_hide",
+    attack: "invisible_king_attack",
+    hurt: "invisible_king_hurt",
+    defeated: "invisible_king_defeated"
   })
 });
 
@@ -95,6 +103,14 @@ const ENEMY_TIMINGS = Object.freeze({
     vulnerable: Object.freeze({ durations: [260, 220, 260, 220], repeat: -1 }),
     hurt: Object.freeze({ durations: [100, 100, 160], repeat: 0 }),
     defeated: Object.freeze({ durations: [130, 110, 110, 120, 140, 170, 220, 320], repeat: 0 })
+  }),
+  invisible_king: Object.freeze({
+    idle: Object.freeze({ durations: [230, 210, 230, 210], repeat: -1 }),
+    reveal: Object.freeze({ durations: [150, 160, 170, 190, 240, 290], repeat: 0 }),
+    hide: Object.freeze({ durations: [70, 70, 70, 70, 70, 70], repeat: 0 }),
+    attack: Object.freeze({ durations: [130, 130, 140, 150, 160, 190], repeat: 0 }),
+    hurt: Object.freeze({ durations: [100, 100, 160], repeat: 0 }),
+    defeated: Object.freeze({ durations: [120, 100, 110, 120, 140, 170, 220, 320], repeat: 0 })
   })
 });
 

@@ -443,6 +443,54 @@
       "frameHeight": 128,
       "frames": 8
     },
+    {
+      "key": "invisible_king_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/invisible_king/invisible_king_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "invisible_king_reveal",
+      "type": "spritesheet",
+      "url": "/assets/enemies/invisible_king/invisible_king_reveal.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "invisible_king_hide",
+      "type": "spritesheet",
+      "url": "/assets/enemies/invisible_king/invisible_king_hide.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "invisible_king_attack",
+      "type": "spritesheet",
+      "url": "/assets/enemies/invisible_king/invisible_king_attack.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "invisible_king_hurt",
+      "type": "spritesheet",
+      "url": "/assets/enemies/invisible_king/invisible_king_hurt.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3
+    },
+    {
+      "key": "invisible_king_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/invisible_king/invisible_king_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
     { "key": "item_star", "type": "image", "url": "/assets/items/item_star.png" },
     { "key": "item_percent_small", "type": "image", "url": "/assets/items/item_percent_small.png" },
     { "key": "item_percent_large", "type": "image", "url": "/assets/items/item_percent_large.png" },
@@ -456,6 +504,10 @@
     { "key": "fx_hula_spin", "type": "image", "url": "/assets/effects/fx_hula_spin.png", "width": 256, "height": 112 },
     { "key": "projectile_hula_hoop_low", "type": "image", "url": "/assets/projectiles/projectile_hula_hoop_low.png", "width": 112, "height": 64 },
     { "key": "projectile_hula_hoop_jump", "type": "image", "url": "/assets/projectiles/projectile_hula_hoop_jump.png", "width": 80, "height": 112 },
+    { "key": "fx_invisible_reveal", "type": "spritesheet", "url": "/assets/effects/fx_invisible_reveal.png", "frameWidth": 192, "frameHeight": 256, "frames": 6 },
+    { "key": "fx_invisible_afterimage", "type": "spritesheet", "url": "/assets/effects/fx_invisible_afterimage.png", "frameWidth": 192, "frameHeight": 192, "frames": 4 },
+    { "key": "fx_invisible_miss", "type": "spritesheet", "url": "/assets/effects/fx_invisible_miss.png", "frameWidth": 256, "frameHeight": 192, "frames": 6 },
+    { "key": "fx_invisible_crown_impact", "type": "image", "url": "/assets/effects/fx_invisible_crown_impact.png", "width": 160, "height": 112 },
     { "key": "ui_hud_frame", "type": "image", "url": "/assets/ui/ui_hud_frame.png" },
     { "key": "ui_hud_badge_star", "type": "image", "url": "/assets/ui/ui_hud_badge_star.png" },
     { "key": "ui_hud_heart", "type": "image", "url": "/assets/ui/ui_hud_heart.png" },
@@ -611,6 +663,11 @@
     { "key": "sfx_hula_guard", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_guard.wav", "category": "sfx" },
     { "key": "sfx_hula_weakness", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_weakness.wav", "category": "sfx" },
     { "key": "sfx_hula_defeat", "type": "audio", "url": "/assets/audio/sfx/sfx_hula_defeat.wav", "category": "sfx" },
+    { "key": "sfx_invisible_warning", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_warning.wav", "category": "sfx" },
+    { "key": "sfx_invisible_reveal", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_reveal.wav", "category": "sfx" },
+    { "key": "sfx_invisible_hide", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_hide.wav", "category": "sfx" },
+    { "key": "sfx_invisible_attack", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_attack.wav", "category": "sfx" },
+    { "key": "sfx_invisible_defeat", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_defeat.wav", "category": "sfx" },
     { "key": "bgm_field", "type": "audio", "url": "/assets/audio/bgm/bgm_field.wav", "category": "bgm" },
     { "key": "bgm_starlight", "type": "audio", "url": "/assets/audio/bgm/bgm_starlight.wav", "category": "bgm" },
     { "key": "bgm_mist", "type": "audio", "url": "/assets/audio/bgm/bgm_mist.wav", "category": "bgm" },

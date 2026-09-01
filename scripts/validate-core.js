@@ -190,6 +190,14 @@ if (!invisibleKingBehavior.includes("chooseInvisibleAnchor")
   || !invisibleKingBehavior.includes("isInvisibleAnchorReachable")) {
   fail("P11 투명 대왕 Seed 위치 선택·쉬운 모드 기억 시간·도달성 검증이 없음");
 }
+if (!invisibleKingBehavior.includes('"fx_invisible_reveal"')
+  || !invisibleKingBehavior.includes('"fx_invisible_afterimage"')
+  || !invisibleKingBehavior.includes('"fx_invisible_miss"')
+  || !invisibleKingBehavior.includes('"fx_invisible_crown_impact"')
+  || !invisibleKingBehavior.includes('playAnimation("hide"')
+  || !invisibleKingBehavior.includes('playSfx("sfx_invisible_defeat"')) {
+  fail("P11 최종 공개·소멸·잔상·실패 공격·왕관 효과와 전용 SFX 연결이 없음");
+}
 if (invisibleKingBehavior.includes("Math.random")) fail("P11 투명 대왕 위치 선택에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {

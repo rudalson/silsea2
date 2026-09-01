@@ -108,10 +108,15 @@ export const BOSS_DEFINITIONS = Object.freeze({
     defaultHp: 3,
     phaseIds: Object.freeze(["memory_open_1", "memory_open_2", "memory_open_3"]),
     completion: "level",
-    animationRoles: Object.freeze([]),
+    animationRoles: Object.freeze(["idle", "reveal", "hide", "attack", "hurt", "defeated"]),
     spawn: Object.freeze({ edgeOffset: 560 }),
     render: freezeRender({
       placeholderColor: COLORS.collectBlue,
+      art: {
+        origin: { x: 0.5, y: 112 / 128 },
+        scale: 1.5,
+        body: { width: 80, height: 80, offsetX: 24, offsetY: 32, center: false }
+      },
       fallback: {
         origin: { x: 0.5, y: 1 },
         scale: 1,
