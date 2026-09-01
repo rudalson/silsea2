@@ -3,7 +3,7 @@ import level01 from "../src/data/levels/level-01.js";
 import level02 from "../src/data/levels/level-02.js";
 import level03, { P11_INVISIBLE_BOSS_ROOM_WIDTH } from "../src/data/levels/level-03.js";
 import level04, { P10_HULA_BOSS_ROOM_WIDTH } from "../src/data/levels/level-04.js";
-import level05 from "../src/data/levels/level-05.js";
+import level05, { P12_WATER_BOSS_ROOM_WIDTH } from "../src/data/levels/level-05.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
 import { p9BossTestLeft, p9BossTestRight } from "../src/data/levels/p9-boss-test.js";
 import { EVENTS } from "../src/config/constants.js";
@@ -20,10 +20,13 @@ import {
   HULA_KING_PHASES,
   INVISIBLE_KING_PHASES,
   POTATO_KING_PHASES,
+  WATER_KING_PHASES,
   canHitHulaKing,
   canHitInvisibleKing,
+  canHitWaterKing,
   chooseInvisibleAnchor,
   chooseHulaSequence,
+  chooseWaterPool,
   getBossPhasePattern,
   getHulaSpinDuration,
   isInvisibleAnchorReachable
@@ -640,13 +643,14 @@ for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
 }
 assert.throws(() => getBossPhasePattern("unknown_boss", 1), /등록되지 않은 보스 패턴/);
 assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은 보스 페이즈/);
-assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king"]);
-assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king"]);
+assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king", "water_king"]);
+assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king", "water_king"]);
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
 assert.deepEqual(getBossDefinition("hula_king")?.animationRoles, ["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]);
 assert.equal(getBossDefinition("invisible_king")?.displayName, "투명 대왕");
 assert.deepEqual(getBossDefinition("invisible_king")?.animationRoles, ["idle", "reveal", "hide", "attack", "hurt", "defeated"]);
 assert.deepEqual(getBossDefinition("training_dummy")?.animationRoles, []);
+assert.equal(getBossDefinition("water_king")?.displayName, "물 대왕");
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);
@@ -739,6 +743,51 @@ assert.equal(getBossPhasePattern("invisible_king", 1), INVISIBLE_KING_PHASES[1])
 assert.equal(canHitInvisibleKing("hidden_memory_window", true), true);
 assert.equal(canHitInvisibleKing("revealed", true), false);
 assert.equal(canHitInvisibleKing("hidden_memory_window", false), false);
+
+assert.equal(P12_WATER_BOSS_ROOM_WIDTH, 2048);
+assert.equal(level05.world.width, 10240);
+assert.equal(level05.exit.x, 10064);
+const waterBossSection = level05.sections.find(({ id }) => id === "boss_water");
+assert.deepEqual(
+  { xStart: waterBossSection.xStart, xEnd: waterBossSection.xEnd, key: waterBossSection.boss.key },
+  { xStart: 8192, xEnd: 10240, key: "water_king" }
+);
+assert.equal(level05.checkpoints.find(({ id }) => id === "cp_water_ready")?.restoresBreath, true);
+assert.equal(level05.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "water_king"), true);
+assert.equal(waterBossSection.boss.bossPools.length, 4);
+assert.equal(level05.environment.waterZones.some(({ id }) => id.startsWith("pool_")), false);
+assert.deepEqual(
+  Object.values(WATER_KING_PHASES).map(({ vulnerabilityMs, easyVulnerabilityMs, projectileCount }) => ({
+    vulnerabilityMs,
+    easyVulnerabilityMs,
+    projectileCount
+  })),
+  [
+    { vulnerabilityMs: 5000, easyVulnerabilityMs: 6000, projectileCount: 1 },
+    { vulnerabilityMs: 4000, easyVulnerabilityMs: 5000, projectileCount: 2 },
+    { vulnerabilityMs: 3000, easyVulnerabilityMs: 4000, projectileCount: 3 }
+  ]
+);
+for (const pattern of Object.values(WATER_KING_PHASES)) {
+  for (const key of ["hiddenMs", "warningMs", "emergeAttackMs", "vulnerabilityMs", "easyVulnerabilityMs", "submergeMs"]) {
+    assert.ok(Number.isFinite(pattern[key]) && pattern[key] > 0, `물대왕 ${key}는 유한한 양수여야 함`);
+  }
+}
+for (let seed = 0; seed < 100; seed += 1) {
+  const random = new SeededRandom(8400 + seed);
+  let previousId = null;
+  for (let index = 0; index < 24; index += 1) {
+    const playerX = waterBossSection.boss.bossPools[index % waterBossSection.boss.bossPools.length].x;
+    const pool = chooseWaterPool(waterBossSection.boss.bossPools, random.next(), previousId, playerX, 280);
+    assert.notEqual(pool.id, previousId, `seed ${seed}: 같은 웅덩이가 연속 선택되면 안 됨`);
+    assert.ok(Math.abs(pool.x - playerX) >= 280, `seed ${seed}: 플레이어와 너무 가까운 웅덩이를 선택하면 안 됨`);
+    previousId = pool.id;
+  }
+}
+assert.equal(getBossPhasePattern("water_king", 1), WATER_KING_PHASES[1]);
+assert.equal(canHitWaterKing("dizzy_vulnerable", true), true);
+assert.equal(canHitWaterKing("emerge_attack", true), false);
+assert.equal(canHitWaterKing("dizzy_vulnerable", false), false);
 
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
@@ -1269,4 +1318,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕 100 seed·좌표 이동·파도 정지·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·좌표 이동·파도 정지·오디오 fallback");

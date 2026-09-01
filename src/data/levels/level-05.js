@@ -1,4 +1,5 @@
 const tilemapUrl = new URL("../../../assets/levels/level-05/tilemap.json", import.meta.url).href;
+export const P12_WATER_BOSS_ROOM_WIDTH = 2048;
 
 export default {
   schemaVersion: 2,
@@ -8,14 +9,15 @@ export default {
   visualTheme: "submerged-village",
   order: 5,
   progression: { direction: "right" },
-  exit: { x: 8016, y: 288, enterFrom: "right" },
+  exit: { x: 10064, y: 576, enterFrom: "right" },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-05-map",
     tileset: "submerged_village_tileset",
     preview: "stage_preview_submerged",
     backgrounds: {
-      normal: { far: "bg_submerged_far", mid: "bg_submerged_mid", near: "bg_submerged_near" }
+      normal: { far: "bg_submerged_far", mid: "bg_submerged_mid", near: "bg_submerged_near" },
+      boss: { far: "bg_submerged_far", mid: "bg_submerged_mid", near: "bg_submerged_near" }
     },
     effects: {
       waterSurface: "fx_water_surface",
@@ -34,9 +36,9 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_submerged", clear: "bgm_clear" }
+    bgm: { field: "bgm_submerged", boss: "bgm_boss", clear: "bgm_clear" }
   },
-  world: { width: 8192, height: 768, tileSize: 64 },
+  world: { width: 10240, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
   player: { spawn: { x: 192, y: 288 } },
   sections: [
@@ -44,18 +46,42 @@ export default {
     { id: "submerged_short", type: "normal", xStart: 1024, xEnd: 2944, mood: "normal" },
     { id: "submerged_long", type: "normal", xStart: 2944, xEnd: 5248, mood: "normal" },
     { id: "submerged_combination", type: "normal", xStart: 5248, xEnd: 7296, mood: "normal" },
-    { id: "submerged_recovery", type: "normal", xStart: 7296, xEnd: 8192, mood: "normal" }
+    { id: "submerged_recovery", type: "normal", xStart: 7296, xEnd: 8192, mood: "normal" },
+    {
+      id: "boss_water",
+      type: "boss",
+      xStart: 8192,
+      xEnd: 10240,
+      mood: "boss",
+      lockCamera: true,
+      boss: {
+        key: "water_king",
+        hp: 3,
+        phases: ["single_splash_5", "split_splash_4", "triple_splash_3"],
+        floorY: 576,
+        spawn: { x: 8900, y: 576 },
+        bossPools: [
+          { id: "pool_left", x: 8464, y: 576, width: 304, height: 72 },
+          { id: "pool_mid_left", x: 8900, y: 576, width: 304, height: 72 },
+          { id: "pool_mid_right", x: 9340, y: 576, width: 304, height: 72 },
+          { id: "pool_right", x: 9776, y: 576, width: 304, height: 72 }
+        ],
+        environment: { suspend: ["breath"] }
+      }
+    }
   ],
   cameraCues: [
     { id: "cue_short_breath", xStart: 896, xEnd: 2816, lookAhead: 280, targetX: 1800 },
     { id: "cue_long_breath", xStart: 3072, xEnd: 5120, lookAhead: 520, targetX: 4224 },
-    { id: "cue_combined_breath", xStart: 5376, xEnd: 7168, lookAhead: 320, targetX: 6064 }
+    { id: "cue_combined_breath", xStart: 5376, xEnd: 7168, lookAhead: 320, targetX: 6064 },
+    { id: "cue_water_arena", xStart: 7936, xEnd: 8320, lookAhead: 240, targetX: 8480 }
   ],
   checkpoints: [
     { id: "cp_submerged_entry", x: 768, y: 288, restoresHealth: true },
     { id: "cp_short_recovery", x: 2944, y: 288, restoresHealth: true },
     { id: "cp_long_recovery", x: 5248, y: 288, restoresHealth: true },
-    { id: "cp_final_recovery", x: 7424, y: 288, restoresHealth: true }
+    { id: "cp_final_recovery", x: 7424, y: 288, restoresHealth: true },
+    { id: "cp_water_ready", x: 8064, y: 288, restoresHealth: true, restoresBreath: true }
   ],
   enemies: [],
   items: [
@@ -106,7 +132,10 @@ export default {
     }
   },
   objectives: {
-    required: [{ type: "reach_gate" }],
+    required: [
+      { type: "defeat_boss", target: "water_king" },
+      { type: "reach_gate" }
+    ],
     optional: [
       { type: "collect_stars", count: 42, reward: 500 },
       { type: "clear_time", seconds: 390, reward: 300 },
@@ -129,6 +158,7 @@ export default {
           strokeRateMultiplier: 7 / 6
         }
       },
+      boss: { telegraphMultiplier: 1.25, vulnerabilityMultiplier: 1 },
       pitScoreLoss: 0
     }
   }

@@ -16,6 +16,7 @@ const [
   potatoKingBehavior,
   hulaKingBehavior,
   invisibleKingBehavior,
+  waterKingBehavior,
   transformManager,
   cameraEffects,
   audioManager,
@@ -58,6 +59,7 @@ const [
   read("src/systems/bosses/PotatoKingBehavior.js"),
   read("src/systems/bosses/HulaKingBehavior.js"),
   read("src/systems/bosses/InvisibleKingBehavior.js"),
+  read("src/systems/bosses/WaterKingBehavior.js"),
   read("src/systems/TransformationManager.js"),
   read("src/systems/CameraEffectsManager.js"),
   read("src/systems/AudioManager.js"),
@@ -93,7 +95,7 @@ const [
   read("src/data/combatDevices.js")
 ]);
 
-const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}\n${invisibleKingBehavior}`;
+const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}\n${invisibleKingBehavior}\n${waterKingBehavior}`;
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
 if (CORE_RULES.hurtLockMs > 250) fail("피격 경직이 250ms를 초과함");
@@ -199,6 +201,16 @@ if (!invisibleKingBehavior.includes('"fx_invisible_reveal"')
   fail("P11 최종 공개·소멸·잔상·실패 공격·왕관 효과와 전용 SFX 연결이 없음");
 }
 if (invisibleKingBehavior.includes("Math.random")) fail("P11 투명 대왕 위치 선택에 고정 Seed 밖의 랜덤 호출이 있음");
+for (const state of ["pool_hidden", "pool_warning", "emerge_attack", "dizzy_vulnerable", "hit", "submerge", "defeated"]) {
+  if (!waterKingBehavior.includes(`"${state}"`)) fail(`P12 물대왕 상태 누락: ${state}`);
+}
+if (!waterKingBehavior.includes("chooseWaterPool")
+  || !waterKingBehavior.includes("new ObjectPool")
+  || !waterKingBehavior.includes("easyVulnerabilityMs")
+  || !waterKingBehavior.includes("water_king_projectile")) {
+  fail("P12 물대왕 Seed 위치·투사체 Pool·6/5/4초 쉬운 약점·물 피해 연결이 없음");
+}
+if (waterKingBehavior.includes("Math.random")) fail("P12 물대왕 위치·투사체에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {
   fail("변신 정지·플래시·카메라 강조가 모두 연결되지 않음");

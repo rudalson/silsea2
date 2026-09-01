@@ -268,13 +268,16 @@ export class GameScene extends Phaser.Scene {
           this.healthManager.restoreFull();
           this.cameras.main.flash(180, 255, 243, 153);
         }
+        if (checkpoint.data.restoresBreath) this.breathManager?.restoreFull();
         const fallbackFlag = checkpoint.visuals.at(-1);
         if (fallbackFlag?.setFillStyle) fallbackFlag.setFillStyle(COLORS.collect);
         for (const visual of checkpoint.visuals) visual.setAlpha(1);
         this.tweens.add({ targets: checkpoint.visuals, scale: 1.16, duration: 110, yoyo: true });
         this.updateAccessibleStatus(
           checkpoint.data.restoresHealth
-            ? "휴식 지점 도착. 체력과 비행 에너지가 회복되었습니다."
+            ? checkpoint.data.restoresBreath
+              ? "휴식 지점 도착. 체력과 비행 에너지, 숨이 모두 회복되었습니다."
+              : "휴식 지점 도착. 체력과 비행 에너지가 회복되었습니다."
             : "안전 지점이 저장되었습니다."
         );
       });

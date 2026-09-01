@@ -127,6 +127,28 @@ export const BOSS_DEFINITIONS = Object.freeze({
       intro: "빛에 드러난 위치를 기억한 뒤 같은 곳을 밟으세요",
       hit: "다음 빛기둥이 비춘 위치를 기억하세요"
     })
+  }),
+  water_king: Object.freeze({
+    key: "water_king",
+    displayName: "물 대왕",
+    behavior: "water_king",
+    defaultHp: 3,
+    phaseIds: Object.freeze(["single_splash_5", "split_splash_4", "triple_splash_3"]),
+    completion: "level",
+    animationRoles: Object.freeze([]),
+    spawn: Object.freeze({ edgeOffset: 560 }),
+    render: freezeRender({
+      placeholderColor: COLORS.collectBlue,
+      fallback: {
+        origin: { x: 0.5, y: 1 },
+        scale: 1,
+        body: { width: 118, height: 118, center: true }
+      }
+    }),
+    copy: Object.freeze({
+      intro: "물 공격 뒤 어지러운 동안 머리 위를 밟으세요",
+      hit: "다른 웅덩이의 출현 예고를 확인하세요"
+    })
   })
 });
 

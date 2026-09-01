@@ -41,8 +41,10 @@ const bossDefinitions = await readFile(join(root, "src", "data", "bossDefinition
 const bossBehaviorRegistry = await readFile(join(root, "src", "systems", "bosses", "index.js"), "utf8");
 const hulaKingBehavior = await readFile(join(root, "src", "systems", "bosses", "HulaKingBehavior.js"), "utf8");
 const invisibleKingBehavior = await readFile(join(root, "src", "systems", "bosses", "InvisibleKingBehavior.js"), "utf8");
+const waterKingBehavior = await readFile(join(root, "src", "systems", "bosses", "WaterKingBehavior.js"), "utf8");
 const level03Source = await readFile(join(root, "src", "data", "levels", "level-03.js"), "utf8");
 const level04Source = await readFile(join(root, "src", "data", "levels", "level-04.js"), "utf8");
+const level05Source = await readFile(join(root, "src", "data", "levels", "level-05.js"), "utf8");
 const levelSchema = await readFile(join(root, "src", "data", "schema", "levelSchema.js"), "utf8");
 const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
 for (const forbidden of LEVELS.flatMap((level) => [level.id, level.name])) {
@@ -86,6 +88,7 @@ if (!bootScene.includes('query.get("guard")')) fail("P6 날개 방어 visualRevi
 if (!bootScene.includes('query.get("laser")')) fail("P6 레이저 단계 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("hula")')) fail("P10 훌라후프 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("invisible")')) fail("P11 투명 대왕 상태 visualReview 고정 진입점이 없음");
+if (!bootScene.includes('query.get("water")')) fail("P12 물대왕 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("p9boss")')) fail("P9 좌·우 보스 시험 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
@@ -162,6 +165,21 @@ for (const state of ["hidden_relocate", "light_warning", "revealed", "hidden_mem
 }
 if (!invisibleKingBehavior.includes("chooseInvisibleAnchor") || !invisibleKingBehavior.includes("setBodyEnabled")) {
   fail("P11 투명 대왕 Seed 위치 선택 또는 정확한 위치 충돌 전환이 없음");
+}
+if (!level05Source.includes("P12_WATER_BOSS_ROOM_WIDTH = 2048")
+  || !level05Source.includes('key: "water_king"')
+  || !level05Source.includes("bossPools")
+  || !level05Source.includes("restoresBreath: true")
+  || !level05Source.includes('suspend: ["breath"]')) {
+  fail("P12 우향 물대왕 보스룸·전용 웅덩이·숨 완전 회복/정지 데이터가 없음");
+}
+for (const state of ["pool_hidden", "pool_warning", "emerge_attack", "dizzy_vulnerable", "hit", "submerge", "defeated"]) {
+  if (!waterKingBehavior.includes(`"${state}"`)) fail(`P12 물대왕 상태 누락: ${state}`);
+}
+if (!waterKingBehavior.includes("chooseWaterPool")
+  || !waterKingBehavior.includes("new ObjectPool")
+  || !waterKingBehavior.includes("easyVulnerabilityMs")) {
+  fail("P12 물대왕 Seed 웅덩이 선택·투사체 Pool·쉬운 모드 약점 시간이 없음");
 }
 if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
   fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");

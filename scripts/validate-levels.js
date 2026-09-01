@@ -458,11 +458,56 @@ for (const sourceLevel of ALL_LEVELS) {
     const bossGuides = level.environment.mist.guides.filter(({ x }) => x >= invisibleSection.xStart && x < invisibleSection.xEnd);
     if (bossGuides.filter(({ kind }) => kind === "beacon").length < 3) fail(level, "P11 보스룸 광원 비콘이 3개 미만");
   }
+  if (level.id === "level-05") {
+    const originalWidth = 8192;
+    const roomWidth = 2048;
+    const waterSection = level.sections.find(({ id }) => id === "boss_water");
+    if (!waterSection || waterSection.xStart !== originalWidth || waterSection.xEnd !== originalWidth + roomWidth) {
+      fail(level, "P12 물대왕 보스룸이 기존 코스 오른쪽 8192~10240에 있지 않음");
+    }
+    if (waterSection?.boss?.key !== "water_king") fail(level, "P12 boss key가 water_king이 아님");
+    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 10064) {
+      fail(level, "P12 world/exit 확장 누락");
+    }
+    const ready = level.checkpoints.find(({ id }) => id === "cp_water_ready");
+    if (ready?.restoresHealth !== true || ready?.restoresBreath !== true) {
+      fail(level, "P12 보스 직전 체력·비행·숨 완전 회복 체크포인트가 없음");
+    }
+    if (!waterSection?.boss?.environment?.suspend?.includes("breath")) {
+      fail(level, "P12 보스룸에서 기존 대형 수중 숨 시스템이 정지되지 않음");
+    }
+    const pools = waterSection?.boss?.bossPools ?? [];
+    if (pools.length < 3 || pools.length > 4) fail(level, "P12 보스 전용 웅덩이가 3~4개가 아님");
+    const poolIds = new Set();
+    const waterZoneIds = new Set((level.environment.waterZones ?? []).map(({ id }) => id));
+    for (const pool of pools) {
+      if (poolIds.has(pool.id)) fail(level, `P12 보스 웅덩이 id 중복: ${pool.id}`);
+      poolIds.add(pool.id);
+      if (waterZoneIds.has(pool.id)) fail(level, `P12 보스 웅덩이 ${pool.id}가 waterZones와 섞임`);
+      if (!inWorld(level, pool.x, pool.y)
+        || pool.x < waterSection.xStart + 96
+        || pool.x > waterSection.xEnd - 96
+        || pool.y !== waterSection.boss.floorY
+        || !isPositiveNumber(pool.width)
+        || !isPositiveNumber(pool.height)) {
+        fail(level, `P12 보스 웅덩이 ${pool.id}가 arena 규격 밖`);
+      }
+      if (!hasFloorAt(terrain, pool.x, waterSection.boss.floorY)) {
+        fail(level, `P12 보스 웅덩이 ${pool.id} 아래에 보스룸 바닥이 없음`);
+      }
+    }
+    if ((level.environment.waterZones ?? []).some(({ xEnd }) => xEnd > originalWidth)) {
+      fail(level, "P12 얕은 보스 웅덩이가 기존 waterZones에 포함됨");
+    }
+  }
   for (const checkpoint of level.checkpoints) {
     if (!inWorld(level, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 좌표가 world 밖`);
     if (!hasFloorAt(terrain, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 아래에 바닥이 없음`);
     if (checkpoint.restoresHealth !== undefined && typeof checkpoint.restoresHealth !== "boolean") {
       fail(level, `checkpoint ${checkpoint.id} restoresHealth는 boolean이어야 함`);
+    }
+    if (checkpoint.restoresBreath !== undefined && typeof checkpoint.restoresBreath !== "boolean") {
+      fail(level, `checkpoint ${checkpoint.id} restoresBreath는 boolean이어야 함`);
     }
   }
   for (const point of level.environment.breathPoints ?? []) {

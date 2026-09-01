@@ -18,6 +18,7 @@ const defineHulaPhase = (config) => Object.freeze({
 });
 
 const defineInvisiblePhase = (config) => Object.freeze({ ...config });
+const defineWaterPhase = (config) => Object.freeze({ ...config });
 
 export const POTATO_KING_PHASES = Object.freeze({
   1: definePhase({
@@ -194,10 +195,47 @@ export const INVISIBLE_KING_PHASES = Object.freeze({
   })
 });
 
+export const WATER_KING_PHASES = Object.freeze({
+  1: defineWaterPhase({
+    id: "single_splash_5",
+    hiddenMs: 520,
+    warningMs: 1000,
+    emergeAttackMs: 1250,
+    vulnerabilityMs: 5000,
+    easyVulnerabilityMs: 6000,
+    submergeMs: 520,
+    projectileSpeed: 300,
+    projectileCount: 1
+  }),
+  2: defineWaterPhase({
+    id: "split_splash_4",
+    hiddenMs: 480,
+    warningMs: 950,
+    emergeAttackMs: 1250,
+    vulnerabilityMs: 4000,
+    easyVulnerabilityMs: 5000,
+    submergeMs: 500,
+    projectileSpeed: 335,
+    projectileCount: 2
+  }),
+  3: defineWaterPhase({
+    id: "triple_splash_3",
+    hiddenMs: 440,
+    warningMs: 900,
+    emergeAttackMs: 1200,
+    vulnerabilityMs: 3000,
+    easyVulnerabilityMs: 4000,
+    submergeMs: 480,
+    projectileSpeed: 370,
+    projectileCount: 3
+  })
+});
+
 export const BOSS_PATTERNS = Object.freeze({
   potato_king: POTATO_KING_PHASES,
   hula_king: HULA_KING_PHASES,
-  invisible_king: INVISIBLE_KING_PHASES
+  invisible_king: INVISIBLE_KING_PHASES,
+  water_king: WATER_KING_PHASES
 });
 
 export const getHulaSpinDuration = (pattern, randomValue) => Math.round(
@@ -253,6 +291,24 @@ export const chooseInvisibleAnchor = (anchors, randomValue, previousId = null, r
   }
   return weighted[weighted.length - 1].anchor;
 };
+
+export const chooseWaterPool = (pools, randomValue, previousId = null, playerX = null, minimumDistance = 280) => {
+  const withoutPrevious = pools.filter(({ id }) => id !== previousId);
+  const safeDistance = Number.isFinite(playerX)
+    ? withoutPrevious.filter(({ x }) => Math.abs(x - playerX) >= minimumDistance)
+    : withoutPrevious;
+  const candidates = safeDistance.length ? safeDistance : withoutPrevious.length ? withoutPrevious : pools;
+  if (!candidates.length) throw new Error("물대왕의 유효한 보스 웅덩이가 없습니다.");
+  const index = Math.min(
+    candidates.length - 1,
+    Math.floor(Math.max(0, Math.min(0.999999, randomValue)) * candidates.length)
+  );
+  return candidates[index];
+};
+
+export const canHitWaterKing = (state, fallingOntoHead) => (
+  state === "dizzy_vulnerable" && Boolean(fallingOntoHead)
+);
 
 export function getBossPhasePattern(bossKey, phase) {
   const patterns = BOSS_PATTERNS[bossKey];

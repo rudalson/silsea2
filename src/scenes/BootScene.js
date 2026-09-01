@@ -77,6 +77,7 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("visualReviewGuardMode", reviewLevel ? query.get("guard") : null);
     this.registry.set("visualReviewHulaState", reviewLevel ? query.get("hula") : null);
     this.registry.set("visualReviewInvisibleState", reviewLevel ? query.get("invisible") : null);
+    this.registry.set("visualReviewWaterState", reviewLevel ? query.get("water") : null);
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", query.get("easy") === "1");
     this.registry.set("playtestEnabled", playtestEnabled);

@@ -25,7 +25,10 @@
         { "height": 48, "id": 13, "name": "combined_ascent_step", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 6912, "y": 560 },
         { "height": 32, "id": 17, "name": "combined_mid_breath_roof", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5968, "y": 288 },
         { "height": 32, "id": 18, "name": "combined_exit_breath_roof", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 6864, "y": 288 },
-        { "height": 480, "id": 14, "name": "final_recovery_rooftop", "rotation": 0, "type": "ground", "visible": true, "width": 1024, "x": 7168, "y": 288 }
+        { "height": 480, "id": 14, "name": "final_recovery_rooftop", "rotation": 0, "type": "ground", "visible": true, "width": 1024, "x": 7168, "y": 288 },
+        { "height": 32, "id": 19, "name": "boss_descent_upper", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 8192, "y": 384 },
+        { "height": 32, "id": 20, "name": "boss_descent_lower", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 8384, "y": 480 },
+        { "height": 192, "id": 21, "name": "boss_arena_floor", "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 8192, "y": 576 }
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -35,7 +38,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 19,
+  "nextobjectid": 22,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -44,5 +47,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 128
+  "width": 160
 }
