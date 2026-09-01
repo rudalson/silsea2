@@ -40,6 +40,8 @@ const bossController = await readFile(join(root, "src", "systems", "BossControll
 const bossDefinitions = await readFile(join(root, "src", "data", "bossDefinitions.js"), "utf8");
 const bossBehaviorRegistry = await readFile(join(root, "src", "systems", "bosses", "index.js"), "utf8");
 const hulaKingBehavior = await readFile(join(root, "src", "systems", "bosses", "HulaKingBehavior.js"), "utf8");
+const invisibleKingBehavior = await readFile(join(root, "src", "systems", "bosses", "InvisibleKingBehavior.js"), "utf8");
+const level03Source = await readFile(join(root, "src", "data", "levels", "level-03.js"), "utf8");
 const level04Source = await readFile(join(root, "src", "data", "levels", "level-04.js"), "utf8");
 const levelSchema = await readFile(join(root, "src", "data", "schema", "levelSchema.js"), "utf8");
 const constants = await readFile(join(root, "src", "config", "constants.js"), "utf8");
@@ -83,6 +85,7 @@ if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검
 if (!bootScene.includes('query.get("guard")')) fail("P6 날개 방어 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("laser")')) fail("P6 레이저 단계 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("hula")')) fail("P10 훌라후프 상태 visualReview 고정 진입점이 없음");
+if (!bootScene.includes('query.get("invisible")')) fail("P11 투명 대왕 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("p9boss")')) fail("P9 좌·우 보스 시험 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
@@ -148,6 +151,17 @@ for (const state of ["spin_guard", "hoop_warning", "hoop_volley", "vulnerable_re
 }
 if (!hulaKingBehavior.includes("new ObjectPool") || !hulaKingBehavior.includes("vulnerabilityMultiplier")) {
   fail("P10 훌라후프 Object Pool 또는 쉬운 모드 약점 완화가 없음");
+}
+if (!level03Source.includes("P11_INVISIBLE_BOSS_ROOM_WIDTH = 2048")
+  || !level03Source.includes('key: "invisible_king"')
+  || !level03Source.includes('id: "cp_invisible_ready"')) {
+  fail("P11 우향 투명 대왕 보스룸·완전 회복 체크포인트 데이터가 없음");
+}
+for (const state of ["hidden_relocate", "light_warning", "revealed", "hidden_memory_window", "miss_attack", "recover", "defeated"]) {
+  if (!invisibleKingBehavior.includes(`\"${state}\"`)) fail(`P11 투명 대왕 상태 누락: ${state}`);
+}
+if (!invisibleKingBehavior.includes("chooseInvisibleAnchor") || !invisibleKingBehavior.includes("setBodyEnabled")) {
+  fail("P11 투명 대왕 Seed 위치 선택 또는 정확한 위치 충돌 전환이 없음");
 }
 if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
   fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");

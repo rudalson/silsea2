@@ -415,6 +415,49 @@ for (const sourceLevel of ALL_LEVELS) {
       if (actual !== expected) fail(level, `P10 ${label} 좌표 이동 누락: ${actual} !== ${expected}`);
     }
   }
+  if (level.id === "level-03") {
+    const originalWidth = 7168;
+    const roomWidth = 2048;
+    const invisibleSection = level.sections.find(({ id }) => id === "boss_invisible");
+    if (!invisibleSection || invisibleSection.xStart !== originalWidth || invisibleSection.xEnd !== originalWidth + roomWidth) {
+      fail(level, "P11 투명 대왕 보스룸이 기존 코스 오른쪽 7168~9216에 있지 않음");
+    }
+    if (invisibleSection?.boss?.key !== "invisible_king") fail(level, "P11 boss key가 invisible_king이 아님");
+    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 9040) fail(level, "P11 world/exit 확장 누락");
+    if (level.checkpoints.find(({ id }) => id === "cp_invisible_ready")?.restoresHealth !== true) {
+      fail(level, "P11 보스 직전 완전 회복 체크포인트가 없음");
+    }
+    const anchors = invisibleSection?.boss?.anchors ?? [];
+    if (anchors.length < 3) fail(level, "P11 투명 대왕 위치 앵커가 3개 미만");
+    const anchorIds = new Set();
+    for (const anchor of anchors) {
+      if (anchorIds.has(anchor.id)) fail(level, `P11 위치 앵커 id 중복: ${anchor.id}`);
+      anchorIds.add(anchor.id);
+      if (!inWorld(level, anchor.x, anchor.y)
+        || anchor.x < invisibleSection.xStart + 96
+        || anchor.x > invisibleSection.xEnd - 96
+        || anchor.y > invisibleSection.boss.floorY
+        || invisibleSection.boss.floorY - anchor.y > invisibleSection.boss.maxAnchorRise) {
+        fail(level, `P11 위치 앵커 ${anchor.id}가 도달 가능 보스룸 범위 밖`);
+      }
+      if (!hasFloorAt(terrain, anchor.x, invisibleSection.boss.floorY)) {
+        fail(level, `P11 위치 앵커 ${anchor.id} 아래에 보스룸 바닥이 없음`);
+      }
+      if (anchor.lane === "air") {
+        const support = terrain.find((object) => (
+          object.type === "platform"
+          && anchor.x >= object.x
+          && anchor.x <= object.x + object.width
+          && object.y > anchor.y
+          && object.y - anchor.y <= 64
+          && invisibleSection.boss.floorY - object.y <= 96
+        ));
+        if (!support) fail(level, `P11 공중 앵커 ${anchor.id}의 기본 점프용 기억 발판이 없음`);
+      }
+    }
+    const bossGuides = level.environment.mist.guides.filter(({ x }) => x >= invisibleSection.xStart && x < invisibleSection.xEnd);
+    if (bossGuides.filter(({ kind }) => kind === "beacon").length < 3) fail(level, "P11 보스룸 광원 비콘이 3개 미만");
+  }
   for (const checkpoint of level.checkpoints) {
     if (!inWorld(level, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 좌표가 world 밖`);
     if (!hasFloorAt(terrain, checkpoint.x, checkpoint.y)) fail(level, `checkpoint ${checkpoint.id} 아래에 바닥이 없음`);

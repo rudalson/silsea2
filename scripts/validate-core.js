@@ -15,6 +15,7 @@ const [
   bossController,
   potatoKingBehavior,
   hulaKingBehavior,
+  invisibleKingBehavior,
   transformManager,
   cameraEffects,
   audioManager,
@@ -56,6 +57,7 @@ const [
   read("src/systems/BossController.js"),
   read("src/systems/bosses/PotatoKingBehavior.js"),
   read("src/systems/bosses/HulaKingBehavior.js"),
+  read("src/systems/bosses/InvisibleKingBehavior.js"),
   read("src/systems/TransformationManager.js"),
   read("src/systems/CameraEffectsManager.js"),
   read("src/systems/AudioManager.js"),
@@ -91,7 +93,7 @@ const [
   read("src/data/combatDevices.js")
 ]);
 
-const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}`;
+const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}\n${invisibleKingBehavior}`;
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
 if (CORE_RULES.hurtLockMs > 250) fail("피격 경직이 250ms를 초과함");
@@ -180,6 +182,15 @@ if (!hulaKingBehavior.includes('"fx_hula_spin"')
   fail("P10 최종 링 효과·두 탄도 투사체·전용 SFX 연결이 없음");
 }
 if (hulaKingBehavior.includes("Math.random")) fail("P10 훌라후프 패턴에 고정 Seed 밖의 랜덤 호출이 있음");
+for (const state of ["hidden_relocate", "light_warning", "revealed", "hidden_memory_window", "miss_attack", "recover", "defeated"]) {
+  if (!invisibleKingBehavior.includes(`\"${state}\"`)) fail(`P11 투명 대왕 상태 누락: ${state}`);
+}
+if (!invisibleKingBehavior.includes("chooseInvisibleAnchor")
+  || !invisibleKingBehavior.includes("vulnerabilityMultiplier")
+  || !invisibleKingBehavior.includes("isInvisibleAnchorReachable")) {
+  fail("P11 투명 대왕 Seed 위치 선택·쉬운 모드 기억 시간·도달성 검증이 없음");
+}
+if (invisibleKingBehavior.includes("Math.random")) fail("P11 투명 대왕 위치 선택에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {
   fail("변신 정지·플래시·카메라 강조가 모두 연결되지 않음");

@@ -17,6 +17,8 @@ const defineHulaPhase = (config) => Object.freeze({
   })))
 });
 
+const defineInvisiblePhase = (config) => Object.freeze({ ...config });
+
 export const POTATO_KING_PHASES = Object.freeze({
   1: definePhase({
     id: "single_ground_wave",
@@ -156,9 +158,46 @@ export const HULA_KING_PHASES = Object.freeze({
   })
 });
 
+export const INVISIBLE_KING_PHASES = Object.freeze({
+  1: defineInvisiblePhase({
+    id: "memory_open_1",
+    relocateMs: 420,
+    warningMs: 900,
+    revealMs: 1200,
+    memoryMs: 1800,
+    missAttackMs: 900,
+    recoveryMs: 650,
+    attackRadiusX: 190,
+    attackRadiusY: 150
+  }),
+  2: defineInvisiblePhase({
+    id: "memory_open_2",
+    relocateMs: 390,
+    warningMs: 900,
+    revealMs: 1200,
+    memoryMs: 1600,
+    missAttackMs: 900,
+    recoveryMs: 620,
+    attackRadiusX: 200,
+    attackRadiusY: 155
+  }),
+  3: defineInvisiblePhase({
+    id: "memory_open_3",
+    relocateMs: 360,
+    warningMs: 900,
+    revealMs: 1200,
+    memoryMs: 1400,
+    missAttackMs: 900,
+    recoveryMs: 580,
+    attackRadiusX: 210,
+    attackRadiusY: 160
+  })
+});
+
 export const BOSS_PATTERNS = Object.freeze({
   potato_king: POTATO_KING_PHASES,
-  hula_king: HULA_KING_PHASES
+  hula_king: HULA_KING_PHASES,
+  invisible_king: INVISIBLE_KING_PHASES
 });
 
 export const getHulaSpinDuration = (pattern, randomValue) => Math.round(
@@ -175,6 +214,45 @@ export const chooseHulaSequence = (pattern, randomValue, previousId = null) => {
 export const canHitHulaKing = (state, fallingOntoHead) => (
   state === "vulnerable_rest" && Boolean(fallingOntoHead)
 );
+
+export const canHitInvisibleKing = (state, fallingOntoHead) => (
+  state === "hidden_memory_window" && Boolean(fallingOntoHead)
+);
+
+export const isInvisibleAnchorReachable = (anchor, {
+  xStart = Number.NEGATIVE_INFINITY,
+  xEnd = Number.POSITIVE_INFINITY,
+  floorY = 576,
+  maxRise = 160,
+  padding = 96
+} = {}) => Boolean(
+  anchor
+  && typeof anchor.id === "string"
+  && Number.isFinite(anchor.x)
+  && Number.isFinite(anchor.y)
+  && anchor.x >= xStart + padding
+  && anchor.x <= xEnd - padding
+  && anchor.y <= floorY
+  && floorY - anchor.y <= maxRise
+);
+
+export const chooseInvisibleAnchor = (anchors, randomValue, previousId = null, recentIds = []) => {
+  const candidates = anchors.filter(({ id }) => id !== previousId);
+  const pool = candidates.length ? candidates : anchors;
+  if (!pool.length) throw new Error("투명 대왕의 유효한 위치 앵커가 없습니다.");
+  const weighted = pool.map((anchor) => ({
+    anchor,
+    weight: recentIds.includes(anchor.id) ? 1 : 3
+  }));
+  const total = weighted.reduce((sum, { weight }) => sum + weight, 0);
+  const target = Math.max(0, Math.min(0.999999, randomValue)) * total;
+  let cursor = 0;
+  for (const entry of weighted) {
+    cursor += entry.weight;
+    if (target < cursor) return entry.anchor;
+  }
+  return weighted[weighted.length - 1].anchor;
+};
 
 export function getBossPhasePattern(bossKey, phase) {
   const patterns = BOSS_PATTERNS[bossKey];

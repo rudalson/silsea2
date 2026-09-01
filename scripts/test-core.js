@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
 import level02 from "../src/data/levels/level-02.js";
-import level03 from "../src/data/levels/level-03.js";
+import level03, { P11_INVISIBLE_BOSS_ROOM_WIDTH } from "../src/data/levels/level-03.js";
 import level04, { P10_HULA_BOSS_ROOM_WIDTH } from "../src/data/levels/level-04.js";
 import level05 from "../src/data/levels/level-05.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
@@ -18,11 +18,15 @@ import {
 import { BOSS_BEHAVIOR_TYPES } from "../src/data/bossBehaviorTypes.js";
 import {
   HULA_KING_PHASES,
+  INVISIBLE_KING_PHASES,
   POTATO_KING_PHASES,
   canHitHulaKing,
+  canHitInvisibleKing,
+  chooseInvisibleAnchor,
   chooseHulaSequence,
   getBossPhasePattern,
-  getHulaSpinDuration
+  getHulaSpinDuration,
+  isInvisibleAnchorReachable
 } from "../src/data/bossPatterns.js";
 import {
   ARCHER_RULES,
@@ -461,10 +465,12 @@ assert.deepEqual(level03.assets.effects, {
   mistBreeze: "fx_mist_breeze"
 });
 assert.equal(level03.assets.bgm.field, "bgm_mist");
+assert.equal(level03.assets.bgm.boss, "bgm_boss");
 assert.equal(getMistZoneAt(639, mistZones), null);
 assert.equal(getMistZoneAt(640, mistZones).id, "mist_intro");
 assert.equal(getMistZoneAt(1664, mistZones).id, "mist_practice");
-assert.equal(getMistZoneAt(7168, mistZones), null);
+assert.equal(getMistZoneAt(7168, mistZones).id, "boss_invisible");
+assert.equal(getMistZoneAt(9216, mistZones), null);
 assert.deepEqual(resolveMistProfile(mistZones[0]), { density: 0.26, visibilityRadius: 430 });
 const reducedMistProfile = resolveMistProfile(mistZones[0], { reduced: true });
 assert.ok(Math.abs(reducedMistProfile.density - 0.143) < 0.0001);
@@ -630,10 +636,11 @@ for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
 }
 assert.throws(() => getBossPhasePattern("unknown_boss", 1), /등록되지 않은 보스 패턴/);
 assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은 보스 페이즈/);
-assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king"]);
-assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king"]);
+assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king"]);
+assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king"]);
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
 assert.deepEqual(getBossDefinition("hula_king")?.animationRoles, ["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]);
+assert.equal(getBossDefinition("invisible_king")?.displayName, "투명 대왕");
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);
@@ -681,6 +688,51 @@ for (let attempt = 0; attempt < 20; attempt += 1) {
 }
 assert.equal(canHitHulaKing("vulnerable_rest", true), true);
 assert.equal(canHitHulaKing("vulnerable_rest", false), false);
+
+assert.equal(P11_INVISIBLE_BOSS_ROOM_WIDTH, 2048);
+assert.equal(level03.world.width, 9216);
+assert.equal(level03.exit.x, 9040);
+const invisibleBossSection = level03.sections.find(({ id }) => id === "boss_invisible");
+assert.deepEqual(
+  { xStart: invisibleBossSection.xStart, xEnd: invisibleBossSection.xEnd, key: invisibleBossSection.boss.key },
+  { xStart: 7168, xEnd: 9216, key: "invisible_king" }
+);
+assert.equal(level03.checkpoints.find(({ id }) => id === "cp_invisible_ready")?.restoresHealth, true);
+assert.equal(level03.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "invisible_king"), true);
+assert.deepEqual(
+  Object.values(INVISIBLE_KING_PHASES).map(({ revealMs, memoryMs, missAttackMs }) => ({ revealMs, memoryMs, missAttackMs })),
+  [
+    { revealMs: 1200, memoryMs: 1800, missAttackMs: 900 },
+    { revealMs: 1200, memoryMs: 1600, missAttackMs: 900 },
+    { revealMs: 1200, memoryMs: 1400, missAttackMs: 900 }
+  ]
+);
+for (const anchor of invisibleBossSection.boss.anchors) {
+  assert.equal(isInvisibleAnchorReachable(anchor, {
+    xStart: invisibleBossSection.xStart,
+    xEnd: invisibleBossSection.xEnd,
+    floorY: invisibleBossSection.boss.floorY,
+    maxRise: invisibleBossSection.boss.maxAnchorRise
+  }), true, `투명 대왕 위치 ${anchor.id}가 기본 점프 도달 범위여야 함`);
+}
+for (let seed = 0; seed < 100; seed += 1) {
+  const random = new SeededRandom(7300 + seed);
+  const history = [];
+  let previousId = null;
+  let recentIds = [];
+  for (let index = 0; index < 24; index += 1) {
+    const anchor = chooseInvisibleAnchor(invisibleBossSection.boss.anchors, random.next(), previousId, recentIds);
+    history.push(anchor.id);
+    assert.notEqual(anchor.id, previousId, `seed ${seed}: 같은 위치가 연속 선택되면 안 됨`);
+    recentIds = [anchor.id, ...recentIds].slice(0, 2);
+    previousId = anchor.id;
+  }
+  assert.equal(history.some((id, index) => id === history[index - 1] && id === history[index - 2]), false);
+}
+assert.equal(getBossPhasePattern("invisible_king", 1), INVISIBLE_KING_PHASES[1]);
+assert.equal(canHitInvisibleKing("hidden_memory_window", true), true);
+assert.equal(canHitInvisibleKing("revealed", true), false);
+assert.equal(canHitInvisibleKing("hidden_memory_window", false), false);
 
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
@@ -1211,4 +1263,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프 100 seed·좌표 이동·파도 정지·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕 100 seed·좌표 이동·파도 정지·오디오 fallback");

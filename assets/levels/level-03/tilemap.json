@@ -19,7 +19,10 @@
         { "height": 48, "id": 9, "name": "combination_step_01", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 5312, "y": 512 },
         { "height": 48, "id": 10, "name": "combination_step_02", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 5600, "y": 432 },
         { "height": 48, "id": 11, "name": "combination_step_03", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 5904, "y": 496 },
-        { "height": 192, "id": 12, "name": "mist_recovery_ground", "rotation": 0, "type": "ground", "visible": true, "width": 896, "x": 6272, "y": 576 }
+        { "height": 192, "id": 12, "name": "mist_recovery_ground", "rotation": 0, "type": "ground", "visible": true, "width": 896, "x": 6272, "y": 576 },
+        { "height": 192, "id": 13, "name": "invisible_boss_ground", "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 7168, "y": 576 },
+        { "height": 48, "id": 14, "name": "invisible_left_memory_step", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 7744, "y": 496 },
+        { "height": 48, "id": 15, "name": "invisible_right_memory_step", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 8416, "y": 496 }
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -29,7 +32,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 13,
+  "nextobjectid": 16,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -38,5 +41,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 112
+  "width": 144
 }

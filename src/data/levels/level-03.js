@@ -1,5 +1,7 @@
 const tilemapUrl = new URL("../../../assets/levels/level-03/tilemap.json", import.meta.url).href;
 
+export const P11_INVISIBLE_BOSS_ROOM_WIDTH = 2048;
+
 export default {
   schemaVersion: 2,
   id: "level-03",
@@ -8,14 +10,15 @@ export default {
   visualTheme: "mist-valley",
   order: 3,
   progression: { direction: "right" },
-  exit: { x: 6992, y: 576, enterFrom: "right" },
+  exit: { x: 9040, y: 576, enterFrom: "right" },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-03-map",
     tileset: "mist_tileset",
     preview: "stage_preview_mist",
     backgrounds: {
-      normal: { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" }
+      normal: { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" },
+      boss: { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" }
     },
     effects: {
       mistBank: "fx_mist_bank",
@@ -35,9 +38,9 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_mist", clear: "bgm_clear" }
+    bgm: { field: "bgm_mist", boss: "bgm_boss", clear: "bgm_clear" }
   },
-  world: { width: 7168, height: 768, tileSize: 64 },
+  world: { width: 9216, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
   player: { spawn: { x: 128, y: 576 } },
   sections: [
@@ -45,18 +48,42 @@ export default {
     { id: "mist_practice", type: "normal", xStart: 1664, xEnd: 3456, mood: "normal" },
     { id: "mist_application", type: "normal", xStart: 3456, xEnd: 5248, mood: "normal" },
     { id: "mist_combination", type: "normal", xStart: 5248, xEnd: 6400, mood: "normal" },
-    { id: "mist_recovery", type: "normal", xStart: 6400, xEnd: 7168, mood: "normal" }
+    { id: "mist_recovery", type: "normal", xStart: 6400, xEnd: 7168, mood: "normal" },
+    {
+      id: "boss_invisible",
+      type: "boss",
+      xStart: 7168,
+      xEnd: 9216,
+      mood: "boss",
+      lockCamera: true,
+      boss: {
+        key: "invisible_king",
+        hp: 3,
+        phases: ["memory_open_1", "memory_open_2", "memory_open_3"],
+        floorY: 576,
+        maxAnchorRise: 160,
+        anchors: [
+          { id: "left_ground", x: 7520, y: 576, lane: "ground" },
+          { id: "left_air", x: 7856, y: 448, lane: "air" },
+          { id: "center_ground", x: 8192, y: 576, lane: "ground" },
+          { id: "right_air", x: 8528, y: 448, lane: "air" },
+          { id: "right_ground", x: 8864, y: 576, lane: "ground" }
+        ]
+      }
+    }
   ],
   cameraCues: [
     { id: "cue_practice_landing", xStart: 1450, xEnd: 2200, lookAhead: 185, targetX: 2304 },
     { id: "cue_application_path", xStart: 3260, xEnd: 4580, lookAhead: 205, targetX: 4672 },
-    { id: "cue_combination_path", xStart: 5050, xEnd: 6300, lookAhead: 210, targetX: 6400 }
+    { id: "cue_combination_path", xStart: 5050, xEnd: 6300, lookAhead: 210, targetX: 6400 },
+    { id: "cue_invisible_arena", xStart: 6944, xEnd: 7424, lookAhead: 220, targetX: 7680 }
   ],
   checkpoints: [
     { id: "cp_mist_intro", x: 1536, y: 576 },
     { id: "cp_mist_practice", x: 3328, y: 576 },
     { id: "cp_mist_application", x: 5056, y: 576 },
-    { id: "cp_mist_recovery", x: 6400, y: 576, restoresHealth: true }
+    { id: "cp_mist_recovery", x: 6400, y: 576, restoresHealth: true },
+    { id: "cp_invisible_ready", x: 7040, y: 576, restoresHealth: true }
   ],
   enemies: [
     { id: "e_mist_practice", type: "raw_potato", x: 2784, y: 576, patrol: 144 },
@@ -102,7 +129,8 @@ export default {
         { id: "mist_practice", label: "연습 · 두 단서", xStart: 1664, xEnd: 3456, density: 0.42, visibilityRadius: 360 },
         { id: "mist_application", label: "응용 · 갈림 지형", xStart: 3456, xEnd: 5248, density: 0.54, visibilityRadius: 320 },
         { id: "mist_combination", label: "조합 · 짙은 안개", xStart: 5248, xEnd: 6400, density: 0.62, visibilityRadius: 280 },
-        { id: "mist_recovery", label: "회복 · 안개가 걷히는 길", xStart: 6400, xEnd: 7168, density: 0.18, visibilityRadius: 500 }
+        { id: "mist_recovery", label: "회복 · 안개가 걷히는 길", xStart: 6400, xEnd: 7168, density: 0.18, visibilityRadius: 500 },
+        { id: "boss_invisible", label: "보스 · 고정된 옅은 안개", xStart: 7168, xEnd: 9216, density: 0.24, visibilityRadius: 460 }
       ],
       guides: [
         { id: "guide_intro_beacon", kind: "beacon", x: 896, y: 576 },
@@ -120,12 +148,19 @@ export default {
         { id: "guide_combination_beacon_b", kind: "beacon", x: 5984, y: 496, delay: 100 },
         { id: "guide_combination_breeze_b", kind: "breeze", x: 6304, y: 544, delay: 260 },
         { id: "guide_recovery_beacon", kind: "beacon", x: 6592, y: 576 },
-        { id: "guide_recovery_breeze", kind: "breeze", x: 6880, y: 544, delay: 120 }
+        { id: "guide_recovery_breeze", kind: "breeze", x: 6880, y: 544, delay: 120 },
+        { id: "guide_boss_beacon_left", kind: "beacon", x: 7520, y: 576 },
+        { id: "guide_boss_beacon_center", kind: "beacon", x: 8192, y: 576, delay: 120 },
+        { id: "guide_boss_beacon_right", kind: "beacon", x: 8864, y: 576, delay: 240 },
+        { id: "guide_boss_breeze", kind: "breeze", x: 9024, y: 544, delay: 180 }
       ]
     }
   },
   objectives: {
-    required: [{ type: "reach_gate" }],
+    required: [
+      { type: "defeat_boss", target: "invisible_king" },
+      { type: "reach_gate" }
+    ],
     optional: [
       { type: "collect_stars", count: 30, reward: 450 },
       { type: "clear_time", seconds: 240, reward: 300 },
@@ -142,6 +177,7 @@ export default {
       player: { extraHp: 1, flightDrainMultiplier: 0.75 },
       terrainMechanics: { movingSpeedMultiplier: 0.75, crumbleDelayMultiplier: 1.4 },
       environment: { mist: { densityMultiplier: 0.82, radiusMultiplier: 1.15 } },
+      boss: { telegraphMultiplier: 1.25, vulnerabilityMultiplier: 1.35 },
       pitScoreLoss: 0
     }
   }
