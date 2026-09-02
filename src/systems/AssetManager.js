@@ -70,6 +70,16 @@ export class AssetManager {
       AssetManager.queueManifestAsset(scene, "fx_water_king_splash");
       AssetManager.queueManifestAsset(scene, "fx_water_king_dizzy");
     }
+    if (types.has("random_king")) {
+      AssetManager.queueManifestAsset(scene, "fx_random_king_cards");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_teleport");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_projectile");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_warning_low");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_warning_high");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_warning_diagonal");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_tongue");
+      AssetManager.queueManifestAsset(scene, "fx_random_king_vulnerable");
+    }
     if ((level.terrainMechanics?.updrafts?.length ?? 0) > 0) {
       AssetManager.queueManifestAsset(scene, "fx_updraft_wind");
     }

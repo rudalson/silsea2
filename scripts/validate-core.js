@@ -221,6 +221,18 @@ if (!waterKingBehavior.includes('"fx_water_king_ripple"')
   fail("P12 최종 물결·투사체·출현·어지럼 효과와 상태 애니메이션·전용 SFX 연결이 없음");
 }
 if (waterKingBehavior.includes("Math.random")) fail("P12 물대왕 위치·투사체에 고정 Seed 밖의 랜덤 호출이 있음");
+for (const state of ["random_intro", "result_draw", "result_telegraph", "attack_draw", "telegraph", "execute", "vulnerable", "hit", "recover", "defeated"]) {
+  if (!randomKingBehavior.includes(`"${state}"`)) fail(`P13 랜덤대왕 상태 누락: ${state}`);
+}
+if (!randomKingBehavior.includes('"fx_random_king_cards"')
+  || !randomKingBehavior.includes('"fx_random_king_teleport"')
+  || !randomKingBehavior.includes('"fx_random_king_projectile"')
+  || !randomKingBehavior.includes('"fx_random_king_tongue"')
+  || !randomKingBehavior.includes('playAnimation("draw"')
+  || !randomKingBehavior.includes('playSfx("sfx_random_defeat"')) {
+  fail("P13 최종 카드·순간이동·투사체·메롱 효과와 상태 애니메이션·전용 SFX 연결이 없음");
+}
+if (randomKingBehavior.includes("Math.random")) fail("P13 랜덤대왕 결과·위치·공격에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {
   fail("변신 정지·플래시·카메라 강조가 모두 연결되지 않음");

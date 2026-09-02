@@ -80,7 +80,14 @@ const sfx = {
   sfx_water_attack: { duration: 0.38, tones: [tone(0, 0.34, 680, 250, "sine", 0.3), tone(0.04, 0.26, 920, 410, "triangle", 0.16)], noise: 0.08 },
   sfx_water_dizzy: { duration: 0.58, tones: arpeggio([988, 784, 659, 784], 0.12, 0.2, "sine", 0.23) },
   sfx_water_submerge: { duration: 0.44, tones: [tone(0, 0.4, 620, 160, "sine", 0.28), tone(0.06, 0.32, 430, 120, "triangle", 0.13)], noise: 0.1 },
-  sfx_water_defeat: { duration: 1.08, tones: [...arpeggio([880, 698, 587, 440], 0.14, 0.3, "triangle", 0.22), ...chord(0.62, 0.46, [440, 554, 659], "sine", 0.12)], noise: 0.035 }
+  sfx_water_defeat: { duration: 1.08, tones: [...arpeggio([880, 698, 587, 440], 0.14, 0.3, "triangle", 0.22), ...chord(0.62, 0.46, [440, 554, 659], "sine", 0.12)], noise: 0.035 },
+  sfx_random_draw: { duration: 0.62, tones: arpeggio([523, 659, 784, 659, 988], 0.09, 0.19, "triangle", 0.22), noise: 0.018 },
+  sfx_random_result: { duration: 0.48, tones: [...arpeggio([659, 831, 1047], 0.1, 0.2, "sine", 0.25), ...chord(0.28, 0.2, [523, 784], "triangle", 0.1)] },
+  sfx_random_teleport: { duration: 0.64, tones: [tone(0, 0.58, 260, 980, "sine", 0.24), tone(0.12, 0.48, 720, 210, "triangle", 0.13)], noise: 0.025 },
+  sfx_random_throw: { duration: 0.38, tones: [tone(0, 0.34, 860, 280, "sine", 0.29), tone(0.04, 0.28, 1120, 430, "triangle", 0.16)], noise: 0.035 },
+  sfx_random_tongue: { duration: 0.58, tones: [tone(0, 0.22, 440, 260, "triangle", 0.24), tone(0.2, 0.34, 620, 340, "sine", 0.2)], noise: 0.055 },
+  sfx_random_weakness: { duration: 0.62, tones: arpeggio([988, 784, 659, 784], 0.12, 0.21, "sine", 0.23) },
+  sfx_random_defeat: { duration: 1.08, tones: [...arpeggio([988, 784, 659, 523], 0.14, 0.3, "triangle", 0.22), ...chord(0.62, 0.46, [523, 659, 784], "sine", 0.12)], noise: 0.035 }
 };
 
 const waveAt = (kind, phase) => {

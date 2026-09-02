@@ -62,6 +62,16 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     dizzy: "water_king_dizzy",
     hurt: "water_king_hurt",
     defeated: "water_king_defeated"
+  }),
+  random_king: Object.freeze({
+    idle: "random_king_idle",
+    draw: "random_king_draw",
+    teleport: "random_king_teleport",
+    attack: "random_king_attack",
+    taunt: "random_king_taunt",
+    vulnerable: "random_king_vulnerable",
+    hurt: "random_king_hurt",
+    defeated: "random_king_defeated"
   })
 });
 
@@ -129,6 +139,16 @@ const ENEMY_TIMINGS = Object.freeze({
     dizzy: Object.freeze({ durations: [140, 130, 140, 150], repeat: -1 }),
     hurt: Object.freeze({ durations: [90, 100, 130], repeat: 0 }),
     defeated: Object.freeze({ durations: [130, 140, 150, 160, 170, 180, 190, 220], repeat: 0 })
+  }),
+  random_king: Object.freeze({
+    idle: Object.freeze({ durations: [180, 170, 180, 190], repeat: -1 }),
+    draw: Object.freeze({ durations: [90, 90, 95, 100, 105, 120], repeat: -1 }),
+    teleport: Object.freeze({ durations: [75, 75, 80, 85, 90, 105], repeat: 0 }),
+    attack: Object.freeze({ durations: [80, 85, 90, 95, 105, 130], repeat: 0 }),
+    taunt: Object.freeze({ durations: [90, 90, 100, 110, 120, 150], repeat: 0 }),
+    vulnerable: Object.freeze({ durations: [140, 130, 140, 150], repeat: -1 }),
+    hurt: Object.freeze({ durations: [90, 100, 130], repeat: 0 }),
+    defeated: Object.freeze({ durations: [120, 130, 140, 150, 160, 180, 200, 240], repeat: 0 })
   })
 });
 

@@ -11,9 +11,21 @@ import {
   createRandomAttackDeck,
   getBossPhasePattern
 } from "../../data/bossPatterns.js";
+import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 import { ObjectPool } from "../ObjectPool.js";
 
 const PROJECTILE_TEXTURE_KEY = "graybox-random-projectile";
+const RESULT_FRAMES = Object.freeze({ replay_section: 0, score_plus: 1, score_minus: 2, start_battle: 3 });
+const EFFECTS = Object.freeze({
+  cards: { texture: "fx_random_king_cards", frames: 4, duration: 0, repeat: 0 },
+  teleport: { texture: "fx_random_king_teleport", frames: 6, duration: 560, repeat: -1 },
+  projectile: { texture: "fx_random_king_projectile", frames: 4, duration: 340, repeat: -1 },
+  warningLow: { texture: "fx_random_king_warning_low", frames: 4, duration: 440, repeat: -1 },
+  warningHigh: { texture: "fx_random_king_warning_high", frames: 4, duration: 440, repeat: -1 },
+  warningDiagonal: { texture: "fx_random_king_warning_diagonal", frames: 4, duration: 440, repeat: -1 },
+  tongue: { texture: "fx_random_king_tongue", frames: 6, duration: 540, repeat: -1 },
+  vulnerable: { texture: "fx_random_king_vulnerable", frames: 4, duration: 520, repeat: -1 }
+});
 const RESULT_LABELS = Object.freeze({
   replay_section: "코스",
   score_plus: "+100",
@@ -54,11 +66,13 @@ export class RandomKingBehavior {
     this.reviewState = null;
     this.interactions = [];
     this.created = [];
-    this.usesArt = Boolean(this.boss.getData("usesArt"));
+    this.usesArt = Boolean(this.boss.getData("usesArt"))
+      && Object.values(EFFECTS).every(({ texture }) => this.scene.textures.exists(texture));
 
-    this.ensureProjectileTexture();
-    this.projectilePool = this.createProjectilePool();
     this.createGrayboxVisuals();
+    this.createArtEffects();
+    if (!this.usesArt) this.ensureProjectileTexture();
+    this.projectilePool = this.createProjectilePool();
     this.applyVisualReviewState(this.scene.registry.get("visualReviewRandomState"));
   }
 
@@ -76,7 +90,8 @@ export class RandomKingBehavior {
     return new ObjectPool({
       maxSize: 8,
       create: () => {
-        const projectile = this.scene.physics.add.image(0, 0, PROJECTILE_TEXTURE_KEY)
+        const texture = this.usesArt ? EFFECTS.projectile.texture : PROJECTILE_TEXTURE_KEY;
+        const projectile = this.scene.physics.add.sprite(0, 0, texture)
           .setDepth(8)
           .setVisible(false);
         projectile.body.setAllowGravity(false);
@@ -95,15 +110,16 @@ export class RandomKingBehavior {
           .setPosition(data.x, data.y)
           .setVisible(true)
           .setActive(true)
-          .setScale(data.attackId === "high_projectile" ? 0.82 : 1)
-          .setTint(data.attackId === "ground_projectile" ? COLORS.collectPink : COLORS.collectBlue);
+          .setScale(data.attackId === "high_projectile" ? 0.82 : 1);
+        if (this.usesArt) projectile.play("fx:random:projectile", true);
+        else projectile.setTint(data.attackId === "ground_projectile" ? COLORS.collectPink : COLORS.collectBlue);
         projectile.body.enable = true;
         projectile.body.reset(data.x, data.y);
         projectile.body.setSize(42, 42, true);
         projectile.body.setVelocity(data.velocityX, data.velocityY ?? 0);
       },
       deactivate: (projectile) => {
-        projectile.setVisible(false).setActive(false).clearTint().setRotation(0);
+        projectile.setVisible(false).setActive(false).clearTint().setRotation(0).stop();
         projectile.body.enable = false;
         projectile.body.stop();
       },
@@ -131,14 +147,18 @@ export class RandomKingBehavior {
     }).setOrigin(0.5).setDepth(12).setVisible(false));
 
     this.resultCards = Object.entries(RESULT_LABELS).map(([id, label]) => {
-      const background = this.scene.add.rectangle(0, 0, 130, 72, COLORS.near, 0.92)
-        .setStrokeStyle(4, COLORS.white, 0.72);
-      const text = this.scene.add.text(0, 0, label, {
+      const background = this.usesArt
+        ? this.scene.add.image(0, -4, EFFECTS.cards.texture, RESULT_FRAMES[id]).setDisplaySize(86, 100)
+        : this.scene.add.rectangle(0, 0, 130, 72, COLORS.near, 0.92)
+          .setStrokeStyle(4, COLORS.white, 0.72);
+      const text = this.scene.add.text(0, this.usesArt ? 34 : 0, label, {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "20px",
+        fontSize: this.usesArt ? "16px" : "20px",
         fontStyle: "800",
-        color: CSS_COLORS.white
-      }).setOrigin(0.5);
+        color: CSS_COLORS.white,
+        backgroundColor: this.usesArt ? CSS_COLORS.panel : undefined,
+        padding: this.usesArt ? { x: 5, y: 2 } : undefined
+      }).setOrigin(0.5).setDepth(1);
       const container = this.track(this.scene.add.container(0, 0, [background, text]).setDepth(11).setVisible(false));
       return { id, container, background, text };
     });
@@ -178,6 +198,43 @@ export class RandomKingBehavior {
       .setStrokeStyle(4, COLORS.outline)
       .setDepth(11)
       .setVisible(false));
+  }
+
+  createArtEffects() {
+    if (!this.usesArt) return;
+    this.boss.getData("label")?.setVisible(false);
+    this.boss.setAlpha(1).setVisible(true).setDepth(10);
+    this.question.setVisible(false);
+    for (const [name, spec] of Object.entries(EFFECTS)) {
+      if (name === "cards") continue;
+      const key = `fx:random:${name}`;
+      if (!this.scene.anims.exists(key)) {
+        this.scene.anims.create({
+          key,
+          frames: this.scene.anims.generateFrameNumbers(spec.texture, { start: 0, end: spec.frames - 1 }),
+          duration: spec.duration,
+          repeat: spec.repeat
+        });
+      }
+    }
+    this.teleportArt = this.track(this.scene.add.sprite(0, 0, EFFECTS.teleport.texture).setDepth(7).setVisible(false));
+    this.groundWarningArt = this.track(this.scene.add.sprite(0, 0, EFFECTS.warningLow.texture).setDepth(7).setVisible(false));
+    this.highWarningArt = this.track(this.scene.add.sprite(0, 0, EFFECTS.warningHigh.texture).setDepth(7).setVisible(false));
+    this.diagonalWarningArt = this.track(this.scene.add.sprite(0, 0, EFFECTS.warningDiagonal.texture).setDepth(7).setVisible(false));
+    this.tongueWarningArt = this.track(this.scene.add.sprite(0, 0, EFFECTS.tongue.texture).setDepth(7).setVisible(false));
+    this.weaknessArt = this.track(this.scene.add.sprite(0, 0, EFFECTS.vulnerable.texture).setDepth(11).setVisible(false));
+    this.playAnimation("idle", false);
+  }
+
+  playAnimation(sequence, ignoreIfPlaying = true) {
+    if (!this.usesArt) return null;
+    return EnemyAnimationManager.play(this.boss, sequence, ignoreIfPlaying);
+  }
+
+  showEffect(sprite, name, visible) {
+    if (!sprite) return;
+    sprite.setVisible(visible);
+    if (visible && sprite.anims?.currentAnim?.key !== `fx:random:${name}`) sprite.play(`fx:random:${name}`, true);
   }
 
   track(object) {
@@ -235,6 +292,7 @@ export class RandomKingBehavior {
       bossState: this.state,
       randomNonBattleCount: this.nonBattleCount
     });
+    this.playAnimation("idle", false);
     this.scene.updateAccessibleStatus?.("랜덤대왕이 결과 카드를 섞습니다. 같은 결과는 연속으로 나오지 않습니다.");
   }
 
@@ -256,13 +314,15 @@ export class RandomKingBehavior {
       randomNonBattleCount: this.nonBattleCount,
       randomSeedState: this.random.state
     });
+    this.playAnimation("draw", false);
+    this.scene.audioManager?.playSfx("sfx_random_draw", { randomizeRate: false });
   }
 
   revealResult(now) {
     this.state = "result_telegraph";
     this.stateUntil = now + 1050;
     this.boss.setData("bossState", this.state);
-    this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
+    this.scene.audioManager?.playSfx("sfx_random_result", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.(`랜덤 결과: ${RESULT_LABELS[this.currentResult]}.`);
   }
 
@@ -315,6 +375,8 @@ export class RandomKingBehavior {
     this.stateUntil = Number.POSITIVE_INFINITY;
     this.hideWarnings();
     this.hideResultCards();
+    this.playAnimation("teleport", false);
+    this.scene.audioManager?.playSfx("sfx_random_teleport", { randomizeRate: false });
     this.scene.beginForcedReplay?.({ courseId: course.id, courseName: course.name, seedState: this.random.state });
     this.scene.transformationManager?.cancelPresentation();
     const safetyMs = this.easyMode
@@ -349,6 +411,7 @@ export class RandomKingBehavior {
     this.attackDeck.length = 0;
     this.hideResultCards();
     this.boss.setData({ vulnerable: false, bossState: this.state });
+    this.playAnimation("idle", false);
     this.scene.updateAccessibleStatus?.("랜덤대왕과 직접 전투를 시작합니다. 공격마다 예고 모양을 확인하세요.");
   }
 
@@ -373,6 +436,8 @@ export class RandomKingBehavior {
       attackId: this.currentAttack,
       seedState: this.random.state
     });
+    this.playAnimation("draw", false);
+    this.scene.audioManager?.playSfx("sfx_random_draw", { randomizeRate: false });
   }
 
   beginAttackTelegraph(now) {
@@ -393,7 +458,13 @@ export class RandomKingBehavior {
       else this.boss.setPosition(this.attackTargetX, 236);
     }
     this.boss.setData({ vulnerable: false, bossState: this.state, anchorId: this.currentAnchor?.id ?? null });
-    this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
+    if (this.currentAttack === "teleport_throw") {
+      this.playAnimation("teleport", false);
+      this.scene.audioManager?.playSfx("sfx_random_teleport", { randomizeRate: false });
+    } else {
+      this.playAnimation("idle", false);
+      this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
+    }
     this.scene.updateAccessibleStatus?.(`${ATTACK_LABELS[this.currentAttack]} 예고입니다.`);
   }
 
@@ -403,6 +474,7 @@ export class RandomKingBehavior {
     this.stateUntil = now + pattern.executeMs;
     this.boss.setData({ vulnerable: false, bossState: this.state });
     const toward = this.player.x < this.boss.x ? -1 : 1;
+    this.playAnimation(this.currentAttack === "sky_tongue" ? "taunt" : "attack", false);
     if (this.currentAttack === "ground_projectile") {
       this.spawnProjectile({
         attackId: this.currentAttack,
@@ -432,7 +504,10 @@ export class RandomKingBehavior {
         this.healthManager.takeDamage(this.attackTargetX, { type: "random_king_tongue" });
       }
     }
-    this.scene.audioManager?.playSfx("sfx_boss_land", { randomizeRate: false });
+    this.scene.audioManager?.playSfx(
+      this.currentAttack === "sky_tongue" ? "sfx_random_tongue" : "sfx_random_throw",
+      { randomizeRate: false }
+    );
     this.scene.cameraEffects?.shake("bossLandLight");
   }
 
@@ -462,6 +537,8 @@ export class RandomKingBehavior {
       ? pattern.easyVulnerabilityMs
       : Math.round(pattern.vulnerabilityMs * (this.vulnerabilityMultiplier ?? 1)));
     this.boss.setData({ vulnerable: true, bossState: this.state });
+    this.playAnimation("vulnerable", false);
+    this.scene.audioManager?.playSfx("sfx_random_weakness", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.("공격이 끝나 약점이 열렸습니다. 머리 위를 밟으세요.");
   }
 
@@ -470,6 +547,7 @@ export class RandomKingBehavior {
     this.state = "recover";
     this.stateUntil = now + pattern.recoveryMs;
     this.boss.setData({ vulnerable: false, bossState: this.state });
+    this.playAnimation("idle", false);
     this.hideWarnings();
   }
 
@@ -497,6 +575,7 @@ export class RandomKingBehavior {
     this.state = "hit";
     this.stateUntil = this.scene.time.now + 430;
     this.boss.setData({ vulnerable: false, bossState: this.state });
+    this.playAnimation("hurt", false);
     if (hp <= 0) this.stateUntil = Number.POSITIVE_INFINITY;
   }
 
@@ -507,9 +586,13 @@ export class RandomKingBehavior {
     this.projectilePool.releaseAll();
     this.hideWarnings();
     this.hideResultCards();
-    this.question.setText("!");
-    this.boss.setScale(1.2, 0.5).setAlpha(0.72);
-    this.defeatTimer = this.scene.time.delayedCall(650, () => {
+    if (this.usesArt) this.playAnimation("defeated", false);
+    else {
+      this.question.setText("!");
+      this.boss.setScale(1.2, 0.5).setAlpha(0.72);
+    }
+    this.scene.audioManager?.playSfx("sfx_random_defeat", { randomizeRate: false });
+    this.defeatTimer = this.scene.time.delayedCall(this.usesArt ? 1150 : 650, () => {
       this.defeatTimer = null;
       this.boss?.setActive(false).setVisible(false);
       this.question?.setVisible(false);
@@ -518,15 +601,32 @@ export class RandomKingBehavior {
 
   updateVisuals(now) {
     const pulse = 1 + Math.sin(now / 90) * 0.06;
-    this.question
-      .setPosition(this.boss.x, this.boss.y - 78)
-      .setRotation(Math.sin(now / 240) * 0.08)
-      .setScale(["random_intro", "result_draw", "attack_draw"].includes(this.state) ? pulse : 1);
+    if (this.usesArt) {
+      this.question.setVisible(false);
+      this.boss.setFlipX(this.player.x < this.boss.x);
+      const sequence = this.state === "result_draw" || this.state === "attack_draw" ? "draw"
+        : this.state === "telegraph" && this.currentAttack === "teleport_throw" ? "teleport"
+          : this.state === "execute" && this.currentAttack === "sky_tongue" ? "taunt"
+            : this.state === "execute" ? "attack"
+              : this.state === "vulnerable" ? "vulnerable"
+                : this.state === "hit" ? "hurt"
+                  : this.state === "defeated" ? "defeated"
+                    : "idle";
+      this.playAnimation(sequence);
+    } else {
+      this.question
+        .setVisible(true)
+        .setPosition(this.boss.x, this.boss.y - 78)
+        .setRotation(Math.sin(now / 240) * 0.08)
+        .setScale(["random_intro", "result_draw", "attack_draw"].includes(this.state) ? pulse : 1);
+    }
     this.boss.getData("label")?.setPosition(this.boss.x, this.boss.y - 176);
     this.weakness
-      .setVisible(this.state === "vulnerable")
+      .setVisible(!this.usesArt && this.state === "vulnerable")
       .setPosition(this.boss.x, this.boss.y - 156)
       .setRotation(this.weakness.rotation + 0.04);
+    this.showEffect(this.weaknessArt, "vulnerable", this.usesArt && this.state === "vulnerable");
+    this.weaknessArt?.setPosition(this.boss.x, this.boss.y - 162);
 
     const showCards = ["result_draw", "result_telegraph"].includes(this.state)
       || this.reviewState?.startsWith("result_");
@@ -536,7 +636,8 @@ export class RandomKingBehavior {
         .setVisible(showCards)
         .setPosition(this.boss.x - 240 + index * 160, this.boss.y - 224)
         .setScale(selected ? pulse : 1);
-      card.background.setFillStyle(selected ? COLORS.collectPink : COLORS.near, selected ? 1 : 0.92)
+      if (this.usesArt) card.background.setAlpha(selected ? 1 : 0.76);
+      else card.background.setFillStyle(selected ? COLORS.collectPink : COLORS.near, selected ? 1 : 0.92)
         .setStrokeStyle(selected ? 6 : 4, selected ? COLORS.collect : COLORS.white, 0.86);
     });
     this.resultLabel
@@ -548,19 +649,37 @@ export class RandomKingBehavior {
           : `공격 · ${ATTACK_LABELS[this.currentAttack] ?? "선택 중"}`);
 
     const telegraphing = ["telegraph", "execute"].includes(this.state) || this.reviewState?.startsWith("attack_");
-    this.groundWarning.setVisible(telegraphing && this.currentAttack === "ground_projectile")
+    this.groundWarning.setVisible(!this.usesArt && telegraphing && this.currentAttack === "ground_projectile")
       .setPosition((this.boss.x + this.player.x) / 2, this.floorY - 26)
       .setScale(pulse, 1);
-    this.highWarning.setVisible(telegraphing && this.currentAttack === "high_projectile")
+    this.highWarning.setVisible(!this.usesArt && telegraphing && this.currentAttack === "high_projectile")
       .setPosition((this.boss.x + this.player.x) / 2, this.floorY - 126)
       .setScale(pulse, 1);
-    this.tongueWarning.setVisible(telegraphing && this.currentAttack === "sky_tongue")
+    this.tongueWarning.setVisible(!this.usesArt && telegraphing && this.currentAttack === "sky_tongue")
       .setPosition(this.attackTargetX ?? this.player.x, 340)
       .setAlpha(this.state === "execute" ? 0.62 : 0.2 + Math.sin(now / 65) * 0.1);
     this.teleportMarkers.forEach(({ anchor, visual }) => {
-      const show = telegraphing && this.currentAttack === "teleport_throw";
+      const show = !this.usesArt && telegraphing && this.currentAttack === "teleport_throw";
       visual.setVisible(show).setScale(anchor.id === this.currentAnchor?.id ? pulse * 1.25 : 1);
     });
+    if (this.usesArt) {
+      const groundVisible = telegraphing && this.currentAttack === "ground_projectile";
+      const highVisible = telegraphing && this.currentAttack === "high_projectile";
+      const diagonalVisible = telegraphing && this.currentAttack === "teleport_throw";
+      const tongueVisible = telegraphing && this.currentAttack === "sky_tongue";
+      const teleportVisible = diagonalVisible
+        || (["result_telegraph", "await_replay_return"].includes(this.state) && this.currentResult === "replay_section");
+      this.showEffect(this.groundWarningArt, "warningLow", groundVisible);
+      this.groundWarningArt?.setPosition((this.boss.x + this.player.x) / 2, this.floorY - 38).setScale(pulse, 1);
+      this.showEffect(this.highWarningArt, "warningHigh", highVisible);
+      this.highWarningArt?.setPosition((this.boss.x + this.player.x) / 2, this.floorY - 132).setScale(pulse, 1);
+      this.showEffect(this.diagonalWarningArt, "warningDiagonal", diagonalVisible);
+      this.diagonalWarningArt?.setPosition(this.currentAnchor?.x ?? this.boss.x, (this.currentAnchor?.y ?? this.boss.y) - 96);
+      this.showEffect(this.tongueWarningArt, "tongue", tongueVisible);
+      this.tongueWarningArt?.setPosition(this.attackTargetX ?? this.player.x, 340).setDisplaySize(178, 472);
+      this.showEffect(this.teleportArt, "teleport", teleportVisible);
+      this.teleportArt?.setPosition(this.boss.x, this.boss.y - 88);
+    }
   }
 
   hideWarnings() {
@@ -569,6 +688,14 @@ export class RandomKingBehavior {
     this.tongueWarning.setVisible(false);
     this.teleportMarkers.forEach(({ visual }) => visual.setVisible(false));
     this.weakness.setVisible(false);
+    [
+      this.teleportArt,
+      this.groundWarningArt,
+      this.highWarningArt,
+      this.diagonalWarningArt,
+      this.tongueWarningArt,
+      this.weaknessArt
+    ].forEach((effect) => effect?.setVisible(false));
   }
 
   hideResultCards() {
@@ -617,7 +744,8 @@ export class RandomKingBehavior {
     } else if (requestedState === "hurt") this.state = "hit";
     else if (requestedState === "defeated") {
       this.state = "defeated";
-      this.boss.setScale(1.2, 0.5).setAlpha(0.72);
+      if (this.usesArt) this.playAnimation("defeated", false);
+      else this.boss.setScale(1.2, 0.5).setAlpha(0.72);
     } else return;
     this.boss.setData({ bossState: this.state, visualReviewState: requestedState });
   }

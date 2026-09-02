@@ -162,10 +162,15 @@ export const BOSS_DEFINITIONS = Object.freeze({
     defaultHp: 3,
     phaseIds: Object.freeze(["random_mix_1", "random_mix_2", "random_mix_3"]),
     completion: "level",
-    animationRoles: Object.freeze([]),
+    animationRoles: Object.freeze(["idle", "draw", "teleport", "attack", "taunt", "vulnerable", "hurt", "defeated"]),
     spawn: Object.freeze({ edgeOffset: 560 }),
     render: freezeRender({
-      placeholderColor: COLORS.collectBlue,
+      placeholderColor: COLORS.collectPink,
+      art: {
+        origin: { x: 0.5, y: 112 / 128 },
+        scale: 1.5,
+        body: { width: 82, height: 78, offsetX: 23, offsetY: 34, center: false }
+      },
       fallback: {
         origin: { x: 0.5, y: 1 },
         scale: 1,

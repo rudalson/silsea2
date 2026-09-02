@@ -663,7 +663,7 @@ assert.deepEqual(getBossDefinition("training_dummy")?.animationRoles, []);
 assert.equal(getBossDefinition("water_king")?.displayName, "물 대왕");
 assert.deepEqual(getBossDefinition("water_king")?.animationRoles, ["idle", "submerge", "emerge", "attack", "dizzy", "hurt", "defeated"]);
 assert.equal(getBossDefinition("random_king")?.displayName, "랜덤 대왕");
-assert.deepEqual(getBossDefinition("random_king")?.animationRoles, []);
+assert.deepEqual(getBossDefinition("random_king")?.animationRoles, ["idle", "draw", "teleport", "attack", "taunt", "vulnerable", "hurt", "defeated"]);
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);

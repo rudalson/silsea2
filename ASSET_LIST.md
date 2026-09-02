@@ -125,7 +125,7 @@
 
 ## 신규 스테이지 확장 에셋
 
-> 확장 P0 승인 · 2026-08-25 / 현재 상태: P2·P3·P4·P5·P6·P10·P11·P12 최종 승인 완료
+> 확장 P0 승인 · 2026-08-25 / 현재 상태: P2·P3·P4·P5·P6·P10·P11·P12·P13 최종 승인 완료
 > 아래 키는 발주 단위를 잠근 계획 키다. 회색 상자와 흑백 앵커 승인 전에는 이미지 생성·manifest·mapping 등록을 하지 않는다.
 
 ### 캐릭터
@@ -237,7 +237,21 @@
 | `fx_water_king_splash` | M | 출현 물보라 192×160, 6프레임 | 제작·등록·최종 승인 완료 |
 | `fx_water_king_dizzy` | M | 어지러움 별 궤도 192×96, 4프레임 | 제작·등록·최종 승인 완료 |
 
-랜덤대왕 키와 프레임 수는 규칙·회색 상자·앵커 승인 뒤 추가한다. 외형·패턴을 추측해 선제작하지 않는다.
+### P13 랜덤대왕
+
+| 키 | 우선 | 구성 | 상태 |
+|---|---|---|---|
+| `random_king` | M | idle 4, draw 6, teleport 6, attack 6, taunt 6, vulnerable 4, hurt 3, defeated 8 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_cards` | M | 코스·+100·-100·전투 결과 카드 4종 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_teleport` | M | 청록 나선 순간이동 6프레임 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_projectile` | M | 공용 회전 투사체 4프레임 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_warning_low` | M | 낮은 탄 바닥 예고 4프레임 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_warning_high` | M | 높은 탄 상단 예고 4프레임 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_warning_diagonal` | M | 위치 이동 투척 대각선 예고 4프레임 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_tongue` | M | 하늘 메롱 세로 예고·혀 6프레임 | 제작·등록·최종 승인 완료 |
+| `fx_random_king_vulnerable` | M | 약점 별 궤도 4프레임 | 제작·등록·최종 승인 완료 |
+
+P13 최종본은 승인 앵커 기반 43개 본체 프레임·36개 독립 효과 프레임으로 제작했다. 실제 화면과 생성·가공 기록은 `references/P13_RANDOM_FINAL_REVIEW.md`에서 확인한다.
 
 ### Must 제작량 기준선
 

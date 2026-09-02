@@ -221,6 +221,53 @@ data/palette.js 색만 사용, 투명 배경, 문자·숫자·로고 없음.
 - 금지: 문자·배경·새 캐릭터·새 소품·실루엣·구도 변경.
 - 후처리: `scripts/build-p12-assets.js`로 연결 체크 배경 제거, 승인 팔레트 양자화, 37개 본체 프레임·20개 효과 프레임 분리와 시트 조립을 재현한다.
 
+## P13 랜덤대왕 최종 생성 기록
+
+- 편집 입력: `assets/_source/p13/p13_random_king_anchor_generated_v1.png`
+- 채택 원본: `assets/_source/p13/p13_random_king_color_source_v1.png`
+- 생성 방식: Codex 내장 이미지 생성 정밀 오브젝트 편집 모드.
+- 요청: 승인된 물음표 몸·표정·왕관·카드·투사체·혀·경고·별과 2행+효과 배치를 그대로 유지하고 승인 팔레트만 적용한다.
+- 금지: 문자·숫자·워터마크·배경·새 캐릭터·새 소품·실루엣·포즈·배치 변경과 팔레트 외 색상.
+- 후처리: `scripts/build-p13-assets.js`로 흰 배경 제거, 승인 팔레트 양자화, 공통 기준선 정렬, 43개 본체 프레임·36개 효과 프레임 분리와 시트 조립을 재현한다.
+
+<details>
+<summary>내장 이미지 생성에 사용한 정확한 프롬프트</summary>
+
+```text
+Use case: precise-object-edit
+Asset type: final color source sheet for a 2D side-scrolling game boss
+Primary request: Colorize the attached approved grayscale Random King concept sheet while preserving its exact approved art direction.
+
+EDIT TARGET AND INVARIANTS:
+- The attached 1536x1024 image is the sole edit target and approved layout.
+- Preserve the exact canvas size, white background, pose count, pose positions, question-mark body silhouette, facial expressions, crowns, hands, lower dots/feet, cards, projectiles, tongue, warnings, stars, line thickness, spacing, and two-row-plus-effects composition.
+- Change ONLY color and polished game-ready fill treatment. Do not redraw, add, remove, move, crop, rotate, relabel, or merge any subject or effect.
+- Keep every shape inside its current footprint and keep all symbols legible at 25% scale.
+- No text, no letters, no numbers, no watermark, no extra scenery.
+
+APPROVED PALETTE ONLY:
+- Random King body: dusty pink #D294AC main, plum #745767 shadow.
+- Teeth, eyes and highlights: near-white #F4FBFD.
+- Outer contours and facial linework: charcoal #42474E.
+- Crown: gold #F5DF4F with ochre #D09A4E shadow.
+- Replay card and teleport spiral: blue #3DBFE3 with pale blue #9ADDF2.
+- Plus card and dizzy stars: gold #F5DF4F with brown #957242.
+- Minus card and tongue: pink #E573A0 with danger red #D1333D.
+- Battle card and projectile bodies: deep plum #752B5A with #F4FBFD highlights.
+- Attack warning marks: danger red #D1333D and deep plum #752B5A.
+- White background remains #F4FBFD or clean white.
+- Do not introduce colors outside this palette.
+
+STYLE:
+- Clean polished children's game sprite-concept art, thick crisp charcoal outlines, flat controlled fills, very light cel shading only.
+- High contrast and friendly mischievous mood; no horror or realistic textures.
+- Preserve the approved question-mark identity so it never reads as a banana, snake, droplet, or round blob.
+
+Output one exact 1536x1024 landscape color source sheet.
+```
+
+</details>
+
 실행 시 각 프레임을 아래 표로 확장한다.
 
 | 에셋 키 | 프레임 | 프롬프트 | Seed | Anchor | StyleRefs | 상태 |

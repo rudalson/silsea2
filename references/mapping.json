@@ -12,7 +12,8 @@
       "potato_king": ["potato_king_idle", "potato_king_jump", "potato_king_fall", "potato_king_land", "potato_king_shoot", "potato_king_hurt", "potato_king_defeated"],
       "hula_king": ["hula_king_idle", "hula_king_spin", "hula_king_warning", "hula_king_throw", "hula_king_vulnerable", "hula_king_hurt", "hula_king_defeated"],
       "invisible_king": ["invisible_king_idle", "invisible_king_reveal", "invisible_king_hide", "invisible_king_attack", "invisible_king_hurt", "invisible_king_defeated"],
-      "water_king": ["water_king_idle", "water_king_submerge", "water_king_emerge", "water_king_attack", "water_king_dizzy", "water_king_hurt", "water_king_defeated"]
+      "water_king": ["water_king_idle", "water_king_submerge", "water_king_emerge", "water_king_attack", "water_king_dizzy", "water_king_hurt", "water_king_defeated"],
+      "random_king": ["random_king_idle", "random_king_draw", "random_king_teleport", "random_king_attack", "random_king_taunt", "random_king_vulnerable", "random_king_hurt", "random_king_defeated"]
     },
     "code": {
       "fx_dust": ["src/systems/ParticleEffectsManager.js", "src/entities/Player.js"],
@@ -102,6 +103,15 @@
   "fx_water_king_projectile": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P12 영상 앵커에 맞춘 광택과 굵은 외곽선의 4프레임 구형 물방울 투사체." },
   "fx_water_king_splash": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P12 영상 앵커의 출현 순간 수직 방향을 강조하는 6프레임 왕관형 물보라." },
   "fx_water_king_dizzy": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "약점 상태를 색 이외의 별 궤도로 표시하는 4프레임 어지럼 효과." },
+  "random_king": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P13 영상 앵커의 물음표 몸·분리된 아래 점·작은 왕관을 유지한 8개 상태 애니메이션." },
+  "fx_random_king_cards": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "코스·점수 증가·점수 감소·전투를 색과 반복/+/−/교차 검 아이콘으로 함께 구분하는 카드 4종." },
+  "fx_random_king_teleport": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "위치 이동을 세로 나선과 바닥 고리로 판독시키는 6프레임 효과." },
+  "fx_random_king_projectile": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "낮음·높음·대각선 공격에 공용으로 쓰는 자주색 회전 투사체 4프레임." },
+  "fx_random_king_warning_low": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "바닥선과 삼각 돌기로 낮은 탄도를 표시하는 4프레임 예고." },
+  "fx_random_king_warning_high": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "상단 낙하선과 삼각 돌기로 높은 탄도를 표시하는 4프레임 예고." },
+  "fx_random_king_warning_diagonal": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "위치 이동 뒤 투척 궤도를 대각선 꼬리로 표시하는 4프레임 예고." },
+  "fx_random_king_tongue": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "세로 위험선과 큰 혀를 결합해 하늘 메롱 범위를 표시하는 6프레임 효과." },
+  "fx_random_king_vulnerable": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "색 없이도 약점 상태를 읽게 하는 금빛 별 궤도 4프레임." },
 
   "item_star": { "styleRefs": ["mario_1.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "수집 경로 가독성과 프로젝트 선 처리. 상용 별 디자인은 모사하지 않음." },
   "item_percent_small": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "고대비 원형 수집물과 프로젝트 선 처리." },
