@@ -235,6 +235,12 @@ const invisibleEffectAssets = [
   { name: "fx_invisible_miss", directory: "effects", width: 1536, height: 192 },
   { name: "fx_invisible_crown_impact", directory: "effects", width: 160, height: 112 }
 ];
+const waterKingEffectAssets = [
+  { name: "fx_water_king_ripple", directory: "effects", width: 1536, height: 128 },
+  { name: "fx_water_king_projectile", directory: "effects", width: 256, height: 64 },
+  { name: "fx_water_king_splash", directory: "effects", width: 1152, height: 160 },
+  { name: "fx_water_king_dizzy", directory: "effects", width: 768, height: 96 }
+];
 const requiredAudioKeys = [
   "sfx_jump", "sfx_land", "sfx_fall_start", "sfx_footstep", "sfx_star",
   "sfx_percent_small", "sfx_percent_large", "sfx_combo", "sfx_transform_unicorn",
@@ -248,6 +254,7 @@ const requiredAudioKeys = [
   "sfx_projectile_guard", "sfx_laser_warning", "sfx_laser_off",
   "sfx_hula_spin", "sfx_hula_throw", "sfx_hula_guard", "sfx_hula_weakness", "sfx_hula_defeat",
   "sfx_invisible_warning", "sfx_invisible_reveal", "sfx_invisible_hide", "sfx_invisible_attack", "sfx_invisible_defeat",
+  "sfx_water_warning", "sfx_water_emerge", "sfx_water_attack", "sfx_water_dizzy", "sfx_water_submerge", "sfx_water_defeat",
   "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
 ];
 let validatedAudioCount = 0;
@@ -657,7 +664,7 @@ for (const asset of [...mistEffectAssets, ...waterEffectAssets]) {
   }
 }
 
-for (const asset of [...hulaEffectAssets, ...invisibleEffectAssets]) {
+for (const asset of [...hulaEffectAssets, ...invisibleEffectAssets, ...waterKingEffectAssets]) {
   const path = join(root, "assets", asset.directory, `${asset.name}.png`);
   try {
     const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -743,6 +750,6 @@ const maximumOutsidePalette = qualityMeasurements.outsidePalette.reduce(
   (maximum, measurement) => measurement.value > maximum.value ? measurement : maximum,
   qualityMeasurements.outsidePalette[0]
 );
-console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 ${tilesetKeys.length}개·배경 ${backgroundAssets.length}개·별빛 장식 ${starlightDecorationAssets.length}개·환경 효과 ${mistEffectAssets.length + waterEffectAssets.length + hulaEffectAssets.length + invisibleEffectAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
+console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 ${tilesetKeys.length}개·배경 ${backgroundAssets.length}개·별빛 장식 ${starlightDecorationAssets.length}개·환경 효과 ${mistEffectAssets.length + waterEffectAssets.length + hulaEffectAssets.length + invisibleEffectAssets.length + waterKingEffectAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
 console.log(`형태/팔레트 임계값 통과: 기준선 ${qualityMeasurements.baseline.length}개 ${baselineRange.minimum}~${baselineRange.maximum}px (16±2px) · 캐릭터 높이 ${qualityMeasurements.characterHeight.length}개 ${heightRange.minimum}~${heightRange.maximum}px (96px±5%) · 팔레트 ${qualityMeasurements.outsidePalette.length}개 최대 ${(maximumOutsidePalette.value * 100).toFixed(2)}% (${maximumOutsidePalette.name}, 허용 5% 이하)`);
 console.log(`HTML 에셋 보고서 생성: ${assetReport.outputPath} (시각 에셋 ${assetReport.assetCount}개·역할 실루엣 ${assetReport.roleCount}개)`);

@@ -278,6 +278,9 @@ assert.ok(getEnemyAnimationSpec("hula_king", "defeated").durationMs >= 1200);
 assert.equal(getEnemyAnimationSpec("invisible_king", "reveal").durationMs, 1200);
 assert.equal(getEnemyAnimationSpec("invisible_king", "hide").durationMs, 420);
 assert.ok(getEnemyAnimationSpec("invisible_king", "defeated").durationMs >= 1200);
+assert.equal(getEnemyAnimationSpec("water_king", "submerge").durationMs, 480);
+assert.equal(getEnemyAnimationSpec("water_king", "emerge").durationMs, 520);
+assert.ok(getEnemyAnimationSpec("water_king", "defeated").durationMs >= 1200);
 
 assert.equal(stepFlightGauge(10000, 1000, { flying: true }), 9000);
 assert.equal(stepFlightGauge(10000, 1000, { flying: true, drainMultiplier: 0.65 }), 9350);
@@ -651,6 +654,7 @@ assert.equal(getBossDefinition("invisible_king")?.displayName, "투명 대왕");
 assert.deepEqual(getBossDefinition("invisible_king")?.animationRoles, ["idle", "reveal", "hide", "attack", "hurt", "defeated"]);
 assert.deepEqual(getBossDefinition("training_dummy")?.animationRoles, []);
 assert.equal(getBossDefinition("water_king")?.displayName, "물 대왕");
+assert.deepEqual(getBossDefinition("water_king")?.animationRoles, ["idle", "submerge", "emerge", "attack", "dizzy", "hurt", "defeated"]);
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);

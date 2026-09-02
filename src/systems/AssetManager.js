@@ -64,6 +64,12 @@ export class AssetManager {
       AssetManager.queueManifestAsset(scene, "fx_invisible_miss");
       AssetManager.queueManifestAsset(scene, "fx_invisible_crown_impact");
     }
+    if (types.has("water_king")) {
+      AssetManager.queueManifestAsset(scene, "fx_water_king_ripple");
+      AssetManager.queueManifestAsset(scene, "fx_water_king_projectile");
+      AssetManager.queueManifestAsset(scene, "fx_water_king_splash");
+      AssetManager.queueManifestAsset(scene, "fx_water_king_dizzy");
+    }
     if ((level.terrainMechanics?.updrafts?.length ?? 0) > 0) {
       AssetManager.queueManifestAsset(scene, "fx_updraft_wind");
     }

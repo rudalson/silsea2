@@ -1,10 +1,17 @@
 import Phaser from "phaser";
 import { COLORS, CSS_COLORS } from "../../config/constants.js";
 import { canHitWaterKing, chooseWaterPool, getBossPhasePattern } from "../../data/bossPatterns.js";
+import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 import { ObjectPool } from "../ObjectPool.js";
 
 const PROJECTILE_TEXTURE_KEY = "boss_projectile_water";
 const BODY_CENTER_OFFSET_Y = 62;
+const EFFECTS = Object.freeze({
+  ripple: { texture: "fx_water_king_ripple", frames: 6, duration: 620, repeat: -1 },
+  projectile: { texture: "fx_water_king_projectile", frames: 4, duration: 360, repeat: -1 },
+  splash: { texture: "fx_water_king_splash", frames: 6, duration: 540, repeat: 0 },
+  dizzy: { texture: "fx_water_king_dizzy", frames: 4, duration: 560, repeat: -1 }
+});
 
 export class WaterKingBehavior {
   constructor(context) {
@@ -30,9 +37,8 @@ export class WaterKingBehavior {
     ))) throw new Error("물대왕 보스 웅덩이가 arena 범위 밖에 있습니다.");
 
     this.boss.getData("label")?.setVisible(false);
-    this.boss.setAlpha(0);
-    this.createProjectileTexture();
-    this.projectilePool = this.createProjectilePool();
+    this.usesArt = Boolean(this.boss.getData("usesArt"));
+    this.boss.setAlpha(0).setDepth(8);
     this.poolVisuals = this.pools.map((pool) => ({
       pool,
       water: this.scene.add.ellipse(pool.x, pool.y - 5, pool.width, pool.height, COLORS.collectBlue, 0.3)
@@ -73,8 +79,47 @@ export class WaterKingBehavior {
       padding: { x: 9, y: 5 }
     }).setOrigin(0.5).setDepth(11).setVisible(false);
 
+    this.createArtEffects();
+    if (!this.usesArt) this.createProjectileTexture();
+    this.projectilePool = this.createProjectilePool();
+
     this.beginHidden(this.scene.time.now);
     this.applyVisualReviewState(this.scene.registry.get("visualReviewWaterState"));
+  }
+
+  createArtEffects() {
+    if (!this.usesArt) return;
+    if (!Object.values(EFFECTS).every(({ texture }) => this.scene.textures.exists(texture))) {
+      this.usesArt = false;
+      return;
+    }
+    for (const [name, spec] of Object.entries(EFFECTS)) {
+      const key = `fx:water:${name}`;
+      if (!this.scene.anims.exists(key)) {
+        this.scene.anims.create({
+          key,
+          frames: this.scene.anims.generateFrameNumbers(spec.texture, { start: 0, end: spec.frames - 1 }),
+          duration: spec.duration,
+          repeat: spec.repeat
+        });
+      }
+    }
+    this.rippleArt = this.scene.add.sprite(0, 0, EFFECTS.ripple.texture).setDepth(7).setVisible(false);
+    this.splashArt = this.scene.add.sprite(0, 0, EFFECTS.splash.texture).setDepth(7).setVisible(false);
+    this.dizzyArt = this.scene.add.sprite(0, 0, EFFECTS.dizzy.texture).setDepth(10).setVisible(false);
+  }
+
+  playAnimation(sequence, ignoreIfPlaying = true) {
+    if (!this.usesArt) return null;
+    return EnemyAnimationManager.play(this.boss, sequence, ignoreIfPlaying);
+  }
+
+  playEffect(sprite, name) {
+    if (sprite) sprite.setVisible(true).play(`fx:water:${name}`, true);
+  }
+
+  hideArtEffects() {
+    [this.rippleArt, this.splashArt, this.dizzyArt].forEach((effect) => effect?.setVisible(false));
   }
 
   createProjectileTexture() {
@@ -91,7 +136,8 @@ export class WaterKingBehavior {
     return new ObjectPool({
       maxSize: 12,
       create: () => {
-        const projectile = this.scene.physics.add.image(0, 0, PROJECTILE_TEXTURE_KEY)
+        const texture = this.usesArt ? EFFECTS.projectile.texture : PROJECTILE_TEXTURE_KEY;
+        const projectile = this.scene.physics.add.sprite(0, 0, texture)
           .setDepth(7).setVisible(false);
         projectile.body.setAllowGravity(false);
         projectile.body.enable = false;
@@ -109,6 +155,7 @@ export class WaterKingBehavior {
         projectile.body.reset(data.x, data.y);
         projectile.body.setCircle(23, 7, 7);
         projectile.body.setVelocity(data.velocityX, data.velocityY);
+        if (this.usesArt) projectile.play("fx:water:projectile", true);
       },
       deactivate: (projectile) => {
         projectile.setVisible(false).setActive(false);
@@ -150,14 +197,29 @@ export class WaterKingBehavior {
     };
     this.state = mapped[requestedState];
     this.stateUntil = Number.POSITIVE_INFINITY;
-    this.bodyVisual.setVisible(["emerge", "dizzy", "hit", "submerge", "defeated"].includes(requestedState))
+    this.hideArtEffects();
+    const bodyVisible = ["emerge", "dizzy", "hit", "submerge", "defeated"].includes(requestedState);
+    this.bodyVisual.setVisible(!this.usesArt && bodyVisible)
       .setAlpha(requestedState === "submerge" ? 0.42 : 1)
       .setScale(requestedState === "hit" ? 1.12 : 1, requestedState === "hit" ? 0.72 : 1);
-    this.warningRing.setVisible(requestedState === "warning");
-    this.bubbles.forEach((bubble) => bubble.setVisible(requestedState === "warning"));
+    this.boss.setAlpha(this.usesArt && bodyVisible ? 1 : 0);
+    this.warningRing.setVisible(!this.usesArt && requestedState === "warning");
+    this.bubbles.forEach((bubble) => bubble.setVisible(!this.usesArt && requestedState === "warning"));
     const dizzy = requestedState === "dizzy";
-    this.dizzyStars.forEach((star) => star.setVisible(dizzy));
+    this.dizzyStars.forEach((star) => star.setVisible(!this.usesArt && dizzy));
     this.countdown.setVisible(dizzy).setText(`약점 ${(this.getVulnerabilityMs() / 1000).toFixed(1)}초`);
+    if (requestedState === "warning") this.playEffect(this.rippleArt, "ripple");
+    if (requestedState === "emerge") {
+      this.playAnimation("attack", false);
+      this.playEffect(this.splashArt, "splash");
+    }
+    if (requestedState === "dizzy") {
+      this.playAnimation("dizzy", false);
+      this.playEffect(this.dizzyArt, "dizzy");
+    }
+    if (requestedState === "hit") this.playAnimation("hurt", false);
+    if (requestedState === "submerge") this.playAnimation("submerge", false);
+    if (requestedState === "defeated") this.playAnimation("defeated", false);
     this.setBodyEnabled(dizzy || requestedState === "emerge");
     if (requestedState === "emerge") {
       this.spawnProjectiles(this.getPattern());
@@ -207,6 +269,9 @@ export class WaterKingBehavior {
   updateVisuals(now) {
     if (!this.currentPool) return;
     this.bodyVisual.setPosition(this.boss.x, this.boss.y);
+    this.rippleArt?.setPosition(this.currentPool.x, this.currentPool.y - 28);
+    this.splashArt?.setPosition(this.currentPool.x, this.currentPool.y - 80);
+    this.dizzyArt?.setPosition(this.boss.x, this.boss.y - 154);
     const selected = ["pool_warning", "emerge_attack", "dizzy_vulnerable", "hit", "submerge"].includes(this.state);
     for (const { pool, water, shine } of this.poolVisuals) {
       const active = selected && pool.id === this.currentPool.id;
@@ -249,6 +314,9 @@ export class WaterKingBehavior {
     this.stateUntil = now + this.getPattern().hiddenMs;
     this.setBodyEnabled(false);
     this.bodyVisual.setVisible(false).setAlpha(1).setScale(1);
+    this.attackTimer?.remove(false);
+    this.attackTimer = null;
+    this.hideArtEffects();
     this.warningRing.setVisible(false);
     this.bubbles.forEach((bubble) => bubble.setVisible(false));
     this.dizzyStars.forEach((star) => star.setVisible(false));
@@ -265,9 +333,10 @@ export class WaterKingBehavior {
     this.state = "pool_warning";
     this.stateUntil = now + Math.max(900, Math.round(pattern.warningMs * (this.telegraphMultiplier ?? 1)));
     this.boss.setData({ vulnerable: false, bossState: this.state });
-    this.warningRing.setVisible(true);
-    this.bubbles.forEach((bubble) => bubble.setVisible(true));
-    this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
+    this.warningRing.setVisible(!this.usesArt);
+    this.bubbles.forEach((bubble) => bubble.setVisible(!this.usesArt));
+    this.playEffect(this.rippleArt, "ripple");
+    this.scene.audioManager?.playSfx("sfx_water_warning", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.("거품이 올라오는 웅덩이에서 물대왕이 나타납니다.");
   }
 
@@ -276,12 +345,21 @@ export class WaterKingBehavior {
     this.state = "emerge_attack";
     this.stateUntil = now + pattern.emergeAttackMs;
     this.boss.setData({ vulnerable: false, bossState: this.state });
-    this.bodyVisual.setVisible(true).setAlpha(1).setScale(1);
+    this.bodyVisual.setVisible(!this.usesArt).setAlpha(1).setScale(1);
+    this.boss.setAlpha(this.usesArt ? 1 : 0);
+    this.playAnimation("emerge", false);
+    this.playEffect(this.splashArt, "splash");
+    this.rippleArt?.setVisible(false);
     this.warningRing.setVisible(false);
     this.bubbles.forEach((bubble) => bubble.setVisible(false));
     this.setBodyEnabled(true);
     this.spawnProjectiles(pattern);
-    this.scene.audioManager?.playSfx("sfx_splash_exit", { randomizeRate: false });
+    this.scene.audioManager?.playSfx("sfx_water_emerge", { randomizeRate: false });
+    this.attackTimer?.remove(false);
+    this.attackTimer = this.scene.time.delayedCall(520, () => {
+      this.attackTimer = null;
+      if (this.state === "emerge_attack") this.playAnimation("attack", false);
+    });
     this.scene.cameraEffects?.shake("bossLandLight");
     this.scene.updateAccessibleStatus?.("물대왕이 나타나 물방울을 발사합니다. 공격 뒤 어지러울 때를 기다리세요.");
   }
@@ -303,16 +381,20 @@ export class WaterKingBehavior {
         expiresAt: this.scene.time.now + 4200
       });
     }
-    this.scene.audioManager?.playSfx("sfx_boss_land", { randomizeRate: false });
+    this.scene.audioManager?.playSfx("sfx_water_attack", { randomizeRate: false });
   }
 
   beginDizzy(now) {
     this.state = "dizzy_vulnerable";
     this.stateUntil = now + this.getVulnerabilityMs();
     this.boss.setData({ vulnerable: true, bossState: this.state });
-    this.dizzyStars.forEach((star) => star.setVisible(true));
+    this.playAnimation("dizzy", false);
+    this.playEffect(this.dizzyArt, "dizzy");
+    this.splashArt?.setVisible(false);
+    this.dizzyStars.forEach((star) => star.setVisible(!this.usesArt));
     this.countdown.setVisible(true);
     this.setBodyEnabled(true);
+    this.scene.audioManager?.playSfx("sfx_water_dizzy", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.("물대왕이 어지러워합니다. 카운트가 끝나기 전에 머리 위를 밟으세요.");
   }
 
@@ -323,10 +405,13 @@ export class WaterKingBehavior {
     this.boss.setData({ vulnerable: false, bossState: this.state });
     this.setBodyEnabled(false);
     this.projectilePool.releaseAll();
-    this.bodyVisual.setVisible(true).setAlpha(0.42).setScale(0.88, 0.56);
+    this.bodyVisual.setVisible(!this.usesArt).setAlpha(0.42).setScale(0.88, 0.56);
+    this.boss.setAlpha(this.usesArt ? 1 : 0);
+    this.playAnimation("submerge", false);
+    this.dizzyArt?.setVisible(false);
     this.dizzyStars.forEach((star) => star.setVisible(false));
     this.countdown.setVisible(false);
-    this.scene.audioManager?.playSfx("sfx_splash_enter", { randomizeRate: false });
+    this.scene.audioManager?.playSfx("sfx_water_submerge", { randomizeRate: false });
   }
 
   onPlayerContact({ fallingOntoHead, attemptHit }) {
@@ -346,7 +431,10 @@ export class WaterKingBehavior {
     this.stateUntil = this.scene.time.now + 420;
     this.setBodyEnabled(false);
     this.projectilePool.releaseAll();
-    this.bodyVisual.setVisible(true).setAlpha(1).setScale(1.12, 0.72);
+    this.bodyVisual.setVisible(!this.usesArt).setAlpha(1).setScale(1.12, 0.72);
+    this.boss.setAlpha(this.usesArt ? 1 : 0);
+    this.playAnimation("hurt", false);
+    this.dizzyArt?.setVisible(false);
     this.dizzyStars.forEach((star) => star.setVisible(false));
     this.countdown.setVisible(false);
     this.scene.audioManager?.playSfx("sfx_boss_hit", { randomizeRate: false });
@@ -359,14 +447,18 @@ export class WaterKingBehavior {
     this.boss.setData({ vulnerable: false, bossState: this.state });
     this.setBodyEnabled(false);
     this.projectilePool.releaseAll();
-    this.bodyVisual.setVisible(true).setAlpha(0.78).setScale(1.24, 0.42);
+    this.bodyVisual.setVisible(!this.usesArt).setAlpha(0.78).setScale(1.24, 0.42);
+    this.boss.setAlpha(this.usesArt ? 1 : 0);
+    this.playAnimation("defeated", false);
+    this.hideArtEffects();
     this.dizzyStars.forEach((star) => star.setVisible(false));
     this.countdown.setVisible(false);
-    this.scene.audioManager?.playSfx("sfx_boss_defeat", { randomizeRate: false });
-    this.defeatTimer = this.scene.time.delayedCall(650, () => {
+    this.scene.audioManager?.playSfx("sfx_water_defeat", { randomizeRate: false });
+    this.defeatTimer = this.scene.time.delayedCall(this.usesArt ? 1400 : 650, () => {
       this.defeatTimer = null;
       this.boss?.setActive(false);
       this.bodyVisual?.setVisible(false);
+      this.boss?.setAlpha(0);
     });
   }
 
@@ -382,6 +474,7 @@ export class WaterKingBehavior {
   }
 
   destroy() {
+    this.attackTimer?.remove(false);
     this.defeatTimer?.remove(false);
     this.projectilePool?.destroy();
     this.projectileInteractions.forEach((interaction) => interaction?.destroy());
@@ -395,6 +488,9 @@ export class WaterKingBehavior {
     this.warningRing?.destroy();
     this.bubbles?.forEach((bubble) => bubble.destroy());
     this.dizzyStars?.forEach((star) => star.destroy());
+    this.rippleArt?.destroy();
+    this.splashArt?.destroy();
+    this.dizzyArt?.destroy();
     this.countdown?.destroy();
   }
 }

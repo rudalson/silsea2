@@ -491,6 +491,62 @@
       "frameHeight": 128,
       "frames": 8
     },
+    {
+      "key": "water_king_idle",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_idle.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "water_king_submerge",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_submerge.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "water_king_emerge",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_emerge.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "water_king_attack",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_attack.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 6
+    },
+    {
+      "key": "water_king_dizzy",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_dizzy.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4
+    },
+    {
+      "key": "water_king_hurt",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_hurt.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3
+    },
+    {
+      "key": "water_king_defeated",
+      "type": "spritesheet",
+      "url": "/assets/enemies/water_king/water_king_defeated.png",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8
+    },
     { "key": "item_star", "type": "image", "url": "/assets/items/item_star.png" },
     { "key": "item_percent_small", "type": "image", "url": "/assets/items/item_percent_small.png" },
     { "key": "item_percent_large", "type": "image", "url": "/assets/items/item_percent_large.png" },
@@ -508,6 +564,10 @@
     { "key": "fx_invisible_afterimage", "type": "spritesheet", "url": "/assets/effects/fx_invisible_afterimage.png", "frameWidth": 192, "frameHeight": 192, "frames": 4 },
     { "key": "fx_invisible_miss", "type": "spritesheet", "url": "/assets/effects/fx_invisible_miss.png", "frameWidth": 256, "frameHeight": 192, "frames": 6 },
     { "key": "fx_invisible_crown_impact", "type": "image", "url": "/assets/effects/fx_invisible_crown_impact.png", "width": 160, "height": 112 },
+    { "key": "fx_water_king_ripple", "type": "spritesheet", "url": "/assets/effects/fx_water_king_ripple.png", "frameWidth": 256, "frameHeight": 128, "frames": 6 },
+    { "key": "fx_water_king_projectile", "type": "spritesheet", "url": "/assets/effects/fx_water_king_projectile.png", "frameWidth": 64, "frameHeight": 64, "frames": 4 },
+    { "key": "fx_water_king_splash", "type": "spritesheet", "url": "/assets/effects/fx_water_king_splash.png", "frameWidth": 192, "frameHeight": 160, "frames": 6 },
+    { "key": "fx_water_king_dizzy", "type": "spritesheet", "url": "/assets/effects/fx_water_king_dizzy.png", "frameWidth": 192, "frameHeight": 96, "frames": 4 },
     { "key": "ui_hud_frame", "type": "image", "url": "/assets/ui/ui_hud_frame.png" },
     { "key": "ui_hud_badge_star", "type": "image", "url": "/assets/ui/ui_hud_badge_star.png" },
     { "key": "ui_hud_heart", "type": "image", "url": "/assets/ui/ui_hud_heart.png" },
@@ -668,6 +728,12 @@
     { "key": "sfx_invisible_hide", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_hide.wav", "category": "sfx" },
     { "key": "sfx_invisible_attack", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_attack.wav", "category": "sfx" },
     { "key": "sfx_invisible_defeat", "type": "audio", "url": "/assets/audio/sfx/sfx_invisible_defeat.wav", "category": "sfx" },
+    { "key": "sfx_water_warning", "type": "audio", "url": "/assets/audio/sfx/sfx_water_warning.wav", "category": "sfx" },
+    { "key": "sfx_water_emerge", "type": "audio", "url": "/assets/audio/sfx/sfx_water_emerge.wav", "category": "sfx" },
+    { "key": "sfx_water_attack", "type": "audio", "url": "/assets/audio/sfx/sfx_water_attack.wav", "category": "sfx" },
+    { "key": "sfx_water_dizzy", "type": "audio", "url": "/assets/audio/sfx/sfx_water_dizzy.wav", "category": "sfx" },
+    { "key": "sfx_water_submerge", "type": "audio", "url": "/assets/audio/sfx/sfx_water_submerge.wav", "category": "sfx" },
+    { "key": "sfx_water_defeat", "type": "audio", "url": "/assets/audio/sfx/sfx_water_defeat.wav", "category": "sfx" },
     { "key": "bgm_field", "type": "audio", "url": "/assets/audio/bgm/bgm_field.wav", "category": "bgm" },
     { "key": "bgm_starlight", "type": "audio", "url": "/assets/audio/bgm/bgm_starlight.wav", "category": "bgm" },
     { "key": "bgm_mist", "type": "audio", "url": "/assets/audio/bgm/bgm_mist.wav", "category": "bgm" },

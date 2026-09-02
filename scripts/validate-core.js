@@ -210,6 +210,14 @@ if (!waterKingBehavior.includes("chooseWaterPool")
   || !waterKingBehavior.includes("water_king_projectile")) {
   fail("P12 물대왕 Seed 위치·투사체 Pool·6/5/4초 쉬운 약점·물 피해 연결이 없음");
 }
+if (!waterKingBehavior.includes('"fx_water_king_ripple"')
+  || !waterKingBehavior.includes('"fx_water_king_projectile"')
+  || !waterKingBehavior.includes('"fx_water_king_splash"')
+  || !waterKingBehavior.includes('"fx_water_king_dizzy"')
+  || !waterKingBehavior.includes('playAnimation("submerge"')
+  || !waterKingBehavior.includes('playSfx("sfx_water_defeat"')) {
+  fail("P12 최종 물결·투사체·출현·어지럼 효과와 상태 애니메이션·전용 SFX 연결이 없음");
+}
 if (waterKingBehavior.includes("Math.random")) fail("P12 물대왕 위치·투사체에 고정 Seed 밖의 랜덤 호출이 있음");
 if (!transformManager.includes("findNearestSafePoint")) fail("알리콘 종료 안전 착지가 없음");
 if (!transformManager.includes("body.moves = false") || !transformManager.includes("camera.flash") || !transformManager.includes("camera.zoomTo")) {

@@ -53,6 +53,15 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     attack: "invisible_king_attack",
     hurt: "invisible_king_hurt",
     defeated: "invisible_king_defeated"
+  }),
+  water_king: Object.freeze({
+    idle: "water_king_idle",
+    submerge: "water_king_submerge",
+    emerge: "water_king_emerge",
+    attack: "water_king_attack",
+    dizzy: "water_king_dizzy",
+    hurt: "water_king_hurt",
+    defeated: "water_king_defeated"
   })
 });
 
@@ -111,6 +120,15 @@ const ENEMY_TIMINGS = Object.freeze({
     attack: Object.freeze({ durations: [130, 130, 140, 150, 160, 190], repeat: 0 }),
     hurt: Object.freeze({ durations: [100, 100, 160], repeat: 0 }),
     defeated: Object.freeze({ durations: [120, 100, 110, 120, 140, 170, 220, 320], repeat: 0 })
+  }),
+  water_king: Object.freeze({
+    idle: Object.freeze({ durations: [180, 170, 180, 190], repeat: -1 }),
+    submerge: Object.freeze({ durations: [70, 75, 80, 85, 85, 85], repeat: 0 }),
+    emerge: Object.freeze({ durations: [80, 80, 85, 90, 90, 95], repeat: 0 }),
+    attack: Object.freeze({ durations: [90, 95, 100, 100, 105, 110], repeat: 0 }),
+    dizzy: Object.freeze({ durations: [140, 130, 140, 150], repeat: -1 }),
+    hurt: Object.freeze({ durations: [90, 100, 130], repeat: 0 }),
+    defeated: Object.freeze({ durations: [130, 140, 150, 160, 170, 180, 190, 220], repeat: 0 })
   })
 });
 

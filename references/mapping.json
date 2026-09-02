@@ -11,7 +11,8 @@
       "magpie": ["magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"],
       "potato_king": ["potato_king_idle", "potato_king_jump", "potato_king_fall", "potato_king_land", "potato_king_shoot", "potato_king_hurt", "potato_king_defeated"],
       "hula_king": ["hula_king_idle", "hula_king_spin", "hula_king_warning", "hula_king_throw", "hula_king_vulnerable", "hula_king_hurt", "hula_king_defeated"],
-      "invisible_king": ["invisible_king_idle", "invisible_king_reveal", "invisible_king_hide", "invisible_king_attack", "invisible_king_hurt", "invisible_king_defeated"]
+      "invisible_king": ["invisible_king_idle", "invisible_king_reveal", "invisible_king_hide", "invisible_king_attack", "invisible_king_hurt", "invisible_king_defeated"],
+      "water_king": ["water_king_idle", "water_king_submerge", "water_king_emerge", "water_king_attack", "water_king_dizzy", "water_king_hurt", "water_king_defeated"]
     },
     "code": {
       "fx_dust": ["src/systems/ParticleEffectsManager.js", "src/entities/Player.js"],
@@ -96,6 +97,11 @@
   "fx_invisible_afterimage": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "숨기 직후 직전 위치에 짧게 남는 청록 구형 윤곽 4프레임 효과." },
   "fx_invisible_miss": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "기억 실패 뒤 큰 원과 흰 십자가 함께 확장되는 6프레임 공격 예고 효과." },
   "fx_invisible_crown_impact": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "피격·격파 시 분리된 왕관과 방사선을 강조하는 투명 효과." },
+  "water_king": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P12 영상 앵커의 세로 물방울 몸·작은 금빛 왕관·짧은 팔다리를 유지한 7개 상태 애니메이션." },
+  "fx_water_king_ripple": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P12 영상 앵커에 따라 출현 웅덩이를 색과 확장 실루엣으로 함께 예고하는 6프레임 물결 효과." },
+  "fx_water_king_projectile": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P12 영상 앵커에 맞춘 광택과 굵은 외곽선의 4프레임 구형 물방울 투사체." },
+  "fx_water_king_splash": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "승인 P12 영상 앵커의 출현 순간 수직 방향을 강조하는 6프레임 왕관형 물보라." },
+  "fx_water_king_dizzy": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "약점 상태를 색 이외의 별 궤도로 표시하는 4프레임 어지럼 효과." },
 
   "item_star": { "styleRefs": ["mario_1.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "수집 경로 가독성과 프로젝트 선 처리. 상용 별 디자인은 모사하지 않음." },
   "item_percent_small": { "styleRefs": ["mario_1.jpg", "silsea_sprite-Photoroom.png"], "note": "고대비 원형 수집물과 프로젝트 선 처리." },

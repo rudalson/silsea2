@@ -74,7 +74,13 @@ const sfx = {
   sfx_invisible_reveal: { duration: 0.72, tones: [...arpeggio([659, 784, 988, 1175], 0.11, 0.27, "sine", 0.25), ...chord(0.4, 0.3, [659, 988], "triangle", 0.1)] },
   sfx_invisible_hide: { duration: 0.48, tones: [tone(0, 0.48, 980, 330, "sine", 0.28), tone(0.08, 0.36, 620, 210, "triangle", 0.13)], noise: 0.025 },
   sfx_invisible_attack: { duration: 0.64, tones: [tone(0, 0.28, 740, 320, "square", 0.19), tone(0.16, 0.48, 190, 90, "sine", 0.36)], noise: 0.12 },
-  sfx_invisible_defeat: { duration: 1.05, tones: [...arpeggio([988, 784, 659, 523], 0.13, 0.3, "triangle", 0.21), ...chord(0.61, 0.44, [523, 659, 784], "sine", 0.12)] }
+  sfx_invisible_defeat: { duration: 1.05, tones: [...arpeggio([988, 784, 659, 523], 0.13, 0.3, "triangle", 0.21), ...chord(0.61, 0.44, [523, 659, 784], "sine", 0.12)] },
+  sfx_water_warning: { duration: 0.62, tones: [tone(0, 0.62, 280, 620, "sine", 0.22), tone(0.18, 0.4, 420, 820, "triangle", 0.12)], noise: 0.045 },
+  sfx_water_emerge: { duration: 0.52, tones: [tone(0, 0.44, 190, 720, "sine", 0.3), tone(0.08, 0.38, 310, 930, "triangle", 0.15)], noise: 0.13 },
+  sfx_water_attack: { duration: 0.38, tones: [tone(0, 0.34, 680, 250, "sine", 0.3), tone(0.04, 0.26, 920, 410, "triangle", 0.16)], noise: 0.08 },
+  sfx_water_dizzy: { duration: 0.58, tones: arpeggio([988, 784, 659, 784], 0.12, 0.2, "sine", 0.23) },
+  sfx_water_submerge: { duration: 0.44, tones: [tone(0, 0.4, 620, 160, "sine", 0.28), tone(0.06, 0.32, 430, 120, "triangle", 0.13)], noise: 0.1 },
+  sfx_water_defeat: { duration: 1.08, tones: [...arpeggio([880, 698, 587, 440], 0.14, 0.3, "triangle", 0.22), ...chord(0.62, 0.46, [440, 554, 659], "sine", 0.12)], noise: 0.035 }
 };
 
 const waveAt = (kind, phase) => {
