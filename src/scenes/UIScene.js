@@ -179,12 +179,22 @@ export class UIScene extends Phaser.Scene {
     this.onItemCollected = ({ type }) => {
       if (type === "percent_large") this.showToast("대형 퍼센트 +100!");
     };
+    this.onRandomBossResult = ({ result, delta = 0, courseName = "" } = {}) => {
+      const messages = {
+        replay_section: `${courseName || "이전 코스"} 재도전!`,
+        score_plus: `랜덤 보너스 +${Math.abs(delta || 100)}!`,
+        score_minus: `랜덤 페널티 -${Math.abs(delta || 100)}!`,
+        start_battle: "직접 전투 시작!"
+      };
+      this.showToast(messages[result] ?? "랜덤 결과!");
+    };
     this.gameScene.events.on(EVENTS.CHECKPOINT, this.onCheckpoint);
     this.gameScene.events.on(EVENTS.BOSS_HIT, this.onBossHit);
     this.gameScene.events.on(EVENTS.BOSS_DEFEATED, this.onBossDefeated);
     this.gameScene.events.on(EVENTS.FORM_CHANGED, this.onFormChanged);
     this.gameScene.events.on(EVENTS.FORM_WARNING, this.onFormWarning);
     this.gameScene.events.on(EVENTS.ITEM_COLLECTED, this.onItemCollected);
+    this.gameScene.events.on(EVENTS.RANDOM_BOSS_RESULT, this.onRandomBossResult);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }
 
@@ -519,5 +529,6 @@ export class UIScene extends Phaser.Scene {
     this.gameScene?.events.off(EVENTS.FORM_CHANGED, this.onFormChanged);
     this.gameScene?.events.off(EVENTS.FORM_WARNING, this.onFormWarning);
     this.gameScene?.events.off(EVENTS.ITEM_COLLECTED, this.onItemCollected);
+    this.gameScene?.events.off(EVENTS.RANDOM_BOSS_RESULT, this.onRandomBossResult);
   }
 }

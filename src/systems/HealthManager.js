@@ -99,6 +99,12 @@ export class HealthManager {
     return this.transformationManager.invulnerable || this.scene.time.now < this.invulnerableUntil;
   }
 
+  grantInvulnerability(durationMs) {
+    const duration = Math.max(0, Number(durationMs) || 0);
+    this.invulnerableUntil = Math.max(this.invulnerableUntil, this.scene.time.now + duration);
+    return this.invulnerableUntil;
+  }
+
   restoreFull() {
     const restored = this.hp < this.maxHp;
     this.hp = this.maxHp;

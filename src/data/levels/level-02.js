@@ -1,5 +1,7 @@
 const tilemapUrl = new URL("../../../assets/levels/level-02/tilemap.json", import.meta.url).href;
 
+export const P13_RANDOM_BOSS_ROOM_WIDTH = 2048;
+
 export default {
   schemaVersion: 1,
   id: "level-02",
@@ -40,16 +42,50 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_starlight", clear: "bgm_clear" }
+    bgm: { field: "bgm_starlight", boss: "bgm_boss", clear: "bgm_clear" }
   },
-  world: { width: 6144, height: 768, tileSize: 64 },
+  world: { width: 8192, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
   player: { spawn: { x: 128, y: 576 } },
   sections: [
     { id: "moonlit_trail", type: "normal", xStart: 0, xEnd: 1792, mood: "normal" },
     { id: "glow_canopy", type: "normal", xStart: 1792, xEnd: 3840, mood: "normal" },
     { id: "whispering_gap", type: "normal", xStart: 3840, xEnd: 4992, mood: "normal" },
-    { id: "star_tree", type: "normal", xStart: 4992, xEnd: 6144, mood: "normal" }
+    { id: "star_tree", type: "normal", xStart: 4992, xEnd: 6144, mood: "normal" },
+    {
+      id: "boss_random",
+      type: "boss",
+      xStart: 6144,
+      xEnd: 8192,
+      mood: "normal",
+      lockCamera: true,
+      boss: {
+        key: "random_king",
+        hp: 3,
+        phases: ["random_mix_1", "random_mix_2", "random_mix_3"],
+        completion: "level",
+        spawn: { x: 7584, y: 576 },
+        floorY: 576,
+        environment: { suspend: ["lasers"] },
+        resultDeck: ["replay_section", "score_plus", "score_minus", "start_battle"],
+        maxNonBattle: 3,
+        scoreDelta: 100,
+        reentrySafetyMs: 1000,
+        easyReentrySafetyMs: 1500,
+        replayCourses: [
+          { id: "moonlit_trail", name: "달빛 길", x: 256, y: 576 },
+          { id: "glow_canopy", name: "빛나는 숲관", x: 1664, y: 576 },
+          { id: "whispering_gap", name: "속삭이는 틈", x: 3712, y: 576 },
+          { id: "star_tree", name: "별나무", x: 5120, y: 576 }
+        ],
+        arenaAnchors: [
+          { id: "random_left", x: 6560, y: 576 },
+          { id: "random_mid_left", x: 6976, y: 576 },
+          { id: "random_mid_right", x: 7392, y: 576 },
+          { id: "random_right", x: 7808, y: 576 }
+        ]
+      }
+    }
   ],
   cameraCues: [
     { id: "cue_first_gap", xStart: 1504, xEnd: 2240, lookAhead: 175, targetX: 2304 },
@@ -62,12 +98,16 @@ export default {
     { id: "star_flower_canopy", asset: "starFlower", x: 3390, y: 574, width: 190, height: 142, depth: -4 },
     { id: "firefly_gap", asset: "firefly", x: 4410, y: 312, width: 168, height: 140, depth: -4, float: true, delay: 260 },
     { id: "star_tree_landmark", asset: "starTree", x: 5480, y: 578, width: 570, height: 570, depth: -5 },
-    { id: "star_flower_exit", asset: "starFlower", x: 5820, y: 574, width: 176, height: 132, depth: -4 }
+    { id: "star_flower_exit", asset: "starFlower", x: 5820, y: 574, width: 176, height: 132, depth: -4 },
+    { id: "random_room_tree_left", asset: "starTree", x: 6400, y: 578, width: 420, height: 420, depth: -5 },
+    { id: "random_room_fireflies", asset: "firefly", x: 7080, y: 330, width: 210, height: 174, depth: -4, float: true },
+    { id: "random_room_tree_right", asset: "starTree", x: 7950, y: 578, width: 460, height: 460, depth: -5 }
   ],
   checkpoints: [
     { id: "cp_moonroot", x: 1664, y: 576 },
     { id: "cp_fireflies", x: 3712, y: 576 },
-    { id: "cp_star_tree", x: 5120, y: 576, restoresHealth: true }
+    { id: "cp_star_tree", x: 5120, y: 576, restoresHealth: true },
+    { id: "cp_random_ready", x: 6272, y: 576, restoresHealth: true }
   ],
   enemies: [
     { id: "e_moonroot_01", type: "raw_potato", x: 896, y: 576, patrol: 160 },
@@ -168,7 +208,10 @@ export default {
     }
   },
   objectives: {
-    required: [{ type: "reach_gate" }],
+    required: [
+      { type: "defeat_boss", target: "random_king" },
+      { type: "reach_gate" }
+    ],
     optional: [
       { type: "collect_stars", count: 35, reward: 450 },
       { type: "clear_time", seconds: 210, reward: 300 },
@@ -181,6 +224,7 @@ export default {
       removeEnemies: [],
       player: { extraHp: 1, flightDrainMultiplier: 0.7 },
       terrainMechanics: { movingSpeedMultiplier: 0.72, crumbleDelayMultiplier: 1.45 },
+      boss: { telegraphMultiplier: 1.25, vulnerabilityMultiplier: 1.35, volleyIntervalMultiplier: 1.2 },
       environment: {
         lasers: { warningMultiplier: 13 / 9, activeMultiplier: 6 / 7, restMultiplier: 1.5 },
         projectiles: {
@@ -192,5 +236,6 @@ export default {
       },
       pitScoreLoss: 0
     }
-  }
+  },
+  exit: { x: 8016, y: 576 }
 };

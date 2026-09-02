@@ -46,6 +46,8 @@ export class GameScene extends Phaser.Scene {
     this.isCompleting = false;
     this.currentSectionId = null;
     this.bossClearTimer = null;
+    this.forcedReplayStartedAt = null;
+    this.forcedReplaySeconds = 0;
   }
 
   create() {
@@ -178,7 +180,7 @@ export class GameScene extends Phaser.Scene {
     this.updateMagnet(delta);
     this.elapsed += delta / 1000;
     this.playtestManager?.update(this.elapsed, this.player);
-    this.objectiveManager.update(this.elapsed);
+    this.objectiveManager.update(this.getObjectiveElapsed());
     this.scoreManager.update(delta);
 
     if (this.player.y > this.level.world.height + 140 && !this.checkpointManager.respawning) {
@@ -262,6 +264,7 @@ export class GameScene extends Phaser.Scene {
 
     for (const checkpoint of this.levelLoader.checkpointZones) {
       const overlap = this.physics.add.overlap(this.player, checkpoint.zone, () => {
+        if (this.isForcedReplayActive()) return;
         if (!this.checkpointManager.activate(checkpoint.data)) return;
         this.transformationManager.restoreFlight();
         if (checkpoint.data.restoresHealth) {
@@ -509,6 +512,38 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.centerOn(x, y - 180);
   }
 
+  beginForcedReplay(details = {}) {
+    if (this.forcedReplayStartedAt !== null) return false;
+    this.forcedReplayStartedAt = this.elapsed;
+    this.events.emit(EVENTS.RANDOM_BOSS_REPLAY, { phase: "started", ...details });
+    return true;
+  }
+
+  finishForcedReplay(details = {}) {
+    if (this.forcedReplayStartedAt === null) return 0;
+    const durationSeconds = Math.max(0, this.elapsed - this.forcedReplayStartedAt);
+    this.forcedReplaySeconds += durationSeconds;
+    this.forcedReplayStartedAt = null;
+    this.events.emit(EVENTS.RANDOM_BOSS_REPLAY, {
+      phase: "finished",
+      durationSeconds,
+      excludedSeconds: this.forcedReplaySeconds,
+      ...details
+    });
+    return durationSeconds;
+  }
+
+  isForcedReplayActive() {
+    return this.forcedReplayStartedAt !== null;
+  }
+
+  getObjectiveElapsed() {
+    const activeSeconds = this.forcedReplayStartedAt === null
+      ? 0
+      : Math.max(0, this.elapsed - this.forcedReplayStartedAt);
+    return Math.max(0, this.elapsed - this.forcedReplaySeconds - activeSeconds);
+  }
+
   rebuildLevel() {
     const position = { x: this.player.x, y: this.player.y };
     this.clearInteractions();
@@ -544,6 +579,10 @@ export class GameScene extends Phaser.Scene {
     return {
       fps: this.game.loop.actualFps,
       elapsedSeconds: this.elapsed,
+      objectiveElapsedSeconds: this.getObjectiveElapsed(),
+      forcedReplaySeconds: this.forcedReplaySeconds + (
+        this.forcedReplayStartedAt === null ? 0 : Math.max(0, this.elapsed - this.forcedReplayStartedAt)
+      ),
       pools,
       poolTotals: {
         activeCount: poolValues.reduce((total, entry) => total + entry.activeCount, 0),

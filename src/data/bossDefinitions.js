@@ -154,6 +154,28 @@ export const BOSS_DEFINITIONS = Object.freeze({
       intro: "물 공격 뒤 어지러운 동안 머리 위를 밟으세요",
       hit: "다른 웅덩이의 출현 예고를 확인하세요"
     })
+  }),
+  random_king: Object.freeze({
+    key: "random_king",
+    displayName: "랜덤 대왕",
+    behavior: "random_king",
+    defaultHp: 3,
+    phaseIds: Object.freeze(["random_mix_1", "random_mix_2", "random_mix_3"]),
+    completion: "level",
+    animationRoles: Object.freeze([]),
+    spawn: Object.freeze({ edgeOffset: 560 }),
+    render: freezeRender({
+      placeholderColor: COLORS.collectBlue,
+      fallback: {
+        origin: { x: 0.5, y: 1 },
+        scale: 1,
+        body: { width: 118, height: 118, center: true }
+      }
+    }),
+    copy: Object.freeze({
+      intro: "결과를 확인하고 무작위 공격 뒤 약점을 노리세요",
+      hit: "다음 공격의 모양과 위치를 확인하세요"
+    })
   })
 });
 

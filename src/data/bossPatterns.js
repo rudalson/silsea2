@@ -19,6 +19,28 @@ const defineHulaPhase = (config) => Object.freeze({
 
 const defineInvisiblePhase = (config) => Object.freeze({ ...config });
 const defineWaterPhase = (config) => Object.freeze({ ...config });
+const defineRandomPhase = (config) => Object.freeze({ ...config });
+
+export const RANDOM_RESULT_TYPES = Object.freeze([
+  "replay_section",
+  "score_plus",
+  "score_minus",
+  "start_battle"
+]);
+
+export const RANDOM_ATTACK_TYPES = Object.freeze([
+  "ground_projectile",
+  "high_projectile",
+  "teleport_throw",
+  "sky_tongue"
+]);
+
+export const RANDOM_RESULT_RULES = Object.freeze({
+  maxNonBattle: 3,
+  scoreDelta: 100,
+  reentrySafetyMs: 1000,
+  easyReentrySafetyMs: 1500
+});
 
 export const POTATO_KING_PHASES = Object.freeze({
   1: definePhase({
@@ -231,12 +253,95 @@ export const WATER_KING_PHASES = Object.freeze({
   })
 });
 
+export const RANDOM_KING_PHASES = Object.freeze({
+  1: defineRandomPhase({
+    id: "random_mix_1",
+    attackDrawMs: 520,
+    telegraphMs: 1000,
+    executeMs: 900,
+    vulnerabilityMs: 2200,
+    easyVulnerabilityMs: 3000,
+    recoveryMs: 650,
+    projectileSpeed: 300
+  }),
+  2: defineRandomPhase({
+    id: "random_mix_2",
+    attackDrawMs: 480,
+    telegraphMs: 900,
+    executeMs: 820,
+    vulnerabilityMs: 1900,
+    easyVulnerabilityMs: 2700,
+    recoveryMs: 620,
+    projectileSpeed: 340
+  }),
+  3: defineRandomPhase({
+    id: "random_mix_3",
+    attackDrawMs: 440,
+    telegraphMs: 800,
+    executeMs: 760,
+    vulnerabilityMs: 1700,
+    easyVulnerabilityMs: 2400,
+    recoveryMs: 580,
+    projectileSpeed: 380
+  })
+});
+
 export const BOSS_PATTERNS = Object.freeze({
   potato_king: POTATO_KING_PHASES,
   hula_king: HULA_KING_PHASES,
   invisible_king: INVISIBLE_KING_PHASES,
-  water_king: WATER_KING_PHASES
+  water_king: WATER_KING_PHASES,
+  random_king: RANDOM_KING_PHASES
 });
+
+const clampRandom = (value) => Math.max(0, Math.min(0.999999, Number(value) || 0));
+
+export const chooseRandomResult = (
+  randomValue,
+  previousResult = null,
+  nonBattleCount = 0,
+  maxNonBattle = RANDOM_RESULT_RULES.maxNonBattle,
+  resultTypes = RANDOM_RESULT_TYPES
+) => {
+  if (nonBattleCount >= maxNonBattle) return "start_battle";
+  const candidates = resultTypes.filter((result) => result !== previousResult);
+  if (!candidates.length) throw new Error("랜덤대왕의 선택 가능한 결과가 없습니다.");
+  return candidates[Math.floor(clampRandom(randomValue) * candidates.length)];
+};
+
+export const chooseRandomCourse = (courses, randomValue, previousId = null) => {
+  const candidates = courses.filter(({ id }) => id !== previousId);
+  const pool = candidates.length ? candidates : courses;
+  if (!pool.length) throw new Error("랜덤대왕의 안전 재도전 코스가 없습니다.");
+  return pool[Math.floor(clampRandom(randomValue) * pool.length)];
+};
+
+export const createRandomAttackDeck = (nextRandom, previousId = null) => {
+  const deck = [...RANDOM_ATTACK_TYPES];
+  for (let index = deck.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(clampRandom(nextRandom()) * (index + 1));
+    [deck[index], deck[target]] = [deck[target], deck[index]];
+  }
+  if (deck[0] === previousId && deck.length > 1) {
+    const swapIndex = 1 + Math.floor(clampRandom(nextRandom()) * (deck.length - 1));
+    [deck[0], deck[swapIndex]] = [deck[swapIndex], deck[0]];
+  }
+  return deck;
+};
+
+export const chooseRandomArenaAnchor = (anchors, randomValue, previousId = null, playerX = null) => {
+  const withoutPrevious = anchors.filter(({ id }) => id !== previousId);
+  const safelyApart = Number.isFinite(playerX)
+    ? withoutPrevious.filter(({ x }) => Math.abs(x - playerX) >= 240)
+    : withoutPrevious;
+  const pool = safelyApart.length ? safelyApart : withoutPrevious.length ? withoutPrevious : anchors;
+  if (!pool.length) throw new Error("랜덤대왕의 전투 위치 앵커가 없습니다.");
+  return pool[Math.floor(clampRandom(randomValue) * pool.length)];
+};
+
+export const canHitRandomKing = (state, fallingOntoHead) => (
+  state === "vulnerable" && Boolean(fallingOntoHead)
+);
 
 export const getHulaSpinDuration = (pattern, randomValue) => Math.round(
   pattern.spinMinMs + (pattern.spinMaxMs - pattern.spinMinMs) * Math.max(0, Math.min(1, randomValue))

@@ -3,5 +3,6 @@ export const BOSS_BEHAVIOR_TYPES = Object.freeze([
   "training_dummy",
   "hula_king",
   "invisible_king",
-  "water_king"
+  "water_king",
+  "random_king"
 ]);

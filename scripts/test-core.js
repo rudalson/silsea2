@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import level01 from "../src/data/levels/level-01.js";
-import level02 from "../src/data/levels/level-02.js";
+import level02, { P13_RANDOM_BOSS_ROOM_WIDTH } from "../src/data/levels/level-02.js";
 import level03, { P11_INVISIBLE_BOSS_ROOM_WIDTH } from "../src/data/levels/level-03.js";
 import level04, { P10_HULA_BOSS_ROOM_WIDTH } from "../src/data/levels/level-04.js";
 import level05, { P12_WATER_BOSS_ROOM_WIDTH } from "../src/data/levels/level-05.js";
@@ -20,13 +20,20 @@ import {
   HULA_KING_PHASES,
   INVISIBLE_KING_PHASES,
   POTATO_KING_PHASES,
+  RANDOM_ATTACK_TYPES,
+  RANDOM_KING_PHASES,
+  RANDOM_RESULT_RULES,
   WATER_KING_PHASES,
   canHitHulaKing,
   canHitInvisibleKing,
+  canHitRandomKing,
   canHitWaterKing,
   chooseInvisibleAnchor,
   chooseHulaSequence,
+  chooseRandomCourse,
+  chooseRandomResult,
   chooseWaterPool,
+  createRandomAttackDeck,
   getBossPhasePattern,
   getHulaSpinDuration,
   isInvisibleAnchorReachable
@@ -646,8 +653,8 @@ for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
 }
 assert.throws(() => getBossPhasePattern("unknown_boss", 1), /등록되지 않은 보스 패턴/);
 assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은 보스 페이즈/);
-assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king", "water_king"]);
-assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king", "water_king"]);
+assert.deepEqual(BOSS_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king", "water_king", "random_king"]);
+assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["potato_king", "training_dummy", "hula_king", "invisible_king", "water_king", "random_king"]);
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
 assert.deepEqual(getBossDefinition("hula_king")?.animationRoles, ["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]);
 assert.equal(getBossDefinition("invisible_king")?.displayName, "투명 대왕");
@@ -655,6 +662,8 @@ assert.deepEqual(getBossDefinition("invisible_king")?.animationRoles, ["idle", "
 assert.deepEqual(getBossDefinition("training_dummy")?.animationRoles, []);
 assert.equal(getBossDefinition("water_king")?.displayName, "물 대왕");
 assert.deepEqual(getBossDefinition("water_king")?.animationRoles, ["idle", "submerge", "emerge", "attack", "dizzy", "hurt", "defeated"]);
+assert.equal(getBossDefinition("random_king")?.displayName, "랜덤 대왕");
+assert.deepEqual(getBossDefinition("random_king")?.animationRoles, []);
 assert.equal(requireBossDefinition("training_dummy").behavior, "training_dummy");
 assert.throws(() => requireBossDefinition("unknown_boss"), /등록되지 않은 보스 키/);
 assert.equal(resolveBossPhase(3, 2, 3), 2);
@@ -793,6 +802,77 @@ assert.equal(canHitWaterKing("dizzy_vulnerable", true), true);
 assert.equal(canHitWaterKing("emerge_attack", true), false);
 assert.equal(canHitWaterKing("dizzy_vulnerable", false), false);
 
+assert.equal(P13_RANDOM_BOSS_ROOM_WIDTH, 2048);
+assert.equal(level02.world.width, 8192);
+assert.equal(level02.exit.x, 8016);
+const randomBossSection = level02.sections.find(({ id }) => id === "boss_random");
+assert.deepEqual(
+  { xStart: randomBossSection.xStart, xEnd: randomBossSection.xEnd, key: randomBossSection.boss.key },
+  { xStart: 6144, xEnd: 8192, key: "random_king" }
+);
+assert.equal(level02.checkpoints.find(({ id }) => id === "cp_random_ready")?.restoresHealth, true);
+assert.equal(level02.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "random_king"), true);
+assert.equal(randomBossSection.boss.replayCourses.length, 4);
+assert.equal(randomBossSection.boss.arenaAnchors.length, 4);
+assert.equal(randomBossSection.boss.scoreDelta, 100);
+assert.equal(RANDOM_RESULT_RULES.maxNonBattle, 3);
+assert.deepEqual(Object.keys(RANDOM_KING_PHASES).map(Number), [1, 2, 3]);
+for (const pattern of Object.values(RANDOM_KING_PHASES)) {
+  for (const key of ["attackDrawMs", "telegraphMs", "executeMs", "vulnerabilityMs", "easyVulnerabilityMs", "recoveryMs"]) {
+    assert.ok(Number.isFinite(pattern[key]) && pattern[key] > 0, `랜덤대왕 ${key}는 유한한 양수여야 함`);
+  }
+  assert.ok(pattern.easyVulnerabilityMs > pattern.vulnerabilityMs);
+}
+
+const simulateRandomKing = (seed) => {
+  const random = new SeededRandom(seed);
+  const results = [];
+  const courses = [];
+  const attacks = [];
+  let previousResult = null;
+  let previousCourseId = null;
+  let nonBattleCount = 0;
+  while (results.length < 8) {
+    const result = chooseRandomResult(random.next(), previousResult, nonBattleCount);
+    results.push(result);
+    assert.notEqual(result, previousResult, `seed ${seed}: 같은 결과가 연속 선택되면 안 됨`);
+    previousResult = result;
+    if (result === "start_battle") break;
+    nonBattleCount += 1;
+    assert.ok(nonBattleCount <= 3, `seed ${seed}: 비전투 결과가 3회를 넘으면 안 됨`);
+    if (result === "replay_section") {
+      const course = chooseRandomCourse(randomBossSection.boss.replayCourses, random.next(), previousCourseId);
+      assert.notEqual(course.id, previousCourseId, `seed ${seed}: 같은 코스를 연속 재도전하면 안 됨`);
+      previousCourseId = course.id;
+      courses.push(course.id);
+    }
+  }
+  assert.equal(results.at(-1), "start_battle", `seed ${seed}: 직접 전투로 종료되어야 함`);
+  assert.ok(results.length <= 4, `seed ${seed}: 결과 추첨은 최대 4회여야 함`);
+
+  let previousAttackId = null;
+  for (let phase = 1; phase <= 3; phase += 1) {
+    const deck = createRandomAttackDeck(() => random.next(), previousAttackId);
+    assert.equal(new Set(deck).size, RANDOM_ATTACK_TYPES.length, `seed ${seed}: phase ${phase} 공격 누락`);
+    assert.deepEqual([...deck].sort(), [...RANDOM_ATTACK_TYPES].sort());
+    assert.notEqual(deck[0], previousAttackId, `seed ${seed}: phase 경계에서 같은 공격이 연속되면 안 됨`);
+    attacks.push(...deck);
+    previousAttackId = deck.at(-1);
+  }
+  for (let index = 1; index < attacks.length; index += 1) {
+    assert.notEqual(attacks[index], attacks[index - 1], `seed ${seed}: 같은 공격이 연속되면 안 됨`);
+  }
+  return { results, courses, attacks };
+};
+
+for (let seed = 1; seed <= 1000; seed += 1) {
+  assert.deepEqual(simulateRandomKing(seed), simulateRandomKing(seed), `seed ${seed}: 결과가 재현되어야 함`);
+}
+assert.equal(getBossPhasePattern("random_king", 1), RANDOM_KING_PHASES[1]);
+assert.equal(canHitRandomKing("vulnerable", true), true);
+assert.equal(canHitRandomKing("telegraph", true), false);
+assert.equal(canHitRandomKing("vulnerable", false), false);
+
 const score = new ScoreManager();
 assert.equal(score.collect("star"), 10);
 assert.equal(score.collect("star", 2), 20);
@@ -801,6 +881,14 @@ assert.equal(score.steal(), 100);
 assert.equal(score.score, 9900);
 assert.equal(score.loseOnRespawn(0), 0);
 assert.equal(score.score, 9900);
+score.score = 0;
+assert.equal(score.adjust(-100), 0);
+assert.equal(score.score, 0);
+score.score = 80;
+assert.equal(score.adjust(-100), -80);
+assert.equal(score.score, 0);
+assert.equal(score.adjust(100), 100);
+assert.equal(score.score, 100);
 
 const easySettings = getDifficultySettings(level01, true);
 const easyLevel = createRuntimeLevel(level01, true);
@@ -1322,4 +1410,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·좌표 이동·파도 정지·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·좌표 이동·파도 정지·오디오 fallback");

@@ -40,6 +40,14 @@ export class ScoreManager {
     return this.add(amount);
   }
 
+  adjust(amount) {
+    const requested = Math.round(Number(amount) || 0);
+    const previous = this.score;
+    this.score = Math.max(0, this.score + requested);
+    if (requested < 0) this.resetCombo();
+    return this.score - previous;
+  }
+
   loseOnRespawn(overrideAmount) {
     const amount = overrideAmount === undefined
       ? getRespawnScoreLoss(this.score)

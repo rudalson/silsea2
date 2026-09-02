@@ -415,6 +415,50 @@ for (const sourceLevel of ALL_LEVELS) {
       if (actual !== expected) fail(level, `P10 ${label} 좌표 이동 누락: ${actual} !== ${expected}`);
     }
   }
+  if (level.id === "level-02") {
+    const originalWidth = 6144;
+    const roomWidth = 2048;
+    const randomSection = level.sections.find(({ id }) => id === "boss_random");
+    if (!randomSection || randomSection.xStart !== originalWidth || randomSection.xEnd !== originalWidth + roomWidth) {
+      fail(level, "P13 랜덤대왕 보스룸이 기존 코스 오른쪽 6144~8192에 있지 않음");
+    }
+    if (randomSection?.boss?.key !== "random_king") fail(level, "P13 boss key가 random_king이 아님");
+    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 8016) {
+      fail(level, "P13 world/exit 확장 누락");
+    }
+    if (level.checkpoints.find(({ id }) => id === "cp_random_ready")?.restoresHealth !== true) {
+      fail(level, "P13 보스 직전 완전 회복 체크포인트가 없음");
+    }
+    const results = randomSection?.boss?.resultDeck ?? [];
+    const requiredResults = ["replay_section", "score_plus", "score_minus", "start_battle"];
+    if (results.length !== requiredResults.length || requiredResults.some((result) => !results.includes(result))) {
+      fail(level, "P13 결과 덱 4종이 정확히 선언되지 않음");
+    }
+    if (randomSection?.boss?.maxNonBattle !== 3 || randomSection?.boss?.scoreDelta !== 100) {
+      fail(level, "P13 비전투 상한 또는 점수 증감량이 승인값과 다름");
+    }
+    const courses = randomSection?.boss?.replayCourses ?? [];
+    if (courses.length !== 4 || new Set(courses.map(({ id }) => id)).size !== courses.length) {
+      fail(level, "P13 안전 재도전 코스가 4개가 아니거나 id가 중복됨");
+    }
+    for (const course of courses) {
+      if (!inWorld(level, course.x, course.y) || !hasFloorAt(terrain, course.x, course.y)) {
+        fail(level, `P13 재도전 코스 ${course.id}가 안전 바닥 밖`);
+      }
+    }
+    const anchors = randomSection?.boss?.arenaAnchors ?? [];
+    if (anchors.length !== 4 || new Set(anchors.map(({ id }) => id)).size !== anchors.length) {
+      fail(level, "P13 전투 위치 앵커가 4개가 아니거나 id가 중복됨");
+    }
+    for (const anchor of anchors) {
+      if (anchor.x < randomSection.xStart + 96
+        || anchor.x > randomSection.xEnd - 96
+        || anchor.y !== randomSection.boss.floorY
+        || !hasFloorAt(terrain, anchor.x, anchor.y)) {
+        fail(level, `P13 전투 위치 앵커 ${anchor.id}가 보스룸 안전 바닥 밖`);
+      }
+    }
+  }
   if (level.id === "level-03") {
     const originalWidth = 7168;
     const roomWidth = 2048;

@@ -20,7 +20,8 @@
         { "height": 48, "id": 10, "name": "gap_root_03", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 4608, "y": 384 },
         { "height": 192, "id": 11, "name": "star_tree_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1152, "x": 4992, "y": 576 },
         { "height": 48, "id": 12, "name": "star_tree_branch_low", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5312, "y": 448 },
-        { "height": 48, "id": 13, "name": "star_tree_branch_high", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5632, "y": 384 }
+        { "height": 48, "id": 13, "name": "star_tree_branch_high", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5632, "y": 384 },
+        { "height": 192, "id": 14, "name": "random_boss_ground", "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 6144, "y": 576 }
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -30,7 +31,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 14,
+  "nextobjectid": 15,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -39,5 +40,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 96
+  "width": 128
 }

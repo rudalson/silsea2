@@ -221,6 +221,9 @@ export class PlaytestManager {
     bind(EVENTS.CHECKPOINT, (details = {}) => this.recordOutcome("checkpoint", "checkpoints", { id: details.id }));
     bind(EVENTS.BOSS_HIT, (details = {}) => this.recordOutcome("boss_hit", "bossHits", details));
     bind(EVENTS.BOSS_DEFEATED, () => this.recordEvent("boss_defeated"));
+    bind(EVENTS.RANDOM_BOSS_RESULT, (details = {}) => this.recordEvent("random_boss_result", details));
+    bind(EVENTS.RANDOM_BOSS_REPLAY, (details = {}) => this.recordEvent("random_boss_replay", details));
+    bind(EVENTS.RANDOM_BOSS_ATTACK, (details = {}) => this.recordEvent("random_boss_attack", details));
     bind(EVENTS.BREATH_CHANGED, (details = {}) => {
       if (!this.enabled || this.finalized) return;
       const depleted = Boolean(details.depleted);

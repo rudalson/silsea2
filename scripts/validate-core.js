@@ -17,6 +17,7 @@ const [
   hulaKingBehavior,
   invisibleKingBehavior,
   waterKingBehavior,
+  randomKingBehavior,
   transformManager,
   cameraEffects,
   audioManager,
@@ -60,6 +61,7 @@ const [
   read("src/systems/bosses/HulaKingBehavior.js"),
   read("src/systems/bosses/InvisibleKingBehavior.js"),
   read("src/systems/bosses/WaterKingBehavior.js"),
+  read("src/systems/bosses/RandomKingBehavior.js"),
   read("src/systems/TransformationManager.js"),
   read("src/systems/CameraEffectsManager.js"),
   read("src/systems/AudioManager.js"),
@@ -95,7 +97,7 @@ const [
   read("src/data/combatDevices.js")
 ]);
 
-const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}\n${invisibleKingBehavior}\n${waterKingBehavior}`;
+const bossRuntime = `${bossController}\n${potatoKingBehavior}\n${hulaKingBehavior}\n${invisibleKingBehavior}\n${waterKingBehavior}\n${randomKingBehavior}`;
 
 if (CORE_RULES.invulnerableMs !== 2000) fail("피격 무적 시간이 2초가 아님");
 if (CORE_RULES.hurtLockMs > 250) fail("피격 경직이 250ms를 초과함");

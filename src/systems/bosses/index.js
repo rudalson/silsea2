@@ -3,6 +3,7 @@ import { TrainingDummyBehavior } from "./TrainingDummyBehavior.js";
 import { HulaKingBehavior } from "./HulaKingBehavior.js";
 import { InvisibleKingBehavior } from "./InvisibleKingBehavior.js";
 import { WaterKingBehavior } from "./WaterKingBehavior.js";
+import { RandomKingBehavior } from "./RandomKingBehavior.js";
 import { BOSS_BEHAVIOR_TYPES } from "../../data/bossBehaviorTypes.js";
 
 const BOSS_BEHAVIORS = Object.freeze({
@@ -10,7 +11,8 @@ const BOSS_BEHAVIORS = Object.freeze({
   training_dummy: TrainingDummyBehavior,
   hula_king: HulaKingBehavior,
   invisible_king: InvisibleKingBehavior,
-  water_king: WaterKingBehavior
+  water_king: WaterKingBehavior,
+  random_king: RandomKingBehavior
 });
 
 export { BOSS_BEHAVIOR_TYPES };

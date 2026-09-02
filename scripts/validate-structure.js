@@ -32,6 +32,7 @@ const stageSelectScene = await readFile(join(root, "src", "scenes", "StageSelect
 const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
 const levelLoader = await readFile(join(root, "src", "systems", "LevelLoader.js"), "utf8");
 const playtestManager = await readFile(join(root, "src", "systems", "PlaytestManager.js"), "utf8");
+const scoreManager = await readFile(join(root, "src", "systems", "ScoreManager.js"), "utf8");
 const assetManager = await readFile(join(root, "src", "systems", "AssetManager.js"), "utf8");
 const enemyManager = await readFile(join(root, "src", "systems", "EnemyManager.js"), "utf8");
 const environmentManager = await readFile(join(root, "src", "systems", "EnvironmentMechanicsManager.js"), "utf8");
@@ -42,6 +43,8 @@ const bossBehaviorRegistry = await readFile(join(root, "src", "systems", "bosses
 const hulaKingBehavior = await readFile(join(root, "src", "systems", "bosses", "HulaKingBehavior.js"), "utf8");
 const invisibleKingBehavior = await readFile(join(root, "src", "systems", "bosses", "InvisibleKingBehavior.js"), "utf8");
 const waterKingBehavior = await readFile(join(root, "src", "systems", "bosses", "WaterKingBehavior.js"), "utf8");
+const randomKingBehavior = await readFile(join(root, "src", "systems", "bosses", "RandomKingBehavior.js"), "utf8");
+const level02Source = await readFile(join(root, "src", "data", "levels", "level-02.js"), "utf8");
 const level03Source = await readFile(join(root, "src", "data", "levels", "level-03.js"), "utf8");
 const level04Source = await readFile(join(root, "src", "data", "levels", "level-04.js"), "utf8");
 const level05Source = await readFile(join(root, "src", "data", "levels", "level-05.js"), "utf8");
@@ -89,6 +92,7 @@ if (!bootScene.includes('query.get("laser")')) fail("P6 레이저 단계 visualR
 if (!bootScene.includes('query.get("hula")')) fail("P10 훌라후프 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("invisible")')) fail("P11 투명 대왕 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("water")')) fail("P12 물대왕 상태 visualReview 고정 진입점이 없음");
+if (!bootScene.includes('query.get("random")')) fail("P13 랜덤대왕 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("p9boss")')) fail("P9 좌·우 보스 시험 직접 진입점이 없음");
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
@@ -180,6 +184,26 @@ if (!waterKingBehavior.includes("chooseWaterPool")
   || !waterKingBehavior.includes("new ObjectPool")
   || !waterKingBehavior.includes("easyVulnerabilityMs")) {
   fail("P12 물대왕 Seed 웅덩이 선택·투사체 Pool·쉬운 모드 약점 시간이 없음");
+}
+if (!level02Source.includes("P13_RANDOM_BOSS_ROOM_WIDTH = 2048")
+  || !level02Source.includes('key: "random_king"')
+  || !level02Source.includes("replayCourses")
+  || !level02Source.includes('id: "cp_random_ready"')) {
+  fail("P13 우향 랜덤대왕 보스룸·안전 재도전 코스·회복 체크포인트 데이터가 없음");
+}
+for (const state of ["random_intro", "attack_draw", "telegraph", "execute", "vulnerable", "hit", "recover", "defeated"]) {
+  if (!randomKingBehavior.includes(`"${state}"`)) fail(`P13 랜덤대왕 상태 누락: ${state}`);
+}
+if (!randomKingBehavior.includes("chooseRandomResult")
+  || !randomKingBehavior.includes("chooseRandomCourse")
+  || !randomKingBehavior.includes("createRandomAttackDeck")
+  || !randomKingBehavior.includes("new ObjectPool")) {
+  fail("P13 Seed 결과·코스·공격 덱 또는 투사체 Pool이 없음");
+}
+if (!gameScene.includes("forcedReplaySeconds")
+  || !gameScene.includes("getObjectiveElapsed")
+  || !scoreManager.includes("adjust(amount)")) {
+  fail("P13 강제 재도전 시간 제외 또는 대칭 점수 증감 경로가 없음");
 }
 if (!environmentManager.includes("createMistVisuals") || !environmentManager.includes("resolveMistProfile")) {
   fail("안개 영역 시각화 또는 화면 효과 강도 완화 경로가 없음");
