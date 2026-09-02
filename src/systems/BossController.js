@@ -19,6 +19,7 @@ export class BossController {
     this.levelLoader = levelLoader;
     this.healthManager = healthManager;
     this.boss = levelLoader.boss;
+    this.lastFailedHitAttemptAt = Number.NEGATIVE_INFINITY;
     if (!this.boss) return;
 
     this.definition = requireBossDefinition(this.boss.getData("key"));
@@ -53,11 +54,21 @@ export class BossController {
     if (!this.boss?.active || !this.behavior) return { didHit: false };
     const fallingOntoHead = this.player.body.velocity.y > 120
       && this.player.body.bottom <= this.boss.body.top + 54;
-    return this.behavior.onPlayerContact({
+    const result = this.behavior.onPlayerContact({
       fallingOntoHead,
       attemptHit: () => this.levelLoader.hitBoss(this.player),
       damagePlayer: () => this.healthManager.takeDamage(this.boss.x)
-    });
+    }) ?? { didHit: false };
+    const now = Number(this.scene.time?.now) || 0;
+    if (fallingOntoHead && !result.didHit && now - this.lastFailedHitAttemptAt >= 250) {
+      this.lastFailedHitAttemptAt = now;
+      this.scene.events.emit(EVENTS.BOSS_HIT_ATTEMPT, {
+        key: this.definition.key,
+        phase: this.boss.getData("phase"),
+        state: this.boss.getData("bossState")
+      });
+    }
+    return result;
   }
 
   getPoolSnapshot() {

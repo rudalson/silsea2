@@ -84,8 +84,21 @@ export function analyzePlaytestSessions(sessions, levelId) {
     totals.breathDepletions += Number(report.metrics?.breathDepletions) || 0;
     totals.projectilesGuarded += Number(report.metrics?.projectilesGuarded) || 0;
     totals.respawns += Number(report.metrics?.respawns) || 0;
+    totals.bossHits += Number(report.metrics?.bossHits) || 0;
+    totals.bossFailedHits += Number(report.metrics?.bossFailedHits) || 0;
+    totals.bossHpLosses += Number(report.metrics?.bossHpLosses) || 0;
+    totals.randomResults += (report.events ?? []).filter(({ type }) => type === "random_boss_result").length;
     return totals;
-  }, { tsunamiHits: 0, breathDepletions: 0, projectilesGuarded: 0, respawns: 0 });
+  }, {
+    tsunamiHits: 0,
+    breathDepletions: 0,
+    projectilesGuarded: 0,
+    respawns: 0,
+    bossHits: 0,
+    bossFailedHits: 0,
+    bossHpLosses: 0,
+    randomResults: 0
+  });
 
   const hotspots = new Map();
   for (const report of reports) {
@@ -164,6 +177,7 @@ export class PlaytestManager {
     this.lastProgressAt = 0;
     this.stallArmed = true;
     this.breathDepleted = false;
+    this.bossPhaseSeconds = {};
     this.handlers = [];
 
     if (!this.enabled) return;
@@ -181,12 +195,18 @@ export class PlaytestManager {
       durationSeconds: 0,
       score: 0,
       achieved: [],
+      boss: {
+        key: level.sections.find(({ type }) => type === "boss")?.boss?.key ?? null,
+        phaseSeconds: {}
+      },
       metrics: {
         hits: 0,
         falls: 0,
         respawns: 0,
         checkpoints: 0,
         bossHits: 0,
+        bossFailedHits: 0,
+        bossHpLosses: 0,
         hpLosses: 0,
         tsunamiHits: 0,
         breathDepletions: 0,
@@ -210,6 +230,7 @@ export class PlaytestManager {
       if (!this.enabled || this.finalized) return;
       this.recordOutcome("hit", "hits", details);
       this.report.metrics.hpLosses += 1;
+      if (this.getSectionAt(this.player?.x)?.type === "boss") this.report.metrics.bossHpLosses += 1;
       if (details.type === "tsunami") this.report.metrics.tsunamiHits += 1;
     });
     bind(EVENTS.PLAYER_FELL, (details = {}) => {
@@ -220,7 +241,10 @@ export class PlaytestManager {
     bind(EVENTS.PLAYER_RESPAWNED, (details = {}) => this.recordOutcome("respawn", "respawns", details));
     bind(EVENTS.CHECKPOINT, (details = {}) => this.recordOutcome("checkpoint", "checkpoints", { id: details.id }));
     bind(EVENTS.BOSS_HIT, (details = {}) => this.recordOutcome("boss_hit", "bossHits", details));
-    bind(EVENTS.BOSS_DEFEATED, () => this.recordEvent("boss_defeated"));
+    bind(EVENTS.BOSS_HIT_ATTEMPT, (details = {}) => (
+      this.recordOutcome("boss_hit_attempt", "bossFailedHits", details)
+    ));
+    bind(EVENTS.BOSS_DEFEATED, (details = {}) => this.recordEvent("boss_defeated", details));
     bind(EVENTS.RANDOM_BOSS_RESULT, (details = {}) => this.recordEvent("random_boss_result", details));
     bind(EVENTS.RANDOM_BOSS_REPLAY, (details = {}) => this.recordEvent("random_boss_replay", details));
     bind(EVENTS.RANDOM_BOSS_ATTACK, (details = {}) => this.recordEvent("random_boss_attack", details));
@@ -247,6 +271,15 @@ export class PlaytestManager {
     const sectionId = section?.id ?? "unknown";
     const delta = Math.max(0, elapsed - this.lastElapsed);
     if (this.currentSectionId) this.ensureSection(this.currentSectionId).seconds += delta;
+
+    if (section?.type === "boss") {
+      const boss = this.scene.levelLoader?.boss;
+      const bossKey = boss?.getData?.("key") ?? section.boss?.key ?? this.report.boss.key;
+      const phase = String(boss?.getData?.("phase") ?? 1);
+      this.report.boss.key = bossKey;
+      this.bossPhaseSeconds[phase] = (this.bossPhaseSeconds[phase] ?? 0) + delta;
+      this.report.boss.phaseSeconds[phase] = roundSeconds(this.bossPhaseSeconds[phase]);
+    }
 
     if (sectionId !== this.currentSectionId) {
       this.currentSectionId = sectionId;

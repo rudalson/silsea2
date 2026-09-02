@@ -1077,7 +1077,11 @@ const playtestAnalysis = analyzePlaytestSessions([
     mode: "normal",
     completed: true,
     durationSeconds: 420,
-    events: [{ type: "hit", sectionId: "storm_path" }]
+    metrics: { bossHits: 2, bossFailedHits: 1, bossHpLosses: 1 },
+    events: [
+      { type: "hit", sectionId: "storm_path" },
+      { type: "random_boss_result", sectionId: "boss" }
+    ]
   },
   {
     testerId: "child-02",
@@ -1099,6 +1103,16 @@ const playtestAnalysis = analyzePlaytestSessions([
 assert.equal(playtestAnalysis.readyForTuning, true);
 assert.equal(playtestAnalysis.durationCoverageComplete, true);
 assert.equal(playtestAnalysis.durationPass, true);
+assert.deepEqual(playtestAnalysis.mechanicTotals, {
+  tsunamiHits: 0,
+  breathDepletions: 0,
+  projectilesGuarded: 0,
+  respawns: 0,
+  bossHits: 2,
+  bossFailedHits: 1,
+  bossHpLosses: 1,
+  randomResults: 1
+});
 assert.deepEqual(playtestAnalysis.adjustmentCandidates, [{
   sectionId: "storm_path",
   hits: 1,
@@ -1167,6 +1181,48 @@ assert.ok(playtestBundle.currentSession.metrics.stalls >= 1);
 assert.equal(playtestBundle.currentSession.completed, true);
 assert.equal(playtestBundle.sessions.length, 1);
 playtestManager.destroy();
+
+const p14RandomBossSection = level02.sections.find(({ type }) => type === "boss");
+const bossPlayer = {
+  x: Math.round((p14RandomBossSection.xStart + p14RandomBossSection.xEnd) / 2),
+  y: 576
+};
+const bossData = { key: "random_king", phase: 1 };
+playtestScene.levelLoader = {
+  boss: { getData: (key) => bossData[key] }
+};
+const bossPlaytest = new PlaytestManager(playtestScene, bossPlayer, {
+  enabled: true,
+  testerId: "boss-metrics",
+  characterId: "potato89",
+  level: level02,
+  storage: null,
+  now: () => 1500
+});
+bossPlaytest.update(0, bossPlayer);
+bossPlaytest.update(2, bossPlayer);
+bossData.phase = 2;
+bossPlaytest.update(5, bossPlayer);
+playtestScene.events.emit(EVENTS.PLAYER_HIT, { type: "boss_contact" });
+playtestScene.events.emit(EVENTS.BOSS_HIT_ATTEMPT, { key: "random_king", phase: 2, state: "warning" });
+playtestScene.events.emit(EVENTS.BOSS_HIT, { key: "random_king", hp: 2, maxHp: 3 });
+playtestScene.events.emit(EVENTS.RANDOM_BOSS_RESULT, { key: "random_king", result: "plus" });
+playtestScene.events.emit(EVENTS.BOSS_DEFEATED, { key: "random_king" });
+const bossBundle = bossPlaytest.complete({ elapsedSeconds: 6, score: 100, achieved: ["defeat_boss"] });
+assert.deepEqual(bossBundle.currentSession.boss, {
+  key: "random_king",
+  phaseSeconds: { "1": 2, "2": 4 }
+});
+assert.equal(bossBundle.currentSession.metrics.bossHits, 1);
+assert.equal(bossBundle.currentSession.metrics.bossFailedHits, 1);
+assert.equal(bossBundle.currentSession.metrics.bossHpLosses, 1);
+assert.deepEqual(
+  bossBundle.currentSession.events.find(({ type }) => type === "boss_defeated")?.details,
+  { key: "random_king" }
+);
+bossPlaytest.destroy();
+delete playtestScene.levelLoader;
+
 const visualReviewManager = new PlaytestManager(playtestScene, playtestPlayer, {
   enabled: true,
   testerId: "visual-review",
@@ -1410,4 +1466,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·좌표 이동·파도 정지·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback");

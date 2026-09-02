@@ -297,6 +297,11 @@ export default {
 - 마지막 `xEnd`는 `world.width`.
 - 앞 section `xEnd`와 다음 `xStart`는 같아야 한다.
 - `type: "boss"`는 레벨당 최대 하나이며 `boss.key`, `boss.hp`, `boss.phases`가 필수다.
+- `boss.key`는 일반 적 타입과 분리된 `bossDefinitions.js` 레지스트리에 등록되어야 하고, 정의의 `behavior`, phase ID, 필수 애니메이션 역할이 실제 구현과 일치해야 한다. 미등록 키나 phase는 fallback으로 바꾸지 않고 검증 오류로 처리한다.
+- 공통 선택 필드는 `completion`, `spawn`, `floorY`, `environment.suspend`다. `completion` 기본값은 `level`, `spawn.x/y`가 없으면 진행 방향과 정의의 `edgeOffset`으로 arena 안쪽 위치를 계산한다. 좌향 레벨은 `xStart + edgeOffset`, 우향 레벨은 `xEnd - edgeOffset`이다.
+- `boss.environment.suspend`는 보스전 동안 멈출 환경 시스템 이름 배열이다. 현재 채택 값은 `tsunami`, `mist`, `breath`, `lasers`이며 보스 key를 환경 관리자에 하드코딩하지 않는다.
+- 행동별 필드는 각 behavior가 소유한다. 투명 대왕은 `anchors`, `maxAnchorRise`, 물 대왕은 `bossPools`, 랜덤 대왕은 `resultDeck`, `maxNonBattle`, `scoreDelta`, 재진입 안전 시간과 `replayCourses`를 사용한다.
+- boss section은 `lockCamera: true`로 arena bounds를 잠그며, 보스가 쓰러진 뒤 공격·투사체·접촉 판정을 정리하고 required `defeat_boss`와 `reach_gate`를 차례로 만족시킨다.
 - `mood`는 `assets.backgrounds`에 있는 키여야 한다.
 
 ### `cameraCues[]`
