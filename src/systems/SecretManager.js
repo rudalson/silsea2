@@ -72,6 +72,12 @@ export class SecretManager {
     };
   }
 
+  restore(ids = []) {
+    const validIds = new Set(this.secrets.map(({ id }) => id));
+    this.discovered = new Set(ids.filter((id) => validIds.has(id)));
+    return this.getSnapshot();
+  }
+
   destroy() {
     for (const visual of this.debugVisuals) visual.destroy();
     this.debugVisuals.length = 0;

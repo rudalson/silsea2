@@ -151,6 +151,26 @@ body {
   margin-top: 10px;
 }
 
+.debug-reload-status {
+  min-height: 34px;
+  margin: 8px 0 0;
+  padding: 7px 9px;
+  border: 1px solid var(--color-mid);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 6%);
+}
+
+.debug-panel[data-reload-state="success"] .debug-reload-status,
+.debug-panel[data-reload-state="ready"] .debug-reload-status {
+  border-color: var(--color-collect);
+  color: var(--color-collect);
+}
+
+.debug-panel[data-reload-state="error"] .debug-reload-status {
+  border-color: var(--color-soft);
+  color: var(--color-white);
+}
+
 .debug-panel button {
   cursor: pointer;
   padding: 6px 8px;

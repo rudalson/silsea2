@@ -427,3 +427,12 @@
 - [ ] [M] 키보드로 다음 스테이지·스테이지 선택 두 경로를 재진입함.
 - [ ] [M] 실제 게임패드로 두 재진입 경로를 확인함.
 - [x] [M] 사용자가 S2 카드 순서·문구·간격을 승인함. — 2026-09-03 `S2 결과연출 승인`
+
+## Should S3 레벨 데이터 핫 리로드
+
+- [x] [A] 개발 모드 레벨 HMR 경계, revision 구독과 명시적 적용 버튼을 구현하고 production 번들에 Vite client/HMR context가 없음을 검사함. — 2026-09-03 `npm run test:release`
+- [x] [A] 현재 레벨 ID·월드·구간·에셋·tilemap 사전 검증과 후보 런타임 생성 실패 시 기존 실행본 보존을 단위·구조 검사함. — 2026-09-03 `npm run test`, `npm run validate`
+- [x] [M] 실제 `level-02` 파일 저장으로 준비 revision을 확인하고, 위치·알리콘·쉬운 모드·HP·점수·수집 상태를 유지한 적용을 확인함. — 2026-09-03, `references/should3-hot-reload-ready.png`, `references/should3-hot-reload-applied.png`
+- [x] [M] 잘못된 `world.width`를 적용하지 않고 기존 실행 상태와 점수를 유지하며 구체 오류를 표시한 뒤 원본 데이터를 복원함. — 2026-09-03, `references/should3-hot-reload-error.png`
+- [x] [A] 제어기 100회 재로드·오류 보존·dispose를 단위 검사하고, 실제 GameScene 추가 100회 재로드 뒤 pool/FX 상한과 console warning/error 0건을 확인함. — 2026-09-03, `references/should3-hot-reload-100.png`
+- [x] [M] 사용자가 S3 기술 동작을 승인함. — 2026-09-03 `S3 핫리로드 승인`

@@ -27,6 +27,8 @@ if (sceneFiles.some((file) => file.endsWith("BossScene.js"))) fail("BossScene.js
 const gameScene = await readFile(join(root, "src", "scenes", "GameScene.js"), "utf8");
 const bootScene = await readFile(join(root, "src", "scenes", "BootScene.js"), "utf8");
 const clearScene = await readFile(join(root, "src", "scenes", "ClearScene.js"), "utf8");
+const debugPanel = await readFile(join(root, "src", "systems", "DebugPanel.js"), "utf8");
+const levelHotReload = await readFile(join(root, "src", "systems", "LevelHotReload.js"), "utf8");
 const characterSelectScene = await readFile(join(root, "src", "scenes", "CharacterSelectScene.js"), "utf8");
 const stageSelectScene = await readFile(join(root, "src", "scenes", "StageSelectScene.js"), "utf8");
 const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
@@ -245,6 +247,21 @@ if (!clearScene.includes("getAccessibleResultSummary") || !clearScene.includes("
 }
 if (clearScene.includes("progressManager.complete") || clearScene.includes("scoreManager.add")) {
   fail("선택 목표 결과 카드가 점수나 진행도를 다시 지급함");
+}
+if (!levelIndex.includes("import.meta.hot.accept") || !levelIndex.includes("subscribeLevelHotUpdates")) {
+  fail("개발 레벨 모듈 변경을 보관하는 HMR 경계가 없음");
+}
+if (!levelHotReload.includes("prepareHotReloadLevel") || !levelHotReload.includes("LevelHotReloadController")) {
+  fail("레벨 핫 리로드의 사전 검증 또는 상태 제어기가 없음");
+}
+if (!gameScene.includes("applyHotReloadLevel") || !gameScene.includes("replaceRuntime")) {
+  fail("검증된 레벨 데이터를 현재 GameScene과 디버그 패널에 교체하는 경로가 없음");
+}
+if (!gameScene.includes("this.stopLevelHotUpdates?.()") || !gameScene.includes("this.levelHotReload?.dispose()")) {
+  fail("GameScene 종료 시 레벨 HMR 구독 또는 제어기를 해제하지 않음");
+}
+if (!debugPanel.includes("data-reload-status") || !debugPanel.includes("레벨 데이터 다시 읽기")) {
+  fail("디버그 패널에 레벨 핫 리로드 상태 또는 실행 버튼이 없음");
 }
 if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
   fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");

@@ -104,6 +104,11 @@ import { ObjectiveManager } from "../src/systems/ObjectiveManager.js";
 import { ProgressManager } from "../src/systems/ProgressManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { SecretManager } from "../src/systems/SecretManager.js";
+import {
+  HOT_RELOAD_STATES,
+  LevelHotReloadController,
+  prepareHotReloadLevel
+} from "../src/systems/LevelHotReload.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { TRANSFORM_CAMERA_EASING, TransformationManager } from "../src/systems/TransformationManager.js";
 import { getUpdraftVelocity } from "../src/systems/TerrainMechanicsManager.js";
@@ -953,6 +958,62 @@ assert.deepEqual(secretEvents, [{
 }]);
 secretManager.destroy();
 
+const preparedHotLevel = prepareHotReloadLevel(level01, {
+  expectedId: "level-01",
+  currentLevel: level01,
+  easyMode: true,
+  hasTilemap: (key) => key === level01.assets.tilemapKey
+});
+assert.equal(preparedHotLevel.level.id, "level-01");
+assert.equal(preparedHotLevel.difficulty.enabled, true);
+assert.throws(() => prepareHotReloadLevel({ ...level01, id: "wrong-level" }, {
+  expectedId: "level-01",
+  currentLevel: level01
+}), /레벨 id 불일치/);
+assert.throws(() => prepareHotReloadLevel({ ...level01, world: { ...level01.world, width: -1 } }, {
+  expectedId: "level-01",
+  currentLevel: level01
+}), /world\.width/);
+assert.throws(() => prepareHotReloadLevel({
+  ...level01,
+  assets: { ...level01.assets, tilemapKey: "unloaded-map" }
+}, {
+  expectedId: "level-01",
+  currentLevel: level01
+}), /에셋 키 변경/);
+
+let hotAppliedRevision = 0;
+const hotStates = [];
+const hotController = new LevelHotReloadController({
+  load: () => ({ revision: hotAppliedRevision + 1 }),
+  prepare: (source) => source,
+  apply: ({ revision }) => { hotAppliedRevision = revision; },
+  onState: ({ state }) => hotStates.push(state)
+});
+for (let index = 0; index < 100; index += 1) assert.equal(await hotController.reload(), true);
+assert.equal(hotAppliedRevision, 100);
+assert.deepEqual(hotController.getSnapshot(), {
+  state: HOT_RELOAD_STATES.SUCCESS,
+  count: 100,
+  busy: false,
+  disposed: false,
+  error: null
+});
+assert.equal(hotStates.filter((state) => state === HOT_RELOAD_STATES.LOADING).length, 100);
+const activeBeforeFailedReload = hotAppliedRevision;
+const failingHotController = new LevelHotReloadController({
+  load: () => ({ revision: 101 }),
+  prepare: () => { throw new Error("invalid section"); },
+  apply: () => { hotAppliedRevision = 101; }
+});
+assert.equal(await failingHotController.reload(), false);
+assert.equal(hotAppliedRevision, activeBeforeFailedReload, "검증 실패 시 현재 실행본을 바꾸면 안 됨");
+assert.equal(failingHotController.getSnapshot().state, HOT_RELOAD_STATES.ERROR);
+assert.match(failingHotController.getSnapshot().error, /invalid section/);
+hotController.dispose();
+assert.equal(await hotController.reload(), false);
+assert.equal(hotController.getSnapshot().state, HOT_RELOAD_STATES.DISPOSED);
+
 const easySettings = getDifficultySettings(level01, true);
 const easyLevel = createRuntimeLevel(level01, true);
 assert.equal(easySettings.player.extraHp, 2);
@@ -1543,4 +1604,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존");

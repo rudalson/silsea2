@@ -13,6 +13,7 @@ const OBJECTIVE_LABELS = Object.freeze({
   defeat_boss: "임시 보스 격파",
   reach_gate: "무지개 게이트 도달",
   collect_stars: "별 수집",
+  find_secrets: "비밀 공간 발견",
   clear_time: "제한 시간",
   no_damage: "무피해"
 });
@@ -28,11 +29,18 @@ export class DebugPanel {
     this.getBreathSnapshot = options.getBreathSnapshot;
     this.onWarp = options.onWarp;
     this.onReload = options.onReload;
+    this.hotReloadAvailable = Boolean(options.hotReloadAvailable);
     this.visible = true;
     this.nextMetricsAt = 0;
     this.inputs = new Map();
     this.root = this.build();
     document.body.appendChild(this.root);
+    this.setReloadState({
+      state: this.hotReloadAvailable ? "idle" : "unavailable",
+      message: this.hotReloadAvailable
+        ? "레벨 파일을 저장한 뒤 다시 읽을 수 있습니다."
+        : "개발 서버에서만 사용할 수 있습니다."
+    });
   }
 
   build() {
@@ -48,8 +56,9 @@ export class DebugPanel {
       <div class="debug-actions">
         <button type="button" data-export>JSON 내보내기</button>
         <button type="button" data-reset>기본값</button>
-        <button type="button" data-reload>레벨 재구성</button>
+        <button type="button" data-reload>레벨 데이터 다시 읽기</button>
       </div>
+      <p class="debug-reload-status" data-reload-status role="status"></p>
       <h3>실시간 상태</h3>
       <p data-metrics>FPS —</p>
       <ul class="debug-objectives" data-objectives></ul>
@@ -76,17 +85,51 @@ export class DebugPanel {
     }
 
     const warp = root.querySelector("[data-warp]");
+    this.populateWarp(warp);
+    warp.addEventListener("change", () => this.onWarp?.(warp.value));
+    root.querySelector("[data-export]").addEventListener("click", () => this.exportJson());
+    root.querySelector("[data-reset]").addEventListener("click", () => this.reset());
+    root.querySelector("[data-reload]").addEventListener("click", () => this.handleReload());
+    return root;
+  }
+
+  populateWarp(warp = this.root?.querySelector("[data-warp]")) {
+    if (!warp) return;
+    const selected = warp.value;
+    warp.replaceChildren();
     for (const section of this.level.sections) {
       const option = document.createElement("option");
       option.value = section.id;
       option.textContent = `${section.id} · ${section.type}`;
       warp.appendChild(option);
     }
-    warp.addEventListener("change", () => this.onWarp?.(warp.value));
-    root.querySelector("[data-export]").addEventListener("click", () => this.exportJson());
-    root.querySelector("[data-reset]").addEventListener("click", () => this.reset());
-    root.querySelector("[data-reload]").addEventListener("click", () => this.onReload?.());
-    return root;
+    if ([...warp.options].some(({ value }) => value === selected)) warp.value = selected;
+  }
+
+  async handleReload() {
+    if (!this.hotReloadAvailable) return false;
+    this.setReloadState({ state: "loading", message: "레벨 데이터를 다시 읽는 중…" });
+    const result = await this.onReload?.();
+    if (result === false && this.root.dataset.reloadState === "loading") {
+      this.setReloadState({ state: "error", message: "적용하지 않았습니다." });
+    }
+    return result;
+  }
+
+  setReloadState({ state = "idle", message = "" } = {}) {
+    if (!this.root) return;
+    this.root.dataset.reloadState = state;
+    const status = this.root.querySelector("[data-reload-status]");
+    if (status) status.textContent = message;
+    const button = this.root.querySelector("[data-reload]");
+    if (button) button.disabled = state === "loading" || state === "unavailable";
+  }
+
+  replaceRuntime({ level, objectives }) {
+    this.level = level;
+    this.objectives = objectives;
+    this.populateWarp();
+    this.nextMetricsAt = 0;
   }
 
   update(player, fps, elapsed) {

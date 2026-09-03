@@ -1,7 +1,12 @@
 import Phaser from "phaser";
 import { COLORS, EVENTS, GAME_HEIGHT, SCENE_KEYS } from "../config/constants.js";
 import { getCharacter, cloneTuning } from "../data/characters.js";
-import { getLevel } from "../data/levels/index.js";
+import {
+  getLevel,
+  getLevelHotRevision,
+  isLevelHotReloadAvailable,
+  subscribeLevelHotUpdates
+} from "../data/levels/index.js";
 import {
   assertLevelShape,
   getCameraLookAheadTarget,
@@ -21,6 +26,7 @@ import { EnvironmentMechanicsManager } from "../systems/EnvironmentMechanicsMana
 import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
+import { LevelHotReloadController, prepareHotReloadLevel } from "../systems/LevelHotReload.js";
 import { ObjectiveManager } from "../systems/ObjectiveManager.js";
 import { ParticleEffectsManager } from "../systems/ParticleEffectsManager.js";
 import { PlaytestManager } from "../systems/PlaytestManager.js";
@@ -49,6 +55,8 @@ export class GameScene extends Phaser.Scene {
     this.bossClearTimer = null;
     this.forcedReplayStartedAt = null;
     this.forcedReplaySeconds = 0;
+    this.levelHotReload = null;
+    this.stopLevelHotUpdates = null;
   }
 
   create() {
@@ -115,6 +123,23 @@ export class GameScene extends Phaser.Scene {
     this.scene.launch(SCENE_KEYS.UI, { gameSceneKey: SCENE_KEYS.GAME });
 
     if (this.registry.get("debugEnabled")) {
+      const hotReloadAvailable = isLevelHotReloadAvailable();
+      this.levelHotReload = new LevelHotReloadController({
+        load: () => getLevel(this.levelId),
+        prepare: (source) => prepareHotReloadLevel(source, {
+          expectedId: this.levelId,
+          currentLevel: this.level,
+          easyMode: Boolean(this.registry.get("easyMode")),
+          hasTilemap: (key) => this.cache.json.exists(key)
+        }),
+        apply: (prepared) => this.applyHotReloadLevel(prepared),
+        onState: (state) => {
+          this.debugPanel?.setReloadState(state);
+          if (state.state === "success" || state.state === "error") {
+            this.updateAccessibleStatus(state.message);
+          }
+        }
+      });
       this.debugPanel = new DebugPanel(this, {
         tuning: this.tuning,
         level: this.level,
@@ -122,7 +147,12 @@ export class GameScene extends Phaser.Scene {
         getEnvironmentSnapshot: () => this.environmentMechanics?.getSnapshot(),
         getBreathSnapshot: () => this.breathManager?.getSnapshot(),
         onWarp: (sectionId) => this.warpToSection(sectionId),
-        onReload: () => this.rebuildLevel()
+        onReload: () => this.rebuildLevel(),
+        hotReloadAvailable
+      });
+      this.stopLevelHotUpdates = subscribeLevelHotUpdates(({ id, revision }) => {
+        if (id !== this.levelId) return;
+        this.levelHotReload?.markReady(`새 데이터 준비됨 · revision ${revision}`);
       });
     }
 
@@ -576,18 +606,123 @@ export class GameScene extends Phaser.Scene {
   }
 
   rebuildLevel() {
-    const position = { x: this.player.x, y: this.player.y };
+    return this.levelHotReload?.reload() ?? false;
+  }
+
+  applyHotReloadLevel({ level, difficulty }) {
+    const playerState = {
+      x: this.player.x,
+      y: this.player.y,
+      velocityX: this.player.body?.velocity?.x ?? 0,
+      velocityY: this.player.body?.velocity?.y ?? 0,
+      allowGravity: this.player.body?.allowGravity ?? true,
+      hp: this.healthManager?.hp ?? 1,
+      form: this.transformationManager?.getSnapshot(this.time.now) ?? null,
+      secrets: this.secretManager?.getSnapshot().ids ?? [],
+      collectedItemIds: new Set(
+        this.levelLoader.collectibles.filter(({ active }) => !active).map(({ id }) => id)
+      ),
+      defeatedEnemyIds: new Set(
+        this.levelLoader.enemies
+          .filter((enemy) => !enemy.active)
+          .map((enemy) => enemy.getData?.("id"))
+          .filter(Boolean)
+      )
+    };
+    const previousContext = this.objectiveManager.context;
+    const nextObjectives = new ObjectiveManager(null, level.objectives);
+    Object.assign(nextObjectives.context, {
+      defeatedBosses: [...previousContext.defeatedBosses],
+      gateEntered: previousContext.gateEntered,
+      starCount: previousContext.starCount,
+      foundSecrets: [...previousContext.foundSecrets],
+      elapsed: previousContext.elapsed,
+      damageTaken: previousContext.damageTaken
+    });
+    nextObjectives.evaluate();
+
+    let nextLoader = null;
+    try {
+      nextLoader = new LevelLoader(this, level, nextObjectives);
+      nextLoader.build();
+    } catch (error) {
+      nextLoader?.destroy();
+      this.physics.world.setBounds(0, 0, this.level.world.width, this.level.world.height + 256);
+      throw new Error(`새 레벨 구성 실패: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    for (const collectible of nextLoader.collectibles) {
+      if (!playerState.collectedItemIds.has(collectible.id)) continue;
+      collectible.active = false;
+      collectible.zone.body.enable = false;
+      for (const visual of collectible.visuals) visual.setVisible(false);
+    }
+    for (const checkpoint of nextLoader.checkpointZones) {
+      if (!this.checkpointManager.activated.has(checkpoint.data.id)) continue;
+      const fallbackFlag = checkpoint.visuals.at(-1);
+      if (fallbackFlag?.setFillStyle) fallbackFlag.setFillStyle(COLORS.collect);
+      for (const visual of checkpoint.visuals) visual.setAlpha(1);
+    }
+    nextLoader.enemies = nextLoader.enemies.filter((enemy) => {
+      if (!playerState.defeatedEnemyIds.has(enemy.getData?.("id"))) return true;
+      enemy.destroy();
+      return false;
+    });
+    const defeatedBossKey = level.sections.find(({ type }) => type === "boss")?.boss?.key;
+    if (defeatedBossKey && previousContext.defeatedBosses.includes(defeatedBossKey) && nextLoader.boss) {
+      nextLoader.boss.destroy();
+      nextLoader.boss = null;
+      nextLoader.spawnGate();
+    }
+
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
+    this.bossClearTimer?.remove(false);
+    this.bossClearTimer = null;
     this.destroyGameplayManagers();
+    this.secretManager?.destroy();
     this.particleEffects.reset();
     this.levelLoader.destroy();
-    this.levelLoader = new LevelLoader(this, this.level, this.objectiveManager).build();
-    this.player.setPosition(position.x, Math.min(position.y, this.levelLoader.findSafeY(position.x) - 2));
+
+    this.level = level;
+    this.difficulty = difficulty;
+    if (this.playtestManager) this.playtestManager.level = this.level;
+    this.objectiveManager = nextObjectives;
+    this.objectiveManager.scene = this;
+    this.objectiveManager.evaluate();
+    this.levelLoader = nextLoader;
+    this.secretManager = new SecretManager(
+      this,
+      this.player,
+      this.scoreManager,
+      this.objectiveManager,
+      this.level.secrets
+    );
+    this.secretManager.restore(playerState.secrets);
     this.createGameplayManagers();
-    this.gateBound = false;
+
+    if (playerState.form?.form) {
+      this.transformationManager.setForm(playerState.form.form, false);
+      this.transformationManager.flightMs = Math.min(playerState.form.flightMs, playerState.form.flightMaxMs);
+      if (playerState.form.alicornRemainingMs > 0) {
+        this.transformationManager.alicornEndsAt = this.time.now + playerState.form.alicornRemainingMs;
+      }
+    }
+    this.healthManager.hp = Math.min(this.healthManager.maxHp, Math.max(1, playerState.hp));
+    this.healthManager.emitHp();
+
+    const x = Phaser.Math.Clamp(playerState.x, 32, this.level.world.width - 32);
+    const y = Math.min(playerState.y, this.levelLoader.findSafeY(x) - 2);
+    this.player.setPosition(x, y).setVelocity(playerState.velocityX, playerState.velocityY);
+    this.player.body?.setAllowGravity?.(playerState.allowGravity);
+    this.player.body?.updateFromGameObject?.();
+    this.gateBound = Boolean(this.levelLoader.gate);
     this.bindWorldInteractions();
+    this.configureCamera();
+    this.currentSectionId = null;
+    this.debugPanel?.replaceRuntime({ level: this.level, objectives: this.objectiveManager });
     this.events.emit(EVENTS.LEVEL_RELOADED, this.level.id);
+    return true;
   }
 
   clearInteractions() {
@@ -625,7 +760,9 @@ export class GameScene extends Phaser.Scene {
       terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null,
       environmentMechanics: this.environmentMechanics?.getSnapshot() ?? null,
       breath: this.breathManager?.getSnapshot() ?? null,
-      secrets: this.secretManager?.getSnapshot() ?? null
+      secrets: this.secretManager?.getSnapshot() ?? null,
+      hotReload: this.levelHotReload?.getSnapshot() ?? null,
+      hotRevision: getLevelHotRevision(this.levelId)
     };
   }
 
@@ -651,6 +788,10 @@ export class GameScene extends Phaser.Scene {
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
     this.events.off(EVENTS.SECRET_FOUND, this.onSecretFound);
+    this.stopLevelHotUpdates?.();
+    this.stopLevelHotUpdates = null;
+    this.levelHotReload?.dispose();
+    this.levelHotReload = null;
     this.debugPanel?.destroy();
     this.debugPanel = null;
     this.inputManager?.destroy();

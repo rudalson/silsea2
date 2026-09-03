@@ -18,6 +18,12 @@ assert.ok(entryUrls.length >= 2, "배포 index의 JS/CSS 진입점을 찾지 못
 for (const url of entryUrls) {
   assert.ok(url.startsWith("./"), `하위 경로 배포에 안전하지 않은 진입점: ${url}`);
 }
+const productionScripts = await Promise.all(
+  entryUrls.filter((url) => url.endsWith(".js")).map((url) => readFile(new URL(url, distUrl), "utf8"))
+);
+const productionSource = productionScripts.join("\n");
+assert.ok(!productionSource.includes("/@vite/client"), "프로덕션 번들에 Vite 개발 클라이언트가 포함됨");
+assert.ok(!productionSource.includes("createHotContext"), "프로덕션 번들에 HMR 파일 감시 코드가 포함됨");
 
 let totalBytes = 0;
 for (const url of runtimeUrls) {
