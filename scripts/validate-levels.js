@@ -305,9 +305,37 @@ for (const sourceLevel of ALL_LEVELS) {
       }
     }
   }
+  const itemIds = new Set();
   for (const item of level.items) {
+    if (!item.id || itemIds.has(item.id)) fail(level, `item id 누락/중복: ${item.id ?? "unknown"}`);
+    itemIds.add(item.id);
     if (!ITEM_TYPES.includes(item.type)) fail(level, `미등록 item type: ${item.type}`);
     if (!inWorld(level, item.x, item.y)) fail(level, `item ${item.id} 좌표가 world 밖`);
+  }
+  const secretIds = new Set();
+  for (const secret of level.secrets ?? []) {
+    if (!secret.id || secretIds.has(secret.id)) fail(level, `비밀 공간 id 누락/중복: ${secret.id ?? "unknown"}`);
+    secretIds.add(secret.id);
+    if (!secret.name) fail(level, `비밀 공간 ${secret.id} 이름 누락`);
+    if (!(secret.xStart < secret.xEnd && secret.yTop < secret.yBottom)) {
+      fail(level, `비밀 공간 ${secret.id} 범위가 잘못됨`);
+    } else if (!inWorld(level, secret.xStart, secret.yTop) || !inWorld(level, secret.xEnd, secret.yBottom)) {
+      fail(level, `비밀 공간 ${secret.id}가 world 밖`);
+    }
+    if (!isPositiveNumber(secret.reward)) fail(level, `비밀 공간 ${secret.id} reward는 양수여야 함`);
+    if (!Array.isArray(secret.guideItemIds) || secret.guideItemIds.length === 0) {
+      fail(level, `비밀 공간 ${secret.id} 별 단서 누락`);
+    }
+    for (const guideId of secret.guideItemIds ?? []) {
+      const guide = level.items.find(({ id }) => id === guideId);
+      if (!guide || !["star", "star_arc"].includes(guide.type)) {
+        fail(level, `비밀 공간 ${secret.id} 별 단서 ${guideId}가 없음`);
+      }
+    }
+    const rewardItem = level.items.find(({ id }) => id === secret.rewardItemId);
+    if (!rewardItem || rewardItem.type !== "percent_large") {
+      fail(level, `비밀 공간 ${secret.id} 대형 퍼센트 보상이 없음`);
+    }
   }
   for (const hazard of level.hazards) {
     if (!HAZARD_TYPES.includes(hazard.type)) fail(level, `미등록 hazard type: ${hazard.type}`);
@@ -370,6 +398,11 @@ for (const sourceLevel of ALL_LEVELS) {
 
   for (const objective of [...level.objectives.required, ...(level.objectives.optional ?? [])]) {
     if (!OBJECTIVE_TYPES.includes(objective.type)) fail(level, `미등록 objective type: ${objective.type}`);
+    if (objective.type === "find_secrets" && (
+      !Number.isInteger(objective.count)
+      || objective.count < 1
+      || objective.count > (level.secrets?.length ?? 0)
+    )) fail(level, "find_secrets count가 비밀 공간 수 범위 밖");
   }
   const bossSection = level.sections.find(({ type }) => type === "boss");
   if (bossSection) {

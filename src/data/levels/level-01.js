@@ -133,6 +133,19 @@ export default {
     { id: "boss_rest_reward", type: "percent_small", x: 14144, y: 520 },
     { id: "boss_rest_star", type: "star", x: 14208, y: 496 }
   ],
+  secrets: [
+    {
+      id: "secret_sky_garden",
+      name: "회복길 하늘 정원",
+      xStart: 13824,
+      xEnd: 14112,
+      yTop: 216,
+      yBottom: 420,
+      reward: 200,
+      guideItemIds: ["secret_sky_arc"],
+      rewardItemId: "secret_sky_reward"
+    }
+  ],
   terrainMechanics: {
     movingPlatforms: [
       {
@@ -213,6 +226,7 @@ export default {
     ],
     optional: [
       { type: "collect_stars", count: 70, reward: 700 },
+      { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 540, reward: 400 },
       { type: "no_damage", reward: 1000 }
     ]

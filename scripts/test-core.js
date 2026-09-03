@@ -99,8 +99,10 @@ import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/Came
 import { createRuntimeLevel, getDifficultySettings } from "../src/systems/DifficultyManager.js";
 import { HealthManager } from "../src/systems/HealthManager.js";
 import { EnvironmentMechanicsManager } from "../src/systems/EnvironmentMechanicsManager.js";
+import { ObjectiveManager } from "../src/systems/ObjectiveManager.js";
 import { ProgressManager } from "../src/systems/ProgressManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
+import { SecretManager } from "../src/systems/SecretManager.js";
 import { SeededRandom } from "../src/systems/SeededRandom.js";
 import { TRANSFORM_CAMERA_EASING, TransformationManager } from "../src/systems/TransformationManager.js";
 import { getUpdraftVelocity } from "../src/systems/TerrainMechanicsManager.js";
@@ -890,6 +892,40 @@ assert.equal(score.score, 0);
 assert.equal(score.adjust(100), 100);
 assert.equal(score.score, 100);
 
+const secretEvents = [];
+const secretScore = new ScoreManager();
+const secretObjectives = new ObjectiveManager(null, {
+  required: [],
+  optional: [{ type: "find_secrets", count: 1, reward: 300 }]
+});
+const secretPlayer = { active: true, x: 80, y: 80 };
+const secretManager = new SecretManager({
+  registry: { get: () => false },
+  events: { emit: (event, payload) => secretEvents.push({ event, payload }) }
+}, secretPlayer, secretScore, secretObjectives, [{
+  id: "secret-test",
+  name: "테스트 비밀 공간",
+  xStart: 100,
+  xEnd: 200,
+  yTop: 100,
+  yBottom: 200,
+  reward: 200
+}]);
+secretManager.update();
+assert.equal(secretScore.score, 0);
+secretPlayer.x = 150;
+secretPlayer.y = 150;
+secretManager.update();
+secretManager.update();
+assert.equal(secretScore.score, 200, "비밀 공간 보상은 한 번만 지급해야 함");
+assert.deepEqual(secretManager.getSnapshot(), { found: 1, total: 1, ids: ["secret-test"] });
+assert.equal(secretObjectives.getSnapshot()[0].complete, true);
+assert.deepEqual(secretEvents, [{
+  event: EVENTS.SECRET_FOUND,
+  payload: { id: "secret-test", name: "테스트 비밀 공간", reward: 200, found: 1, total: 1 }
+}]);
+secretManager.destroy();
+
 const easySettings = getDifficultySettings(level01, true);
 const easyLevel = createRuntimeLevel(level01, true);
 assert.equal(easySettings.player.extraHp, 2);
@@ -1078,7 +1114,7 @@ const playtestAnalysis = analyzePlaytestSessions([
     completed: true,
     durationSeconds: 420,
     boss: { key: "random_king", phaseSeconds: { "1": 12.3, "2": 10 } },
-    metrics: { bossHits: 2, bossFailedHits: 1, bossHpLosses: 1 },
+    metrics: { bossHits: 2, bossFailedHits: 1, bossHpLosses: 1, secretsFound: 1 },
     events: [
       { type: "hit", sectionId: "storm_path" },
       { type: "random_boss_result", sectionId: "boss" }
@@ -1112,7 +1148,8 @@ assert.deepEqual(playtestAnalysis.mechanicTotals, {
   bossHits: 2,
   bossFailedHits: 1,
   bossHpLosses: 1,
-  randomResults: 1
+  randomResults: 1,
+  secretsFound: 1
 });
 assert.deepEqual(playtestAnalysis.bosses, {
   random_king: {
@@ -1479,4 +1516,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상");

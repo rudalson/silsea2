@@ -95,7 +95,21 @@ export default {
     { id: "combined_dive_arc_a", type: "star_arc", x: 5760, y: 646, count: 6, radius: 90 },
     { id: "combined_breath_arc", type: "star_arc", x: 6160, y: 442, count: 5, radius: 88 },
     { id: "combined_dive_arc_b", type: "star_arc", x: 6624, y: 646, count: 6, radius: 90 },
+    { id: "sunken_tower_secret_arc", type: "star_arc", x: 7360, y: 372, count: 6, radius: 96 },
     { id: "final_reward", type: "percent_large", x: 7552, y: 288 }
+  ],
+  secrets: [
+    {
+      id: "secret_sunken_tower",
+      name: "잠긴 마을 종탑",
+      xStart: 7360,
+      xEnd: 7744,
+      yTop: 144,
+      yBottom: 392,
+      reward: 200,
+      guideItemIds: ["sunken_tower_secret_arc"],
+      rewardItemId: "final_reward"
+    }
   ],
   terrainMechanics: {
     visualTheme: "submerged-village",
@@ -138,6 +152,7 @@ export default {
     ],
     optional: [
       { type: "collect_stars", count: 42, reward: 500 },
+      { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 390, reward: 300 },
       { type: "no_damage", reward: 700 }
     ]

@@ -160,6 +160,19 @@ export default {
     { id: "star_tree_reward", type: "percent_large", x: 5824, y: 368 },
     { id: "gate_star", type: "star", x: 5952, y: 496 }
   ],
+  secrets: [
+    {
+      id: "secret_star_tree_crown",
+      name: "별나무 꼭대기",
+      xStart: 5664,
+      xEnd: 5952,
+      yTop: 224,
+      yBottom: 440,
+      reward: 200,
+      guideItemIds: ["star_tree_arc"],
+      rewardItemId: "star_tree_reward"
+    }
+  ],
   terrainMechanics: {
     visualTheme: "starlit-forest",
     movingPlatforms: [
@@ -214,6 +227,7 @@ export default {
     ],
     optional: [
       { type: "collect_stars", count: 35, reward: 450 },
+      { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 210, reward: 300 },
       { type: "no_damage", reward: 700 }
     ]

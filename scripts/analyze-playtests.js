@@ -52,7 +52,7 @@ if (!inputPaths.length) {
       console.log(`- 3인 기준: ${analysis.readyForTuning ? "충족" : `${analysis.remainingTesters}명 부족`}`);
       console.log(`- 일반 평균: ${formatSeconds(analysis.modes.normal.averageSeconds)}, HP 손실 ${analysis.modes.normal.averageHpLosses ?? "-"}`);
       console.log(`- 쉬움 평균: ${formatSeconds(analysis.modes.easy.averageSeconds)}, HP 손실 ${analysis.modes.easy.averageHpLosses ?? "-"}`);
-      console.log(`- 기믹: 쓰나미 피격 ${analysis.mechanicTotals.tsunamiHits}, 숨 0 ${analysis.mechanicTotals.breathDepletions}, 투사체 방어 ${analysis.mechanicTotals.projectilesGuarded}, 부활 ${analysis.mechanicTotals.respawns}`);
+      console.log(`- 기믹: 쓰나미 피격 ${analysis.mechanicTotals.tsunamiHits}, 숨 0 ${analysis.mechanicTotals.breathDepletions}, 투사체 방어 ${analysis.mechanicTotals.projectilesGuarded}, 부활 ${analysis.mechanicTotals.respawns}, 비밀 공간 ${analysis.mechanicTotals.secretsFound}`);
       for (const boss of Object.values(analysis.bosses ?? {})) {
         const phaseTimes = Object.entries(boss.averagePhaseSeconds)
           .map(([phase, seconds]) => `P${phase} ${seconds}초`)

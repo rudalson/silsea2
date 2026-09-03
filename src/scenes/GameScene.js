@@ -26,6 +26,7 @@ import { ParticleEffectsManager } from "../systems/ParticleEffectsManager.js";
 import { PlaytestManager } from "../systems/PlaytestManager.js";
 import { progressManager } from "../systems/ProgressManager.js";
 import { ScoreManager } from "../systems/ScoreManager.js";
+import { SecretManager } from "../systems/SecretManager.js";
 import { TerrainMechanicsManager } from "../systems/TerrainMechanicsManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
 import { moveTowards } from "../utils/math.js";
@@ -84,6 +85,19 @@ export class GameScene extends Phaser.Scene {
       0.24
     ).setDepth(1);
     this.particleEffects = new ParticleEffectsManager(this);
+    this.secretManager = new SecretManager(
+      this,
+      this.player,
+      this.scoreManager,
+      this.objectiveManager,
+      this.level.secrets
+    );
+    this.onSecretFound = ({ name = "비밀 공간", reward = 0 } = {}) => {
+      this.audioManager.playSfx("sfx_percent_large", { randomizeRate: false });
+      this.cameras.main.flash(180, 216, 248, 255);
+      this.updateAccessibleStatus(`${name} 발견. 발견 보너스 ${reward}점을 얻었습니다.`);
+    };
+    this.events.on(EVENTS.SECRET_FOUND, this.onSecretFound);
     this.createGameplayManagers();
     this.playtestManager = new PlaytestManager(this, this.player, {
       enabled: Boolean(this.registry.get("playtestEnabled")),
@@ -131,6 +145,22 @@ export class GameScene extends Phaser.Scene {
         this.cameras.main.centerOn(this.player.x, this.player.y - 120);
       }
     }
+    const visualReviewSecretId = this.registry.get("visualReviewSecretId");
+    const visualReviewSecret = visualReviewSectionId
+      ? this.level.secrets.find(({ id }) => id === visualReviewSecretId)
+      : null;
+    if (visualReviewSecret) {
+      this.time.delayedCall(200, () => {
+        if (!this.player?.active) return;
+        const x = (visualReviewSecret.xStart + visualReviewSecret.xEnd) / 2;
+        const y = (visualReviewSecret.yTop + visualReviewSecret.yBottom) / 2;
+        this.player.setPosition(x, y).setVelocity(0, 0);
+        this.player.body?.setAllowGravity?.(false);
+        this.player.body?.updateFromGameObject?.();
+        this.secretManager.update(this.player);
+        this.cameras.main.centerOn(x, y);
+      });
+    }
     if (visualReviewSectionId) {
       this.player.body?.updateFromGameObject?.();
       this.breathManager?.refreshWaterState();
@@ -177,6 +207,7 @@ export class GameScene extends Phaser.Scene {
     this.enemyManager.setPaused(this.environmentMechanics?.pausesEnemies, time);
     this.enemyManager.update(time, delta);
     this.bossController?.update(time, delta);
+    this.secretManager?.update(this.player);
     this.updateMagnet(delta);
     this.elapsed += delta / 1000;
     this.playtestManager?.update(this.elapsed, this.player);
@@ -593,7 +624,8 @@ export class GameScene extends Phaser.Scene {
       particles: this.particleEffects?.getSnapshot() ?? null,
       terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null,
       environmentMechanics: this.environmentMechanics?.getSnapshot() ?? null,
-      breath: this.breathManager?.getSnapshot() ?? null
+      breath: this.breathManager?.getSnapshot() ?? null,
+      secrets: this.secretManager?.getSnapshot() ?? null
     };
   }
 
@@ -618,6 +650,7 @@ export class GameScene extends Phaser.Scene {
     this.bossClearTimer = null;
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
+    this.events.off(EVENTS.SECRET_FOUND, this.onSecretFound);
     this.debugPanel?.destroy();
     this.debugPanel = null;
     this.inputManager?.destroy();
@@ -628,6 +661,8 @@ export class GameScene extends Phaser.Scene {
     this.destroyGameplayManagers();
     this.particleEffects?.destroy();
     this.particleEffects = null;
+    this.secretManager?.destroy();
+    this.secretManager = null;
     this.levelLoader?.destroy();
     this.playerShadow?.destroy();
     this.playerShadow = null;

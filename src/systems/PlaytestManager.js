@@ -88,6 +88,7 @@ export function analyzePlaytestSessions(sessions, levelId) {
     totals.bossFailedHits += Number(report.metrics?.bossFailedHits) || 0;
     totals.bossHpLosses += Number(report.metrics?.bossHpLosses) || 0;
     totals.randomResults += (report.events ?? []).filter(({ type }) => type === "random_boss_result").length;
+    totals.secretsFound += Number(report.metrics?.secretsFound) || 0;
     return totals;
   }, {
     tsunamiHits: 0,
@@ -97,7 +98,8 @@ export function analyzePlaytestSessions(sessions, levelId) {
     bossHits: 0,
     bossFailedHits: 0,
     bossHpLosses: 0,
-    randomResults: 0
+    randomResults: 0,
+    secretsFound: 0
   });
 
   const hotspots = new Map();
@@ -252,6 +254,7 @@ export class PlaytestManager {
         tsunamiHits: 0,
         breathDepletions: 0,
         projectilesGuarded: 0,
+        secretsFound: 0,
         stalls: 0,
         maxProgress: this.progressAnchor,
         maxProgressX: Math.round(player?.x ?? 0)
@@ -303,6 +306,7 @@ export class PlaytestManager {
       this.report.metrics.projectilesGuarded += 1;
       this.recordEvent("projectile_guarded", details);
     });
+    bind(EVENTS.SECRET_FOUND, (details = {}) => this.recordOutcome("secret_found", "secretsFound", details));
   }
 
   update(elapsedSeconds, player = this.player) {

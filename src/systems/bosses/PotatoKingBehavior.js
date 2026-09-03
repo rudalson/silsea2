@@ -56,7 +56,7 @@ export class PotatoKingBehavior {
     Object.assign(this, context);
     this.boss = this.levelLoader.boss;
     this.state = "idle";
-    this.stateUntil = scene.time.now + 900;
+    this.stateUntil = this.scene.time.now + 900;
     this.interactions = [];
     this.volleyTimers = [];
     this.defeated = false;

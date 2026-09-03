@@ -89,7 +89,21 @@ export default {
     { id: "tsunami_house_arc_a", type: "star_arc", x: shifted(4608), y: 420, count: 7, radius: 116 },
     { id: "tsunami_house_arc_b", type: "star_arc", x: shifted(3376), y: 408, count: 7, radius: 120 },
     { id: "tsunami_high_arc", type: "star_arc", x: shifted(1728), y: 244, count: 7, radius: 116 },
+    { id: "tsunami_high_secret_reward", type: "percent_large", x: shifted(1728), y: 288 },
     { id: "tsunami_exit_reward", type: "percent_large", x: shifted(640), y: 480 }
+  ],
+  secrets: [
+    {
+      id: "secret_tsunami_rooftop",
+      name: "파도 위 지붕 전망대",
+      xStart: shifted(1536),
+      xEnd: shifted(1920),
+      yTop: 144,
+      yBottom: 344,
+      reward: 200,
+      guideItemIds: ["tsunami_high_arc"],
+      rewardItemId: "tsunami_high_secret_reward"
+    }
   ],
   terrainMechanics: {
     visualTheme: "tsunami-village",
@@ -129,6 +143,7 @@ export default {
     ],
     optional: [
       { type: "collect_stars", count: 28, reward: 450 },
+      { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 210, reward: 300 },
       { type: "no_damage", reward: 700 }
     ]

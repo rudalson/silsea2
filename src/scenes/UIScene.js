@@ -177,7 +177,13 @@ export class UIScene extends Phaser.Scene {
     this.onFormChanged = ({ form }) => this.showToast(`${this.formName(form)} 변신!`);
     this.onFormWarning = () => this.showToast("알리콘 종료까지 3초!");
     this.onItemCollected = ({ type }) => {
-      if (type === "percent_large") this.showToast("대형 퍼센트 +100!");
+      if (type === "percent_large" && this.time.now >= (this.secretToastUntil ?? 0)) {
+        this.showToast("대형 퍼센트 +100!");
+      }
+    };
+    this.onSecretFound = ({ name = "비밀 공간", reward = 0, found = 1, total = 1 } = {}) => {
+      this.secretToastUntil = this.time.now + 1100;
+      this.showToast(`${name} 발견! +${reward} · ${found}/${total}`);
     };
     this.onRandomBossResult = ({ result, delta = 0, courseName = "" } = {}) => {
       const messages = {
@@ -194,6 +200,7 @@ export class UIScene extends Phaser.Scene {
     this.gameScene.events.on(EVENTS.FORM_CHANGED, this.onFormChanged);
     this.gameScene.events.on(EVENTS.FORM_WARNING, this.onFormWarning);
     this.gameScene.events.on(EVENTS.ITEM_COLLECTED, this.onItemCollected);
+    this.gameScene.events.on(EVENTS.SECRET_FOUND, this.onSecretFound);
     this.gameScene.events.on(EVENTS.RANDOM_BOSS_RESULT, this.onRandomBossResult);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }
@@ -529,6 +536,7 @@ export class UIScene extends Phaser.Scene {
     this.gameScene?.events.off(EVENTS.FORM_CHANGED, this.onFormChanged);
     this.gameScene?.events.off(EVENTS.FORM_WARNING, this.onFormWarning);
     this.gameScene?.events.off(EVENTS.ITEM_COLLECTED, this.onItemCollected);
+    this.gameScene?.events.off(EVENTS.SECRET_FOUND, this.onSecretFound);
     this.gameScene?.events.off(EVENTS.RANDOM_BOSS_RESULT, this.onRandomBossResult);
   }
 }

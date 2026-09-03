@@ -4,6 +4,7 @@ export const OBJECTIVE_HANDLERS = Object.freeze({
   defeat_boss: (ctx, objective) => ctx.defeatedBosses.includes(objective.target),
   reach_gate: (ctx) => ctx.gateEntered,
   collect_stars: (ctx, objective) => ctx.starCount >= objective.count,
+  find_secrets: (ctx, objective) => ctx.foundSecrets.length >= objective.count,
   clear_time: (ctx, objective) => ctx.elapsed <= objective.seconds,
   no_damage: (ctx) => ctx.damageTaken === 0
 });
@@ -18,6 +19,7 @@ export class ObjectiveManager {
       defeatedBosses: [],
       gateEntered: false,
       starCount: 0,
+      foundSecrets: [],
       elapsed: 0,
       damageTaken: 0
     };
@@ -41,6 +43,11 @@ export class ObjectiveManager {
 
   addStars(count = 1) {
     this.context.starCount += count;
+    this.evaluate();
+  }
+
+  findSecret(id) {
+    if (id && !this.context.foundSecrets.includes(id)) this.context.foundSecrets.push(id);
     this.evaluate();
   }
 
@@ -75,4 +82,3 @@ export class ObjectiveManager {
     ];
   }
 }
-

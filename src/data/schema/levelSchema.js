@@ -39,7 +39,8 @@ export function normalizeLevelDefinition(level) {
       enterFrom: direction,
       ...(level.exit ?? {})
     },
-    environment: level.environment ?? {}
+    environment: level.environment ?? {},
+    secrets: level.secrets ?? []
   };
 }
 

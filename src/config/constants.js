@@ -32,6 +32,7 @@ export const EVENTS = Object.freeze({
   GUARD_CHANGED: "player:guard-changed",
   PROJECTILE_GUARDED: "player:projectile-guarded",
   ITEM_COLLECTED: "item:collected",
+  SECRET_FOUND: "secret:found",
   COMBO_CHANGED: "score:combo-changed",
   BOSS_HIT_ATTEMPT: "boss:hit-attempt",
   BOSS_HIT: "boss:hit",

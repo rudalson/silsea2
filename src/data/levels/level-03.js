@@ -103,6 +103,19 @@ export default {
     { id: "mist_recovery_reward", type: "percent_large", x: 6560, y: 456 },
     { id: "mist_gate_star", type: "star", x: 6848, y: 496 }
   ],
+  secrets: [
+    {
+      id: "secret_mist_lantern",
+      name: "안개 속 등불길",
+      xStart: 4608,
+      xEnd: 4928,
+      yTop: 304,
+      yBottom: 520,
+      reward: 200,
+      guideItemIds: ["mist_application_arc_b"],
+      rewardItemId: "mist_application_reward"
+    }
+  ],
   terrainMechanics: {
     visualTheme: "mist-valley",
     movingPlatforms: [
@@ -163,6 +176,7 @@ export default {
     ],
     optional: [
       { type: "collect_stars", count: 30, reward: 450 },
+      { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 240, reward: 300 },
       { type: "no_damage", reward: 700 }
     ]

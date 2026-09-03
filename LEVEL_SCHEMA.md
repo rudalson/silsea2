@@ -323,6 +323,13 @@ export default {
 - 단일 타입: `star`, `percent_small`, `percent_large`, `horn`, `wings`, `alicorn`.
 - 패턴 타입: `star_arc`는 `count`, `radius`; 향후 패턴은 item handler 하나로 추가한다.
 
+### `secrets[]`
+
+- 선택 배열이며 각 항목은 고유한 `id`, 표시용 `name`, `xStart`, `xEnd`, `yTop`, `yBottom`, 양의 정수 `reward`, `guideItemIds[]`, `rewardItemId`를 가진다.
+- 네 좌표는 레벨 월드 안의 유효한 직사각형이어야 한다. 플레이어가 처음 진입할 때만 발견으로 기록하고 같은 세션의 재진입은 점수와 목표 진행을 중복 지급하지 않는다.
+- `guideItemIds`는 존재하는 `star` 또는 `star_arc` 아이템을 가리키며, `rewardItemId`는 같은 공간의 `percent_large` 아이템을 가리킨다.
+- `find_secrets` 선택 목표의 `count`는 해당 레벨의 `secrets` 수를 넘을 수 없다. 비밀 공간 목표는 `objectives.required`에 두지 않는다.
+
 ### `hazards[]`
 
 - `spike_pumpkin`: `x`, `y`.
@@ -338,6 +345,7 @@ const handlers = {
   defeat_boss: (ctx, o) => ctx.defeatedBosses.includes(o.target),
   reach_gate: (ctx) => ctx.gateEntered,
   collect_stars: (ctx, o) => ctx.starCount >= o.count,
+  find_secrets: (ctx, o) => ctx.foundSecrets.length >= o.count,
   clear_time: (ctx, o) => ctx.elapsed <= o.seconds,
   no_damage: (ctx) => ctx.damageTaken === 0
 };
