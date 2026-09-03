@@ -38,6 +38,7 @@ export class BootScene extends Phaser.Scene {
     const requestedReviewLevel = query.get("visualReview");
     const stageSelectReview = requestedReviewLevel === "stage-select";
     const reviewLevel = LEVELS.find(({ id }) => id === requestedReviewLevel) ?? null;
+    const clearReviewLevel = LEVELS.find(({ id }) => id === query.get("clearReview")) ?? null;
     const stageSelectLevel = stageSelectReview
       ? LEVELS.find(({ id }) => id === query.get("stage")) ?? null
       : null;
@@ -49,7 +50,7 @@ export class BootScene extends Phaser.Scene {
     const playtestLevel = playtestEnabled
       ? LEVELS.find(({ id }) => id === query.get("level")) ?? null
       : null;
-    const directLevel = reviewLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
+    const directLevel = reviewLevel ?? clearReviewLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
     const levelId = directLevel?.id ?? stageSelectLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
@@ -61,6 +62,12 @@ export class BootScene extends Phaser.Scene {
     const reviewZoom = Number.isFinite(requestedReviewZoom)
       ? Math.min(2, Math.max(1, requestedReviewZoom))
       : null;
+    const clearReviewTypes = new Set(clearReviewLevel?.objectives.optional.map(({ type }) => type) ?? []);
+    const clearReviewAchieved = (query.get("achieved") ?? "")
+      .split(",")
+      .filter((type) => clearReviewTypes.has(type));
+    const clearReviewElapsed = Number(query.get("elapsed"));
+    const clearReviewScore = Number(query.get("score"));
 
     this.registry.set("characterId", characterId);
     this.registry.set("levelId", levelId);
@@ -80,7 +87,13 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("visualReviewWaterState", reviewLevel ? query.get("water") : null);
     this.registry.set("visualReviewRandomState", reviewLevel ? query.get("random") : null);
     this.registry.set("visualReviewSecretId", reviewLevel ? query.get("secret") : null);
-    this.registry.set("visualReviewSecretId", reviewLevel ? query.get("secret") : null);
+    this.registry.set("clearReviewResult", clearReviewLevel ? {
+      levelId: clearReviewLevel.id,
+      characterId,
+      elapsed: Number.isFinite(clearReviewElapsed) && clearReviewElapsed >= 0 ? clearReviewElapsed : 184.2,
+      score: Number.isFinite(clearReviewScore) && clearReviewScore >= 0 ? clearReviewScore : 1720,
+      achieved: clearReviewAchieved
+    } : null);
     this.registry.set("debugEnabled", DEBUG_ENABLED);
     this.registry.set("easyMode", query.get("easy") === "1");
     this.registry.set("playtestEnabled", playtestEnabled);

@@ -75,6 +75,12 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    const clearReviewResult = this.registry.get("clearReviewResult");
+    if (clearReviewResult?.levelId === this.levelId) {
+      this.registry.set("clearReviewResult", null);
+      this.scene.start(SCENE_KEYS.CLEAR, clearReviewResult);
+      return;
+    }
     this.scene.start(SCENE_KEYS.GAME, { levelId: this.levelId });
   }
 }

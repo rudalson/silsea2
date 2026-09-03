@@ -11,6 +11,7 @@ import { getEnemyAnimationSpec } from "../src/data/enemyAnimations.js";
 import { ENVIRONMENT_SUSPENSION_TYPES } from "../src/data/environment.js";
 import { HAZARD_TYPES, ITEM_TYPES } from "../src/data/items.js";
 import { ALL_LEVELS, LEVELS } from "../src/data/levels/index.js";
+import { OBJECTIVE_PRESENTATIONS } from "../src/data/objectivePresentation.js";
 import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/levelSchema.js";
 import { OBJECTIVE_TYPES } from "../src/systems/ObjectiveManager.js";
 
@@ -403,6 +404,11 @@ for (const sourceLevel of ALL_LEVELS) {
       || objective.count < 1
       || objective.count > (level.secrets?.length ?? 0)
     )) fail(level, "find_secrets count가 비밀 공간 수 범위 밖");
+  }
+  for (const objective of level.objectives.optional ?? []) {
+    if (!OBJECTIVE_PRESENTATIONS[objective.type]) {
+      fail(level, `선택 목표 ${objective.type} 결과 카드 정의가 없음`);
+    }
   }
   const bossSection = level.sections.find(({ type }) => type === "boss");
   if (bossSection) {

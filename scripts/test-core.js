@@ -89,6 +89,7 @@ import {
   sanitizeTesterId
 } from "../src/systems/PlaytestManager.js";
 import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../src/data/particleEffects.js";
+import { getObjectiveCelebrations, getObjectiveDetail } from "../src/data/objectivePresentation.js";
 import {
   ALICORN_LAYER_KEY,
   AudioManager,
@@ -892,6 +893,32 @@ assert.equal(score.score, 0);
 assert.equal(score.adjust(100), 100);
 assert.equal(score.score, 100);
 
+const objectiveCelebrations = getObjectiveCelebrations(level01, [
+  "collect_stars",
+  "find_secrets",
+  "clear_time",
+  "no_damage",
+  "unknown",
+  "collect_stars"
+], 3);
+assert.deepEqual(objectiveCelebrations.cards.map(({ type }) => type), [
+  "collect_stars",
+  "find_secrets",
+  "clear_time"
+]);
+assert.equal(objectiveCelebrations.totalAchieved, 4);
+assert.equal(objectiveCelebrations.overflow, 1);
+assert.equal(objectiveCelebrations.cards[0].detail, "별 70개 모으기");
+assert.equal(objectiveCelebrations.cards[1].detail, "비밀 공간 1곳 발견");
+assert.equal(objectiveCelebrations.cards[2].detail, "540초 안에 도착");
+assert.equal("reward" in objectiveCelebrations.cards[0], false, "결과 카드는 점수 보상을 다시 전달하지 않아야 함");
+assert.equal(getObjectiveDetail({ type: "no_damage" }), "HP 피해 없이 클리어");
+assert.deepEqual(getObjectiveCelebrations(level01, null, 3), {
+  cards: [],
+  totalAchieved: 0,
+  overflow: 0
+});
+
 const secretEvents = [];
 const secretScore = new ScoreManager();
 const secretObjectives = new ObjectiveManager(null, {
@@ -1516,4 +1543,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드");

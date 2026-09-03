@@ -340,6 +340,8 @@ export default {
 
 객체 안에 `required`와 `optional` 배열을 둔다. 목표 하나의 공통 필드는 `type`; 선택 목표는 `reward`를 가진다.
 
+선택 목표 `type`은 `objectivePresentation.js`의 결과 카드 정의도 가져야 한다. 클리어 화면은 현재 플레이의 `achieved` type과 `objectives.optional`을 교차해 표시하므로, 저장 형식은 기존 문자열 배열을 유지하고 카드 표시를 위해 별도 결과 객체를 저장하지 않는다.
+
 ```js
 const handlers = {
   defeat_boss: (ctx, o) => ctx.defeatedBosses.includes(o.target),

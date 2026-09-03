@@ -3,6 +3,7 @@ import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../conf
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacter } from "../data/characters.js";
 import { getLevel, getNextLevel } from "../data/levels/index.js";
+import { getObjectiveCelebrations } from "../data/objectivePresentation.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { AudioManager } from "../systems/AudioManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
@@ -25,12 +26,16 @@ export class ClearScene extends Phaser.Scene {
     this.starting = false;
     const character = getCharacter(this.result.characterId);
     const playtestBundle = this.result.playtestBundle ?? null;
+    this.reducedEffects = this.registry.get("screenEffectStrength") === "reduced";
+    this.celebrations = getObjectiveCelebrations(level, this.result.achieved, 3);
+    this.allCelebrations = getObjectiveCelebrations(level, this.result.achieved, Number.MAX_SAFE_INTEGER);
     this.cameras.main.setBackgroundColor(COLORS.near);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
     this.audioManager.playBgm(level.assets.bgm.clear, { loop: false });
 
-    for (let index = 0; index < 34; index += 1) {
+    const celebrationDotCount = this.reducedEffects ? 12 : 34;
+    for (let index = 0; index < celebrationDotCount; index += 1) {
       const colors = [COLORS.collect, COLORS.collectBlue, COLORS.collectPink];
       const dot = this.add.circle(
         Phaser.Math.Between(40, GAME_WIDTH - 40),
@@ -39,12 +44,14 @@ export class ClearScene extends Phaser.Scene {
         colors[index % colors.length],
         0.8
       );
-      this.tweens.add({ targets: dot, y: dot.y + Phaser.Math.Between(24, 80), duration: 900 + index * 24, yoyo: true, repeat: -1 });
+      if (!this.reducedEffects) {
+        this.tweens.add({ targets: dot, y: dot.y + Phaser.Math.Between(24, 80), duration: 900 + index * 24, yoyo: true, repeat: -1 });
+      }
     }
 
-    this.add.text(GAME_WIDTH / 2, 104, "STAGE CLEAR!", {
+    this.add.text(GAME_WIDTH / 2, 58, "STAGE CLEAR!", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "58px",
+      fontSize: "50px",
       fontStyle: "900",
       color: CSS_COLORS.collect,
       stroke: CSS_COLORS.outline,
@@ -55,19 +62,23 @@ export class ClearScene extends Phaser.Scene {
     const victory = CharacterAnimationManager.getSpec(character, "victory");
     const hasArt = Boolean(victory && this.textures.exists(victory.textureKey));
     const texture = hasArt ? victory.textureKey : AssetManager.ensurePlayerTexture(this, character);
-    const portrait = this.add.sprite(GAME_WIDTH / 2, 290, texture).setScale(1.9).setOrigin(0.5);
+    const portrait = this.add.sprite(GAME_WIDTH / 2, 178, texture).setScale(1.45).setOrigin(0.5);
     if (hasArt) CharacterAnimationManager.play(portrait, character, "victory");
-    this.add.text(GAME_WIDTH / 2, 410, `${character.name} · ${level.name}`, {
+    this.add.text(GAME_WIDTH / 2, 292, `${character.name} · ${level.name}`, {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "27px",
       fontStyle: "800",
       color: CSS_COLORS.white
     }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2, 472, `기록  ${this.result.elapsed.toFixed(1)}초    ·    점수  ${this.result.score}%`, {
+    this.add.text(GAME_WIDTH / 2, 330, `기록  ${this.result.elapsed.toFixed(1)}초    ·    점수  ${this.result.score}%`, {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "20px",
       color: CSS_COLORS.soft
     }).setOrigin(0.5);
+
+    this.createObjectiveCelebration(376, 445);
+    this.updateAccessibleStatus(this.getAccessibleResultSummary(level, character));
+
     if (playtestBundle) {
       const session = playtestBundle.currentSession;
       const analysis = playtestBundle.analysis;
@@ -87,7 +98,7 @@ export class ClearScene extends Phaser.Scene {
           lineSpacing: 6
         }
       ).setOrigin(0.5);
-      this.exportButton = this.add.text(GAME_WIDTH / 2, 580, "E / 클릭 · 플레이테스트 JSON 저장", {
+      this.exportButton = this.add.text(GAME_WIDTH / 2, 565, "E / 클릭 · 플레이테스트 JSON 저장", {
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "17px",
         fontStyle: "800",
@@ -98,8 +109,9 @@ export class ClearScene extends Phaser.Scene {
       this.exportButton.on("pointerdown", () => this.exportPlaytest());
     }
 
-    const actionY = playtestBundle ? 618 : 558;
-    this.add.text(GAME_WIDTH / 2, actionY - 50, next ? `다음 스테이지: ${next.name}` : "모든 스테이지를 완료했습니다!", {
+    const actionY = playtestBundle ? 645 : 596;
+    const nextLabelY = playtestBundle ? 605 : 548;
+    this.add.text(GAME_WIDTH / 2, nextLabelY, next ? `다음 스테이지: ${next.name}` : "모든 스테이지를 완료했습니다!", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       color: CSS_COLORS.collectBlue
@@ -113,7 +125,7 @@ export class ClearScene extends Phaser.Scene {
     }
     this.add.text(
       GAME_WIDTH / 2,
-      actionY + 58,
+      actionY + 55,
       next ? "Space / Z · 다음 스테이지   ·   Esc · 스테이지 선택" : "Space / Z / Esc · 스테이지 선택",
       {
         fontFamily: GAME_FONT_FAMILY,
@@ -126,6 +138,101 @@ export class ClearScene extends Phaser.Scene {
       this.inputManager.destroy();
       this.audioManager.destroy();
     });
+  }
+
+  createObjectiveCelebration(headingY, cardY) {
+    const { cards, totalAchieved, overflow } = this.celebrations;
+    const heading = totalAchieved > 0
+      ? `선택 목표 ${totalAchieved}개 달성${overflow ? ` · 대표 ${cards.length}개` : ""}`
+      : "선택 목표는 다음 도전에서!";
+    this.add.text(GAME_WIDTH / 2, headingY, heading, {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "20px",
+      fontStyle: "800",
+      color: totalAchieved > 0 ? CSS_COLORS.collect : CSS_COLORS.soft
+    }).setOrigin(0.5);
+
+    if (cards.length === 0) {
+      this.add.rectangle(GAME_WIDTH / 2, cardY, 580, 82, COLORS.near, 0.9)
+        .setStrokeStyle(2, COLORS.collectBlue, 0.7);
+      this.add.text(GAME_WIDTH / 2, cardY, "별 · 비밀 · 시간 · 무피해 목표에 도전해 보세요", {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "17px",
+        fontStyle: "700",
+        color: CSS_COLORS.white
+      }).setOrigin(0.5);
+      return;
+    }
+
+    const gap = 304;
+    cards.forEach((card, index) => {
+      const x = GAME_WIDTH / 2 + (index - (cards.length - 1) / 2) * gap;
+      this.createObjectiveCard(card, index, cards.length, x, cardY);
+    });
+  }
+
+  createObjectiveCard(card, index, total, x, y) {
+    const accents = [COLORS.collect, COLORS.collectBlue, COLORS.collectPink];
+    const accent = accents[index % accents.length];
+    const panel = this.add.rectangle(0, 0, 282, 104, COLORS.near, 0.96)
+      .setStrokeStyle(3, accent, 1);
+    const icon = this.add.circle(-108, -17, 24, accent, 1)
+      .setStrokeStyle(2, COLORS.white, 0.9);
+    const glyph = this.add.text(-108, -18, card.glyph, {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: card.glyph.length > 2 ? "13px" : "25px",
+      fontStyle: "900",
+      color: CSS_COLORS.near
+    }).setOrigin(0.5);
+    const title = this.add.text(-72, -36, card.title, {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "21px",
+      fontStyle: "900",
+      color: CSS_COLORS.white
+    }).setOrigin(0, 0.5);
+    const detail = this.add.text(-72, -4, card.detail, {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "15px",
+      color: CSS_COLORS.soft
+    }).setOrigin(0, 0.5);
+    const status = this.add.text(-72, 28, `✓ 목표 달성  ${index + 1}/${total}`, {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "14px",
+      fontStyle: "800",
+      color: CSS_COLORS.collect
+    }).setOrigin(0, 0.5);
+    const container = this.add.container(x, this.reducedEffects ? y : y + 24, [panel, icon, glyph, title, detail, status])
+      .setAlpha(0)
+      .setScale(this.reducedEffects ? 1 : 0.92);
+    const delay = index * (this.reducedEffects ? 180 : 260);
+    this.tweens.add({
+      targets: container,
+      alpha: 1,
+      y,
+      scaleX: 1,
+      scaleY: 1,
+      delay,
+      duration: this.reducedEffects ? 100 : 300,
+      ease: this.reducedEffects ? "Linear" : "Back.Out",
+      onStart: () => this.audioManager.playSfx("sfx_ui_select", {
+        randomizeRate: false,
+        rate: 1 + index * 0.06,
+        volume: 0.55
+      })
+    });
+  }
+
+  getAccessibleResultSummary(level, character) {
+    const cards = this.allCelebrations.cards;
+    const objectiveSummary = cards.length > 0
+      ? `선택 목표 ${cards.length}개 달성. ${cards.map(({ title, detail }) => `${title}, ${detail}`).join(". ")}.`
+      : "달성한 선택 목표는 없습니다.";
+    return `${level.name} 클리어. ${character.name}. 기록 ${this.result.elapsed.toFixed(1)}초. 점수 ${this.result.score}. ${objectiveSummary}`;
+  }
+
+  updateAccessibleStatus(message) {
+    const status = document.querySelector("#game-status");
+    if (status) status.textContent = message;
   }
 
   update() {

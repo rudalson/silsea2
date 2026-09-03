@@ -237,6 +237,15 @@ if (!clearScene.includes("startNextLevel") || !clearScene.includes("goToStageSel
 if (!clearScene.includes("createActionButton") || !clearScene.includes("input.pausePressed")) {
   fail("클리어 화면의 직접 선택 버튼 또는 Esc 복귀가 없음");
 }
+if (!clearScene.includes("getObjectiveCelebrations") || !clearScene.includes("createObjectiveCard")) {
+  fail("클리어 화면에 선택 목표 결과 카드 연출이 없음");
+}
+if (!clearScene.includes("getAccessibleResultSummary") || !clearScene.includes("screenEffectStrength")) {
+  fail("선택 목표 결과 카드의 접근성 요약 또는 약한 효과 경로가 없음");
+}
+if (clearScene.includes("progressManager.complete") || clearScene.includes("scoreManager.add")) {
+  fail("선택 목표 결과 카드가 점수나 진행도를 다시 지급함");
+}
 if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
   fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");
 }
