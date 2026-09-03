@@ -53,6 +53,12 @@ if (!inputPaths.length) {
       console.log(`- 일반 평균: ${formatSeconds(analysis.modes.normal.averageSeconds)}, HP 손실 ${analysis.modes.normal.averageHpLosses ?? "-"}`);
       console.log(`- 쉬움 평균: ${formatSeconds(analysis.modes.easy.averageSeconds)}, HP 손실 ${analysis.modes.easy.averageHpLosses ?? "-"}`);
       console.log(`- 기믹: 쓰나미 피격 ${analysis.mechanicTotals.tsunamiHits}, 숨 0 ${analysis.mechanicTotals.breathDepletions}, 투사체 방어 ${analysis.mechanicTotals.projectilesGuarded}, 부활 ${analysis.mechanicTotals.respawns}`);
+      for (const boss of Object.values(analysis.bosses ?? {})) {
+        const phaseTimes = Object.entries(boss.averagePhaseSeconds)
+          .map(([phase, seconds]) => `P${phase} ${seconds}초`)
+          .join(", ");
+        console.log(`- 보스 ${boss.key}: 평균 ${boss.averageSeconds}초 (${phaseTimes || "phase 기록 없음"}), 유효 타격 ${boss.validHits}, 실패 밟기 ${boss.failedHits}, 보스방 HP 손실 ${boss.hpLosses}, 랜덤 결과 ${boss.randomResults}`);
+      }
       if (analysis.adjustmentCandidates.length) {
         console.log(`- 2명 이상 공통 조정 후보: ${analysis.adjustmentCandidates.map(({ sectionId }) => sectionId).join(", ")}`);
       } else {

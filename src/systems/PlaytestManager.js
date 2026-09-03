@@ -134,6 +134,46 @@ export function analyzePlaytestSessions(sessions, levelId) {
       || (right.hits + right.falls + right.stalls) - (left.hits + left.falls + left.stalls)
     ));
 
+  const bossEntries = new Map();
+  for (const report of completed) {
+    const key = report.boss?.key;
+    if (!key) continue;
+    const entry = bossEntries.get(key) ?? {
+      key,
+      sessionCount: 0,
+      encounterSeconds: 0,
+      phaseSeconds: {},
+      validHits: 0,
+      failedHits: 0,
+      hpLosses: 0,
+      randomResults: 0
+    };
+    entry.sessionCount += 1;
+    for (const [phase, seconds] of Object.entries(report.boss?.phaseSeconds ?? {})) {
+      const value = Math.max(0, Number(seconds) || 0);
+      entry.encounterSeconds += value;
+      entry.phaseSeconds[phase] = (entry.phaseSeconds[phase] ?? 0) + value;
+    }
+    entry.validHits += Number(report.metrics?.bossHits) || 0;
+    entry.failedHits += Number(report.metrics?.bossFailedHits) || 0;
+    entry.hpLosses += Number(report.metrics?.bossHpLosses) || 0;
+    entry.randomResults += (report.events ?? []).filter(({ type }) => type === "random_boss_result").length;
+    bossEntries.set(key, entry);
+  }
+  const bosses = Object.fromEntries([...bossEntries.entries()].sort().map(([key, entry]) => [key, {
+    key,
+    sessionCount: entry.sessionCount,
+    averageSeconds: roundSeconds(entry.encounterSeconds / entry.sessionCount),
+    averagePhaseSeconds: Object.fromEntries(Object.entries(entry.phaseSeconds).map(([phase, seconds]) => [
+      phase,
+      roundSeconds(seconds / entry.sessionCount)
+    ])),
+    validHits: entry.validHits,
+    failedHits: entry.failedHits,
+    hpLosses: entry.hpLosses,
+    randomResults: entry.randomResults
+  }]));
+
   return {
     levelId: levelId ?? null,
     sessionCount: reports.length,
@@ -145,6 +185,7 @@ export function analyzePlaytestSessions(sessions, levelId) {
     durationPass: modeSummary.normal.withinTarget && modeSummary.easy.withinTarget,
     modes: modeSummary,
     mechanicTotals,
+    bosses,
     hotspots: hotspotSummary,
     adjustmentCandidates: hotspotSummary.filter(({ needsAdjustment }) => needsAdjustment)
   };

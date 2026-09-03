@@ -1077,6 +1077,7 @@ const playtestAnalysis = analyzePlaytestSessions([
     mode: "normal",
     completed: true,
     durationSeconds: 420,
+    boss: { key: "random_king", phaseSeconds: { "1": 12.3, "2": 10 } },
     metrics: { bossHits: 2, bossFailedHits: 1, bossHpLosses: 1 },
     events: [
       { type: "hit", sectionId: "storm_path" },
@@ -1112,6 +1113,18 @@ assert.deepEqual(playtestAnalysis.mechanicTotals, {
   bossFailedHits: 1,
   bossHpLosses: 1,
   randomResults: 1
+});
+assert.deepEqual(playtestAnalysis.bosses, {
+  random_king: {
+    key: "random_king",
+    sessionCount: 1,
+    averageSeconds: 22.3,
+    averagePhaseSeconds: { "1": 12.3, "2": 10 },
+    validHits: 2,
+    failedHits: 1,
+    hpLosses: 1,
+    randomResults: 1
+  }
 });
 assert.deepEqual(playtestAnalysis.adjustmentCandidates, [{
   sectionId: "storm_path",
