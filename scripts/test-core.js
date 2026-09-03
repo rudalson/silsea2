@@ -91,6 +91,13 @@ import {
 import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../src/data/particleEffects.js";
 import { getObjectiveCelebrations, getObjectiveDetail } from "../src/data/objectivePresentation.js";
 import {
+  DEBUG_TUNING_CONTROLS,
+  DEBUG_TUNING_PRESETS,
+  applyDebugTuningPreset,
+  getDebugTuningPresetChanges
+} from "../src/data/debugTuningPresets.js";
+import { DEFAULT_TUNING } from "../src/data/characters.js";
+import {
   ALICORN_LAYER_KEY,
   AudioManager,
   BGM_CROSSFADE_MS,
@@ -1014,6 +1021,38 @@ hotController.dispose();
 assert.equal(await hotController.reload(), false);
 assert.equal(hotController.getSnapshot().state, HOT_RELOAD_STATES.DISPOSED);
 
+assert.deepEqual(DEBUG_TUNING_PRESETS.map(({ id }) => id), [
+  "movement_default",
+  "beginner",
+  "air_control_review"
+]);
+assert.ok(Object.isFrozen(DEBUG_TUNING_PRESETS));
+assert.ok(Object.isFrozen(DEBUG_TUNING_CONTROLS));
+assert.ok(DEBUG_TUNING_CONTROLS.every((control) => Object.isFrozen(control)));
+assert.ok(DEBUG_TUNING_PRESETS.every((preset) => Object.isFrozen(preset) && Object.isFrozen(preset.values)));
+const debugTuningKeys = DEBUG_TUNING_CONTROLS.map(({ key }) => key);
+for (const preset of DEBUG_TUNING_PRESETS) {
+  assert.deepEqual(Object.keys(preset.values), debugTuningKeys);
+  for (const control of DEBUG_TUNING_CONTROLS) {
+    const value = preset.values[control.key];
+    assert.ok(value >= control.min && value <= control.max, `${preset.id}.${control.key} 범위`);
+    const steps = (value - control.min) / control.step;
+    assert.ok(Math.abs(steps - Math.round(steps)) < 1e-7, `${preset.id}.${control.key} step`);
+  }
+}
+const previewSource = { ...DEFAULT_TUNING, unrelated: 7 };
+const beginnerChanges = getDebugTuningPresetChanges(previewSource, "beginner");
+assert.equal(beginnerChanges.length, 9);
+assert.ok(beginnerChanges.some(({ key, from, to }) => key === "maxSpeed" && from === 360 && to === 320));
+assert.equal(previewSource.maxSpeed, 360, "preset 미리보기는 현재 튜닝을 변경하면 안 됨");
+applyDebugTuningPreset(previewSource, "beginner");
+assert.equal(previewSource.maxSpeed, 320);
+assert.equal(previewSource.airAcceleration, 1400);
+assert.equal(previewSource.unrelated, 7, "preset 밖 튜닝 값은 유지해야 함");
+assert.equal(getDebugTuningPresetChanges(previewSource, "beginner").length, 0);
+assert.equal(getDebugTuningPresetChanges(previewSource, "movement_default").length, 9);
+assert.throws(() => applyDebugTuningPreset({}, "missing"), /알 수 없는/);
+
 const easySettings = getDifficultySettings(level01, true);
 const easyLevel = createRuntimeLevel(level01, true);
 assert.equal(easySettings.player.extraHp, 2);
@@ -1604,4 +1643,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용");

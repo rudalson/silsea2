@@ -1,13 +1,10 @@
-const CONTROLS = Object.freeze([
-  { key: "gravity", label: "중력", min: 800, max: 3000, step: 25 },
-  { key: "jumpVelocity", label: "점프 초기 속도", min: -1000, max: -300, step: 10 },
-  { key: "jumpCutMultiplier", label: "Jump Cut", min: 0.2, max: 0.8, step: 0.01 },
-  { key: "acceleration", label: "가속도", min: 500, max: 5000, step: 50 },
-  { key: "deceleration", label: "감속도", min: 500, max: 6000, step: 50 },
-  { key: "maxSpeed", label: "최대 이동 속도", min: 160, max: 640, step: 10 },
-  { key: "coyoteTime", label: "Coyote Time", min: 0, max: 250, step: 5 },
-  { key: "jumpBuffer", label: "Jump Buffer", min: 0, max: 250, step: 5 }
-]);
+import {
+  DEBUG_TUNING_CONTROLS,
+  DEBUG_TUNING_PRESETS,
+  applyDebugTuningPreset,
+  getDebugTuningPreset,
+  getDebugTuningPresetChanges
+} from "../data/debugTuningPresets.js";
 
 const OBJECTIVE_LABELS = Object.freeze({
   defeat_boss: "임시 보스 격파",
@@ -17,6 +14,8 @@ const OBJECTIVE_LABELS = Object.freeze({
   clear_time: "제한 시간",
   no_damage: "무피해"
 });
+
+const stopGameKeyboard = (event) => event.stopPropagation();
 
 export class DebugPanel {
   constructor(scene, options) {
@@ -33,8 +32,10 @@ export class DebugPanel {
     this.visible = true;
     this.nextMetricsAt = 0;
     this.inputs = new Map();
+    this.selectedPresetId = DEBUG_TUNING_PRESETS[0].id;
     this.root = this.build();
     document.body.appendChild(this.root);
+    this.renderPresetPreview();
     this.setReloadState({
       state: this.hotReloadAvailable ? "idle" : "unavailable",
       message: this.hotReloadAvailable
@@ -51,6 +52,16 @@ export class DebugPanel {
       <h2>Graybox Lab</h2>
       <p>값은 플레이 중 즉시 반영됩니다. <kbd>\`</kbd> 키로 패널을 숨길 수 있어요.</p>
       <div data-controls></div>
+      <section class="debug-preset" aria-labelledby="debug-preset-title">
+        <h3 id="debug-preset-title">튜닝 preset</h3>
+        <label class="debug-preset-select">검수 기준
+          <select data-preset aria-label="튜닝 preset"></select>
+        </label>
+        <p data-preset-description></p>
+        <ul class="debug-preset-changes" data-preset-changes aria-label="적용 전 변경값"></ul>
+        <button type="button" data-preset-apply>선택값 적용</button>
+        <p class="debug-preset-status" data-preset-status role="status"></p>
+      </section>
       <h3>구간 워프</h3>
       <select data-warp aria-label="구간 워프"></select>
       <div class="debug-actions">
@@ -65,7 +76,7 @@ export class DebugPanel {
     `;
 
     const controls = root.querySelector("[data-controls]");
-    for (const control of CONTROLS) {
+    for (const control of DEBUG_TUNING_CONTROLS) {
       const wrapper = document.createElement("label");
       wrapper.className = "debug-control";
       wrapper.innerHTML = `<span>${control.label}</span><output>${this.tuning[control.key]}</output>`;
@@ -78,11 +89,46 @@ export class DebugPanel {
       input.addEventListener("input", () => {
         this.tuning[control.key] = Number(input.value);
         wrapper.querySelector("output").value = input.value;
+        this.renderPresetPreview();
       });
       wrapper.appendChild(input);
       controls.appendChild(wrapper);
       this.inputs.set(control.key, { input, output: wrapper.querySelector("output") });
     }
+
+    const presetSelect = root.querySelector("[data-preset]");
+    for (const preset of DEBUG_TUNING_PRESETS) {
+      const option = document.createElement("option");
+      option.value = preset.id;
+      option.textContent = preset.name;
+      presetSelect.appendChild(option);
+    }
+    presetSelect.value = this.selectedPresetId;
+    presetSelect.addEventListener("change", () => {
+      this.selectedPresetId = presetSelect.value;
+      this.renderPresetPreview();
+    });
+    presetSelect.addEventListener("keydown", (event) => {
+      const moves = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
+      if (!(event.key in moves) && event.key !== "Home" && event.key !== "End") return;
+      event.preventDefault();
+      const lastIndex = DEBUG_TUNING_PRESETS.length - 1;
+      const nextIndex = event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? lastIndex
+          : Math.max(0, Math.min(lastIndex, presetSelect.selectedIndex + moves[event.key]));
+      presetSelect.selectedIndex = nextIndex;
+      this.selectedPresetId = presetSelect.value;
+      this.renderPresetPreview();
+    });
+    const presetApply = root.querySelector("[data-preset-apply]");
+    presetApply.addEventListener("click", () => this.applyPreset());
+    presetApply.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      this.applyPreset();
+    });
 
     const warp = root.querySelector("[data-warp]");
     this.populateWarp(warp);
@@ -90,6 +136,10 @@ export class DebugPanel {
     root.querySelector("[data-export]").addEventListener("click", () => this.exportJson());
     root.querySelector("[data-reset]").addEventListener("click", () => this.reset());
     root.querySelector("[data-reload]").addEventListener("click", () => this.handleReload());
+    for (const control of root.querySelectorAll("input, select, button")) {
+      control.addEventListener("keydown", stopGameKeyboard);
+      control.addEventListener("keyup", stopGameKeyboard);
+    }
     return root;
   }
 
@@ -130,6 +180,42 @@ export class DebugPanel {
     this.objectives = objectives;
     this.populateWarp();
     this.nextMetricsAt = 0;
+    this.renderPresetPreview();
+  }
+
+  renderPresetPreview(message = "") {
+    if (!this.root) return [];
+    const preset = getDebugTuningPreset(this.selectedPresetId);
+    const changes = getDebugTuningPresetChanges(this.tuning, this.selectedPresetId);
+    this.root.querySelector("[data-preset-description]").textContent = preset.description;
+    const list = this.root.querySelector("[data-preset-changes]");
+    list.replaceChildren();
+    if (changes.length === 0) {
+      const item = document.createElement("li");
+      item.textContent = "현재 값과 같습니다.";
+      list.appendChild(item);
+    } else {
+      for (const change of changes) {
+        const item = document.createElement("li");
+        item.textContent = `${change.label}: ${change.from} → ${change.to}`;
+        list.appendChild(item);
+      }
+    }
+    this.root.dataset.presetState = changes.length ? "changed" : "same";
+    this.root.querySelector("[data-preset-apply]").disabled = changes.length === 0;
+    this.root.querySelector("[data-preset-status]").textContent = message
+      || (changes.length ? `${preset.name} 적용 시 ${changes.length}개 값 변경` : `${preset.name} 적용 상태`);
+    return changes;
+  }
+
+  applyPreset() {
+    const changes = getDebugTuningPresetChanges(this.tuning, this.selectedPresetId);
+    if (changes.length === 0) return false;
+    const preset = getDebugTuningPreset(this.selectedPresetId);
+    applyDebugTuningPreset(this.tuning, this.selectedPresetId);
+    this.syncInputs();
+    this.renderPresetPreview(`${preset.name} 적용 완료 · ${changes.length}개 값`);
+    return true;
   }
 
   update(player, fps, elapsed) {
@@ -167,6 +253,11 @@ export class DebugPanel {
 
   reset() {
     Object.assign(this.tuning, this.defaults);
+    this.syncInputs();
+    this.renderPresetPreview("캐릭터 기본값 복원 완료");
+  }
+
+  syncInputs() {
     for (const [key, field] of this.inputs) {
       field.input.value = String(this.tuning[key]);
       field.output.value = String(this.tuning[key]);

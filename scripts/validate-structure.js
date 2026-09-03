@@ -29,6 +29,7 @@ const bootScene = await readFile(join(root, "src", "scenes", "BootScene.js"), "u
 const clearScene = await readFile(join(root, "src", "scenes", "ClearScene.js"), "utf8");
 const debugPanel = await readFile(join(root, "src", "systems", "DebugPanel.js"), "utf8");
 const levelHotReload = await readFile(join(root, "src", "systems", "LevelHotReload.js"), "utf8");
+const debugTuningPresets = await readFile(join(root, "src", "data", "debugTuningPresets.js"), "utf8");
 const characterSelectScene = await readFile(join(root, "src", "scenes", "CharacterSelectScene.js"), "utf8");
 const stageSelectScene = await readFile(join(root, "src", "scenes", "StageSelectScene.js"), "utf8");
 const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
@@ -262,6 +263,21 @@ if (!gameScene.includes("this.stopLevelHotUpdates?.()") || !gameScene.includes("
 }
 if (!debugPanel.includes("data-reload-status") || !debugPanel.includes("레벨 데이터 다시 읽기")) {
   fail("디버그 패널에 레벨 핫 리로드 상태 또는 실행 버튼이 없음");
+}
+if (!debugTuningPresets.includes("movement_default") || !debugTuningPresets.includes("air_control_review")) {
+  fail("이동 기본·초보·공중 제어 검수 preset 데이터가 없음");
+}
+if (!debugPanel.includes("data-preset-changes") || !debugPanel.includes("선택값 적용")) {
+  fail("디버그 패널에 preset 적용 전 변경값 또는 명시적 적용 동작이 없음");
+}
+if (!debugPanel.includes("renderPresetPreview") || !debugPanel.includes("syncInputs") || !debugPanel.includes("stopGameKeyboard")) {
+  fail("preset 적용·기본값 복원·레벨 재구성 뒤 패널 값 동기화 경로가 없음");
+}
+if (!debugPanel.includes("ArrowDown") || !debugPanel.includes('event.key !== "Enter"')) {
+  fail("preset의 방향키 선택 또는 Enter/Space 적용 경로가 없음");
+}
+if (debugTuningPresets.includes("localStorage") || debugPanel.includes("registry.set(\"easyMode\"")) {
+  fail("디버그 preset이 저장 진행도 또는 실제 난이도를 변경함");
 }
 if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
   fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");

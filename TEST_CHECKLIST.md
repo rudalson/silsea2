@@ -436,3 +436,14 @@
 - [x] [M] 잘못된 `world.width`를 적용하지 않고 기존 실행 상태와 점수를 유지하며 구체 오류를 표시한 뒤 원본 데이터를 복원함. — 2026-09-03, `references/should3-hot-reload-error.png`
 - [x] [A] 제어기 100회 재로드·오류 보존·dispose를 단위 검사하고, 실제 GameScene 추가 100회 재로드 뒤 pool/FX 상한과 console warning/error 0건을 확인함. — 2026-09-03, `references/should3-hot-reload-100.png`
 - [x] [M] 사용자가 S3 기술 동작을 승인함. — 2026-09-03 `S3 핫리로드 승인`
+
+## Should S4 디버그 패널 preset
+
+- [x] [A] 이동 기본·초보·공중 제어 검수 preset의 아홉 값, 범위·step, 동결 상태와 모든 컨트롤 coverage를 검사함. — 2026-09-03 `npm run test`
+- [x] [A] 적용 전 diff 계산이 현재 튜닝을 바꾸지 않고 명시적 적용만 값을 바꾸며 preset 밖 값은 유지함을 검사함. — 2026-09-03 `npm run test`
+- [x] [M] 포인터로 초보를 선택했을 때 슬라이더는 기본값을 유지하고 아홉 개 현재→목표 변경 목록을 먼저 표시함. — 2026-09-03, `references/should4-preset-preview.png`
+- [x] [M] 포인터 적용 뒤 아홉 슬라이더 동기화, JSON 복사 완료, 기본값 복원과 적용 전 목록 복귀를 확인함. — 2026-09-03, `references/should4-preset-applied.png`, `references/should4-preset-reset.png`
+- [x] [M] 방향키로 초보 preset을 선택하고 Enter로 적용했으며 키 입력이 게임 조작으로 전달되지 않음을 확인함. — 2026-09-03, `references/should4-preset-keyboard.png`
+- [x] [M] 초보 preset 적용 뒤 S3 레벨 데이터 재로드를 실행해 아홉 값·선택 상태가 유지됨을 확인함. — 2026-09-03, `references/should4-preset-reload.png`
+- [x] [M] `?debug=1`이 없는 같은 레벨에서는 Graybox 패널과 preset이 DOM에 생성되지 않음을 확인함. — 2026-09-03
+- [x] [M] 사용자가 S4 preset 값·변경 목록·조작을 승인함. — 2026-09-03 `S4 프리셋 승인`
