@@ -7,8 +7,12 @@
       "draworder": "topdown",
       "id": 1,
       "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "shallow_water" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
       "objects": [
-        { "height": 192, "id": 1, "name": "surface_exit_ground", "rotation": 0, "type": "ground", "visible": true, "width": 640, "x": 0, "y": 576 },
+        { "height": 192, "id": 1, "name": "surface_exit_ground", "properties": [{ "name": "surface", "type": "string", "value": "grass" }], "rotation": 0, "type": "ground", "visible": true, "width": 640, "x": 0, "y": 576 },
         { "height": 64, "id": 2, "name": "submerged_floor", "rotation": 0, "type": "ground", "visible": true, "width": 1664, "x": 640, "y": 704 },
         { "height": 48, "id": 3, "name": "submerged_step_low", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 1088, "y": 592 },
         { "height": 48, "id": 4, "name": "submerged_step_high", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 1664, "y": 512 },

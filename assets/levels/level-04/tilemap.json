@@ -7,8 +7,12 @@
       "draworder": "topdown",
       "id": 1,
       "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "shallow_water" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
       "objects": [
-        { "height": 192, "id": 1, "name": "hula_boss_ground", "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 0, "y": 576 },
+        { "height": 192, "id": 1, "name": "hula_boss_ground", "properties": [{ "name": "surface", "type": "string", "value": "stone" }], "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 0, "y": 576 },
         { "height": 192, "id": 2, "name": "village_ground", "rotation": 0, "type": "ground", "visible": true, "width": 8192, "x": 2048, "y": 576 },
         { "height": 48, "id": 3, "name": "intro_hill_roof", "rotation": 0, "type": "platform", "visible": true, "width": 288, "x": 9248, "y": 416 },
         { "height": 48, "id": 4, "name": "hill_roof", "rotation": 0, "type": "platform", "visible": true, "width": 288, "x": 8000, "y": 384 },

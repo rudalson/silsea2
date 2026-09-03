@@ -87,7 +87,12 @@ const sfx = {
   sfx_random_throw: { duration: 0.38, tones: [tone(0, 0.34, 860, 280, "sine", 0.29), tone(0.04, 0.28, 1120, 430, "triangle", 0.16)], noise: 0.035 },
   sfx_random_tongue: { duration: 0.58, tones: [tone(0, 0.22, 440, 260, "triangle", 0.24), tone(0.2, 0.34, 620, 340, "sine", 0.2)], noise: 0.055 },
   sfx_random_weakness: { duration: 0.62, tones: arpeggio([988, 784, 659, 784], 0.12, 0.21, "sine", 0.23) },
-  sfx_random_defeat: { duration: 1.08, tones: [...arpeggio([988, 784, 659, 523], 0.14, 0.3, "triangle", 0.22), ...chord(0.62, 0.46, [523, 659, 784], "sine", 0.12)], noise: 0.035 }
+  sfx_random_defeat: { duration: 1.08, tones: [...arpeggio([988, 784, 659, 523], 0.14, 0.3, "triangle", 0.22), ...chord(0.62, 0.46, [523, 659, 784], "sine", 0.12)], noise: 0.035 },
+  sfx_footstep_grass: { duration: 0.09, tones: [tone(0, 0.075, 150, 104, "sine", 0.2)], noise: 0.055 },
+  sfx_footstep_dirt: { duration: 0.1, tones: [tone(0, 0.085, 126, 78, "sine", 0.24)], noise: 0.11 },
+  sfx_footstep_stone: { duration: 0.08, tones: [tone(0, 0.065, 310, 184, "triangle", 0.2), tone(0, 0.07, 118, 82, "sine", 0.12)], noise: 0.025 },
+  sfx_footstep_wood: { duration: 0.09, tones: [tone(0, 0.075, 238, 148, "triangle", 0.2), tone(0.008, 0.06, 476, 304, "sine", 0.08)], noise: 0.02 },
+  sfx_footstep_shallow_water: { duration: 0.11, tones: [tone(0, 0.09, 350, 118, "sine", 0.17)], noise: 0.13 }
 };
 
 const waveAt = (kind, phase) => {

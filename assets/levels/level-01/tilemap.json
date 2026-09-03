@@ -7,6 +7,10 @@
       "draworder": "topdown",
       "id": 1,
       "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "grass" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
       "objects": [
         { "height": 192, "id": 1, "name": "ground_a", "rotation": 0, "type": "ground", "visible": true, "width": 7424, "x": 0, "y": 576 },
         { "height": 192, "id": 2, "name": "ground_b", "rotation": 0, "type": "ground", "visible": true, "width": 2240, "x": 7744, "y": 576 },

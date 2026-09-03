@@ -9,6 +9,11 @@ import { BOSS_BEHAVIOR_TYPES } from "../src/data/bossBehaviorTypes.js";
 import { ENEMY_TYPES } from "../src/data/enemies.js";
 import { getEnemyAnimationSpec } from "../src/data/enemyAnimations.js";
 import { ENVIRONMENT_SUSPENSION_TYPES } from "../src/data/environment.js";
+import {
+  FOOTSTEP_SURFACES,
+  getTerrainLayer,
+  getTerrainObjectSurface
+} from "../src/data/footsteps.js";
 import { HAZARD_TYPES, ITEM_TYPES } from "../src/data/items.js";
 import { ALL_LEVELS, LEVELS } from "../src/data/levels/index.js";
 import { OBJECTIVE_PRESENTATIONS } from "../src/data/objectivePresentation.js";
@@ -19,6 +24,7 @@ const errors = [];
 const manifestKeys = new Set(manifest.assets.map((asset) => asset.key));
 const ids = new Set();
 const orders = new Set();
+const detectedFootstepSurfaces = new Set();
 
 const fail = (level, message) => errors.push(`[${level.id ?? "unknown"}] ${message}`);
 const inWorld = (level, x, y = 0) => x >= 0 && x <= level.world.width && y >= 0 && y <= level.world.height;
@@ -427,9 +433,15 @@ for (const sourceLevel of ALL_LEVELS) {
   if (!tilemap) continue;
   if (tilemap.width * tilemap.tilewidth !== level.world.width) fail(level, "tilemap 너비와 world.width 불일치");
   if (tilemap.height * tilemap.tileheight !== level.world.height) fail(level, "tilemap 높이와 world.height 불일치");
-  const terrain = tilemap.layers.find((layer) => layer.type === "objectgroup" && layer.name === "terrain")?.objects ?? [];
+  const terrainLayer = getTerrainLayer(tilemap);
+  const terrain = terrainLayer?.objects ?? [];
   if (tilemap.width * tilemap.tilewidth !== level.world.width) fail(level, "tilemap 폭과 world.width가 다름");
   if (terrain.length === 0) fail(level, "terrain object layer가 비어 있음");
+  for (const object of terrain) {
+    const surface = getTerrainObjectSurface(terrainLayer, object);
+    if (!surface) fail(level, `terrain ${object.name}의 발소리 surface가 없거나 잘못됨`);
+    else detectedFootstepSurfaces.add(surface);
+  }
   if (!hasFloorAt(terrain, level.player.spawn.x, level.player.spawn.y)) fail(level, "player spawn 아래에 바닥이 없음");
   if (!hasFloorAt(terrain, level.exit.x, level.exit.y ?? level.player.spawn.y)) fail(level, "exit 아래에 바닥이 없음");
 
@@ -622,6 +634,10 @@ for (const sourceLevel of ALL_LEVELS) {
     const centerX = (shelter.xStart + shelter.xEnd) / 2;
     if (!hasFloorAt(terrain, centerX, shelter.yBottom)) fail(level, `대피처 ${shelter.id} 아래에 충돌 지형이 없음`);
   }
+}
+
+for (const surface of FOOTSTEP_SURFACES) {
+  if (!detectedFootstepSurfaces.has(surface)) errors.push(`[footsteps] 사용되지 않은 표면 키: ${surface}`);
 }
 
 if (errors.length) {

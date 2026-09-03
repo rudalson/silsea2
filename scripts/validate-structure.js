@@ -39,6 +39,8 @@ const scoreManager = await readFile(join(root, "src", "systems", "ScoreManager.j
 const assetManager = await readFile(join(root, "src", "systems", "AssetManager.js"), "utf8");
 const enemyManager = await readFile(join(root, "src", "systems", "EnemyManager.js"), "utf8");
 const environmentManager = await readFile(join(root, "src", "systems", "EnvironmentMechanicsManager.js"), "utf8");
+const footstepManager = await readFile(join(root, "src", "systems", "FootstepManager.js"), "utf8");
+const footsteps = await readFile(join(root, "src", "data", "footsteps.js"), "utf8");
 const breathManager = await readFile(join(root, "src", "systems", "BreathManager.js"), "utf8");
 const bossController = await readFile(join(root, "src", "systems", "BossController.js"), "utf8");
 const bossDefinitions = await readFile(join(root, "src", "data", "bossDefinitions.js"), "utf8");
@@ -266,6 +268,22 @@ if (!debugPanel.includes("data-reload-status") || !debugPanel.includes("레벨 �
 }
 if (!debugTuningPresets.includes("movement_default") || !debugTuningPresets.includes("air_control_review")) {
   fail("이동 기본·초보·공중 제어 검수 preset 데이터가 없음");
+}
+if (!gameScene.includes("new FootstepManager")
+  || !gameScene.includes("this.footstepManager?.update(time, ability)")
+  || !gameScene.includes("this.footstepManager?.destroy()")) {
+  fail("S5 지형 발소리 매니저의 생성·갱신·해제 경로가 없음");
+}
+for (const surface of ["grass", "dirt", "stone", "wood", "shallow_water"]) {
+  if (!footsteps.includes(`sfx_footstep_${surface}`)) fail(`S5 발소리 키 누락: ${surface}`);
+}
+if (!footstepManager.includes("currentVisualSequence")
+  || !footstepManager.includes("animationLockedUntil")
+  || !footstepManager.includes('ability?.mode === "swim"')) {
+  fail("S5 접촉 프레임 또는 점프·수영·피격 중복 방지 경로가 없음");
+}
+if (!debugPanel.includes("footsteps.playedCount") || !debugPanel.includes("footsteps.status")) {
+  fail("S5 디버그 패널에 현재 표면·재생 상태가 표시되지 않음");
 }
 if (!debugPanel.includes("data-preset-changes") || !debugPanel.includes("선택값 적용")) {
   fail("디버그 패널에 preset 적용 전 변경값 또는 명시적 적용 동작이 없음");

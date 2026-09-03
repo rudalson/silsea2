@@ -260,7 +260,8 @@ const randomKingEffectAssets = [
   { name: "fx_random_king_vulnerable", directory: "effects", width: 768, height: 96 }
 ];
 const requiredAudioKeys = [
-  "sfx_jump", "sfx_land", "sfx_fall_start", "sfx_footstep", "sfx_star",
+  "sfx_jump", "sfx_land", "sfx_fall_start", "sfx_footstep",
+  "sfx_footstep_grass", "sfx_footstep_dirt", "sfx_footstep_stone", "sfx_footstep_wood", "sfx_footstep_shallow_water", "sfx_star",
   "sfx_percent_small", "sfx_percent_large", "sfx_combo", "sfx_transform_unicorn",
   "sfx_transform_pegasus", "sfx_transform_alicorn", "sfx_alicorn_warning", "sfx_fly_loop",
   "sfx_flight_low", "sfx_glide", "sfx_player_hurt", "sfx_hp_zero", "sfx_respawn",

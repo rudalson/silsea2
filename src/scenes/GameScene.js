@@ -23,6 +23,7 @@ import { DebugPanel } from "../systems/DebugPanel.js";
 import { createRuntimeLevel, getDifficultySettings } from "../systems/DifficultyManager.js";
 import { EnemyManager } from "../systems/EnemyManager.js";
 import { EnvironmentMechanicsManager } from "../systems/EnvironmentMechanicsManager.js";
+import { FootstepManager } from "../systems/FootstepManager.js";
 import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
@@ -228,6 +229,7 @@ export class GameScene extends Phaser.Scene {
     });
     const ability = waterAbility ?? transformationAbility;
     this.player.updateControls(input, time, delta, ability);
+    this.footstepManager?.update(time, ability);
     this.updatePlayerShadow();
     this.terrainMechanics?.update(time, delta);
     this.environmentMechanics?.update(time, delta);
@@ -393,6 +395,7 @@ export class GameScene extends Phaser.Scene {
 
   createGameplayManagers() {
     this.terrainMechanics = new TerrainMechanicsManager(this, this.player, this.level.terrainMechanics);
+    this.footstepManager = new FootstepManager(this.player, this.audioManager, this.levelLoader.tilemap);
     this.transformationManager = new TransformationManager(this, this.player, this.levelLoader, this.difficulty);
     this.healthManager = new HealthManager(
       this,
@@ -757,6 +760,7 @@ export class GameScene extends Phaser.Scene {
         rejectedCount: poolValues.reduce((total, entry) => total + entry.rejectedCount, 0)
       },
       particles: this.particleEffects?.getSnapshot() ?? null,
+      footsteps: this.footstepManager?.getSnapshot() ?? null,
       terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null,
       environmentMechanics: this.environmentMechanics?.getSnapshot() ?? null,
       breath: this.breathManager?.getSnapshot() ?? null,
@@ -767,6 +771,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   destroyGameplayManagers() {
+    this.footstepManager?.destroy();
+    this.footstepManager = null;
     this.terrainMechanics?.destroy();
     this.terrainMechanics = null;
     this.breathManager?.destroy();

@@ -236,7 +236,11 @@ export class DebugPanel {
     const breathStatus = breath
       ? ` · 숨 ${Math.round(breath.ratio * 100)}% · 물 ${breath.zoneId ?? "없음"}`
       : "";
-    metrics.textContent = `FPS ${Math.round(fps)} · x ${Math.round(player.x)} · y ${Math.round(player.y)} · ${elapsed.toFixed(1)}초${environmentStatus}${breathStatus}${runtimeCounts}`;
+    const footsteps = performance?.footsteps;
+    const footstepStatus = footsteps
+      ? ` · 발소리 ${footsteps.surface ?? "없음"} ${footsteps.playedCount}회 (${footsteps.status})`
+      : "";
+    metrics.textContent = `FPS ${Math.round(fps)} · x ${Math.round(player.x)} · y ${Math.round(player.y)} · ${elapsed.toFixed(1)}초${environmentStatus}${breathStatus}${footstepStatus}${runtimeCounts}`;
     const list = this.root.querySelector("[data-objectives]");
     list.replaceChildren();
     for (const objective of this.objectives.getSnapshot()) {

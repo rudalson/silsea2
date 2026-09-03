@@ -7,6 +7,10 @@
       "draworder": "topdown",
       "id": 1,
       "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "stone" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
       "objects": [
         { "height": 192, "id": 1, "name": "mist_intro_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1664, "x": 0, "y": 576 },
         { "height": 48, "id": 2, "name": "practice_step_low", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 1728, "y": 512 },

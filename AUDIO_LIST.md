@@ -20,7 +20,12 @@
 | `sfx_jump` | 이동 | 점프 속도 적용 프레임 | 120~220ms, ±5% | M |
 | `sfx_land` | 이동 | 접지 판정 프레임 | 80~160ms, 낙하 속도에 따라 볼륨 제한 | M |
 | `sfx_fall_start` | 이동 | 최대 낙하 속도의 지정 비율 통과 | 150~250ms, 1회 | M |
-| `sfx_footstep` | 이동 | run contact 프레임 | 60~100ms, 선택 설정 | C |
+| `sfx_footstep` | 이동 | 기존 범용 발소리 fallback(신규 런타임 미사용) | 90ms | C |
+| `sfx_footstep_grass` | 이동 | 잔디의 run 0·4번 접촉 프레임 | 90ms, 낮은 볼륨 | S |
+| `sfx_footstep_dirt` | 이동 | 흙의 run 0·4번 접촉 프레임 | 100ms, 낮은 볼륨 | S |
+| `sfx_footstep_stone` | 이동 | 돌의 run 0·4번 접촉 프레임 | 80ms, 낮은 볼륨 | S |
+| `sfx_footstep_wood` | 이동 | 나무의 run 0·4번 접촉 프레임 | 90ms, 낮은 볼륨 | S |
+| `sfx_footstep_shallow_water` | 이동 | 얕은 물의 run 0·4번 접촉 프레임 | 110ms, 낮은 볼륨 | S |
 | `sfx_star` | 수집 | 별 흡수 프레임 | 70~120ms, 6단계 상승, 프레임당 2회 | M |
 | `sfx_percent_small` | 수집 | 작은 퍼센트 획득 | 120~180ms | M |
 | `sfx_percent_large` | 수집 | 큰 퍼센트 획득 | 220~350ms | M |
@@ -71,7 +76,7 @@
 - `bgm_alicorn_layer`: 120 BPM, 4.00초, 파일 전체 루프.
 - 런타임에서 일반↔보스 BGM은 480ms 크로스페이드하고, 알리콘 레이어는 120ms 페이드 인한 뒤 종료 3초 예고부터 남은 시간 동안 페이드 아웃한다.
 - 알리콘 레이어는 BGM 볼륨·음소거 설정을 공유하며 음소거 상태에서 변신한 경우 해제 시 필요한 레이어만 복원한다.
-- SFX 59종과 BGM 8종(총 67종)은 모두 저장소 내부 `assets/audio/`에 있고, 누락·디코딩 실패 시 `AudioManager`가 예외 없이 무음으로 진행한다.
+- SFX 71종과 BGM 8종(총 79종)은 모두 저장소 내부 `assets/audio/`에 있고, 누락·디코딩 실패 시 `AudioManager`가 예외 없이 무음으로 진행한다.
 - 배포 음색을 교체할 때 manifest 키는 유지한다. 실제 루프 구간이 파일 전체와 달라지면 시작·끝 샘플을 이 문서에 추가한다.
 
 ## 신규 스테이지 확장 오디오
@@ -161,6 +166,18 @@ P12도 기존 `bgm_boss`를 유지한다. 음소거에서는 파문 크기, 출�
 | `sfx_random_tongue` | 0.58초 | 하늘 메롱 실행 | 공격당 1회 | 제작·연결·최종 승인 완료 |
 | `sfx_random_weakness` | 0.62초 | 공격 뒤 약점 개방 | 상태 진입당 1회 | 제작·연결·최종 승인 완료 |
 | `sfx_random_defeat` | 1.08초 | 격파 애니메이션 시작 | 전투당 1회 | 제작·연결·최종 승인 완료 |
+
+## S5 지형별 발소리
+
+| 키 | 표면 데이터 | 런타임 규칙 | 상태 |
+|---|---|---|---|
+| `sfx_footstep_grass` | `grass` | run 0·4번 접촉 프레임, 기본 SFX 볼륨의 34% | 제작·연결·최종 승인 완료 |
+| `sfx_footstep_dirt` | `dirt` | run 0·4번 접촉 프레임, 기본 SFX 볼륨의 34% | 제작·연결·최종 승인 완료 |
+| `sfx_footstep_stone` | `stone` | run 0·4번 접촉 프레임, 기본 SFX 볼륨의 34% | 제작·연결·최종 승인 완료 |
+| `sfx_footstep_wood` | `wood` | run 0·4번 접촉 프레임, 기본 SFX 볼륨의 34% | 제작·연결·최종 승인 완료 |
+| `sfx_footstep_shallow_water` | `shallow_water` | run 0·4번 접촉 프레임, 기본 SFX 볼륨의 34% | 제작·연결·최종 승인 완료 |
+
+표면은 Tiled `terrain` 레이어의 `groundSurface`·`platformSurface` 또는 개별 오브젝트의 `surface` 덮어쓰기에서 읽는다. 점프·수영·피격/조작 잠금 중에는 재생하지 않으며, 같은 접촉 프레임을 여러 update가 관찰해도 한 번만 요청한다. 최종 재생은 `AudioManager`를 통과하므로 음소거, SFX 음량, 없는 파일의 무음 fallback, 동일 키 프레임당 최대 2회 제한을 그대로 적용한다.
 
 P13도 기존 `bgm_boss`를 유지한다. 카드 아이콘·결과 글자·공격 궤도·세로 메롱·별 궤도를 함께 표시하므로 음소거에서도 결과와 대응 타이밍을 판독할 수 있다.
 

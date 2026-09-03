@@ -7,6 +7,10 @@
       "draworder": "topdown",
       "id": 1,
       "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "dirt" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
       "objects": [
         { "height": 192, "id": 1, "name": "moonlit_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1792, "x": 0, "y": 576 },
         { "height": 48, "id": 2, "name": "moonroot_branch", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 448, "y": 480 },

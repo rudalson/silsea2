@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FORMS } from "../src/data/gameplay.js";
+import { FOOTSTEP_SFX } from "../src/data/footsteps.js";
 import { LEVELS } from "../src/data/levels/index.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -71,6 +72,7 @@ for (const form of Object.values(FORMS).filter((form) => form !== FORMS.BASE)) {
 }
 calledAudioKeys.add("sfx_percent_small");
 calledAudioKeys.add("sfx_percent_large");
+for (const key of Object.values(FOOTSTEP_SFX)) calledAudioKeys.add(key);
 for (const key of calledAudioKeys) {
   if (!audioKeys.has(key)) fail(`런타임 오디오 호출 키가 manifest에 없음 (${key})`);
 }

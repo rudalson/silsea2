@@ -89,6 +89,14 @@ import {
   sanitizeTesterId
 } from "../src/systems/PlaytestManager.js";
 import { PARTICLE_EFFECTS, PARTICLE_LIMITS } from "../src/data/particleEffects.js";
+import {
+  FOOTSTEP_CONTACT_FRAMES,
+  FOOTSTEP_SFX,
+  FOOTSTEP_SURFACES,
+  getTerrainObjectSurface,
+  isFootstepContact,
+  resolveFootstepSurface
+} from "../src/data/footsteps.js";
 import { getObjectiveCelebrations, getObjectiveDetail } from "../src/data/objectivePresentation.js";
 import {
   DEBUG_TUNING_CONTROLS,
@@ -107,6 +115,7 @@ import { CAMERA_SHAKE_PROFILES, CameraEffectsManager } from "../src/systems/Came
 import { createRuntimeLevel, getDifficultySettings } from "../src/systems/DifficultyManager.js";
 import { HealthManager } from "../src/systems/HealthManager.js";
 import { EnvironmentMechanicsManager } from "../src/systems/EnvironmentMechanicsManager.js";
+import { FootstepManager } from "../src/systems/FootstepManager.js";
 import { ObjectiveManager } from "../src/systems/ObjectiveManager.js";
 import { ProgressManager } from "../src/systems/ProgressManager.js";
 import { ScoreManager } from "../src/systems/ScoreManager.js";
@@ -281,6 +290,84 @@ for (const characterId of ["silsea", "potato89"]) {
   assert.ok(getCharacterAnimationSpec(characterId, "transform_unicorn").durations.at(-1) >= 300);
 }
 assert.deepEqual(getCharacterAnimationSpec("silsea", "land").durations, [80, 120]);
+assert.deepEqual(FOOTSTEP_SURFACES, ["grass", "dirt", "stone", "wood", "shallow_water"]);
+assert.deepEqual(FOOTSTEP_CONTACT_FRAMES, [0, 4]);
+assert.equal(FOOTSTEP_SFX.shallow_water, "sfx_footstep_shallow_water");
+const footstepTilemap = {
+  layers: [{
+    type: "objectgroup",
+    name: "terrain",
+    properties: [
+      { name: "groundSurface", value: "grass" },
+      { name: "platformSurface", value: "wood" }
+    ],
+    objects: [
+      { name: "ground", type: "ground", x: 0, y: 576, width: 600, visible: true },
+      {
+        name: "puddle",
+        type: "ground",
+        x: 600,
+        y: 576,
+        width: 220,
+        visible: true,
+        properties: [{ name: "surface", value: "shallow_water" }]
+      },
+      { name: "bridge", type: "platform", x: 200, y: 448, width: 180, visible: true }
+    ]
+  }]
+};
+const footstepLayer = footstepTilemap.layers[0];
+assert.equal(getTerrainObjectSurface(footstepLayer, footstepLayer.objects[0]), "grass");
+assert.equal(getTerrainObjectSurface(footstepLayer, footstepLayer.objects[1]), "shallow_water");
+assert.equal(getTerrainObjectSurface(footstepLayer, footstepLayer.objects[2]), "wood");
+assert.equal(resolveFootstepSurface(footstepTilemap, 100, 576), "grass");
+assert.equal(resolveFootstepSurface(footstepTilemap, 700, 576), "shallow_water");
+assert.equal(resolveFootstepSurface(footstepTilemap, 250, 448), "wood");
+assert.equal(resolveFootstepSurface(footstepTilemap, 100, 400), null);
+assert.equal(isFootstepContact({ sequence: "move", frame: 0, grounded: true, abilityMode: "normal", velocityX: 120 }), true);
+assert.equal(isFootstepContact({ sequence: "move", frame: 4, grounded: true, abilityMode: "normal", velocityX: -120 }), true);
+assert.equal(isFootstepContact({ sequence: "move", frame: 2, grounded: true, abilityMode: "normal", velocityX: 120 }), false);
+assert.equal(isFootstepContact({ sequence: "jump", frame: 0, grounded: false, abilityMode: "normal", velocityX: 120 }), false);
+assert.equal(isFootstepContact({ sequence: "move", frame: 0, grounded: true, abilityMode: "swim", velocityX: 120 }), false);
+assert.equal(isFootstepContact({ sequence: "move", frame: 0, grounded: true, abilityMode: "normal", velocityX: 120, locked: true }), false);
+const footstepCalls = [];
+const footstepPlayer = {
+  x: 100,
+  currentVisualSequence: "move",
+  animationLockedUntil: 0,
+  controlLockedUntil: 0,
+  anims: { currentFrame: { textureFrame: 0 } },
+  body: {
+    enable: true,
+    bottom: 576,
+    blocked: { down: true },
+    touching: { down: false },
+    velocity: { x: 120 }
+  }
+};
+const footstepManager = new FootstepManager(
+  footstepPlayer,
+  { playSfx(key, config) { footstepCalls.push({ key, config }); return true; } },
+  footstepTilemap
+);
+assert.equal(footstepManager.update(1000, { mode: "normal" }), true);
+assert.equal(footstepManager.update(1016, { mode: "normal" }), false, "같은 접촉 프레임은 중복 재생하면 안 됨");
+footstepPlayer.currentVisualSequence = "idle";
+assert.equal(footstepManager.update(1040, { mode: "normal" }), false);
+footstepPlayer.currentVisualSequence = "move";
+assert.equal(footstepManager.update(1060, { mode: "normal" }), true, "정지 뒤 다시 달리면 첫 접촉음을 재생해야 함");
+footstepPlayer.anims.currentFrame.textureFrame = 2;
+assert.equal(footstepManager.update(1080, { mode: "normal" }), false);
+footstepPlayer.anims.currentFrame.textureFrame = 4;
+assert.equal(footstepManager.update(1160, { mode: "normal" }), true);
+assert.deepEqual(footstepCalls.map(({ key }) => key), ["sfx_footstep_grass", "sfx_footstep_grass", "sfx_footstep_grass"]);
+footstepPlayer.anims.currentFrame.textureFrame = 2;
+footstepManager.update(1200, { mode: "normal" });
+footstepPlayer.anims.currentFrame.textureFrame = 0;
+assert.equal(footstepManager.update(1280, { mode: "swim" }), false, "수영 중 발소리를 재생하면 안 됨");
+footstepPlayer.body.blocked.down = false;
+assert.equal(footstepManager.update(1360, { mode: "normal" }), false, "공중에서는 발소리를 재생하면 안 됨");
+footstepManager.destroy();
 assert.equal(getEnemyAssetKeys("raw_potato").length, 3);
 assert.equal(getEnemyAssetKeys("potato_archer").length, 4);
 assert.equal(getEnemyAssetKeys("spike_pumpkin").length, 3);
@@ -1643,4 +1730,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리");
