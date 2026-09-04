@@ -4,6 +4,7 @@ import level02, { P13_RANDOM_BOSS_ROOM_WIDTH } from "../src/data/levels/level-02
 import level03, { P11_INVISIBLE_BOSS_ROOM_WIDTH } from "../src/data/levels/level-03.js";
 import level04, { P10_HULA_BOSS_ROOM_WIDTH } from "../src/data/levels/level-04.js";
 import level05, { P12_WATER_BOSS_ROOM_WIDTH } from "../src/data/levels/level-05.js";
+import level06 from "../src/data/levels/level-06.js";
 import p1EnvironmentTest from "../src/data/levels/p1-environment-test.js";
 import { p9BossTestLeft, p9BossTestRight } from "../src/data/levels/p9-boss-test.js";
 import { EVENTS } from "../src/config/constants.js";
@@ -526,7 +527,7 @@ const testProgress = new ProgressManager({
   getItem: (key) => progressStorage.get(key) ?? null,
   setItem: (key, value) => progressStorage.set(key, value)
 });
-const playableLevels = [level01, level02, level03, level04, level05];
+const playableLevels = [level01, level02, level03, level04, level05, level06];
 assert.equal(testProgress.isUnlocked(level01, playableLevels), true);
 assert.equal(testProgress.isUnlocked(level02, playableLevels), false);
 testProgress.complete(level01.id, 10);
@@ -538,6 +539,9 @@ assert.equal(testProgress.isUnlocked(level04, playableLevels), true);
 assert.equal(testProgress.isUnlocked(level05, playableLevels), false);
 testProgress.complete(level04.id, 10);
 assert.equal(testProgress.isUnlocked(level05, playableLevels), true);
+assert.equal(testProgress.isUnlocked(level06, playableLevels), false);
+testProgress.complete(level05.id, 10);
+assert.equal(testProgress.isUnlocked(level06, playableLevels), true);
 
 let repairedProgressValue = null;
 const legacyProgress = new ProgressManager({
@@ -903,6 +907,26 @@ assert.equal(getBossPhasePattern("water_king", 1), WATER_KING_PHASES[1]);
 assert.equal(canHitWaterKing("dizzy_vulnerable", true), true);
 assert.equal(canHitWaterKing("emerge_attack", true), false);
 assert.equal(canHitWaterKing("dizzy_vulnerable", false), false);
+
+assert.equal(level06.id, "level-06");
+assert.equal(level06.world.width, 5120);
+assert.equal(level06.sections.length, 5);
+assert.equal(level06.sections.some(({ type }) => type === "boss"), false);
+assert.equal(level06.assets.preview, "stage_preview_rainbow_relay");
+assert.deepEqual(level06.objectives.required, [{ type: "reach_gate" }]);
+assert.equal(level06.objectives.optional.find(({ type }) => type === "collect_stars")?.count, 30);
+assert.equal(level06.objectives.optional.find(({ type }) => type === "clear_time")?.seconds, 180);
+const relayStarCount = level06.items.reduce(
+  (total, item) => total + (item.type === "star" ? 1 : item.type === "star_arc" ? item.count : 0),
+  0
+);
+assert.ok(relayStarCount >= 30);
+const easyRelayLevel = createRuntimeLevel(level06, true);
+assert.equal(easyRelayLevel.checkpoints.some(({ id }) => id === "cp_relay_easy"), true);
+assert.equal(easyRelayLevel.enemies.some(({ id }) => id === "relay_archer"), false);
+assert.equal(easyRelayLevel.terrainMechanics.movingPlatforms[0].speed, 54);
+assert.equal(easyRelayLevel.terrainMechanics.crumblePlatforms[0].crumbleDelayMs, 1425);
+assert.equal(easyRelayLevel.items, level06.items);
 
 assert.equal(P13_RANDOM_BOSS_ROOM_WIDTH, 2048);
 assert.equal(level02.world.width, 8192);

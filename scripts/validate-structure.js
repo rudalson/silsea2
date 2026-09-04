@@ -79,17 +79,21 @@ if (!getLevel("level-02")) fail("level-02가 레지스트리에 등록되지 않
 if (!getLevel("level-03")) fail("level-03이 레지스트리에 등록되지 않음");
 if (!getLevel("level-04")) fail("level-04가 레지스트리에 등록되지 않음");
 if (!getLevel("level-05")) fail("level-05가 레지스트리에 등록되지 않음");
+if (!getLevel("level-06")) fail("level-06이 레지스트리에 등록되지 않음");
 if (!getLevel("p9-boss-test-right") || !getLevel("p9-boss-test-left")) fail("P9 좌·우 보스 시험 레벨이 레지스트리에 없음");
 if (getNextLevel(LEVELS[0].id)?.id !== LEVELS[1].id) fail("getNextLevel 순서가 잘못됨");
 if (getNextLevel("level-03")?.id !== "level-04") fail("안개 골짜기 다음 레벨이 쓰나미 마을이 아님");
 if (getNextLevel("level-04")?.id !== "level-05") fail("쓰나미 마을 다음 레벨이 물에 잠긴 마을이 아님");
+if (getNextLevel("level-05")?.id !== "level-06") fail("물에 잠긴 마을 다음 레벨이 무지개 이어달리기가 아님");
+if (getNextLevel("level-06") !== null) fail("마지막 챌린지 레벨 뒤에 다음 레벨이 존재함");
 
 const levelIndex = await readFile(join(root, "src", "data", "levels", "index.js"), "utf8");
 if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02 import 한 줄이 없음");
 if (!levelIndex.includes('import level03 from "./level-03.js";')) fail("level-03 import 한 줄이 없음");
 if (!levelIndex.includes('import level04 from "./level-04.js";')) fail("level-04 import 한 줄이 없음");
 if (!levelIndex.includes('import level05 from "./level-05.js";')) fail("level-05 import 한 줄이 없음");
-if (!levelIndex.includes("[level01, level02, level03, level04, level05]")) fail("LEVELS 배열에 level-05 항목이 없음");
+if (!levelIndex.includes('import level06 from "./level-06.js";')) fail("level-06 import 한 줄이 없음");
+if (!levelIndex.includes("[level01, level02, level03, level04, level05, level06]")) fail("LEVELS 배열에 level-06 항목이 없음");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
 if (!bootScene.includes('query.get("guard")')) fail("P6 날개 방어 visualReview 고정 진입점이 없음");
@@ -307,6 +311,10 @@ if (!stageSelectScene.includes("pageIndicator") || !stageSelectScene.includes("r
   fail("다섯 번째 스테이지를 위한 좌우 캐러셀·페이지 표시가 없음");
 }
 if (!stageSelectScene.includes('level.visualTheme === "submerged-graybox"')) fail("물에 잠긴 마을 선택 카드 실루엣이 없음");
+if (!stageSelectScene.includes('level.visualTheme === "rainbow-relay-graybox"')) fail("C1 무지개 이어달리기 선택 카드 fallback 실루엣이 없음");
+if (!bootScene.includes('query.get("unlock")') || !stageSelectScene.includes('registry.get("stageSelectReviewUnlockAll")')) {
+  fail("C1 선택 카드 잠금 해제 검수 진입점이 없음");
+}
 if (!stageSelectScene.includes("progressManager.isUnlocked") || !stageSelectScene.includes("이전 스테이지를 먼저 클리어")) {
   fail("직전 스테이지 클리어 기반 순차 해금 경로가 없음");
 }

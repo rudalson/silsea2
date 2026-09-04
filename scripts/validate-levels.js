@@ -451,6 +451,64 @@ for (const sourceLevel of ALL_LEVELS) {
   if (!hasFloorAt(terrain, level.player.spawn.x, level.player.spawn.y)) fail(level, "player spawn 아래에 바닥이 없음");
   if (!hasFloorAt(terrain, level.exit.x, level.exit.y ?? level.player.spawn.y)) fail(level, "exit 아래에 바닥이 없음");
 
+  if (level.id === "level-06") {
+    const starCount = level.items.reduce(
+      (total, item) => total + (item.type === "star" ? 1 : item.type === "star_arc" ? item.count : 0),
+      0
+    );
+    const expectedSections = [
+      ["relay_start", 0, 768],
+      ["relay_unicorn", 768, 1920],
+      ["relay_flight", 1920, 3328],
+      ["relay_mix", 3328, 4608],
+      ["relay_finish", 4608, 5120]
+    ];
+    if (level.world.width !== 5120 || level.exit.x !== 4944 || level.player.spawn.x !== 128) {
+      fail(level, "C1 월드·스폰·출구 잠금값이 다름");
+    }
+    if (level.assets.preview !== "stage_preview_rainbow_relay") {
+      fail(level, "C1 전용 선택 카드가 연결되지 않음");
+    }
+    if (level.sections.some(({ type }) => type === "boss") || level.secrets.length !== 0) {
+      fail(level, "C1은 보스와 비밀 공간이 없어야 함");
+    }
+    if (level.sections.length !== expectedSections.length || expectedSections.some(([id, xStart, xEnd], index) => {
+      const section = level.sections[index];
+      return section?.id !== id || section.xStart !== xStart || section.xEnd !== xEnd;
+    })) fail(level, "C1 5구간 범위가 승인 규칙과 다름");
+    if (level.objectives.required.length !== 1 || level.objectives.required[0]?.type !== "reach_gate") {
+      fail(level, "C1 필수 목표는 reach_gate 하나여야 함");
+    }
+    const collectObjective = level.objectives.optional.find(({ type }) => type === "collect_stars");
+    const clearObjective = level.objectives.optional.find(({ type }) => type === "clear_time");
+    if (collectObjective?.count !== 30 || clearObjective?.seconds !== 180 || starCount < 30) {
+      fail(level, "C1 선택 목표 또는 배치 별 수가 승인 규칙과 다름");
+    }
+    const enemyLimit = level.enemies.length <= 4;
+    const pumpkinLimit = level.hazards.filter(({ type }) => type === "spike_pumpkin").length <= 5;
+    const pitLimit = level.hazards.filter(({ type }) => type === "pit").length <= 2;
+    const movingLimit = (level.terrainMechanics?.movingPlatforms ?? []).length <= 2;
+    const crumbleLimit = (level.terrainMechanics?.crumblePlatforms ?? []).length <= 2;
+    if (![enemyLimit, pumpkinLimit, pitLimit, movingLimit, crumbleLimit].every(Boolean)) {
+      fail(level, "C1 적·호박·낭떠러지·발판 수가 안전 상한을 넘음");
+    }
+    const checkpointLock = [
+      ["cp_relay_unicorn", 1792],
+      ["cp_relay_flight", 3264],
+      ["cp_relay_finish", 4544]
+    ];
+    if (level.checkpoints.length !== 3 || checkpointLock.some(([id, x], index) => {
+      const checkpoint = level.checkpoints[index];
+      return checkpoint?.id !== id || checkpoint.x !== x || !hasFloorAt(terrain, checkpoint.x, checkpoint.y);
+    })) fail(level, "C1 체크포인트 잠금 좌표 또는 안전 바닥이 다름");
+    if (level.checkpoints.at(-1)?.restoresHealth !== true) fail(level, "C1 마지막 체크포인트가 회복 지점이 아님");
+    if (level.difficulty.easyMode.extraCheckpoints[0]?.x !== 2624
+      || !level.difficulty.easyMode.removeEnemies.includes("relay_archer")
+      || level.difficulty.easyMode.pitScoreLoss !== 0) {
+      fail(level, "C1 쉬운 모드 잠금값이 다름");
+    }
+  }
+
   if (level.id === "level-04") {
     const shift = 2048;
     const hulaSection = level.sections.find(({ id }) => id === "boss_hula");

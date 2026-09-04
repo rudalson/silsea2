@@ -204,6 +204,27 @@ data/palette.js 색만 사용, 투명 배경, 문자·숫자·로고 없음.
 
 ## 채택 기록 형식
 
+## C1 무지개 이어달리기 선택 카드 앵커 생성 기록
+
+- 구도 참고: `references/could1-course-flight-a.png`, `references/could1-course-finish.png`
+- 채택 원본: `assets/_source/c1/c1_rainbow_relay_anchor_generated_v1.png`
+- 생성 방식: Codex 내장 이미지 생성 스타일 콘셉트 모드, 최초 결과 1회 채택
+- 요청: 왼쪽 안전 발판 → 중앙의 두 짧은 틈과 구름 이동 발판·분절 붕괴 발판 → 별 호 → 오른쪽 안전 지면과 띠형 무지개 게이트를 문자 없는 16:9 흑백 구도로 압축한다.
+- 금지: 캐릭터·적·보스·비밀 공간·문자·숫자·UI·로고·워터마크·색조·가장자리 잘림.
+- 후처리: `scripts/build-c1-challenge-anchor-review.js`로 1536×864 회색조 앵커, 384×216 축소본과 이진 실루엣을 재현한다.
+- 상태: 2026-09-04 사용자 `다음 단계 진행`으로 앵커 승인 완료
+
+## C1 무지개 이어달리기 선택 카드 최종 생성 기록
+
+- 편집 입력: `references/could1-challenge-anchor.png`
+- 팔레트 참고: `assets/backgrounds/stage_preview_rainbow_hill.png`
+- 채택 원본: `assets/_source/c1/c1_rainbow_relay_color_source_v1.png`
+- 생성 방식: Codex 내장 이미지 생성 정밀 오브젝트 편집 모드, 앵커 승인 뒤 최초 결과 1회 채택
+- 요청: 승인 앵커의 좌우 발판·중앙 두 틈·구름 이동 발판·4칸 붕괴 발판·별 7개 호·띠형 무지개 게이트와 모든 위치·비율을 유지하고 밝은 들판 팔레트만 적용한다.
+- 금지: 문자·숫자·UI·캐릭터·적·보스·비밀 공간·로고·워터마크·새 오브젝트·추가 별·구도 변경.
+- 후처리: `scripts/build-c1-challenge-preview.js`로 1280×720 런타임 PNG와 320×180 축소·이진 실루엣 검토본을 재현한다.
+- 상태: 2026-09-04 생성·런타임 연결·축소/fallback 검증 완료
+
 ## P11 투명대왕 최종 생성 기록
 
 - 편집 입력: `assets/_source/p11/p11_invisible_king_anchor_generated_v1.png`

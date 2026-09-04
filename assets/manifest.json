@@ -725,6 +725,7 @@
     { "key": "stage_preview_mist", "type": "image", "url": "/assets/backgrounds/stage_preview_mist.png", "width": 1280, "height": 720 },
     { "key": "stage_preview_tsunami", "type": "image", "url": "/assets/backgrounds/stage_preview_tsunami.png", "width": 1280, "height": 720 },
     { "key": "stage_preview_submerged", "type": "image", "url": "/assets/backgrounds/stage_preview_submerged.png", "width": 1280, "height": 720 },
+    { "key": "stage_preview_rainbow_relay", "type": "image", "url": "/assets/backgrounds/stage_preview_rainbow_relay.png", "width": 1280, "height": 720 },
     { "key": "decor_star_tree", "type": "image", "url": "/assets/decorations/decor_star_tree.png", "width": 640, "height": 640 },
     { "key": "decor_moon_branch", "type": "image", "url": "/assets/decorations/decor_moon_branch.png", "width": 384, "height": 256 },
     { "key": "decor_firefly", "type": "image", "url": "/assets/decorations/decor_firefly.png", "width": 192, "height": 160 },

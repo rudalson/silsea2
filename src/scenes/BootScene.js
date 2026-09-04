@@ -87,6 +87,7 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("visualReviewWaterState", reviewLevel ? query.get("water") : null);
     this.registry.set("visualReviewRandomState", reviewLevel ? query.get("random") : null);
     this.registry.set("visualReviewSecretId", reviewLevel ? query.get("secret") : null);
+    this.registry.set("stageSelectReviewUnlockAll", stageSelectReview && query.get("unlock") === "1");
     this.registry.set("clearReviewResult", clearReviewLevel ? {
       levelId: clearReviewLevel.id,
       characterId,

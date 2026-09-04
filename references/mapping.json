@@ -147,6 +147,7 @@
   "stage_preview_mist": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P3 최종 배경을 축약해 계곡 벽·안개·비콘·바람 리본을 보여 주는 선택 카드." },
   "stage_preview_tsunami": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P4 최종 배경과 열린 집, 오른쪽에서 접근하는 파도 실루엣을 한 화면에 담은 선택 카드." },
   "stage_preview_submerged": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P5 최종 배경의 수면선·드러난 지붕·잠긴 마을과 빛기둥을 한 화면에 담은 5번 선택 카드." },
+  "stage_preview_rainbow_relay": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 C1 앵커의 시작 발판·두 짧은 틈·구름 이동 발판·분절 붕괴 발판·별 호·무지개 게이트를 유지한 6번 선택 카드." },
 
   "grass_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "팔레트와 흙/잔디 층만 참고해 코드 생성. 이미지 생성 금지." },
   "starlight_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커를 따라 기존 64px 충돌 프레임 계약에 달빛 윗면과 뿌리 무늬를 코드로 추가한 전용 타일." },

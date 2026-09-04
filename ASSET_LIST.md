@@ -149,6 +149,7 @@
 | 안개 골짜기 | `bg_mist_far`, `bg_mist_mid`, `bg_mist_near` | `stage_preview_mist` | M |
 | 쓰나미 마을 | `bg_tsunami_far`, `bg_tsunami_mid`, `bg_tsunami_near` | `stage_preview_tsunami` | M |
 | 물에 잠긴 마을 | `bg_submerged_far`, `bg_submerged_mid`, `bg_submerged_near` | `stage_preview_submerged` | M |
+| 무지개 이어달리기 | `bg_normal_far`, `bg_normal_mid`, `bg_normal_near` 재사용 | `stage_preview_rainbow_relay` | C |
 
 - 각 배경은 far/mid/near 3레이어, 2048×720 이상, 좌우 seamless로 만든다.
 - 선택 카드는 실제 회색 상자 구도를 승인한 뒤 캡처 기반으로 제작한다.
@@ -157,6 +158,7 @@
 - P3 안개 골짜기는 2026-08-26 코스·흑백 앵커·최종 화면을 승인했다. 승인 팔레트 기반 배경 3레이어·선택 카드·타일·안개/비콘/바람 효과를 제작·등록했으며 최종 화면은 `references/P3_MIST_FINAL_REVIEW.md`에서 확인한다.
 - P4 쓰나미 마을은 역방향 코스와 앵커를 승인·커밋했다. 전용 배경 3레이어·선택 카드·64px 타일·열린 집 2종·언덕·파도/경고 효과를 제작·등록했고, 2026-08-27 `P4 최종 승인`으로 잠갔다.
 - P5 물에 잠긴 마을은 코스·흑백 앵커·최종 화면을 승인했다. 전용 배경 3레이어·선택 카드·64px 타일·수면/빛결/기포·두 캐릭터 기본/유니콘 수영 시트를 제작·등록했고 2026-08-28 `P5 최종 승인`으로 잠갔다.
+- C1 무지개 이어달리기는 기존 밝은 들판 배경을 재사용하고, 승인된 코스와 흑백 앵커를 압축한 전용 6번 선택 카드만 추가한다.
 
 ### 타일·장식·환경 효과
 

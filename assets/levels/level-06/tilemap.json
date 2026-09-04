@@ -1,0 +1,42 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "grass" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
+      "objects": [
+        { "height": 192, "id": 1, "name": "relay_ground_start", "rotation": 0, "type": "ground", "visible": true, "width": 2176, "x": 0, "y": 576 },
+        { "height": 48, "id": 2, "name": "relay_unicorn_low", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 896, "y": 480 },
+        { "height": 48, "id": 3, "name": "relay_unicorn_high", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 1248, "y": 400 },
+        { "height": 192, "id": 4, "name": "relay_flight_island", "rotation": 0, "type": "ground", "visible": true, "width": 160, "x": 2528, "y": 576 },
+        { "height": 192, "id": 5, "name": "relay_ground_finish", "rotation": 0, "type": "ground", "visible": true, "width": 2144, "x": 2976, "y": 576 },
+        { "height": 48, "id": 6, "name": "relay_flight_exit", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3040, "y": 448 },
+        { "height": 48, "id": 7, "name": "relay_mix_entry", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3328, "y": 480 },
+        { "height": 48, "id": 8, "name": "relay_mix_reward", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 4128, "y": 416 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 9,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 80
+}
