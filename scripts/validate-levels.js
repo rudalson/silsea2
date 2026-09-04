@@ -25,6 +25,12 @@ const manifestKeys = new Set(manifest.assets.map((asset) => asset.key));
 const ids = new Set();
 const orders = new Set();
 const detectedFootstepSurfaces = new Set();
+const s6DecorationExpectations = Object.freeze({
+  decor_grass: { levelId: "level-01", x: 640, y: 578, flipX: false },
+  decor_flower: { levelId: "level-01", x: 3200, y: 578, flipX: false },
+  decor_rock: { levelId: "level-03", x: 576, y: 578, flipX: false },
+  decor_sign: { levelId: "level-04", x: 9920, y: 578, flipX: true }
+});
 
 const fail = (level, message) => errors.push(`[${level.id ?? "unknown"}] ${message}`);
 const inWorld = (level, x, y = 0) => x >= 0 && x <= level.world.width && y >= 0 && y <= level.world.height;
@@ -638,6 +644,32 @@ for (const sourceLevel of ALL_LEVELS) {
 
 for (const surface of FOOTSTEP_SURFACES) {
   if (!detectedFootstepSurfaces.has(surface)) errors.push(`[footsteps] 사용되지 않은 표면 키: ${surface}`);
+}
+
+for (const [key, expected] of Object.entries(s6DecorationExpectations)) {
+  const placements = LEVELS.flatMap((level) => (level.decorations ?? [])
+    .filter((decoration) => level.assets.decorations?.[decoration.asset] === key)
+    .map((decoration) => ({ level, decoration })));
+  if (placements.length !== 1) {
+    errors.push(`[S6] ${key} 배치는 정확히 1개여야 함: ${placements.length}`);
+    continue;
+  }
+  const [{ level, decoration }] = placements;
+  if (level.id !== expected.levelId || decoration.x !== expected.x || decoration.y !== expected.y) {
+    errors.push(`[S6] ${key} 승인 좌표 불일치: ${level.id} (${decoration.x}, ${decoration.y})`);
+  }
+  if (Boolean(decoration.flipX) !== expected.flipX) {
+    errors.push(`[S6] ${key} flipX 불일치: ${Boolean(decoration.flipX)}`);
+  }
+  const section = level.sections.find(({ xStart, xEnd }) => decoration.x >= xStart && decoration.x < xEnd);
+  if (!section || section.type === "boss") errors.push(`[S6] ${key}가 보스룸에 배치됨`);
+}
+
+for (const level of LEVELS.filter(({ id }) => ["level-02", "level-05"].includes(id))) {
+  const hasS6Decoration = (level.decorations ?? []).some(
+    (decoration) => s6DecorationExpectations[level.assets.decorations?.[decoration.asset]]
+  );
+  if (hasS6Decoration) errors.push(`[S6] 제외 레벨 ${level.id}에 추가 장식이 배치됨`);
 }
 
 if (errors.length) {

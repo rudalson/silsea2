@@ -20,6 +20,9 @@ export default {
       normal: { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" },
       boss: { far: "bg_mist_far", mid: "bg_mist_mid", near: "bg_mist_near" }
     },
+    decorations: {
+      rock: "decor_rock"
+    },
     effects: {
       mistBank: "fx_mist_bank",
       mistClear: "fx_mist_clear",
@@ -77,6 +80,9 @@ export default {
     { id: "cue_application_path", xStart: 3260, xEnd: 4580, lookAhead: 205, targetX: 4672 },
     { id: "cue_combination_path", xStart: 5050, xEnd: 6300, lookAhead: 210, targetX: 6400 },
     { id: "cue_invisible_arena", xStart: 6944, xEnd: 7424, lookAhead: 220, targetX: 7680 }
+  ],
+  decorations: [
+    { id: "mist_intro_rock", asset: "rock", x: 576, y: 578, width: 112, height: 72, depth: -5, alpha: 0.84 }
   ],
   checkpoints: [
     { id: "cp_mist_intro", x: 1536, y: 576 },

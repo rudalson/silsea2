@@ -119,10 +119,13 @@ assertOrdered("EnemyManager.js", [
   'playSfx("sfx_cloud_charge"'
 ], "먹구름 시각·음향 예고");
 
-const allowedDeferred = ["decor_flower", "decor_grass", "decor_rock", "decor_sign"];
+const s6DecorationKeys = ["decor_flower", "decor_grass", "decor_rock", "decor_sign"];
 const planned = [...(mapping.$delivery?.planned ?? [])].sort();
-if (JSON.stringify(planned) !== JSON.stringify([...allowedDeferred].sort())) {
-  fail(`P7 계획 항목은 선택 장식 4종만 허용함 (현재: ${planned.join(", ") || "없음"})`);
+if (planned.length !== 0) {
+  fail(`S6 완료 뒤 계획 항목은 없어야 함 (현재: ${planned.join(", ")})`);
+}
+for (const key of s6DecorationKeys) {
+  if (!visualKeys.has(key)) fail(`S6 장식 manifest 누락: ${key}`);
 }
 
 const assetManager = sourceByName.get("AssetManager.js") ?? "";
@@ -139,5 +142,5 @@ if (errors.length) {
 
 console.log(
   `P7 통합 검증 통과: ${LEVELS.length}개 스테이지 · manifest 시각 ${visualKeys.size}개/오디오 ${audioKeys.size}개 · `
-  + `런타임 오디오 호출 ${calledAudioKeys.size}개 · 선택 장식 ${allowedDeferred.length}종 보류 · 정상/fallback 진입점 확인`
+  + `런타임 오디오 호출 ${calledAudioKeys.size}개 · S6 선택 장식 ${s6DecorationKeys.length}종 연결 · 정상/fallback 진입점 확인`
 );

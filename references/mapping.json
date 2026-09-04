@@ -41,12 +41,7 @@
       "ui_pause": ["src/scenes/UIScene.js"],
       "ui_accessibility": ["src/scenes/UIScene.js"]
     },
-    "planned": [
-      "decor_flower",
-      "decor_grass",
-      "decor_rock",
-      "decor_sign"
-    ]
+    "planned": []
   },
   "unicorn_motion_variants": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "유니콘·알리콘 상태에서 뿔이 몸과 함께 움직이도록 각 동작 프레임에 직접 합성한 차분." },
   "wing_guard": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "승인된 P6 앵커의 몸에 붙은 날개를 기준으로 두 플레이어의 정면 방어 4프레임을 제작." },
@@ -162,10 +157,10 @@
   "decor_moon_branch": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커의 초승달과 굵은 가지가 결합된 별빛 숲 장식." },
   "decor_firefly": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "진행 리듬을 방해하지 않는 작은 청록 반딧불 무리." },
   "decor_star_flower": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "달빛 발판 주변에 제한적으로 배치하는 별 모양 꽃 장식." },
-  "decor_flower": { "styleRefs": ["maple_story_1.png", "maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "하단 식생 소재와 프로젝트 선 처리." },
-  "decor_grass": { "styleRefs": ["maple_story_1.png", "maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "하단 식생 소재와 프로젝트 선 처리." },
-  "decor_rock": { "styleRefs": ["maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "둥근 자연물과 프로젝트 선 처리." },
-  "decor_sign": { "styleRefs": ["maple_2.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "문자 없는 방향 표지와 게임 가독성." },
+  "decor_flower": { "styleRefs": ["maple_story_1.png", "maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "승인 S6 앵커 기반 level-01 unicorn_garden x 3200용 낮은 채도 둥근 꽃. 꽃잎 5장·잎 2장." },
+  "decor_grass": { "styleRefs": ["maple_story_1.png", "maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "승인 S6 앵커 기반 level-01 tutorial x 640용 낮은 풀 덤불. 둥근 3봉 실루엣." },
+  "decor_rock": { "styleRefs": ["maple_2.jpg", "silsea_sprite-Photoroom.png"], "note": "승인 S6 앵커 기반 level-03 mist_intro x 576용 낮고 둥근 중성 바위. 위험물·발판 형태 제외." },
+  "decor_sign": { "styleRefs": ["maple_2.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "승인 S6 앵커 기반 level-04 tsunami_intro x 9920용 문자 없는 방향 표지. 우향 원본을 flipX해 왼쪽 진행을 표시." },
 
   "fx_shadow_oval": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "부드럽지만 단순한 타원 접지 그림자." },
   "fx_dust": { "styleRefs": ["silsea_run.png", "mario_2.webp"], "note": "접지 리듬과 작은 카툰 먼지." },

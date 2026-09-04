@@ -128,7 +128,9 @@ export class LevelLoader {
         .setOrigin(0.5, 1)
         .setDisplaySize(decoration.width, decoration.height)
         .setDepth(decoration.depth ?? -4)
-        .setAlpha(decoration.alpha ?? 1);
+        .setAlpha(decoration.alpha ?? 1)
+        .setScrollFactor(decoration.scrollFactor ?? 1)
+        .setFlipX(Boolean(decoration.flipX));
       if (decoration.asset === "firefly") image.setBlendMode("ADD");
       if (decoration.float) {
         this.scene.tweens.add({

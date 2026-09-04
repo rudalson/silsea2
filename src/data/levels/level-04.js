@@ -20,6 +20,9 @@ export default {
       normal: { far: "bg_tsunami_far", mid: "bg_tsunami_mid", near: "bg_tsunami_near" },
       boss: { far: "bg_tsunami_far", mid: "bg_tsunami_mid", near: "bg_tsunami_near" }
     },
+    decorations: {
+      sign: "decor_sign"
+    },
     effects: {
       tsunamiWave: "fx_tsunami_wave",
       tsunamiWarning: "fx_tsunami_warning",
@@ -70,6 +73,9 @@ export default {
     { id: "cue_hill_shelters", xStart: shifted(5120), xEnd: shifted(6912), lookAhead: 190, targetX: shifted(4864) },
     { id: "cue_house_shelters", xStart: shifted(2816), xEnd: shifted(5120), lookAhead: 180, targetX: shifted(2560) },
     { id: "cue_high_shelter", xStart: shifted(1024), xEnd: shifted(2816), lookAhead: 165, targetX: shifted(896) }
+  ],
+  decorations: [
+    { id: "tsunami_intro_sign", asset: "sign", x: shifted(7872), y: 578, width: 112, height: 144, depth: -4, alpha: 0.9, flipX: true }
   ],
   checkpoints: [
     { id: "cp_tsunami_intro", x: shifted(6912), y: 576, restoresHealth: true },

@@ -15,6 +15,10 @@ export default {
       pit: { far: "bg_pit_far", mid: "bg_pit_mid", near: "bg_pit_near" },
       boss: { far: "bg_boss_far", mid: "bg_boss_mid", near: "bg_boss_near" }
     },
+    decorations: {
+      grass: "decor_grass",
+      flower: "decor_flower"
+    },
     objects: {
       items: {
         star: "item_star",
@@ -61,6 +65,10 @@ export default {
     { id: "cue_short_pit", xStart: 7040, xEnd: 7808, lookAhead: 180, targetX: 7872 },
     { id: "cue_long_pit", xStart: 9472, xEnd: 10560, lookAhead: 180, targetX: 10624 },
     { id: "cue_storm_combo", xStart: 10496, xEnd: 11456, lookAhead: 180, targetX: 11520 }
+  ],
+  decorations: [
+    { id: "tutorial_grass", asset: "grass", x: 640, y: 578, width: 144, height: 72, depth: -5, alpha: 0.86 },
+    { id: "unicorn_garden_flower", asset: "flower", x: 3200, y: 578, width: 88, height: 88, depth: -4, alpha: 0.88 }
   ],
   checkpoints: [
     { id: "cp1", x: 4480, y: 576 },
