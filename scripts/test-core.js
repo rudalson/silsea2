@@ -109,6 +109,15 @@ import {
   resolveResultStickers
 } from "../src/data/resultStickers.js";
 import {
+  COOP_PLAYERS,
+  COOP_RULES,
+  canCompleteCoopGate,
+  getCoopCameraTarget,
+  getCoopSeparation,
+  resolveCoopCollectibleClaim,
+  selectCoopTarget
+} from "../src/data/coopPrototype.js";
+import {
   DEBUG_TUNING_CONTROLS,
   DEBUG_TUNING_PRESETS,
   applyDebugTuningPreset,
@@ -1814,4 +1823,56 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리·Could C2 결과 스티커");
+assert.deepEqual(COOP_PLAYERS.map(({ id, characterId }) => ({ id, characterId })), [
+  { id: "p1", characterId: "silsea" },
+  { id: "p2", characterId: "potato89" }
+]);
+assert.equal(COOP_RULES.warningHorizontal, 820);
+assert.equal(COOP_RULES.rejoinHorizontal, 1000);
+assert.equal(COOP_RULES.rejoinDelayMs, 1000);
+const coopPlayers = [
+  { id: "p1", x: 100, y: 500, active: true, connected: true },
+  { id: "p2", x: 1200, y: 500, active: true, connected: true }
+];
+assert.deepEqual(getCoopCameraTarget(coopPlayers), { x: 650, y: 500 });
+assert.deepEqual(getCoopSeparation(coopPlayers, { direction: "right", exceededForMs: 999 }), {
+  horizontal: 1100,
+  vertical: 0,
+  warning: true,
+  shouldRejoin: false,
+  trailingPlayerId: "p1"
+});
+assert.equal(
+  getCoopSeparation(coopPlayers, { direction: "right", exceededForMs: 1000 }).shouldRejoin,
+  true
+);
+assert.equal(
+  getCoopSeparation(coopPlayers, { direction: "left", exceededForMs: 1000 }).trailingPlayerId,
+  "p2"
+);
+assert.equal(selectCoopTarget(coopPlayers, { x: 650, y: 500 }).id, "p1", "동률 타깃은 P1이어야 함");
+assert.equal(selectCoopTarget(coopPlayers, { x: 650, y: 500 }, "p2").id, "p2", "잠근 유효 타깃을 유지해야 함");
+assert.equal(selectCoopTarget([
+  coopPlayers[0],
+  { ...coopPlayers[1], connected: false }
+], { x: 1200, y: 500 }).id, "p1");
+assert.equal(canCompleteCoopGate([
+  { id: "p1", x: 200, y: 500, active: true, connected: true },
+  { id: "p2", x: 210, y: 500, active: true, connected: true }
+], { x: 205, y: 500, width: 80, height: 120 }), true);
+assert.equal(canCompleteCoopGate([
+  { id: "p1", x: 200, y: 500, active: true, connected: true },
+  { id: "p2", x: 400, y: 500, active: true, connected: true }
+], { x: 205, y: 500, width: 80, height: 120 }), false);
+assert.deepEqual(resolveCoopCollectibleClaim("horn", ["p2"]), {
+  ownerId: "p2",
+  shared: false,
+  kind: "personal_powerup"
+});
+assert.deepEqual(resolveCoopCollectibleClaim("star", ["p2", "p1"]), {
+  ownerId: "p1",
+  shared: true,
+  kind: "shared_progress"
+});
+
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리·Could C2 결과 스티커·Could C3 2P 순수 규칙");

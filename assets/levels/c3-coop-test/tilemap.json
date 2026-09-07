@@ -1,0 +1,38 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "properties": [
+        { "name": "groundSurface", "type": "string", "value": "grass" },
+        { "name": "platformSurface", "type": "string", "value": "wood" }
+      ],
+      "objects": [
+        { "height": 192, "id": 1, "name": "coop_ground", "rotation": 0, "type": "ground", "visible": true, "width": 2560, "x": 0, "y": 576 },
+        { "height": 32, "id": 2, "name": "coop_step_low", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 704, "y": 496 },
+        { "height": 32, "id": 3, "name": "coop_step_high", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 1024, "y": 416 },
+        { "height": 32, "id": 4, "name": "coop_rally", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 1536, "y": 464 }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 5,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 40
+}

@@ -28,6 +28,12 @@ const gameScene = await readFile(join(root, "src", "scenes", "GameScene.js"), "u
 const bootScene = await readFile(join(root, "src", "scenes", "BootScene.js"), "utf8");
 const clearScene = await readFile(join(root, "src", "scenes", "ClearScene.js"), "utf8");
 const resultStickers = await readFile(join(root, "src", "data", "resultStickers.js"), "utf8");
+const coopPrototype = await readFile(join(root, "src", "data", "coopPrototype.js"), "utf8");
+const coopInputManager = await readFile(join(root, "src", "systems", "CoopInputManager.js"), "utf8");
+const coopSessionManager = await readFile(join(root, "src", "systems", "CoopSessionManager.js"), "utf8");
+const coopPrototypeScene = await readFile(join(root, "src", "scenes", "CoopPrototypeScene.js"), "utf8");
+const preloadScene = await readFile(join(root, "src", "scenes", "PreloadScene.js"), "utf8");
+const gameConfig = await readFile(join(root, "src", "config", "gameConfig.js"), "utf8");
 const debugPanel = await readFile(join(root, "src", "systems", "DebugPanel.js"), "utf8");
 const levelHotReload = await readFile(join(root, "src", "systems", "LevelHotReload.js"), "utf8");
 const debugTuningPresets = await readFile(join(root, "src", "data", "debugTuningPresets.js"), "utf8");
@@ -105,6 +111,11 @@ if (!bootScene.includes('query.get("water")')) fail("P12 물대왕 상태 visual
 if (!bootScene.includes('query.get("random")')) fail("P13 랜덤대왕 상태 visualReview 고정 진입점이 없음");
 if (!bootScene.includes('query.get("p1test")')) fail("P1 환경 회색 상자 직접 진입점이 없음");
 if (!bootScene.includes('query.get("p9boss")')) fail("P9 좌·우 보스 시험 직접 진입점이 없음");
+if (!bootScene.includes('query.get("coopReview")')
+  || !bootScene.includes('getLevel("c3-coop-test")')
+  || !bootScene.includes("&& DEBUG_ENABLED")) {
+  fail("C3 2P 회색상자가 명시적인 debug 전용 진입점으로 격리되지 않음");
+}
 if (!bootScene.includes('query.get("section")')) fail("런타임 화풍 검수용 section 선택이 없음");
 if (!bootScene.includes('query.get("form")')) fail("캐릭터 런타임 검수용 form 선택이 없음");
 if (!bootScene.includes('query.get("animation")')) fail("캐릭터 런타임 검수용 animation 선택이 없음");
@@ -281,6 +292,50 @@ if (!clearScene.includes("this.textures.exists(sticker.textureKey)")
   || !clearScene.includes("createResultStickerFallback")) {
   fail("C2 결과 스티커의 정상 아트 또는 코드 도형 fallback 분기가 없음");
 }
+if (!levelIndex.includes('import c3CoopTest from "./c3-coop-test.js";')
+  || !levelIndex.includes("c3CoopTest")) {
+  fail("C3 협동 시험 레벨이 개발 레벨 레지스트리에 없음");
+}
+if (!gameConfig.includes("CoopPrototypeScene")
+  || !preloadScene.includes('AssetManager.queueCharacterAssets(this, "silsea")')
+  || !preloadScene.includes('AssetManager.queueCharacterAssets(this, "potato89")')) {
+  fail("C3 협동 장면 또는 두 캐릭터 preload 경로가 없음");
+}
+for (const marker of [
+  "warningHorizontal: 820",
+  "rejoinHorizontal: 1000",
+  "selectCoopTarget",
+  "canCompleteCoopGate",
+  "resolveCoopCollectibleClaim"
+]) {
+  if (!coopPrototype.includes(marker)) fail(`C3 협동 순수 규칙 누락: ${marker}`);
+}
+if (!coopInputManager.includes("this.previous = { p1:")
+  || !coopInputManager.includes("getPad(0)")
+  || !coopInputManager.includes("connected")
+  || !coopInputManager.includes("Number(Boolean(pad?.buttons")) {
+  fail("C3 P1 키보드/P2 게임패드 입력 또는 독립 edge 상태가 없음");
+}
+if (!coopPrototypeScene.includes("COOP_PLAYERS.map")
+  || !coopPrototypeScene.includes("this.physics.add.collider(session.player")
+  || !coopPrototypeScene.includes("getCoopCameraTarget")
+  || /progressManager|localStorage/.test(coopPrototypeScene)) {
+  fail("C3 격리 장면의 두 플레이어·지형·카메라 또는 무저장 계약이 잘못됨");
+}
+if (!coopSessionManager.includes("new TransformationManager")
+  || !coopSessionManager.includes("currentCheckpoint")
+  || !coopSessionManager.includes("resolveCoopCollectibleClaim")
+  || !coopSessionManager.includes("EVENTS.PLAYER_RESPAWNED")
+  || !coopSessionManager.includes("if (!session.connected")) {
+  fail("C3 플레이어별 변신·피격·부활 또는 공유 체크포인트·수집 경계가 없음");
+}
+if (!coopPrototypeScene.includes("createTargetScout")
+  || !coopPrototypeScene.includes("normalEnemyTargetId")
+  || !coopPrototypeScene.includes("markBossDefeated(\"coop_target_dummy\")")
+  || !coopPrototypeScene.includes("canCompleteCoopGate")
+  || !coopPrototypeScene.includes("savedProgress: false")) {
+  fail("C3 일반 적·공유 보스·동시 게이트 또는 무저장 결과 경로가 없음");
+}
 if (/localStorage|fetch\(|download|navigator\.clipboard/.test(resultStickers)) {
   fail("C2 결과 스티커 데이터가 저장·네트워크·다운로드 경로를 사용함");
 }
@@ -357,4 +412,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1·P9 시험 진입점, 보스 정의·전략·환경 정지 기반, level-02~05 확장성");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1·P9 시험 진입점, 보스 정의·전략·환경 정지 기반, C3 격리 2P 회색상자, level-02~05 확장성");

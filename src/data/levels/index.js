@@ -6,6 +6,7 @@ import level05 from "./level-05.js";
 import level06 from "./level-06.js";
 import p1EnvironmentTest from "./p1-environment-test.js";
 import { p9BossTestLeft, p9BossTestRight } from "./p9-boss-test.js";
+import c3CoopTest from "./c3-coop-test.js";
 
 const hotLevelOverrides = new Map();
 const hotLevelRevisions = new Map();
@@ -32,7 +33,7 @@ if (import.meta.hot) {
 }
 
 export const LEVELS = Object.freeze([level01, level02, level03, level04, level05, level06]);
-export const DEVELOPMENT_LEVELS = Object.freeze([p1EnvironmentTest, p9BossTestRight, p9BossTestLeft]);
+export const DEVELOPMENT_LEVELS = Object.freeze([p1EnvironmentTest, p9BossTestRight, p9BossTestLeft, c3CoopTest]);
 export const ALL_LEVELS = Object.freeze([...LEVELS, ...DEVELOPMENT_LEVELS]);
 export const getLevel = (id) => hotLevelOverrides.get(id) ?? ALL_LEVELS.find((level) => level.id === id) ?? null;
 export const isLevelHotReloadAvailable = () => Boolean(import.meta.hot);

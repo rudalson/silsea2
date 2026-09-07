@@ -6,6 +6,7 @@ import { MenuScene } from "../scenes/MenuScene.js";
 import { CharacterSelectScene } from "../scenes/CharacterSelectScene.js";
 import { StageSelectScene } from "../scenes/StageSelectScene.js";
 import { GameScene } from "../scenes/GameScene.js";
+import { CoopPrototypeScene } from "../scenes/CoopPrototypeScene.js";
 import { UIScene } from "../scenes/UIScene.js";
 import { ClearScene } from "../scenes/ClearScene.js";
 
@@ -46,6 +47,7 @@ export const gameConfig = {
     CharacterSelectScene,
     StageSelectScene,
     GameScene,
+    CoopPrototypeScene,
     UIScene,
     ClearScene
   ]

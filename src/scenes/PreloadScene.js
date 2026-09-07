@@ -69,12 +69,21 @@ export class PreloadScene extends Phaser.Scene {
       barBg.setStrokeStyle(2, COLORS.collectBlue);
       barInset.setFillStyle(COLORS.mid, 1);
     });
-    AssetManager.queueCharacterAssets(this, this.registry.get("characterId"));
+    if (this.registry.get("coopReviewEnabled")) {
+      AssetManager.queueCharacterAssets(this, "silsea");
+      AssetManager.queueCharacterAssets(this, "potato89");
+    } else {
+      AssetManager.queueCharacterAssets(this, this.registry.get("characterId"));
+    }
     AssetManager.queueEnemyAssets(this, this.level);
     AssetManager.queueLevelAssets(this, this.level);
   }
 
   create() {
+    if (this.registry.get("coopReviewEnabled") && this.levelId === "c3-coop-test") {
+      this.scene.start(SCENE_KEYS.COOP_PROTOTYPE, { levelId: this.levelId });
+      return;
+    }
     const clearReviewResult = this.registry.get("clearReviewResult");
     if (clearReviewResult?.levelId === this.levelId) {
       this.registry.set("clearReviewResult", null);

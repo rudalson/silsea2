@@ -47,10 +47,12 @@ export class BootScene extends Phaser.Scene {
     const p9BossTestLevel = ["left", "right"].includes(p9BossDirection)
       ? getLevel(`p9-boss-test-${p9BossDirection}`)
       : null;
+    const coopReviewEnabled = query.get("coopReview") === "1" && DEBUG_ENABLED;
+    const coopTestLevel = coopReviewEnabled ? getLevel("c3-coop-test") : null;
     const playtestLevel = playtestEnabled
       ? LEVELS.find(({ id }) => id === query.get("level")) ?? null
       : null;
-    const directLevel = reviewLevel ?? clearReviewLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
+    const directLevel = coopTestLevel ?? reviewLevel ?? clearReviewLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
     const levelId = directLevel?.id ?? stageSelectLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
@@ -99,6 +101,8 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("easyMode", query.get("easy") === "1");
     this.registry.set("playtestEnabled", playtestEnabled);
     this.registry.set("playtestTesterId", playtestTesterId);
+    this.registry.set("coopReviewEnabled", coopReviewEnabled);
+    this.registry.set("coopReviewState", coopReviewEnabled ? query.get("coopState") : null);
     this.registry.set("screenShakeEnabled", query.get("shake") !== "0");
     this.registry.set("screenEffectStrength", query.get("effects") === "reduced" ? "reduced" : "normal");
     this.registry.set("audioMuted", query.get("mute") === "1");

@@ -10,6 +10,7 @@ export const SCENE_KEYS = Object.freeze({
   CHARACTER_SELECT: "CharacterSelectScene",
   STAGE_SELECT: "StageSelectScene",
   GAME: "GameScene",
+  COOP_PROTOTYPE: "CoopPrototypeScene",
   UI: "UIScene",
   CLEAR: "ClearScene"
 });
