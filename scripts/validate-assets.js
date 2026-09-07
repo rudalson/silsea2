@@ -221,6 +221,13 @@ const starlightDecorationAssets = [
   { name: "decor_firefly", width: 192, height: 160 },
   { name: "decor_star_flower", width: 256, height: 192 }
 ];
+const resultStickerAssets = [
+  "ui_result_sticker_clear",
+  "ui_result_sticker_collect",
+  "ui_result_sticker_secret",
+  "ui_result_sticker_speed",
+  "ui_result_sticker_perfect"
+];
 const mistEffectAssets = [
   { name: "fx_mist_bank", width: 384, height: 128 },
   { name: "fx_mist_clear", width: 256, height: 256 },
@@ -651,6 +658,52 @@ for (const asset of starlightDecorationAssets) {
     if (cornerAlpha.some((alpha) => alpha > 8)) errors.push(`${asset.name}.png: 모서리 투명 여백 없음`);
   } catch (error) {
     errors.push(`${asset.name}.png: 장식 파일을 읽을 수 없음 (${error.message})`);
+  }
+}
+
+for (const name of resultStickerAssets) {
+  const path = join(root, "assets", "ui", `${name}.png`);
+  try {
+    const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    if (info.width !== 128 || info.height !== 128 || info.channels !== 4) {
+      errors.push(`${name}.png: 128x128 RGBA가 아님`);
+      continue;
+    }
+    let visible = 0;
+    let outsidePalette = 0;
+    let minX = info.width;
+    let minY = info.height;
+    let maxX = -1;
+    let maxY = -1;
+    for (let index = 0; index < data.length; index += 4) {
+      if (data[index + 3] < 16) continue;
+      visible += 1;
+      const pixel = index / 4;
+      const x = pixel % info.width;
+      const y = Math.floor(pixel / info.width);
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+      const rgb = [data[index], data[index + 1], data[index + 2]];
+      if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > 0) outsidePalette += 1;
+    }
+    const cornerAlpha = [
+      data[3],
+      data[(info.width - 1) * 4 + 3],
+      data[((info.height - 1) * info.width) * 4 + 3],
+      data[(info.width * info.height - 1) * 4 + 3]
+    ];
+    const subjectWidth = maxX - minX + 1;
+    const subjectHeight = maxY - minY + 1;
+    if (!visible) errors.push(`${name}.png: 불투명 픽셀이 없음`);
+    if (outsidePalette > 0) errors.push(`${name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (cornerAlpha.some((alpha) => alpha > 8)) errors.push(`${name}.png: 모서리 투명 여백 없음`);
+    if (subjectWidth < 48 || subjectWidth > 112 || subjectHeight < 64 || subjectHeight > 112) {
+      errors.push(`${name}.png: 스티커 실루엣 ${subjectWidth}x${subjectHeight}px가 48~112×64~112px 범위를 벗어남`);
+    }
+  } catch (error) {
+    errors.push(`${name}.png: 결과 스티커 파일을 읽을 수 없음 (${error.message})`);
   }
 }
 

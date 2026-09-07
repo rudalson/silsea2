@@ -27,6 +27,7 @@ if (sceneFiles.some((file) => file.endsWith("BossScene.js"))) fail("BossScene.js
 const gameScene = await readFile(join(root, "src", "scenes", "GameScene.js"), "utf8");
 const bootScene = await readFile(join(root, "src", "scenes", "BootScene.js"), "utf8");
 const clearScene = await readFile(join(root, "src", "scenes", "ClearScene.js"), "utf8");
+const resultStickers = await readFile(join(root, "src", "data", "resultStickers.js"), "utf8");
 const debugPanel = await readFile(join(root, "src", "systems", "DebugPanel.js"), "utf8");
 const levelHotReload = await readFile(join(root, "src", "systems", "LevelHotReload.js"), "utf8");
 const debugTuningPresets = await readFile(join(root, "src", "data", "debugTuningPresets.js"), "utf8");
@@ -251,6 +252,37 @@ if (!clearScene.includes("getObjectiveCelebrations") || !clearScene.includes("cr
 }
 if (!clearScene.includes("getAccessibleResultSummary") || !clearScene.includes("screenEffectStrength")) {
   fail("선택 목표 결과 카드의 접근성 요약 또는 약한 효과 경로가 없음");
+}
+if (!clearScene.includes("getResultStickerLayout")
+  || !clearScene.includes("createResultStickers")
+  || !clearScene.includes("stickerSummary")) {
+  fail("C2 결과 스티커 배치 또는 접근성 요약 연결이 없음");
+}
+if (!clearScene.includes("if (!this.reducedEffects)")
+  || !clearScene.includes('playSfx("sfx_ui_select"')) {
+  fail("C2 결과 스티커의 약한 효과 분기 또는 기존 UI 효과음 연결이 없음");
+}
+if (!resultStickers.includes("MAX_RESULT_STICKERS = 5")
+  || !resultStickers.includes("RESULT_STICKER_SLOTS")
+  || !resultStickers.includes("resolveResultStickers")) {
+  fail("C2 결과 스티커의 다섯 고정 슬롯 또는 순수 판정 데이터가 없음");
+}
+for (const key of [
+  "ui_result_sticker_clear",
+  "ui_result_sticker_collect",
+  "ui_result_sticker_secret",
+  "ui_result_sticker_speed",
+  "ui_result_sticker_perfect"
+]) {
+  if (!resultStickers.includes(key)) fail(`C2 결과 스티커 textureKey 누락: ${key}`);
+  if (!assetManager.includes(key)) fail(`C2 결과 스티커 Boot preload 누락: ${key}`);
+}
+if (!clearScene.includes("this.textures.exists(sticker.textureKey)")
+  || !clearScene.includes("createResultStickerFallback")) {
+  fail("C2 결과 스티커의 정상 아트 또는 코드 도형 fallback 분기가 없음");
+}
+if (/localStorage|fetch\(|download|navigator\.clipboard/.test(resultStickers)) {
+  fail("C2 결과 스티커 데이터가 저장·네트워크·다운로드 경로를 사용함");
 }
 if (clearScene.includes("progressManager.complete") || clearScene.includes("scoreManager.add")) {
   fail("선택 목표 결과 카드가 점수나 진행도를 다시 지급함");

@@ -225,6 +225,17 @@ data/palette.js 색만 사용, 투명 배경, 문자·숫자·로고 없음.
 - 후처리: `scripts/build-c1-challenge-preview.js`로 1280×720 런타임 PNG와 320×180 축소·이진 실루엣 검토본을 재현한다.
 - 상태: 2026-09-04 생성·런타임 연결·축소/fallback 검증 완료
 
+## C2 결과 화면 스티커 최종 생성 기록
+
+- 편집 입력: `references/could2-sticker-anchor.png`
+- 채택 원본: `assets/_source/c2/c2_result_stickers_generated_v1.png`
+- 생성 방식: Codex 내장 이미지 생성 정밀 오브젝트 편집 모드, 앵커 승인 뒤 최초 결과 1회 채택
+- 요청: 승인된 무지개·별·열쇠구멍·날개 시계·하트 방패의 순서·비율·둥근 실루엣을 유지하고 승인 팔레트만 적용하며 바깥 패널을 제거한다.
+- 팔레트: 외곽선 `#45494B`, 흰색 `#F4FBFD`, 노랑 `#F5DF4F`, 파랑 `#3DBFE3`, 분홍 `#E573A0`, 초록 `#51CE87`, 빨강 `#D1333D`.
+- 금지: 문자·숫자·라벨·이모지·그라디언트·그림자·광택·질감·3D·새 장식·워터마크·실루엣·순서 변경.
+- 후처리: `scripts/build-c2-result-stickers.js`로 연결된 체크 배경만 제거하고 승인 팔레트 양자화·투명 여백·128×128 정렬·5종 분리를 재현한다.
+- 상태: 2026-09-07 생성·분리·manifest 연결 완료, 최종 검수 대기
+
 ## P11 투명대왕 최종 생성 기록
 
 - 편집 입력: `assets/_source/p11/p11_invisible_king_anchor_generated_v1.png`

@@ -4,6 +4,11 @@ import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacter } from "../data/characters.js";
 import { getLevel, getNextLevel } from "../data/levels/index.js";
 import { getObjectiveCelebrations } from "../data/objectivePresentation.js";
+import {
+  RESULT_STICKER_PRESENTATION,
+  RESULT_STICKER_RADIUS,
+  getResultStickerLayout
+} from "../data/resultStickers.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { AudioManager } from "../systems/AudioManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
@@ -29,6 +34,7 @@ export class ClearScene extends Phaser.Scene {
     this.reducedEffects = this.registry.get("screenEffectStrength") === "reduced";
     this.celebrations = getObjectiveCelebrations(level, this.result.achieved, 3);
     this.allCelebrations = getObjectiveCelebrations(level, this.result.achieved, Number.MAX_SAFE_INTEGER);
+    this.resultStickerLayout = getResultStickerLayout(this.result.achieved);
     this.cameras.main.setBackgroundColor(COLORS.near);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
@@ -57,6 +63,8 @@ export class ClearScene extends Phaser.Scene {
       stroke: CSS_COLORS.outline,
       strokeThickness: 8
     }).setOrigin(0.5);
+
+    this.createResultStickers(this.resultStickerLayout);
 
     CharacterAnimationManager.register(this, character);
     const victory = CharacterAnimationManager.getSpec(character, "victory");
@@ -222,12 +230,132 @@ export class ClearScene extends Phaser.Scene {
     });
   }
 
+  createResultStickers(layout) {
+    layout.forEach((sticker, index) => this.createResultSticker(sticker, index));
+  }
+
+  createResultSticker(sticker, index) {
+    const accents = [COLORS.collect, COLORS.collectBlue, COLORS.collectPink, COLORS.grass, COLORS.danger];
+    const accent = accents[sticker.slotIndex % accents.length];
+    const base = this.add.circle(0, 0, RESULT_STICKER_RADIUS, COLORS.white, 0.98)
+      .setStrokeStyle(4, COLORS.outline, 1);
+    const inset = this.add.circle(0, 0, 28, accent, 0.88)
+      .setStrokeStyle(2, COLORS.white, 0.95);
+    const symbol = this.textures.exists(sticker.textureKey)
+      ? this.add.image(0, 0, sticker.textureKey).setDisplaySize(64, 64)
+      : this.createResultStickerFallback(sticker, accent);
+
+    const presentation = this.reducedEffects
+      ? RESULT_STICKER_PRESENTATION.reduced
+      : RESULT_STICKER_PRESENTATION.normal;
+    const startY = sticker.y + presentation.startYOffset;
+    const container = this.add.container(sticker.x, startY, [base, inset, symbol])
+      .setAlpha(0)
+      .setAngle(sticker.angle)
+      .setScale(presentation.startScale)
+      .setDepth(1);
+    const tween = {
+      targets: container,
+      alpha: 1,
+      delay: index * presentation.delayMs,
+      duration: presentation.durationMs,
+      ease: this.reducedEffects ? "Linear" : "Back.Out",
+      onStart: () => {
+        const sfx = RESULT_STICKER_PRESENTATION.sfx;
+        if (index >= sfx.limit) return;
+        this.audioManager.playSfx(sfx.key, {
+          randomizeRate: false,
+          rate: 1 + index * sfx.rateStep,
+          volume: sfx.volume
+        });
+      }
+    };
+    if (!this.reducedEffects) Object.assign(tween, { y: sticker.y, scaleX: 1, scaleY: 1 });
+    this.tweens.add(tween);
+  }
+
+  createResultStickerFallback(sticker, accent) {
+    const symbol = this.add.graphics();
+    symbol.lineStyle(5, COLORS.outline, 1);
+    symbol.fillStyle(COLORS.white, 1);
+
+    if (sticker.symbol === "rainbow") {
+      for (const radius of [22, 16, 10]) {
+        symbol.beginPath();
+        symbol.arc(0, 8, radius, Math.PI, Math.PI * 2, false);
+        symbol.strokePath();
+      }
+      symbol.fillCircle(-20, 10, 7);
+      symbol.fillCircle(20, 10, 7);
+    } else if (sticker.symbol === "star") {
+      const points = [];
+      for (let point = 0; point < 10; point += 1) {
+        const radius = point % 2 === 0 ? 25 : 11;
+        const angle = -Math.PI / 2 + point * Math.PI / 5;
+        points.push({ x: Math.cos(angle) * radius, y: Math.sin(angle) * radius });
+      }
+      symbol.beginPath();
+      symbol.moveTo(points[0].x, points[0].y);
+      points.slice(1).forEach(({ x, y }) => symbol.lineTo(x, y));
+      symbol.closePath();
+      symbol.fillPath();
+      symbol.strokePath();
+    } else if (sticker.symbol === "keyhole") {
+      symbol.fillCircle(0, -9, 12);
+      symbol.strokeCircle(0, -9, 12);
+      symbol.fillRoundedRect(-6, 0, 12, 25, 5);
+      symbol.strokeRoundedRect(-6, 0, 12, 25, 5);
+    } else if (sticker.symbol === "winged_clock") {
+      symbol.beginPath();
+      symbol.moveTo(-16, -7);
+      symbol.lineTo(-30, -16);
+      symbol.lineTo(-25, -2);
+      symbol.lineTo(-33, 5);
+      symbol.lineTo(-15, 8);
+      symbol.strokePath();
+      symbol.beginPath();
+      symbol.moveTo(16, -7);
+      symbol.lineTo(30, -16);
+      symbol.lineTo(25, -2);
+      symbol.lineTo(33, 5);
+      symbol.lineTo(15, 8);
+      symbol.strokePath();
+      symbol.fillCircle(0, 0, 17);
+      symbol.strokeCircle(0, 0, 17);
+      symbol.lineStyle(4, accent, 1);
+      symbol.lineBetween(0, 0, 0, -10);
+      symbol.lineBetween(0, 0, 9, 5);
+    } else {
+      symbol.beginPath();
+      symbol.moveTo(0, -26);
+      symbol.lineTo(23, -16);
+      symbol.lineTo(19, 11);
+      symbol.lineTo(0, 27);
+      symbol.lineTo(-19, 11);
+      symbol.lineTo(-23, -16);
+      symbol.closePath();
+      symbol.fillPath();
+      symbol.strokePath();
+      symbol.fillStyle(accent, 1);
+      symbol.fillCircle(-7, -5, 8);
+      symbol.fillCircle(7, -5, 8);
+      symbol.beginPath();
+      symbol.moveTo(-14, -2);
+      symbol.lineTo(0, 15);
+      symbol.lineTo(14, -2);
+      symbol.closePath();
+      symbol.fillPath();
+    }
+    return symbol;
+  }
+
   getAccessibleResultSummary(level, character) {
     const cards = this.allCelebrations.cards;
     const objectiveSummary = cards.length > 0
       ? `선택 목표 ${cards.length}개 달성. ${cards.map(({ title, detail }) => `${title}, ${detail}`).join(". ")}.`
       : "달성한 선택 목표는 없습니다.";
-    return `${level.name} 클리어. ${character.name}. 기록 ${this.result.elapsed.toFixed(1)}초. 점수 ${this.result.score}. ${objectiveSummary}`;
+    const stickerSummary = this.resultStickerLayout.map(({ label }) => label).join(", ");
+    return `${level.name} 클리어. ${character.name}. 기록 ${this.result.elapsed.toFixed(1)}초. 점수 ${this.result.score}. ${objectiveSummary} 스티커 ${stickerSummary}.`;
   }
 
   updateAccessibleStatus(message) {

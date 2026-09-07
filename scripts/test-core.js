@@ -100,6 +100,15 @@ import {
 } from "../src/data/footsteps.js";
 import { getObjectiveCelebrations, getObjectiveDetail } from "../src/data/objectivePresentation.js";
 import {
+  MAX_RESULT_STICKERS,
+  RESULT_STICKER_FORBIDDEN_AREAS,
+  RESULT_STICKER_PRESENTATION,
+  RESULT_STICKER_RADIUS,
+  RESULT_STICKER_SLOTS,
+  getResultStickerLayout,
+  resolveResultStickers
+} from "../src/data/resultStickers.js";
+import {
   DEBUG_TUNING_CONTROLS,
   DEBUG_TUNING_PRESETS,
   applyDebugTuningPreset,
@@ -1042,6 +1051,57 @@ assert.deepEqual(getObjectiveCelebrations(level01, null, 3), {
   overflow: 0
 });
 
+assert.deepEqual(resolveResultStickers([]).map(({ key }) => key), ["clear"]);
+const noisyStickerInput = ["no_damage", "collect_stars", "unknown", "collect_stars"];
+assert.deepEqual(resolveResultStickers(noisyStickerInput).map(({ key }) => key), [
+  "clear",
+  "collect_stars",
+  "no_damage"
+]);
+assert.deepEqual(noisyStickerInput, ["no_damage", "collect_stars", "unknown", "collect_stars"]);
+assert.deepEqual(getResultStickerLayout(noisyStickerInput).map(({ key, slotIndex }) => [key, slotIndex]), [
+  ["clear", 0],
+  ["collect_stars", 1],
+  ["no_damage", 4]
+]);
+const fullStickerLayout = getResultStickerLayout([
+  "no_damage",
+  "clear_time",
+  "find_secrets",
+  "collect_stars"
+]);
+assert.equal(fullStickerLayout.length, MAX_RESULT_STICKERS);
+assert.deepEqual(fullStickerLayout.map(({ key }) => key), [
+  "clear",
+  "collect_stars",
+  "find_secrets",
+  "clear_time",
+  "no_damage"
+]);
+assert.equal(new Set(fullStickerLayout.map(({ textureKey }) => textureKey)).size, MAX_RESULT_STICKERS);
+assert.equal(fullStickerLayout.every(({ textureKey }) => textureKey.startsWith("ui_result_sticker_")), true);
+assert.equal(new Set(fullStickerLayout.map(({ x, y }) => `${x}:${y}`)).size, RESULT_STICKER_SLOTS.length);
+assert.notEqual(fullStickerLayout[0], RESULT_STICKER_SLOTS[0]);
+for (const { x, y } of RESULT_STICKER_SLOTS) {
+  assert.equal(x - RESULT_STICKER_RADIUS >= 0 && x + RESULT_STICKER_RADIUS <= 1280, true);
+  assert.equal(y - RESULT_STICKER_RADIUS >= 0 && y + RESULT_STICKER_RADIUS <= 720, true);
+  for (const area of RESULT_STICKER_FORBIDDEN_AREAS) {
+    const nearestX = Math.max(area.x, Math.min(x, area.x + area.width));
+    const nearestY = Math.max(area.y, Math.min(y, area.y + area.height));
+    const distanceSquared = (x - nearestX) ** 2 + (y - nearestY) ** 2;
+    assert.equal(distanceSquared > RESULT_STICKER_RADIUS ** 2, true, `${area.id}와 스티커 슬롯이 겹치면 안 됨`);
+  }
+}
+assert.deepEqual(RESULT_STICKER_PRESENTATION.reduced, {
+  startYOffset: 0,
+  startScale: 1,
+  durationMs: 100,
+  delayMs: 80
+});
+assert.equal(RESULT_STICKER_PRESENTATION.sfx.key, "sfx_ui_select");
+assert.equal(RESULT_STICKER_PRESENTATION.sfx.limit, 3);
+assert.equal(RESULT_STICKER_PRESENTATION.sfx.volume, 0.28);
+
 const secretEvents = [];
 const secretScore = new ScoreManager();
 const secretObjectives = new ObjectiveManager(null, {
@@ -1754,4 +1814,4 @@ assert.equal(boss?.phases.length, 3);
 assert.deepEqual(boss?.phases, Object.values(POTATO_KING_PHASES).map(({ id }) => id));
 assert.equal(level01.checkpoints.find(({ id }) => id === "cp5")?.restoresHealth, true);
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리·Could C2 결과 스티커");

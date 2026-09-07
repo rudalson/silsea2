@@ -17,7 +17,18 @@ const resolveRuntimeAssetUrl = (url) => {
 
 export class AssetManager {
   static queueUiAssets(scene) {
-    for (const key of ["ui_hud_frame", "ui_hud_badge_star", "ui_hud_heart", "ui_hud_wings", "ui_hud_percent"]) {
+    for (const key of [
+      "ui_hud_frame",
+      "ui_hud_badge_star",
+      "ui_hud_heart",
+      "ui_hud_wings",
+      "ui_hud_percent",
+      "ui_result_sticker_clear",
+      "ui_result_sticker_collect",
+      "ui_result_sticker_secret",
+      "ui_result_sticker_speed",
+      "ui_result_sticker_perfect"
+    ]) {
       AssetManager.queueManifestAsset(scene, key);
     }
   }
