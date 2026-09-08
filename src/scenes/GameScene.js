@@ -6,6 +6,7 @@ import {
   applyGateReviewMode,
   getGateReviewMode
 } from "../data/gatePresentation.js";
+import { applyItemReviewMode, getItemReviewMode } from "../data/itemPresentation.js";
 import {
   getLevel,
   getLevelHotRevision,
@@ -31,6 +32,7 @@ import { EnvironmentMechanicsManager } from "../systems/EnvironmentMechanicsMana
 import { FootstepManager } from "../systems/FootstepManager.js";
 import { HealthManager } from "../systems/HealthManager.js";
 import { InputManager } from "../systems/InputManager.js";
+import { ItemPresentationManager } from "../systems/ItemPresentationManager.js";
 import { LevelLoader } from "../systems/LevelLoader.js";
 import { LevelHotReloadController, prepareHotReloadLevel } from "../systems/LevelHotReload.js";
 import { ObjectiveManager } from "../systems/ObjectiveManager.js";
@@ -69,9 +71,10 @@ export class GameScene extends Phaser.Scene {
     const sourceLevel = getLevel(this.levelId);
     assertLevelShape(sourceLevel);
     this.gateReviewMode = getGateReviewMode(window.location.search);
-    const normalizedLevel = applyGateReviewMode(
-      normalizeLevelDefinition(sourceLevel),
-      this.gateReviewMode
+    this.itemReviewMode = getItemReviewMode(window.location.search);
+    const normalizedLevel = applyItemReviewMode(
+      applyGateReviewMode(normalizeLevelDefinition(sourceLevel), this.gateReviewMode),
+      this.itemReviewMode
     );
     const easyMode = Boolean(this.registry.get("easyMode"));
     this.difficulty = getDifficultySettings(normalizedLevel, easyMode);
@@ -256,6 +259,8 @@ export class GameScene extends Phaser.Scene {
     this.secretManager?.update(this.player);
     this.levelLoader.updateGatePresentations(this.player.x, this.player.y);
     this.syncGateReviewDiagnostics();
+    this.itemPresentation?.update(time, this.cameras.main.worldView, this.registry.get("screenEffectStrength"));
+    this.syncItemReviewDiagnostics();
     this.updateMagnet(delta);
     this.elapsed += delta / 1000;
     this.playtestManager?.update(this.elapsed, this.player);
@@ -288,6 +293,17 @@ export class GameScene extends Phaser.Scene {
     if (!container) return;
     container.dataset.gateReviewMode = this.gateReviewMode;
     container.dataset.gateReviewSnapshot = JSON.stringify(this.levelLoader.getGatePresentationSnapshot());
+  }
+
+  syncItemReviewDiagnostics() {
+    if (!this.itemReviewMode) return;
+    const container = document.querySelector("#game-container");
+    if (!container) return;
+    container.dataset.itemReviewMode = this.itemReviewMode;
+    container.dataset.itemReviewSnapshot = JSON.stringify({
+      presentation: this.itemPresentation?.getSnapshot() ?? null,
+      particles: this.particleEffects?.getSnapshot()?.emitters ?? null
+    });
   }
 
   updateCamera(delta) {
@@ -421,6 +437,12 @@ export class GameScene extends Phaser.Scene {
     this.terrainMechanics = new TerrainMechanicsManager(this, this.player, this.level.terrainMechanics);
     this.footstepManager = new FootstepManager(this.player, this.audioManager, this.levelLoader.tilemap);
     this.transformationManager = new TransformationManager(this, this.player, this.levelLoader, this.difficulty);
+    this.itemPresentation = new ItemPresentationManager(
+      this,
+      this.levelLoader.collectibles,
+      this.particleEffects,
+      { reviewMode: this.itemReviewMode }
+    );
     this.healthManager = new HealthManager(
       this,
       this.player,
@@ -473,6 +495,7 @@ export class GameScene extends Phaser.Scene {
     collectible.active = false;
     collectible.zone.body.enable = false;
     this.particleEffects.clearMagnetTrail(collectible.id);
+    this.itemPresentation?.collect(collectible.id);
     const multiplier = this.transformationManager.scoreMultiplier;
 
     if (collectible.type === "star") {
@@ -796,6 +819,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   destroyGameplayManagers() {
+    this.itemPresentation?.destroy();
+    this.itemPresentation = null;
     this.footstepManager?.destroy();
     this.footstepManager = null;
     this.terrainMechanics?.destroy();
@@ -841,6 +866,8 @@ export class GameScene extends Phaser.Scene {
     if (container) {
       delete container.dataset.gateReviewMode;
       delete container.dataset.gateReviewSnapshot;
+      delete container.dataset.itemReviewMode;
+      delete container.dataset.itemReviewSnapshot;
     }
     this.playerShadow?.destroy();
     this.playerShadow = null;

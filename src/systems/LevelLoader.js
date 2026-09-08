@@ -364,6 +364,22 @@ export class LevelLoader {
         star.setStrokeStyle(3, COLORS.outline).setDepth(4);
         return [glow, star];
       }
+      if (type === "horn") {
+        const horn = this.track(this.scene.add.triangle(x, y, 0, 22, 13, -22, 26, 22, COLORS.collect, alpha));
+        horn.setStrokeStyle(3, COLORS.outline).setDepth(4);
+        return [glow, horn];
+      }
+      if (type === "wings" || type === "alicorn") {
+        const color = type === "alicorn" ? COLORS.collectPink : COLORS.collectBlue;
+        const leftWing = this.track(this.scene.add.ellipse(x - 15, y + 2, 22, 38, color, alpha));
+        const rightWing = this.track(this.scene.add.ellipse(x + 15, y + 2, 22, 38, color, alpha));
+        leftWing.setStrokeStyle(3, COLORS.outline).setAngle(-28).setDepth(4);
+        rightWing.setStrokeStyle(3, COLORS.outline).setAngle(28).setDepth(4);
+        if (type === "wings") return [glow, leftWing, rightWing];
+        const horn = this.track(this.scene.add.triangle(x, y - 13, 0, 16, 9, -16, 18, 16, COLORS.collect, alpha));
+        horn.setStrokeStyle(3, COLORS.outline).setDepth(5);
+        return [glow, leftWing, rightWing, horn];
+      }
       const definition = ITEM_DEFINITIONS[type];
       const marker = this.track(this.scene.add.circle(x, y, 24, definition?.color ?? COLORS.collect, alpha));
       marker.setStrokeStyle(4, COLORS.outline).setDepth(4);

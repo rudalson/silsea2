@@ -13,6 +13,12 @@ const FORM_COLORS = Object.freeze({
   [FORMS.ALICORN]: COLORS.collectPink
 });
 
+const ITEM_COLORS = Object.freeze({
+  horn: COLORS.collect,
+  wings: COLORS.collectBlue,
+  alicorn: COLORS.collectPink
+});
+
 const createStarPoints = (centerX, centerY, innerRadius, outerRadius, pointCount = 4) => {
   const points = [];
   for (let index = 0; index < pointCount * 2; index += 1) {
@@ -112,6 +118,23 @@ export class ParticleEffectsManager {
       }).setDepth(31);
       return [form, emitter];
     }));
+
+    const itemGlitter = PARTICLE_EFFECTS.itemGlitter;
+    this.itemGlitterEmitters = new Map(Object.entries(ITEM_COLORS).map(([type, color]) => {
+      const emitter = this.scene.add.particles(0, 0, TEXTURE_KEYS.sparkle, {
+        emitting: false,
+        lifespan: itemGlitter.lifespan,
+        speedX: itemGlitter.speedX,
+        speedY: itemGlitter.speedY,
+        gravityY: itemGlitter.gravityY,
+        scale: { start: 0.48, end: 0.06 },
+        alpha: { start: 0.82, end: 0 },
+        rotate: { min: -100, max: 100 },
+        tint: [color, COLORS.white],
+        maxParticles: PARTICLE_LIMITS.itemGlitterPerType
+      }).setDepth(5);
+      return [type, emitter];
+    }));
   }
 
   emitLanding(x, y, impactSpeed = 0) {
@@ -176,6 +199,14 @@ export class ParticleEffectsManager {
     this.lightningEmitter.emitParticleAt(x, y, PARTICLE_EFFECTS.lightning.count);
   }
 
+  emitItemGlitter(type, x, y, count = 1) {
+    this.itemGlitterEmitters.get(type)?.emitParticleAt(x, y, count);
+  }
+
+  clearItemGlitter(type) {
+    this.itemGlitterEmitters.get(type)?.killAll();
+  }
+
   getSnapshot() {
     const emitterSnapshot = (emitter) => ({
       activeCount: emitter?.getAliveParticleCount?.() ?? 0,
@@ -189,6 +220,9 @@ export class ParticleEffectsManager {
     };
     for (const [form, emitter] of this.transformEmitters ?? []) {
       emitters[`transform:${form}`] = emitterSnapshot(emitter);
+    }
+    for (const [type, emitter] of this.itemGlitterEmitters ?? []) {
+      emitters[`itemGlitter:${type}`] = emitterSnapshot(emitter);
     }
     const values = Object.values(emitters);
 
@@ -211,6 +245,7 @@ export class ParticleEffectsManager {
     this.magnetEmitter?.killAll();
     this.lightningEmitter?.killAll();
     for (const emitter of this.transformEmitters?.values() ?? []) emitter.killAll();
+    for (const emitter of this.itemGlitterEmitters?.values() ?? []) emitter.killAll();
     for (const pulse of this.pulses) {
       this.scene.tweens.killTweensOf(pulse);
       pulse.destroy();
@@ -225,6 +260,8 @@ export class ParticleEffectsManager {
     this.lightningEmitter?.destroy();
     for (const emitter of this.transformEmitters?.values() ?? []) emitter.destroy();
     this.transformEmitters?.clear();
+    for (const emitter of this.itemGlitterEmitters?.values() ?? []) emitter.destroy();
+    this.itemGlitterEmitters?.clear();
     this.scene = null;
   }
 }

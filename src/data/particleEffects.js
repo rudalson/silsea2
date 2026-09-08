@@ -21,6 +21,12 @@ export const PARTICLE_EFFECTS = Object.freeze({
     count: 18,
     lifespan: Object.freeze({ min: 240, max: 430 }),
     speed: Object.freeze({ min: 95, max: 245 })
+  }),
+  itemGlitter: Object.freeze({
+    lifespan: Object.freeze({ min: 420, max: 680 }),
+    speedX: Object.freeze({ min: -14, max: 14 }),
+    speedY: Object.freeze({ min: 18, max: 42 }),
+    gravityY: 46
   })
 });
 
@@ -29,5 +35,6 @@ export const PARTICLE_LIMITS = Object.freeze({
   magnet: 192,
   lightning: 72,
   transformPerForm: 28,
+  itemGlitterPerType: 20,
   pulses: 4
 });
