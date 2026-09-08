@@ -2,6 +2,11 @@ import Phaser from "phaser";
 import { COLORS, EVENTS, GAME_HEIGHT, SCENE_KEYS } from "../config/constants.js";
 import { getCharacter, cloneTuning } from "../data/characters.js";
 import {
+  GATE_TRANSITIONS,
+  applyGateReviewMode,
+  getGateReviewMode
+} from "../data/gatePresentation.js";
+import {
   getLevel,
   getLevelHotRevision,
   isLevelHotReloadAvailable,
@@ -63,7 +68,11 @@ export class GameScene extends Phaser.Scene {
   create() {
     const sourceLevel = getLevel(this.levelId);
     assertLevelShape(sourceLevel);
-    const normalizedLevel = normalizeLevelDefinition(sourceLevel);
+    this.gateReviewMode = getGateReviewMode(window.location.search);
+    const normalizedLevel = applyGateReviewMode(
+      normalizeLevelDefinition(sourceLevel),
+      this.gateReviewMode
+    );
     const easyMode = Boolean(this.registry.get("easyMode"));
     this.difficulty = getDifficultySettings(normalizedLevel, easyMode);
     this.level = createRuntimeLevel(normalizedLevel, easyMode);
@@ -107,6 +116,10 @@ export class GameScene extends Phaser.Scene {
       this.updateAccessibleStatus(`${name} 발견. 발견 보너스 ${reward}점을 얻었습니다.`);
     };
     this.events.on(EVENTS.SECRET_FOUND, this.onSecretFound);
+    this.onPrankGateVanished = () => {
+      this.updateAccessibleStatus("장난 게이트가 펑 사라졌습니다. 실제 출구를 향해 계속 이동하세요.");
+    };
+    this.events.on(EVENTS.PRANK_GATE_VANISHED, this.onPrankGateVanished);
     this.createGameplayManagers();
     this.playtestManager = new PlaytestManager(this, this.player, {
       enabled: Boolean(this.registry.get("playtestEnabled")),
@@ -215,6 +228,7 @@ export class GameScene extends Phaser.Scene {
     this.updateAccessibleStatus(
       `${this.level.name} 시작. ${this.character.name} 선택됨.${this.difficulty.enabled ? " 쉬운 모드." : ""}${this.registry.get("forceAssetFallback") ? " 도형·무음 fallback 모드." : ""}`
     );
+    this.syncGateReviewDiagnostics();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }
 
@@ -240,6 +254,8 @@ export class GameScene extends Phaser.Scene {
     this.enemyManager.update(time, delta);
     this.bossController?.update(time, delta);
     this.secretManager?.update(this.player);
+    this.levelLoader.updateGatePresentations(this.player.x, this.player.y);
+    this.syncGateReviewDiagnostics();
     this.updateMagnet(delta);
     this.elapsed += delta / 1000;
     this.playtestManager?.update(this.elapsed, this.player);
@@ -264,6 +280,14 @@ export class GameScene extends Phaser.Scene {
     camera.setDeadzone(320, 220);
     camera.startFollow(this.player, true, 0.12, 0.1);
     camera.setFollowOffset(0, 28);
+  }
+
+  syncGateReviewDiagnostics() {
+    if (!this.gateReviewMode) return;
+    const container = document.querySelector("#game-container");
+    if (!container) return;
+    container.dataset.gateReviewMode = this.gateReviewMode;
+    container.dataset.gateReviewSnapshot = JSON.stringify(this.levelLoader.getGatePresentationSnapshot());
   }
 
   updateCamera(delta) {
@@ -365,7 +389,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   bindGate(gate) {
-    const overlap = this.physics.add.overlap(this.player, gate.zone, () => this.handleGateEntered());
+    const overlap = this.physics.add.overlap(this.player, gate.zone, () => this.handleGateEntered(gate));
     this.interactions.push(overlap);
   }
 
@@ -497,8 +521,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  handleGateEntered() {
+  handleGateEntered(gate = this.levelLoader.gate) {
     if (this.isCompleting) return;
+    if (gate?.lifecycle && !gate.lifecycle.transition(GATE_TRANSITIONS.ENTER)) return;
     this.objectiveManager.markGateEntered();
     if (!this.objectiveManager.areRequiredComplete()) return;
     this.isCompleting = true;
@@ -794,6 +819,7 @@ export class GameScene extends Phaser.Scene {
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
     this.events.off(EVENTS.SECRET_FOUND, this.onSecretFound);
+    this.events.off(EVENTS.PRANK_GATE_VANISHED, this.onPrankGateVanished);
     this.stopLevelHotUpdates?.();
     this.stopLevelHotUpdates = null;
     this.levelHotReload?.dispose();
@@ -811,6 +837,11 @@ export class GameScene extends Phaser.Scene {
     this.secretManager?.destroy();
     this.secretManager = null;
     this.levelLoader?.destroy();
+    const container = document.querySelector("#game-container");
+    if (container) {
+      delete container.dataset.gateReviewMode;
+      delete container.dataset.gateReviewSnapshot;
+    }
     this.playerShadow?.destroy();
     this.playerShadow = null;
   }

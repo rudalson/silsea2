@@ -1,3 +1,5 @@
+import { assertGatePresentationShape } from "../gatePresentation.js";
+
 export const LEVEL_SCHEMA_VERSION = 2;
 export const SUPPORTED_LEVEL_SCHEMA_VERSIONS = Object.freeze([1, LEVEL_SCHEMA_VERSION]);
 
@@ -37,10 +39,17 @@ export function normalizeLevelDefinition(level) {
     exit: {
       x: level.world?.width - 180,
       enterFrom: direction,
-      ...(level.exit ?? {})
+      ...(level.exit ?? {}),
+      ...(level.exit?.presentation ? { presentation: { ...level.exit.presentation } } : {})
     },
     environment: level.environment ?? {},
-    secrets: level.secrets ?? []
+    secrets: level.secrets ?? [],
+    ...(level.prankGates ? {
+      prankGates: level.prankGates.map((gate) => ({
+        ...gate,
+        ...(gate.presentation ? { presentation: { ...gate.presentation } } : {})
+      }))
+    } : {})
   };
 }
 
@@ -80,6 +89,8 @@ export function assertLevelShape(level) {
   if (!Array.isArray(level.objectives.required)) {
     throw new Error(`[${level.id}] objectives.required는 배열이어야 합니다.`);
   }
+
+  assertGatePresentationShape(level);
 
   return true;
 }

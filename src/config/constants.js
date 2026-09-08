@@ -41,6 +41,7 @@ export const EVENTS = Object.freeze({
   RANDOM_BOSS_RESULT: "boss:random-result",
   RANDOM_BOSS_REPLAY: "boss:random-replay",
   RANDOM_BOSS_ATTACK: "boss:random-attack",
+  PRANK_GATE_VANISHED: "gate:prank-vanished",
   GATE_ENTERED: "gate:entered",
   OBJECTIVES_UPDATED: "objectives:updated",
   DEBUG_UPDATED: "debug:updated",

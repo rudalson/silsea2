@@ -7,6 +7,14 @@ import {
   resolveBossSpawnX
 } from "../data/bossDefinitions.js";
 import { ENEMY_DEFINITIONS } from "../data/enemies.js";
+import {
+  GATE_KINDS,
+  GATE_PHASES,
+  GATE_TRANSITIONS,
+  createGateLifecycle,
+  normalizeGatePresentation,
+  resolveGateY
+} from "../data/gatePresentation.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
 import { AssetManager } from "./AssetManager.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
@@ -52,6 +60,7 @@ export class LevelLoader {
     this.enemies = [];
     this.hazards = [];
     this.gate = null;
+    this.prankGates = [];
     this.boss = null;
     this.bossHitLocked = false;
     this.tilemap = null;
@@ -78,6 +87,7 @@ export class LevelLoader {
     this.createEnemyMarkers();
     this.createHazards();
     this.createBoss();
+    this.createPrankGates();
 
     if (!this.boss) this.spawnGate();
     return this;
@@ -565,14 +575,46 @@ export class LevelLoader {
   spawnGate() {
     if (this.gate) return this.gate;
     const x = this.level.exit?.x ?? this.level.world.width - 180;
-    const y = this.level.exit?.y ?? this.findSafeY(x);
+    const surfaceY = this.level.exit?.y ?? this.findSafeY(x);
+    const presentation = normalizeGatePresentation(this.level.exit?.presentation, GATE_KINDS.REAL);
+    const y = resolveGateY(surfaceY, presentation);
     const archY = y - 81;
     const key = this.level.assets.objects?.gate;
+    const lifecycle = createGateLifecycle(GATE_KINDS.REAL);
     let arch;
     let glow;
     let label = null;
     let archFinalScale = 1;
-    if (key && this.scene.textures.exists(key)) {
+    if (presentation.graybox) {
+      glow = this.track(this.scene.add.ellipse(x, archY, 152, 188, COLORS.collectBlue, 0));
+      glow.setStrokeStyle(8, COLORS.white, 0.72).setAlpha(0).setDepth(2);
+      arch = this.track(this.scene.add.graphics());
+      arch.setPosition(x, archY - 2).setAlpha(0).setScale(0.78).setDepth(3);
+      for (const [radius, color] of [[58, COLORS.collect], [47, COLORS.collectBlue], [36, COLORS.collectPink]]) {
+        arch.lineStyle(7, color, 0.96);
+        arch.beginPath();
+        arch.arc(0, 0, radius, Math.PI, Math.PI * 2, false);
+        arch.strokePath();
+        arch.lineBetween(-radius, 0, -radius, 76);
+        arch.lineBetween(radius, 0, radius, 76);
+      }
+      label = this.track(
+        this.scene.add.text(
+          x,
+          y - 190,
+          `실제 게이트 · ${presentation.placement === "air" ? "공중" : "지상"} 회색 상자`,
+          {
+            fontFamily: GAME_FONT_FAMILY,
+            fontSize: "18px",
+            fontStyle: "700",
+            color: CSS_COLORS.collect,
+            backgroundColor: CSS_COLORS.panel,
+            padding: { x: 9, y: 5 }
+          }
+        )
+      );
+      label.setOrigin(0.5).setAlpha(0).setDepth(5);
+    } else if (key && this.scene.textures.exists(key)) {
       archFinalScale = GATE_VISUALS.archScale;
       glow = this.track(this.scene.add.image(x, archY, key));
       glow
@@ -610,6 +652,8 @@ export class LevelLoader {
     });
     const zone = this.scene.add.zone(x, y - 76, 164, 188);
     this.scene.physics.add.existing(zone, true);
+    zone.body.enable = false;
+    lifecycle.transition(GATE_TRANSITIONS.SPAWN);
     const floatingTargets = [glow, arch, label, ...sparkles.map(({ star }) => star)].filter(Boolean);
     const tweens = [
       this.scene.tweens.add({
@@ -617,7 +661,11 @@ export class LevelLoader {
         alpha: 1,
         scale: archFinalScale,
         duration: 420,
-        ease: "Back.Out"
+        ease: "Back.Out",
+        onComplete: () => {
+          lifecycle.transition(GATE_TRANSITIONS.ACTIVATE);
+          if (zone.body) zone.body.enable = true;
+        }
       }),
       this.scene.tweens.add({
         targets: glow,
@@ -660,8 +708,122 @@ export class LevelLoader {
       }));
     }
 
-    this.gate = { zone, arch, glow, label, sparkles: sparkles.map(({ star }) => star), tweens };
+    this.gate = {
+      id: "real-exit",
+      kind: GATE_KINDS.REAL,
+      x,
+      y,
+      surfaceY,
+      presentation,
+      lifecycle,
+      zone,
+      arch,
+      glow,
+      label,
+      sparkles: sparkles.map(({ star }) => star),
+      tweens
+    };
     return this.gate;
+  }
+
+  createPrankGates() {
+    for (const config of this.level.prankGates ?? []) {
+      const x = Number(config.x);
+      const surfaceY = config.y ?? this.findSafeY(x);
+      const presentation = normalizeGatePresentation(config.presentation, GATE_KINDS.PRANK);
+      const y = resolveGateY(surfaceY, presentation);
+      const centerY = y - 88;
+      const lifecycle = createGateLifecycle(GATE_KINDS.PRANK);
+      const glow = this.track(this.scene.add.ellipse(x, centerY, 148, 178, COLORS.collectPink, 0.12));
+      glow.setStrokeStyle(6, COLORS.white, 0.58).setAlpha(0).setDepth(2);
+      const arch = this.track(this.scene.add.graphics());
+      arch.setPosition(x, centerY - 2).setAlpha(0).setScale(0.72).setDepth(3);
+      for (const [radius, color] of [[58, COLORS.collect], [47, COLORS.collectBlue], [36, COLORS.collectPink]]) {
+        arch.lineStyle(7, color, 0.92);
+        arch.beginPath();
+        arch.arc(0, 0, radius, Math.PI, Math.PI * 2, false);
+        arch.strokePath();
+        arch.lineBetween(-radius, 0, -radius, 76);
+        arch.lineBetween(radius, 0, radius, 76);
+      }
+      const label = this.track(this.scene.add.text(x, y - 186, "장난 게이트 · 회색 상자", {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "18px",
+        fontStyle: "700",
+        color: CSS_COLORS.white,
+        backgroundColor: CSS_COLORS.panel,
+        padding: { x: 9, y: 5 }
+      }));
+      label.setOrigin(0.5).setAlpha(0).setDepth(5);
+      lifecycle.transition(GATE_TRANSITIONS.SPAWN);
+      const visuals = [glow, arch, label];
+      const tweens = [
+        this.scene.tweens.add({
+          targets: visuals,
+          alpha: 1,
+          duration: 240,
+          ease: "Back.Out",
+          onComplete: () => lifecycle.transition(GATE_TRANSITIONS.ACTIVATE)
+        }),
+        this.scene.tweens.add({
+          targets: glow,
+          alpha: { from: 0.12, to: 0.42 },
+          duration: 520,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.InOut"
+        })
+      ];
+      this.prankGates.push({
+        id: config.id,
+        kind: GATE_KINDS.PRANK,
+        x,
+        y,
+        surfaceY,
+        presentation,
+        lifecycle,
+        visuals,
+        tweens
+      });
+    }
+  }
+
+  updateGatePresentations(playerX, playerY) {
+    for (const gate of this.prankGates) {
+      if (gate.lifecycle.phase !== GATE_PHASES.ACTIVE) continue;
+      const distance = Math.hypot(Number(playerX) - gate.x, Number(playerY) - (gate.y - 76));
+      if (distance > gate.presentation.approachDistance) continue;
+      if (!gate.lifecycle.transition(GATE_TRANSITIONS.APPROACH)) continue;
+      for (const tween of gate.tweens) tween.stop();
+      gate.tweens.length = 0;
+      gate.tweens.push(this.scene.tweens.add({
+        targets: gate.visuals,
+        alpha: 0,
+        scale: 1.34,
+        angle: 8,
+        duration: 190,
+        ease: "Back.In",
+        onComplete: () => gate.visuals.forEach((visual) => visual.destroy())
+      }));
+      this.scene.events.emit(EVENTS.PRANK_GATE_VANISHED, { id: gate.id, x: gate.x, y: gate.y });
+    }
+  }
+
+  getGatePresentationSnapshot() {
+    return {
+      real: this.gate ? {
+        id: this.gate.id,
+        ...this.gate.lifecycle.snapshot(),
+        placement: this.gate.presentation.placement,
+        graybox: this.gate.presentation.graybox
+      } : null,
+      pranks: this.prankGates.map((gate) => ({
+        id: gate.id,
+        ...gate.lifecycle.snapshot(),
+        placement: gate.presentation.placement,
+        graybox: gate.presentation.graybox
+      }))
+    };
   }
 
   getTerrainObjects() {
@@ -722,6 +884,10 @@ export class LevelLoader {
     for (const tween of this.gate?.tweens ?? []) tween.stop();
     this.gate?.zone.destroy();
     this.gate = null;
+    for (const gate of this.prankGates) {
+      for (const tween of gate.tweens) tween.stop();
+    }
+    this.prankGates.length = 0;
     if (this.terrainBodies?.world?.bodies) {
       this.terrainBodies.destroy(true);
     }

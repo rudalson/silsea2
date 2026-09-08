@@ -63,11 +63,52 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 | `progression` | object | 필수 | `direction`은 `right` 또는 `left` |
 | `exit` | object | 필수 | 게이트 `x`, 선택 `y`, 플레이어 이동 방향인 `enterFrom` |
 | `environment` | object | 필수 | 사용하지 않으면 `{}`. 광역 환경 장치만 포함 |
+| `prankGates` | array | 선택 | 진행 판정이 없는 장난 게이트 배치. 기본값 `[]` |
 
 - `sections[].xStart/xEnd`는 진행 방향과 관계없이 항상 0부터 `world.width`까지 오름차순으로 저장한다.
 - `progression.direction: "left"`인 레벨은 `player.spawn.x > exit.x`여야 한다.
 - `exit.enterFrom`은 게이트가 놓인 쪽이 아니라 플레이어가 게이트에 들어갈 때의 이동 방향이다. 일반 레벨은 `right`, 역방향 레벨은 `left`다.
 - 게이트는 `exit` 좌표를 사용하고, 보스가 없는 레벨도 동일한 규칙으로 생성한다.
+
+### 게이트 표시 데이터
+
+실제 출구의 선택 `exit.presentation`과 장난 게이트의 `prankGates[].presentation`은 같은 표시 계약을 사용한다. 실제/장난 종류는 배치 경로가 잠그므로 레벨 데이터가 실제 출구를 장난 게이트로 바꾸거나 장난 게이트를 클리어 출구로 바꿀 수 없다.
+
+```js
+{
+  exit: {
+    x: 4944,
+    y: 576,
+    enterFrom: "right",
+    presentation: {
+      kind: "real",
+      placement: "ground", // ground | air
+      effects: "normal",   // normal | reduced
+      airOffset: 96,        // 48~160
+      graybox: false
+    }
+  },
+  prankGates: [
+    {
+      id: "prank-gate-a",
+      x: 1280,
+      y: 576, // 생략 시 해당 x의 안전 지면
+      presentation: {
+        kind: "prank",
+        placement: "ground",
+        approachDistance: 150, // 80~320
+        graybox: true
+      }
+    }
+  ]
+}
+```
+
+- 상태는 실제 게이트가 `hidden → spawning → active → entered`, 장난 게이트가 `hidden → spawning → active → vanished` 순서로만 전환한다.
+- `active` 이전 실제 게이트는 충돌을 받지 않으며 실제 게이트만 `reach_gate`를 완료할 수 있다.
+- `placement: "air"`는 안전 지면 또는 `exit.y`에서 `airOffset`만큼 위에 둔다. 도달 가능 발판·카메라 안내는 레벨 배치 단계에서 별도로 검증한다.
+- `graybox`는 고정 검수와 fallback용 표시 선택이며 게임 규칙을 바꾸지 않는다.
+- `?gateReview=real|air|prank`는 원본 레벨 데이터를 수정하지 않고 회색 상자 상태를 재현한다.
 
 ### version 1 호환 정규화
 
@@ -80,6 +121,8 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
   environment: {}
 }
 ```
+
+선택 필드인 `exit.presentation`과 `prankGates`가 생략되면 각각 기본 실제 지상 게이트와 빈 목록으로 취급하되, 기존 version 1 정규화 객체에는 빈 필드를 강제로 추가하지 않는다.
 
 - 허용 버전은 `SUPPORTED_LEVEL_SCHEMA_VERSIONS = [1, 2]`로 명시한다.
 - `assertLevelShape()`는 원본 버전별 필수 필드를 검사하고, 런타임과 `scripts/validate-levels.js`는 같은 정규화 결과를 사용한다.
