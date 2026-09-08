@@ -1,9 +1,9 @@
-import Phaser from "phaser";
 import { COLORS } from "../../config/constants.js";
 import { getBossPhasePattern } from "../../data/bossPatterns.js";
 import { CORE_RULES } from "../../data/gameplay.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 import { ObjectPool } from "../ObjectPool.js";
+import { isOnScreen } from "../../utils/screen.js";
 
 const PROJECTILE_STYLES = Object.freeze({
   ground: Object.freeze({
@@ -85,7 +85,7 @@ export class PotatoKingBehavior {
         projectile.body.setAllowGravity(false);
         projectile.body.enable = false;
         this.interactions.push(this.scene.physics.add.overlap(this.player, projectile, () => {
-          if (!projectile.poolActive || !this.isOnScreen(projectile)) return;
+          if (!projectile.poolActive || !isOnScreen(this.scene, projectile)) return;
           this.healthManager.takeDamage(projectile.x);
           this.projectilePool.release(projectile);
         }));
@@ -165,7 +165,7 @@ export class PotatoKingBehavior {
 
     const section = this.boss.getData("section");
     const inArena = this.player.x >= section.xStart && this.player.x < section.xEnd;
-    if (!inArena || !this.isOnScreen(this.boss)) {
+    if (!inArena || !isOnScreen(this.scene, this.boss)) {
       this.cancelAttack();
       return;
     }
@@ -181,7 +181,7 @@ export class PotatoKingBehavior {
         projectile.setScale(1, 0.9 + Math.sin(now / 55) * 0.16);
       }
       this.drawProjectileTrail(projectile, now);
-      if (now >= projectile.expiresAt || !this.isOnScreen(projectile, 96)) this.projectilePool.release(projectile);
+      if (now >= projectile.expiresAt || !isOnScreen(this.scene, projectile, 96)) this.projectilePool.release(projectile);
     });
   }
 
@@ -355,13 +355,6 @@ export class PotatoKingBehavior {
   clearVolleyTimers() {
     for (const timer of this.volleyTimers) timer?.remove(false);
     this.volleyTimers.length = 0;
-  }
-
-  isOnScreen(object, margin = 0) {
-    const source = this.scene.cameras.main.worldView;
-    const view = new Phaser.Geom.Rectangle(source.x, source.y, source.width, source.height);
-    Phaser.Geom.Rectangle.Inflate(view, margin, margin);
-    return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
   }
 
   getPoolSnapshot() {

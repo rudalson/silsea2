@@ -7,6 +7,7 @@ import {
   isInvisibleAnchorReachable
 } from "../../data/bossPatterns.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
+import { isOnScreen } from "../../utils/screen.js";
 
 const LIGHT_TOP = 82;
 const BOSS_CENTER_OFFSET_Y = 59;
@@ -174,7 +175,7 @@ export class InvisibleKingBehavior {
     this.updateVisuals(now);
     const section = this.boss.getData("section");
     const inArena = this.player.x >= section.xStart && this.player.x < section.xEnd;
-    if (!inArena || !this.isOnScreen(this.boss, 160)) return;
+    if (!inArena || !isOnScreen(this.scene, this.boss, 160)) return;
 
     if (this.state === "hidden_relocate" && now >= this.stateUntil) this.beginLightWarning(now);
     else if (this.state === "light_warning" && now >= this.stateUntil) this.beginReveal(now);
@@ -398,13 +399,6 @@ export class InvisibleKingBehavior {
       this.lightTarget?.setVisible(false);
       this.hideArtEffects();
     });
-  }
-
-  isOnScreen(object, margin = 0) {
-    const source = this.scene.cameras.main.worldView;
-    const view = new Phaser.Geom.Rectangle(source.x, source.y, source.width, source.height);
-    Phaser.Geom.Rectangle.Inflate(view, margin, margin);
-    return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
   }
 
   getPoolSnapshot() {

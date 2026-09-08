@@ -12,6 +12,10 @@ export class UIScene extends Phaser.Scene {
     this.gameSceneKey = data.gameSceneKey;
   }
 
+  createLabel(x, y, text, style = {}) {
+    return this.add.text(x, y, text, { fontFamily: GAME_FONT_FAMILY, ...style });
+  }
+
   create() {
     this.gameScene = this.scene.get(this.gameSceneKey);
     this.inputManager = new InputManager(this);
@@ -22,16 +26,14 @@ export class UIScene extends Phaser.Scene {
     } else {
       this.add.rectangle(208, 76, 382, 132, COLORS.near, 0.92).setStrokeStyle(3, COLORS.mid).setScrollFactor(0);
     }
-    this.characterText = this.add.text(42, 25, "", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.characterText = this.createLabel(42, 25, "", {
       fontSize: "20px",
       fontStyle: "800",
       color: CSS_COLORS.white,
       stroke: CSS_COLORS.panel,
       strokeThickness: 4
     }).setScrollFactor(0);
-    this.hpLabel = this.add.text(43, 57, "HP 3 / 3", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.hpLabel = this.createLabel(43, 57, "HP 3 / 3", {
       fontSize: "13px",
       fontStyle: "800",
       color: CSS_COLORS.collectPink,
@@ -46,8 +48,7 @@ export class UIScene extends Phaser.Scene {
       heart.setScrollFactor(0);
       this.heartIcons.push(heart);
     }
-    this.formText = this.add.text(226, 55, "기본형", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.formText = this.createLabel(226, 55, "기본형", {
       fontSize: "15px",
       fontStyle: "700",
       color: CSS_COLORS.collectBlue,
@@ -64,8 +65,7 @@ export class UIScene extends Phaser.Scene {
       .setStrokeStyle(3, COLORS.collectBlue)
       .setScrollFactor(0)
       .setVisible(false);
-    this.breathLabel = this.add.text(42, 151, "숨", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.breathLabel = this.createLabel(42, 151, "숨", {
       fontSize: "15px",
       fontStyle: "800",
       color: CSS_COLORS.white
@@ -79,9 +79,8 @@ export class UIScene extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
       .setVisible(false);
-    this.waveWarning = this.add.text(GAME_WIDTH - 24, 150, "", {
+    this.waveWarning = this.createLabel(GAME_WIDTH - 24, 150, "", {
       align: "right",
-      fontFamily: GAME_FONT_FAMILY,
       fontSize: "19px",
       fontStyle: "900",
       color: CSS_COLORS.white,
@@ -92,24 +91,21 @@ export class UIScene extends Phaser.Scene {
     this.add.rectangle(GAME_WIDTH / 2, 48, 360, 78, COLORS.near, 0.94).setStrokeStyle(3, COLORS.collect).setScrollFactor(0);
     this.createScoreBadge(GAME_WIDTH / 2 - 142, 48, "%");
     this.createScoreBadge(GAME_WIDTH / 2 + 142, 48, "★");
-    this.scoreText = this.add.text(GAME_WIDTH / 2, 18, "진행도 0%", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.scoreText = this.createLabel(GAME_WIDTH / 2, 18, "진행도 0%", {
       fontSize: "25px",
       fontStyle: "900",
       color: CSS_COLORS.collect,
       stroke: CSS_COLORS.panel,
       strokeThickness: 5
     }).setOrigin(0.5).setScrollFactor(0).setFixedSize(260, 32).setAlign("center");
-    this.objectiveText = this.add.text(GAME_WIDTH / 2, 56, "별 목표 0/0", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.objectiveText = this.createLabel(GAME_WIDTH / 2, 56, "별 목표 0/0", {
       fontSize: "15px",
       fontStyle: "700",
       color: CSS_COLORS.white,
       stroke: CSS_COLORS.panel,
       strokeThickness: 3
     }).setOrigin(0.5).setScrollFactor(0);
-    this.comboText = this.add.text(GAME_WIDTH / 2 + 185, 31, "", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.comboText = this.createLabel(GAME_WIDTH / 2 + 185, 31, "", {
       fontSize: "17px",
       fontStyle: "900",
       color: CSS_COLORS.collectPink,
@@ -117,18 +113,16 @@ export class UIScene extends Phaser.Scene {
       strokeThickness: 3
     }).setOrigin(0, 0.5).setScrollFactor(0);
 
-    this.fpsText = this.add.text(GAME_WIDTH - 24, 136, "FPS —\nEsc 일시정지", {
+    this.fpsText = this.createLabel(GAME_WIDTH - 24, 136, "FPS —\nEsc 일시정지", {
       align: "right",
-      fontFamily: GAME_FONT_FAMILY,
       fontSize: "14px",
       color: CSS_COLORS.white,
       backgroundColor: CSS_COLORS.panelSoft,
       padding: { x: 10, y: 7 }
     }).setOrigin(1, 0).setScrollFactor(0).setVisible(this.registry.get("debugEnabled"));
 
-    this.pauseButton = this.add.text(GAME_WIDTH - 24, 26, "일시정지 · Esc", {
+    this.pauseButton = this.createLabel(GAME_WIDTH - 24, 26, "일시정지 · Esc", {
       align: "right",
-      fontFamily: GAME_FONT_FAMILY,
       fontSize: "15px",
       fontStyle: "700",
       color: CSS_COLORS.white,
@@ -137,9 +131,8 @@ export class UIScene extends Phaser.Scene {
     }).setOrigin(1, 0).setScrollFactor(0).setInteractive({ useHandCursor: true });
     this.pauseButton.on("pointerdown", () => this.togglePause());
 
-    this.shakeButton = this.add.text(GAME_WIDTH - 24, 88, "", {
+    this.shakeButton = this.createLabel(GAME_WIDTH - 24, 88, "", {
       align: "right",
-      fontFamily: GAME_FONT_FAMILY,
       fontSize: "14px",
       fontStyle: "700",
       color: CSS_COLORS.collectBlue,
@@ -149,8 +142,7 @@ export class UIScene extends Phaser.Scene {
     this.shakeButton.on("pointerdown", () => this.toggleScreenShake());
     this.renderShakeSetting();
 
-    this.bossText = this.add.text(GAME_WIDTH / 2, 112, "", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.bossText = this.createLabel(GAME_WIDTH / 2, 112, "", {
       fontSize: "19px",
       fontStyle: "800",
       color: CSS_COLORS.white,
@@ -158,8 +150,7 @@ export class UIScene extends Phaser.Scene {
       padding: { x: 20, y: 8 }
     }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
 
-    this.toast = this.add.text(GAME_WIDTH / 2, 164, "", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.toast = this.createLabel(GAME_WIDTH / 2, 164, "", {
       fontSize: "20px",
       fontStyle: "700",
       color: CSS_COLORS.near,
@@ -303,23 +294,20 @@ export class UIScene extends Phaser.Scene {
     this.pauseOverlay.add(
       this.add.rectangle(640, 360, 760, 650, COLORS.near, 0.96).setStrokeStyle(4, COLORS.mid)
     );
-    this.pauseOverlay.add(this.add.text(640, 82, "일시정지", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.pauseOverlay.add(this.createLabel(640, 82, "일시정지", {
       fontSize: "46px",
       fontStyle: "900",
       color: CSS_COLORS.white
     }).setOrigin(0.5));
-    this.pauseOverlay.add(this.add.text(640, 130, "↑↓ 선택 · ←→ 조절 · Enter / A 결정", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.pauseOverlay.add(this.createLabel(640, 130, "↑↓ 선택 · ←→ 조절 · Enter / A 결정", {
       fontSize: "17px",
       color: CSS_COLORS.collectBlue
     }).setOrigin(0.5));
 
     this.pauseMenuItems.forEach((item, index) => {
       const y = 178 + index * 50;
-      const row = this.add.text(640, y, "", {
+      const row = this.createLabel(640, y, "", {
         align: "center",
-        fontFamily: GAME_FONT_FAMILY,
         fontSize: "21px",
         fontStyle: "700",
         color: CSS_COLORS.white,
@@ -333,8 +321,7 @@ export class UIScene extends Phaser.Scene {
 
       if (item.adjustable) {
         for (const [direction, x, glyph] of [[-1, 375, "◀"], [1, 905, "▶"]]) {
-          const arrow = this.add.text(x, y, glyph, {
-            fontFamily: GAME_FONT_FAMILY,
+          const arrow = this.createLabel(x, y, glyph, {
             fontSize: "24px",
             fontStyle: "900",
             color: CSS_COLORS.collect
@@ -350,20 +337,18 @@ export class UIScene extends Phaser.Scene {
       }
     });
 
-    this.pauseOverlay.add(this.add.text(
+    this.pauseOverlay.add(this.createLabel(
       640,
       516,
       "조작 안내\n이동  ← → / A D / 왼쪽 스틱\n점프·비행  Space / Z / 게임패드 A\n일시정지  Esc / Start   ·   음소거  M   ·   화면 흔들림  V",
       {
         align: "center",
-        fontFamily: GAME_FONT_FAMILY,
         fontSize: "17px",
         lineSpacing: 5,
         color: CSS_COLORS.soft
       }
     ).setOrigin(0.5));
-    this.pauseOverlay.add(this.add.text(640, 650, "쉬운 모드를 바꾸면 현재 스테이지를 처음부터 다시 시작합니다.", {
-      fontFamily: GAME_FONT_FAMILY,
+    this.pauseOverlay.add(this.createLabel(640, 650, "쉬운 모드를 바꾸면 현재 스테이지를 처음부터 다시 시작합니다.", {
       fontSize: "14px",
       color: CSS_COLORS.collectBlue
     }).setOrigin(0.5));
@@ -503,8 +488,7 @@ export class UIScene extends Phaser.Scene {
     const badge = this.add.circle(x, y, 17, COLORS.collect, 1)
       .setStrokeStyle(3, COLORS.outline)
       .setScrollFactor(0);
-    const label = this.add.text(x, y - 1, glyph, {
-      fontFamily: GAME_FONT_FAMILY,
+    const label = this.createLabel(x, y - 1, glyph, {
       fontSize: glyph === "%" ? "17px" : "21px",
       fontStyle: "900",
       color: CSS_COLORS.white,

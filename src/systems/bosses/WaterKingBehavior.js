@@ -3,6 +3,7 @@ import { COLORS, CSS_COLORS } from "../../config/constants.js";
 import { canHitWaterKing, chooseWaterPool, getBossPhasePattern } from "../../data/bossPatterns.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 import { ObjectPool } from "../ObjectPool.js";
+import { isOnScreen } from "../../utils/screen.js";
 
 const PROJECTILE_TEXTURE_KEY = "boss_projectile_water";
 const BODY_CENTER_OFFSET_Y = 62;
@@ -142,7 +143,7 @@ export class WaterKingBehavior {
         projectile.body.setAllowGravity(false);
         projectile.body.enable = false;
         this.projectileInteractions.push(this.scene.physics.add.overlap(this.player, projectile, () => {
-          if (!projectile.poolActive || !this.isOnScreen(projectile, 80)) return;
+          if (!projectile.poolActive || !isOnScreen(this.scene, projectile, 80)) return;
           this.healthManager.takeDamage(projectile.x, { type: "water_king_projectile" });
           this.projectilePool.release(projectile);
         }));
@@ -249,14 +250,14 @@ export class WaterKingBehavior {
     this.updateVisuals(now);
     this.projectilePool.forEachActive((projectile) => {
       projectile.setRotation(projectile.rotation + 0.08);
-      if (!this.reviewState && (now >= projectile.expiresAt || !this.isOnScreen(projectile, 120))) {
+      if (!this.reviewState && (now >= projectile.expiresAt || !isOnScreen(this.scene, projectile, 120))) {
         this.projectilePool.release(projectile);
       }
     });
 
     const section = this.boss.getData("section");
     const inArena = this.player.x >= section.xStart && this.player.x < section.xEnd;
-    if (!inArena || !this.isOnScreen(this.boss, 180)) return;
+    if (!inArena || !isOnScreen(this.scene, this.boss, 180)) return;
 
     if (this.state === "pool_hidden" && now >= this.stateUntil) this.beginWarning(now);
     else if (this.state === "pool_warning" && now >= this.stateUntil) this.beginEmergeAttack(now);
@@ -460,13 +461,6 @@ export class WaterKingBehavior {
       this.bodyVisual?.setVisible(false);
       this.boss?.setAlpha(0);
     });
-  }
-
-  isOnScreen(object, margin = 0) {
-    const source = this.scene.cameras.main.worldView;
-    const view = new Phaser.Geom.Rectangle(source.x, source.y, source.width, source.height);
-    Phaser.Geom.Rectangle.Inflate(view, margin, margin);
-    return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
   }
 
   getPoolSnapshot() {

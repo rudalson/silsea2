@@ -8,6 +8,7 @@ import {
 } from "../../data/bossPatterns.js";
 import { ObjectPool } from "../ObjectPool.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
+import { isOnScreen } from "../../utils/screen.js";
 
 const HOOP_TEXTURE_KEY = "boss_projectile_hula_hoop";
 const HOOP_LOW_TEXTURE_KEY = "projectile_hula_hoop_low";
@@ -112,7 +113,7 @@ export class HulaKingBehavior {
         hoop.body.setAllowGravity(false);
         hoop.body.enable = false;
         this.interactions.push(this.scene.physics.add.overlap(this.player, hoop, () => {
-          if (!hoop.poolActive || !this.isOnScreen(hoop, 80)) return;
+          if (!hoop.poolActive || !isOnScreen(this.scene, hoop, 80)) return;
           this.healthManager.takeDamage(hoop.x, { type: "hula_hoop" });
           this.projectilePool.release(hoop);
         }));
@@ -150,12 +151,12 @@ export class HulaKingBehavior {
     this.updateVisuals(now);
     this.projectilePool.forEachActive((hoop) => {
       hoop.setRotation(hoop.rotation + 0.14 * hoop.travelDirection);
-      if (now >= hoop.expiresAt || !this.isOnScreen(hoop, 110)) this.projectilePool.release(hoop);
+      if (now >= hoop.expiresAt || !isOnScreen(this.scene, hoop, 110)) this.projectilePool.release(hoop);
     });
 
     const section = this.boss.getData("section");
     const inArena = this.player.x >= section.xStart && this.player.x < section.xEnd;
-    if (!inArena || !this.isOnScreen(this.boss)) {
+    if (!inArena || !isOnScreen(this.scene, this.boss)) {
       this.projectilePool.releaseAll();
       return;
     }
@@ -357,13 +358,6 @@ export class HulaKingBehavior {
   clearVolleyTimers() {
     for (const timer of this.volleyTimers) timer?.remove(false);
     this.volleyTimers.length = 0;
-  }
-
-  isOnScreen(object, margin = 0) {
-    const source = this.scene.cameras.main.worldView;
-    const view = new Phaser.Geom.Rectangle(source.x, source.y, source.width, source.height);
-    Phaser.Geom.Rectangle.Inflate(view, margin, margin);
-    return Phaser.Geom.Rectangle.Contains(view, object.x, object.y);
   }
 
   getPoolSnapshot() {

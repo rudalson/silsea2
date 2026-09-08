@@ -25,39 +25,33 @@ export class HealthManager {
   }
 
   takeDamage(sourceX = this.player.x, { steal = false, type = "contact" } = {}) {
-    const now = this.scene.time.now;
-    if (this.transformationManager.invulnerable || now < this.invulnerableUntil) return false;
-
-    this.hp -= 1;
-    this.objectiveManager.recordDamage();
-    this.invulnerableUntil = now + CORE_RULES.invulnerableMs;
-    this.player.controlLockedUntil = now + CORE_RULES.hurtLockMs;
-    this.player.playHurtAnimation?.();
-    const direction = this.player.x < sourceX ? -1 : 1;
-    this.player.setVelocity(direction * 300, -260);
-    this.player.setTintFill(COLORS.danger);
-    this.scene.time.delayedCall(110, () => this.player?.active && this.player.clearTint());
-    this.scene.events.emit(EVENTS.PLAYER_HIT, { hp: Math.max(0, this.hp), steal, type });
-
-    if (this.hp <= 0) this.reviveAtCheckpoint();
-    this.emitHp();
-    return true;
+    return this.applyDamage({
+      type,
+      extraHitPayload: { steal },
+      onHit: (now) => {
+        this.player.controlLockedUntil = now + CORE_RULES.hurtLockMs;
+        this.player.playHurtAnimation?.();
+        const direction = this.player.x < sourceX ? -1 : 1;
+        this.player.setVelocity(direction * 300, -260);
+      }
+    });
   }
 
   takeEnvironmentDamage({ type = "environment" } = {}) {
+    return this.applyDamage({ type, extraHitPayload: { environment: true } });
+  }
+
+  applyDamage({ type, extraHitPayload = {}, onHit } = {}) {
     const now = this.scene.time.now;
     if (this.transformationManager.invulnerable || now < this.invulnerableUntil) return false;
 
     this.hp -= 1;
     this.objectiveManager.recordDamage();
     this.invulnerableUntil = now + CORE_RULES.invulnerableMs;
+    onHit?.(now);
     this.player.setTintFill(COLORS.danger);
     this.scene.time.delayedCall(110, () => this.player?.active && this.player.clearTint());
-    this.scene.events.emit(EVENTS.PLAYER_HIT, {
-      hp: Math.max(0, this.hp),
-      environment: true,
-      type
-    });
+    this.scene.events.emit(EVENTS.PLAYER_HIT, { hp: Math.max(0, this.hp), type, ...extraHitPayload });
 
     if (this.hp <= 0) this.reviveAtCheckpoint();
     this.emitHp();

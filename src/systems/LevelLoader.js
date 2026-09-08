@@ -55,6 +55,7 @@ export class LevelLoader {
     this.boss = null;
     this.bossHitLocked = false;
     this.tilemap = null;
+    this.terrainObjects = [];
     this.backgroundLayers = [];
     this.backgroundMood = null;
   }
@@ -62,6 +63,9 @@ export class LevelLoader {
   build() {
     this.tilemap = this.scene.cache.json.get(this.level.assets.tilemapKey);
     if (!this.tilemap) throw new Error(`Tiled JSON을 찾을 수 없습니다: ${this.level.assets.tilemapKey}`);
+    this.terrainObjects = this.tilemap.layers.find(
+      (layer) => layer.type === "objectgroup" && layer.name === "terrain"
+    )?.objects ?? [];
 
     this.scene.physics.world.setBounds(0, 0, this.level.world.width, this.level.world.height + 256);
     this.createBackground();
@@ -661,7 +665,7 @@ export class LevelLoader {
   }
 
   getTerrainObjects() {
-    return this.tilemap.layers.find((layer) => layer.type === "objectgroup" && layer.name === "terrain")?.objects ?? [];
+    return this.terrainObjects;
   }
 
   findSafeY(x) {
