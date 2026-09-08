@@ -378,8 +378,15 @@ if (!gameScene.includes("transformationManager?.cancelPresentation()") || !trans
 if (!transformManager.includes("this.scene?.cameras?.main")) {
   fail("장면 종료 중 카메라가 먼저 제거되는 경우를 변신 연출 정리가 처리하지 못함");
 }
-if (!gameScene.includes("BOSS_CLEAR_DELAY_MS") || !gameScene.includes("this.handleGateEntered()")) {
-  fail("보스 처치 애니메이션 이후 자동 클리어 전환 경로가 없음");
+const bossDefeatedHandler = gameScene.slice(
+  gameScene.indexOf("  handleBossDefeated("),
+  gameScene.indexOf("  createGameplayManagers", gameScene.indexOf("  handleBossDefeated("))
+);
+if (bossDefeatedHandler.includes("delayedCall") || bossDefeatedHandler.includes("handleGateEntered")) {
+  fail("보스 처치 뒤 게이트 직접 접촉 없이 자동 클리어하는 경로가 남아 있음");
+}
+if (!bossDefeatedHandler.includes("bindGate") || !bossDefeatedHandler.includes("직접 들어가세요")) {
+  fail("보스 처치 뒤 실제 게이트 접촉 안내 또는 충돌 연결 경로가 없음");
 }
 if ([enemyManager, bossRuntime].some((source) => source.includes("Math.random"))) fail("고정 Seed 밖의 랜덤 호출이 있음");
 if ([gameScene, player].some((source) => source.includes("Phaser.Math.MoveTowards"))) {

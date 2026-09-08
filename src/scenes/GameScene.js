@@ -1,8 +1,10 @@
 import Phaser from "phaser";
 import { COLORS, EVENTS, GAME_HEIGHT, SCENE_KEYS } from "../config/constants.js";
 import { getCharacter, cloneTuning } from "../data/characters.js";
+import { GATE_ARRIVAL_STAGES } from "../data/gateArrival.js";
 import {
   GATE_TRANSITIONS,
+  GATE_REVIEW_MODES,
   applyGateReviewMode,
   getGateReviewMode
 } from "../data/gatePresentation.js";
@@ -45,8 +47,6 @@ import { TerrainMechanicsManager } from "../systems/TerrainMechanicsManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
 import { moveTowards } from "../utils/math.js";
 
-const BOSS_CLEAR_DELAY_MS = 1500;
-
 export class GameScene extends Phaser.Scene {
   constructor() {
     super(SCENE_KEYS.GAME);
@@ -60,7 +60,8 @@ export class GameScene extends Phaser.Scene {
     this.lookAhead = 0;
     this.isCompleting = false;
     this.currentSectionId = null;
-    this.bossClearTimer = null;
+    this.gateBound = false;
+    this.gateArrivalReviewOnly = false;
     this.forcedReplayStartedAt = null;
     this.forcedReplaySeconds = 0;
     this.levelHotReload = null;
@@ -90,6 +91,15 @@ export class GameScene extends Phaser.Scene {
     this.objectiveManager = new ObjectiveManager(this, this.level.objectives);
     this.checkpointManager = new CheckpointManager(this, this.level.player.spawn);
     this.levelLoader = new LevelLoader(this, this.level, this.objectiveManager).build();
+    if (this.gateReviewMode === GATE_REVIEW_MODES.ARRIVAL && !this.levelLoader.gate) {
+      this.gateArrivalReviewOnly = Boolean(this.levelLoader.boss);
+      if (this.gateArrivalReviewOnly) {
+        this.levelLoader.boss.setVisible(false).setActive(false);
+        if (this.levelLoader.boss.body) this.levelLoader.boss.body.enable = false;
+        this.levelLoader.boss.getData("label")?.setVisible(false);
+      }
+      this.levelLoader.spawnGate();
+    }
     this.player = new Player(
       this,
       this.level.player.spawn.x,
@@ -400,7 +410,10 @@ export class GameScene extends Phaser.Scene {
       this.interactions.push(bossOverlap);
     }
 
-    if (this.levelLoader.gate) this.bindGate(this.levelLoader.gate);
+    if (this.levelLoader.gate) {
+      this.gateBound = true;
+      this.bindGate(this.levelLoader.gate);
+    }
     this.events.on(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
   }
 
@@ -424,13 +437,7 @@ export class GameScene extends Phaser.Scene {
       this.bindGate(this.levelLoader.gate);
     }
     this.cameraEffects.shake("bossDefeat");
-    this.audioManager.playSfx("sfx_gate_spawn", { randomizeRate: false });
-    this.updateAccessibleStatus(`${displayName}을(를) 격파했습니다. 잠시 후 클리어 화면으로 이동합니다.`);
-    this.bossClearTimer?.remove(false);
-    this.bossClearTimer = this.time.delayedCall(BOSS_CLEAR_DELAY_MS, () => {
-      this.bossClearTimer = null;
-      this.handleGateEntered();
-    });
+    this.updateAccessibleStatus(`${displayName}을(를) 격파했습니다. 무지개 게이트가 열렸습니다. 직접 들어가세요.`);
   }
 
   createGameplayManagers() {
@@ -476,7 +483,7 @@ export class GameScene extends Phaser.Scene {
       this.scoreManager,
       this.difficulty
     );
-    this.bossController = this.levelLoader.boss
+    this.bossController = this.levelLoader.boss && !this.gateArrivalReviewOnly
       ? new BossController(
           this,
           this.player,
@@ -546,7 +553,12 @@ export class GameScene extends Phaser.Scene {
 
   handleGateEntered(gate = this.levelLoader.gate) {
     if (this.isCompleting) return;
+    const otherRequiredPending = this.objectiveManager.getSnapshot().some(
+      (objective) => objective.required && objective.type !== "reach_gate" && !objective.complete
+    );
+    if (otherRequiredPending) return;
     if (gate?.lifecycle && !gate.lifecycle.transition(GATE_TRANSITIONS.ENTER)) return;
+    if (gate) gate.arrivalStage = GATE_ARRIVAL_STAGES.ENTERED;
     this.objectiveManager.markGateEntered();
     if (!this.objectiveManager.areRequiredComplete()) return;
     this.isCompleting = true;
@@ -728,8 +740,6 @@ export class GameScene extends Phaser.Scene {
 
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
-    this.bossClearTimer?.remove(false);
-    this.bossClearTimer = null;
     this.destroyGameplayManagers();
     this.secretManager?.destroy();
     this.particleEffects.reset();
@@ -839,8 +849,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   shutdown() {
-    this.bossClearTimer?.remove(false);
-    this.bossClearTimer = null;
     this.clearInteractions();
     this.events.off(EVENTS.BOSS_DEFEATED, this.handleBossDefeated, this);
     this.events.off(EVENTS.SECRET_FOUND, this.onSecretFound);

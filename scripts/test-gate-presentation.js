@@ -13,6 +13,11 @@ import {
   resolveGateY,
   transitionGatePhase
 } from "../src/data/gatePresentation.js";
+import {
+  GATE_ARRIVAL_STAGES,
+  getGateArrivalTiming,
+  resolveGateArrivalStage
+} from "../src/data/gateArrival.js";
 import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/levelSchema.js";
 
 const real = normalizeGatePresentation({}, GATE_KINDS.REAL);
@@ -70,6 +75,7 @@ assert.equal(prankLifecycle.transition(GATE_TRANSITIONS.ENTER), false);
 assert.equal(getGateReviewMode("?gateReview=real"), GATE_REVIEW_MODES.REAL);
 assert.equal(getGateReviewMode("?gateReview=air"), GATE_REVIEW_MODES.AIR);
 assert.equal(getGateReviewMode("?gateReview=prank"), GATE_REVIEW_MODES.PRANK);
+assert.equal(getGateReviewMode("?gateReview=arrival"), GATE_REVIEW_MODES.ARRIVAL);
 assert.equal(getGateReviewMode("?gateReview=unknown"), null);
 
 const normalized = normalizeLevelDefinition(level06);
@@ -92,6 +98,20 @@ assert.equal(prankReview.prankGates.length, 1);
 assert.equal(prankReview.prankGates[0].presentation.kind, GATE_KINDS.PRANK);
 assert.ok(prankReview.prankGates[0].x > normalized.player.spawn.x);
 assert.equal(assertLevelShape(prankReview), true);
+
+const arrivalReview = applyGateReviewMode(normalized, GATE_REVIEW_MODES.ARRIVAL);
+assert.equal(arrivalReview.exit.presentation.graybox, false);
+assert.equal(arrivalReview.exit.presentation.placement, GATE_PLACEMENTS.GROUND);
+assert.equal(arrivalReview.exit.x, normalized.player.spawn.x + 480);
+
+const normalArrival = getGateArrivalTiming("normal");
+const reducedArrival = getGateArrivalTiming("reduced");
+assert.ok(reducedArrival.stableAtMs < normalArrival.stableAtMs);
+assert.ok(reducedArrival.glitterCount < normalArrival.glitterCount);
+assert.equal(resolveGateArrivalStage(0), GATE_ARRIVAL_STAGES.FLASH);
+assert.equal(resolveGateArrivalStage(normalArrival.popStartMs), GATE_ARRIVAL_STAGES.POP);
+assert.equal(resolveGateArrivalStage(normalArrival.glitterStartMs), GATE_ARRIVAL_STAGES.GLITTER);
+assert.equal(resolveGateArrivalStage(normalArrival.stableAtMs), GATE_ARRIVAL_STAGES.STABLE);
 
 const leftReview = applyGateReviewMode({
   ...normalized,

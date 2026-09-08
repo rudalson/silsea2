@@ -7,6 +7,7 @@ import {
   resolveBossSpawnX
 } from "../data/bossDefinitions.js";
 import { ENEMY_DEFINITIONS } from "../data/enemies.js";
+import { GATE_ARRIVAL_STAGES, getGateArrivalTiming } from "../data/gateArrival.js";
 import {
   GATE_KINDS,
   GATE_PHASES,
@@ -605,7 +606,7 @@ export class LevelLoader {
       glow = this.track(this.scene.add.ellipse(x, archY, 152, 188, COLORS.collectBlue, 0));
       glow.setStrokeStyle(8, COLORS.white, 0.72).setAlpha(0).setDepth(2);
       arch = this.track(this.scene.add.graphics());
-      arch.setPosition(x, archY - 2).setAlpha(0).setScale(0.78).setDepth(3);
+      arch.setPosition(x, archY - 2).setAlpha(0).setScale(0.46).setDepth(3);
       for (const [radius, color] of [[58, COLORS.collect], [47, COLORS.collectBlue], [36, COLORS.collectPink]]) {
         arch.lineStyle(7, color, 0.96);
         arch.beginPath();
@@ -640,12 +641,12 @@ export class LevelLoader {
         .setBlendMode("ADD")
         .setDepth(2);
       arch = this.track(this.scene.add.image(x, archY, key));
-      arch.setScale(archFinalScale * 0.78).setAlpha(0).setDepth(3);
+      arch.setScale(archFinalScale * 0.46).setAlpha(0).setDepth(3);
     } else {
       glow = this.track(this.scene.add.ellipse(x, archY, 152, 188, COLORS.collectBlue, 0));
       glow.setStrokeStyle(10, COLORS.white, 0.75).setAlpha(0).setDepth(2);
       arch = this.track(this.scene.add.rectangle(x, y - 82, 116, 164, COLORS.collectBlue, 0));
-      arch.setStrokeStyle(12, COLORS.collect).setScale(0.78).setAlpha(0).setDepth(3);
+      arch.setStrokeStyle(12, COLORS.collect).setScale(0.46).setAlpha(0).setDepth(3);
       label = this.track(
         this.scene.add.text(x, y - 190, "무지개 게이트", {
           fontFamily: GAME_FONT_FAMILY,
@@ -670,60 +671,8 @@ export class LevelLoader {
     this.scene.physics.add.existing(zone, true);
     zone.body.enable = false;
     lifecycle.transition(GATE_TRANSITIONS.SPAWN);
-    const floatingTargets = [glow, arch, label, ...sparkles.map(({ star }) => star)].filter(Boolean);
-    const tweens = [
-      this.scene.tweens.add({
-        targets: arch,
-        alpha: 1,
-        scale: archFinalScale,
-        duration: 420,
-        ease: "Back.Out",
-        onComplete: () => {
-          lifecycle.transition(GATE_TRANSITIONS.ACTIVATE);
-          if (zone.body) zone.body.enable = true;
-        }
-      }),
-      this.scene.tweens.add({
-        targets: glow,
-        alpha: { from: 0, to: 0.3 },
-        duration: 460,
-        yoyo: true,
-        repeat: -1,
-        repeatDelay: 180,
-        ease: "Sine.InOut"
-      }),
-      this.scene.tweens.add({
-        targets: floatingTargets,
-        y: `-=${GATE_VISUALS.hoverDistance}`,
-        delay: 240,
-        duration: GATE_VISUALS.hoverDurationMs,
-        hold: 150,
-        yoyo: true,
-        repeat: -1,
-        repeatDelay: GATE_VISUALS.hoverPauseMs,
-        ease: "Sine.InOut"
-      })
-    ];
-
-    if (label) {
-      tweens.push(this.scene.tweens.add({ targets: label, alpha: 1, duration: 260, delay: 160 }));
-    }
-    for (const { star, delay } of sparkles) {
-      tweens.push(this.scene.tweens.add({
-        targets: star,
-        alpha: { from: 0, to: 1 },
-        scale: { from: 0.45, to: 1.12 },
-        angle: 45,
-        duration: 280,
-        delay,
-        hold: 110,
-        yoyo: true,
-        repeat: -1,
-        repeatDelay: 420 + delay,
-        ease: "Sine.InOut"
-      }));
-    }
-
+    const flash = this.track(this.scene.add.circle(x, archY, 44, COLORS.white, 0.9));
+    flash.setStrokeStyle(5, COLORS.collect, 0.92).setScale(0.24).setBlendMode("ADD").setDepth(6);
     this.gate = {
       id: "real-exit",
       kind: GATE_KINDS.REAL,
@@ -737,9 +686,128 @@ export class LevelLoader {
       glow,
       label,
       sparkles: sparkles.map(({ star }) => star),
-      tweens
+      flash,
+      glitters: [],
+      tweens: [],
+      timers: [],
+      arrivalStage: GATE_ARRIVAL_STAGES.FLASH,
+      arrivalStartedAt: this.scene.time.now,
+      effectStrength: "normal"
     };
+    this.playGateArrival(this.gate, archFinalScale, sparkles);
+    this.scene.audioManager?.playSfx("sfx_gate_spawn", { randomizeRate: false });
     return this.gate;
+  }
+
+  playGateArrival(gate, archFinalScale, sparkleEntries) {
+    const reduced = this.scene.registry.get("screenEffectStrength") === "reduced"
+      || gate.presentation.effects === "reduced";
+    const strength = reduced ? "reduced" : "normal";
+    const timing = getGateArrivalTiming(strength);
+    const glitterCount = timing.glitterCount;
+    gate.effectStrength = strength;
+
+    for (let index = 0; index < glitterCount; index += 1) {
+      const lane = ((index * 37) % 132) - 66;
+      const startY = gate.y - 174 - (index % 3) * 18;
+      const star = this.track(this.scene.add.star(
+        gate.x + lane,
+        startY,
+        4,
+        1.8,
+        index % 2 ? 5 : 7,
+        index % 3 === 0 ? COLORS.collect : index % 3 === 1 ? COLORS.collectBlue : COLORS.collectPink,
+        0
+      ));
+      star.setStrokeStyle(1, COLORS.white, 0.9).setDepth(5);
+      gate.glitters.push(star);
+      gate.tweens.push(this.scene.tweens.add({
+        targets: star,
+        alpha: { from: 0.88, to: 0 },
+        y: startY + 92 + (index % 4) * 12,
+        angle: index % 2 ? 130 : -130,
+        scale: { from: 0.95, to: 0.15 },
+        delay: timing.glitterStartMs + index * (reduced ? 34 : 28),
+        duration: reduced ? 330 : 470,
+        ease: "Quad.In",
+        onStart: () => {
+          if (gate.arrivalStage !== GATE_ARRIVAL_STAGES.STABLE) {
+            gate.arrivalStage = GATE_ARRIVAL_STAGES.GLITTER;
+          }
+        }
+      }));
+    }
+
+    gate.tweens.push(this.scene.tweens.add({
+      targets: gate.flash,
+      alpha: 0,
+      scale: 2.2,
+      duration: timing.flashEndMs,
+      ease: "Cubic.Out"
+    }));
+    gate.tweens.push(this.scene.tweens.add({
+      targets: gate.arch,
+      alpha: 1,
+      scale: archFinalScale,
+      delay: timing.popStartMs,
+      duration: timing.popEndMs - timing.popStartMs,
+      ease: "Back.Out",
+      onStart: () => { gate.arrivalStage = GATE_ARRIVAL_STAGES.POP; }
+    }));
+    if (gate.label) {
+      gate.tweens.push(this.scene.tweens.add({
+        targets: gate.label,
+        alpha: 1,
+        duration: reduced ? 120 : 220,
+        delay: timing.popStartMs + 100
+      }));
+    }
+
+    const stableDelay = timing.stableAtMs;
+    gate.tweens.push(this.scene.tweens.add({
+      targets: gate.glow,
+      alpha: { from: 0.12, to: reduced ? 0.2 : 0.34 },
+      delay: stableDelay,
+      duration: reduced ? 720 : 460,
+      yoyo: true,
+      repeat: -1,
+      repeatDelay: reduced ? 360 : 180,
+      ease: "Sine.InOut"
+    }));
+    const floatingTargets = [gate.glow, gate.arch, gate.label, ...gate.sparkles].filter(Boolean);
+    gate.tweens.push(this.scene.tweens.add({
+      targets: floatingTargets,
+      y: `-=${reduced ? 3 : GATE_VISUALS.hoverDistance}`,
+      delay: stableDelay,
+      duration: GATE_VISUALS.hoverDurationMs,
+      hold: 150,
+      yoyo: true,
+      repeat: -1,
+      repeatDelay: GATE_VISUALS.hoverPauseMs,
+      ease: "Sine.InOut"
+    }));
+    for (const { star, delay } of sparkleEntries) {
+      gate.tweens.push(this.scene.tweens.add({
+        targets: star,
+        alpha: { from: 0, to: reduced ? 0.72 : 1 },
+        scale: { from: 0.45, to: reduced ? 0.86 : 1.12 },
+        angle: 45,
+        duration: reduced ? 420 : 280,
+        delay: stableDelay + delay,
+        hold: 110,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: (reduced ? 820 : 420) + delay,
+        ease: "Sine.InOut"
+      }));
+    }
+
+    gate.timers.push(this.scene.time.delayedCall(stableDelay, () => {
+      if (!this.gate || this.gate !== gate) return;
+      gate.arrivalStage = GATE_ARRIVAL_STAGES.STABLE;
+      gate.lifecycle.transition(GATE_TRANSITIONS.ACTIVATE);
+      if (gate.zone.body) gate.zone.body.enable = true;
+    }));
   }
 
   createPrankGates() {
@@ -831,7 +899,10 @@ export class LevelLoader {
         id: this.gate.id,
         ...this.gate.lifecycle.snapshot(),
         placement: this.gate.presentation.placement,
-        graybox: this.gate.presentation.graybox
+        graybox: this.gate.presentation.graybox,
+        arrivalStage: this.gate.arrivalStage,
+        effectStrength: this.gate.effectStrength,
+        zoneEnabled: Boolean(this.gate.zone?.body?.enable)
       } : null,
       pranks: this.prankGates.map((gate) => ({
         id: gate.id,
@@ -898,6 +969,7 @@ export class LevelLoader {
     this.enemies.length = 0;
     this.hazards.length = 0;
     for (const tween of this.gate?.tweens ?? []) tween.stop();
+    for (const timer of this.gate?.timers ?? []) timer.remove(false);
     this.gate?.zone.destroy();
     this.gate = null;
     for (const gate of this.prankGates) {

@@ -31,7 +31,8 @@ export const GATE_TRANSITIONS = Object.freeze({
 export const GATE_REVIEW_MODES = Object.freeze({
   REAL: "real",
   AIR: "air",
-  PRANK: "prank"
+  PRANK: "prank",
+  ARRIVAL: "arrival"
 });
 
 export const DEFAULT_GATE_PRESENTATION = Object.freeze({
@@ -127,8 +128,12 @@ export function applyGateReviewMode(level, mode) {
   const exitPresentation = {
     ...existing,
     placement: mode === GATE_REVIEW_MODES.AIR ? GATE_PLACEMENTS.AIR : GATE_PLACEMENTS.GROUND,
-    graybox: true
+    graybox: mode !== GATE_REVIEW_MODES.ARRIVAL
   };
+  const arrivalX = Math.max(96, Math.min(
+    Number(level.world?.width ?? 1280) - 96,
+    Number(level.player?.spawn?.x ?? 160) + direction * 480
+  ));
   const prankX = Math.max(96, Math.min(
     Number(level.world?.width ?? 1280) - 96,
     Number(level.player?.spawn?.x ?? 160) + direction * 360
@@ -148,7 +153,11 @@ export function applyGateReviewMode(level, mode) {
 
   return {
     ...level,
-    exit: { ...level.exit, presentation: exitPresentation },
+    exit: {
+      ...level.exit,
+      x: mode === GATE_REVIEW_MODES.ARRIVAL ? arrivalX : level.exit?.x,
+      presentation: exitPresentation
+    },
     prankGates: [...(level.prankGates ?? []), ...reviewPranks]
   };
 }

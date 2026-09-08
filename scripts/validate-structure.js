@@ -248,7 +248,7 @@ if (!gameScene.includes("this.scene.start(SCENE_KEYS.CLEAR") || gameScene.includ
 if (!gameScene.includes("completeProgressSafely") || !gameScene.includes("completePlaytestSafely") || !gameScene.includes("playStageClearPresentation")) {
   fail("클리어 부가 기록·연출 오류가 장면 전환을 막지 않도록 격리되지 않음");
 }
-const gateCompletionStart = gameScene.indexOf("  handleGateEntered() {");
+const gateCompletionStart = gameScene.indexOf("  handleGateEntered(");
 const gateCompletionBlock = gameScene.slice(
   gateCompletionStart,
   gameScene.indexOf("  completeProgressSafely", gateCompletionStart)

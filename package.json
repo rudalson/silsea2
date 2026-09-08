@@ -25,6 +25,7 @@
     "c4:color-review": "node scripts/build-c4-character-color-review.js",
     "c4:sylvia-assets": "node scripts/cleanup-sylvia-frames.js && node scripts/build-character-sheets.js && node scripts/build-unicorn-sheets.js && node scripts/build-swim-assets.js && node scripts/build-c4-sylvia-review.js",
     "g2:item-review": "node scripts/build-g2-item-anchor-review.js",
+    "g3:gate-storyboard": "node scripts/build-g3-gate-storyboard.js",
     "validate:mapping": "node scripts/validate-asset-mapping.js",
     "validate:assets": "node scripts/validate-assets.js",
     "validate:runtime": "node scripts/validate-runtime-build.js",
