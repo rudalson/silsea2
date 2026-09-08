@@ -2,6 +2,11 @@ import Phaser from "phaser";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { COLORS, CSS_COLORS, GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { CHARACTER_LIST } from "../data/characters.js";
+import {
+  getCharacterCardLayout,
+  getCharacterSelectionAnnouncement,
+  moveCharacterSelection
+} from "../data/characterSelection.js";
 import { AssetManager } from "../systems/AssetManager.js";
 import { AudioManager } from "../systems/AudioManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
@@ -42,9 +47,10 @@ export class CharacterSelectScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(3);
     this.createBackButton();
 
+    const layout = getCharacterCardLayout(CHARACTER_LIST.length, { gameWidth: GAME_WIDTH });
     CHARACTER_LIST.forEach((character, index) => {
-      const x = GAME_WIDTH / 2 + (index - 0.5) * 360;
-      const card = this.add.rectangle(x, GAME_HEIGHT / 2 + 31, 314, 406, COLORS.near, 0.88)
+      const { x, y } = layout[index];
+      const card = this.add.rectangle(x, y, 250, 206, COLORS.near, 0.88)
         .setStrokeStyle(5, COLORS.outline)
         .setDepth(2)
         .setInteractive({ useHandCursor: true });
@@ -52,19 +58,31 @@ export class CharacterSelectScene extends Phaser.Scene {
       const idle = CharacterAnimationManager.getSpec(character, "idle");
       const hasArt = Boolean(idle && this.textures.exists(idle.textureKey));
       const texture = hasArt ? idle.textureKey : AssetManager.ensurePlayerTexture(this, character);
-      const portrait = this.add.sprite(x, GAME_HEIGHT / 2 - 18, texture).setScale(1.65).setOrigin(0.5).setDepth(3);
+      const portraitScale = hasArt ? 0.72 : 0.82;
+      const portrait = this.add.sprite(x, y - 34, texture).setScale(portraitScale).setOrigin(0.5).setDepth(3);
       if (hasArt) CharacterAnimationManager.play(portrait, character, "idle");
-      const name = this.add.text(x, GAME_HEIGHT / 2 + 149, character.name, {
+      const name = this.add.text(x, y + 40, character.name, {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "27px",
+        fontSize: "22px",
         fontStyle: "800",
         color: CSS_COLORS.white
       }).setOrigin(0.5).setDepth(3);
-      const badge = this.add.text(x, GAME_HEIGHT / 2 + 187, index === 0 ? "빠르고 용감한 친구" : "튼튼하고 다정한 친구", {
+      const englishName = this.add.text(x, y + 65, character.englishName, {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "16px",
+        fontSize: "13px",
+        fontStyle: "800",
+        color: CSS_COLORS.collect
+      }).setOrigin(0.5).setDepth(3);
+      const symbol = character.selectionSymbol === "heart"
+        ? "♥"
+        : character.selectionSymbol === "star" ? "★" : "•";
+      const badge = this.add.text(x, y + 88, `${symbol} ${character.description}`, {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "12px",
         fontStyle: "700",
-        color: CSS_COLORS.soft
+        color: CSS_COLORS.soft,
+        align: "center",
+        wordWrap: { width: 226 }
       }).setOrigin(0.5).setDepth(3);
       card.on("pointerover", () => {
         if (this.selected === index) return;
@@ -73,10 +91,10 @@ export class CharacterSelectScene extends Phaser.Scene {
         this.renderSelection();
       });
       card.on("pointerdown", () => this.confirmSelection());
-      this.cards.push({ card, portrait, name, badge });
+      this.cards.push({ card, portrait, portraitScale, name, englishName, badge });
     });
 
-    this.add.text(GAME_WIDTH / 2, 650, "← → 선택   ·   Space / Z 결정   ·   Esc 이전 메뉴", {
+    this.add.text(GAME_WIDTH / 2, 682, "← ↑ ↓ → 선택   ·   Space / Z 결정   ·   Esc 이전 메뉴", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "19px",
       fontStyle: "700",
@@ -91,13 +109,19 @@ export class CharacterSelectScene extends Phaser.Scene {
 
   update() {
     const input = this.inputManager.sample();
-    if (Math.abs(input.moveX) > 0.5 && !this.axisLocked) {
-      this.selected = Phaser.Math.Wrap(this.selected + Math.sign(input.moveX), 0, CHARACTER_LIST.length);
-      this.axisLocked = true;
+    const navigating = Math.abs(input.moveX) > 0.5 || Math.abs(input.moveY) > 0.5;
+    if (navigating && !this.navigationLocked) {
+      this.selected = moveCharacterSelection(
+        this.selected,
+        input.moveX,
+        input.moveY,
+        CHARACTER_LIST.length
+      );
+      this.navigationLocked = true;
       this.audioManager.playSfx("sfx_ui_move");
       this.renderSelection();
     }
-    if (Math.abs(input.moveX) < 0.2) this.axisLocked = false;
+    if (Math.abs(input.moveX) < 0.2 && Math.abs(input.moveY) < 0.2) this.navigationLocked = false;
     if (input.confirmPressed) this.confirmSelection();
     if (input.pausePressed) this.goBack();
   }
@@ -121,10 +145,18 @@ export class CharacterSelectScene extends Phaser.Scene {
       const selected = index === this.selected;
       entry.card.setStrokeStyle(selected ? 8 : 4, selected ? COLORS.collect : COLORS.outline);
       entry.card.setFillStyle(selected ? COLORS.near : COLORS.near, selected ? 0.96 : 0.78);
-      entry.portrait.setScale(selected ? 1.8 : 1.55).setAlpha(selected ? 1 : 0.68);
+      entry.portrait.setScale(entry.portraitScale * (selected ? 1.1 : 0.94)).setAlpha(selected ? 1 : 0.68);
       entry.name.setColor(selected ? CSS_COLORS.collect : CSS_COLORS.white);
+      entry.englishName.setAlpha(selected ? 1 : 0.62);
       entry.badge.setAlpha(selected ? 1 : 0.58);
     });
+    const announcement = getCharacterSelectionAnnouncement(
+      CHARACTER_LIST[this.selected],
+      this.selected,
+      CHARACTER_LIST.length
+    );
+    this.registry.set("characterSelectAnnouncement", announcement);
+    this.game.canvas?.setAttribute("aria-label", announcement);
   }
 
   confirmSelection() {

@@ -14,11 +14,6 @@ const FORM_COLORS = Object.freeze({
   [FORMS.ALICORN]: COLORS.collectPink
 });
 
-const ATTACHMENT_LAYOUT = Object.freeze({
-  silsea: Object.freeze({ wingsX: -7, wingsY: -61 }),
-  potato89: Object.freeze({ wingsX: -5, wingsY: -57 })
-});
-
 const toRgb = (color) => [(color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff];
 
 export const TRANSFORM_CAMERA_EASING = Object.freeze({
@@ -314,7 +309,7 @@ export class TransformationManager {
 
   updateVisualPositions(now) {
     const direction = this.player.flipX ? -1 : 1;
-    const layout = ATTACHMENT_LAYOUT[this.player.character.id] ?? ATTACHMENT_LAYOUT.silsea;
+    const layout = this.player.character.render?.attachments ?? { wingsX: -7, wingsY: -61 };
     this.wings.setPosition(this.player.x + direction * layout.wingsX, this.player.y + layout.wingsY);
     if (!this.formVisualTimer) {
       const animationKey = this.player.anims.currentAnim?.key ?? "";

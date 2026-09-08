@@ -1,62 +1,34 @@
-const CHARACTER_SEQUENCE_KEYS = Object.freeze({
-  silsea: Object.freeze({
-    idle: "silsea_idle",
-    move: "silsea_run",
-    jump: "silsea_jump_up",
-    fall: "silsea_fall",
-    land: "silsea_land",
-    hurt: "silsea_hurt",
-    transform_unicorn: "silsea_transform_unicorn",
-    transform_pegasus: "silsea_transform_pegasus",
-    transform_alicorn: "silsea_transform_alicorn",
-    fly: "silsea_fly",
-    wing_guard: "silsea_wing_guard",
-    swim: "silsea_swim",
-    victory: "silsea_victory"
-  }),
-  potato89: Object.freeze({
-    idle: "potato89_idle",
-    move: "potato89_roll",
-    jump: "potato89_jump_up",
-    fall: "potato89_fall",
-    land: "potato89_land",
-    hurt: "potato89_hurt",
-    stomp: "potato89_stomp",
-    transform_unicorn: "potato89_transform_unicorn",
-    transform_pegasus: "potato89_transform_pegasus",
-    transform_alicorn: "potato89_transform_alicorn",
-    fly: "potato89_fly",
-    wing_guard: "potato89_wing_guard",
-    swim: "potato89_swim",
-    victory: "potato89_victory"
-  })
-});
+import { CHARACTER_LIST } from "./characters.js";
 
-const UNICORN_SEQUENCE_KEYS = Object.freeze({
-  silsea: Object.freeze({
-    idle: "silsea_unicorn_idle",
-    move: "silsea_unicorn_run",
-    jump: "silsea_unicorn_jump_up",
-    fall: "silsea_unicorn_fall",
-    land: "silsea_unicorn_land",
-    hurt: "silsea_unicorn_hurt",
-    fly: "silsea_unicorn_fly",
-    swim: "silsea_unicorn_swim",
-    victory: "silsea_unicorn_victory"
-  }),
-  potato89: Object.freeze({
-    idle: "potato89_unicorn_idle",
-    move: "potato89_unicorn_roll",
-    jump: "potato89_unicorn_jump_up",
-    fall: "potato89_unicorn_fall",
-    land: "potato89_unicorn_land",
-    hurt: "potato89_unicorn_hurt",
-    stomp: "potato89_unicorn_stomp",
-    fly: "potato89_unicorn_fly",
-    swim: "potato89_unicorn_swim",
-    victory: "potato89_unicorn_victory"
-  })
-});
+const createSequenceKeys = (character, unicorn = false) => {
+  const prefix = unicorn ? `${character.id}_unicorn` : character.id;
+  const keys = {
+    idle: `${prefix}_idle`,
+    move: `${prefix}_${character.animation.moveSequence}`,
+    jump: `${prefix}_jump_up`,
+    fall: `${prefix}_fall`,
+    land: `${prefix}_land`,
+    hurt: `${prefix}_hurt`
+  };
+  if (character.animation.hasStomp) keys.stomp = `${prefix}_stomp`;
+  if (!unicorn) {
+    keys.transform_unicorn = `${prefix}_transform_unicorn`;
+    keys.transform_pegasus = `${prefix}_transform_pegasus`;
+    keys.transform_alicorn = `${prefix}_transform_alicorn`;
+  }
+  keys.fly = `${prefix}_fly`;
+  if (!unicorn) keys.wing_guard = `${prefix}_wing_guard`;
+  keys.swim = `${prefix}_swim`;
+  keys.victory = `${prefix}_victory`;
+  return Object.freeze(keys);
+};
+
+const createCharacterKeyMap = (unicorn = false) => Object.freeze(Object.fromEntries(
+  CHARACTER_LIST.map((character) => [character.id, createSequenceKeys(character, unicorn)])
+));
+
+const CHARACTER_SEQUENCE_KEYS = createCharacterKeyMap();
+const UNICORN_SEQUENCE_KEYS = createCharacterKeyMap(true);
 
 const SEQUENCE_TIMINGS = Object.freeze({
   idle: Object.freeze({ durations: [260, 180, 200, 260], repeat: -1 }),

@@ -52,6 +52,12 @@ import {
   getCharacterAssetKeys,
   getCharacterSequenceKey
 } from "../src/data/characterAnimations.js";
+import { CHARACTER_LIST, getCharacter } from "../src/data/characters.js";
+import {
+  getCharacterCardLayout,
+  getCharacterSelectionAnnouncement,
+  moveCharacterSelection
+} from "../src/data/characterSelection.js";
 import {
   getEnemyAnimationSpec,
   getEnemyAssetKeys
@@ -300,7 +306,17 @@ assert.notEqual(
 );
 assert.equal(getCharacterAssetKeys("silsea").length, 22);
 assert.equal(getCharacterAssetKeys("potato89").length, 24);
-for (const characterId of ["silsea", "potato89"]) {
+assert.deepEqual(CHARACTER_LIST.map(({ id }) => id), [
+  "silsea",
+  "potato89",
+  "sylvia"
+]);
+assert.equal(getCharacter("silsea").englishName, "Sylsea");
+assert.equal(getCharacter("sylvia").englishName, "Sylvia");
+assert.equal(getCharacter("missing-character").id, "silsea");
+assert.ok(CHARACTER_LIST.every(({ physics }) => physics === CHARACTER_LIST[0].physics));
+assert.ok(CHARACTER_LIST.filter(({ artReady }) => !artReady).every(({ id }) => !["silsea", "potato89"].includes(id)));
+for (const { id: characterId } of CHARACTER_LIST) {
   for (const sequence of ["idle", "move", "jump", "fall", "land", "hurt", "transform_unicorn", "transform_pegasus", "transform_alicorn", "fly", "wing_guard", "swim", "victory"]) {
     const spec = getCharacterAnimationSpec(characterId, sequence);
     assert.ok(spec, `${characterId} ${sequence} 애니메이션 명세가 필요함`);
@@ -308,6 +324,15 @@ for (const characterId of ["silsea", "potato89"]) {
   }
   assert.ok(getCharacterAnimationSpec(characterId, "transform_unicorn").durations.at(-1) >= 300);
 }
+const characterLayout = getCharacterCardLayout(3);
+assert.equal(characterLayout.length, 3);
+assert.deepEqual(characterLayout.map(({ row }) => row), [0, 0, 0]);
+assert.equal(characterLayout[0].x + characterLayout[2].x, 1280);
+assert.equal(characterLayout[1].x, 640);
+assert.equal(moveCharacterSelection(0, -1, 0, 3), 2);
+assert.equal(moveCharacterSelection(2, 1, 0, 3), 0);
+assert.equal(moveCharacterSelection(1, 0, 1, 3), 1);
+assert.match(getCharacterSelectionAnnouncement(getCharacter("sylvia"), 2, 3), /실비아, Sylvia.*3\/3/);
 assert.deepEqual(getCharacterAnimationSpec("silsea", "land").durations, [80, 120]);
 assert.deepEqual(FOOTSTEP_SURFACES, ["grass", "dirt", "stone", "wood", "shallow_water"]);
 assert.deepEqual(FOOTSTEP_CONTACT_FRAMES, [0, 4]);
@@ -1875,4 +1900,4 @@ assert.deepEqual(resolveCoopCollectibleClaim("star", ["p2", "p1"]), {
   kind: "shared_progress"
 });
 
-console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리·Could C2 결과 스티커·Could C3 2P 순수 규칙");
+console.log("Core Mechanics 테스트 통과: Schema v1/v2 정규화, 좌·우 진행 판정, 쓰나미·수면·숨·안개, P6 전투 장치, 역방향 계측, 캐릭터·적 매핑, 변신·비행·점수·Seed·Object Pool·P9 보스 기반·P10 훌라후프·P11 투명 대왕·P12 물대왕 100 seed·P13 랜덤대왕 1000 seed·P14 보스 계측·좌표 이동·파도 정지·오디오 fallback·Should S1 비밀 공간 1회 보상·Should S2 선택 목표 결과 카드·Should S3 핫 리로드 100회·오류 보존·Should S4 preset 미리보기·적용·Should S5 지형별 접촉 발소리·Could C2 결과 스티커·Could C3 2P 순수 규칙·Could C4 3인 선택 규칙");

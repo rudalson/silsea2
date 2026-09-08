@@ -28,7 +28,19 @@ const sequenceSpecs = [
   ["silsea", "transform_pegasus", 6],
   ["silsea", "transform_alicorn", 8],
   ["silsea", "fly", 6],
-  ["silsea", "victory", 6]
+  ["silsea", "victory", 6],
+  ["sylvia", "run", 8],
+  ["sylvia", "idle", 4],
+  ["sylvia", "jump_up", 2],
+  ["sylvia", "fall", 2],
+  ["sylvia", "land", 2],
+  ["sylvia", "hurt", 2],
+  ["sylvia", "transform_unicorn", 6],
+  ["sylvia", "transform_pegasus", 6],
+  ["sylvia", "transform_alicorn", 8],
+  ["sylvia", "fly", 6],
+  ["sylvia", "victory", 6],
+  ["sylvia", "wing_guard", 4]
 ];
 
 const enemySequenceSpecs = [

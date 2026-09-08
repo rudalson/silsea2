@@ -30,10 +30,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
     if (this.usesCharacterArt) {
       CharacterAnimationManager.register(scene, character);
-      this.setOrigin(0.5, 112 / 128);
-      this.setDisplaySize(128, 128);
+      const render = character.render;
+      this.setOrigin(render.originX, render.originY);
+      this.setDisplaySize(render.displayWidth, render.displayHeight);
       this.body.setSize(character.physics.bodyWidth, character.physics.bodyHeight, false);
-      this.body.setOffset((128 - character.physics.bodyWidth) / 2, 112 - character.physics.bodyHeight);
+      this.body.setOffset(
+        (render.frameWidth - character.physics.bodyWidth) / 2,
+        render.baselineY - character.physics.bodyHeight
+      );
       this.playCharacterAnimation("idle", { force: true });
     } else {
       this.setOrigin(0.5, 1);

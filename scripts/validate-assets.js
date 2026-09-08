@@ -9,6 +9,7 @@ import {
   getCharacterAssetKeys,
   getCharacterSequenceNames
 } from "../src/data/characterAnimations.js";
+import { CHARACTER_LIST } from "../src/data/characters.js";
 import {
   getEnemyAnimationSpec,
   getEnemyAssetKeys,
@@ -82,6 +83,7 @@ const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: cou
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
   { name: "potato89_anchor.png", path: join(root, "assets", "_anchor", "potato89_anchor.png"), kind: "character" },
+  { name: "sylvia_anchor.png", path: join(root, "assets", "_anchor", "sylvia_anchor.png"), kind: "character" },
   ...sequenceAssets("silsea", "run", 8),
   ...sequenceAssets("potato89", "roll", 8),
   ...sequenceAssets("silsea", "idle", 4),
@@ -104,7 +106,19 @@ const characterAssets = [
   ...sequenceAssets("silsea", "transform_pegasus", 6),
   ...sequenceAssets("silsea", "transform_alicorn", 8),
   ...sequenceAssets("silsea", "fly", 6),
-  ...sequenceAssets("silsea", "victory", 6)
+  ...sequenceAssets("silsea", "victory", 6),
+  ...sequenceAssets("sylvia", "idle", 4),
+  ...sequenceAssets("sylvia", "run", 8),
+  ...sequenceAssets("sylvia", "jump_up", 2),
+  ...sequenceAssets("sylvia", "fall", 2),
+  ...sequenceAssets("sylvia", "land", 2),
+  ...sequenceAssets("sylvia", "hurt", 2),
+  ...sequenceAssets("sylvia", "transform_unicorn", 6),
+  ...sequenceAssets("sylvia", "transform_pegasus", 6),
+  ...sequenceAssets("sylvia", "transform_alicorn", 8),
+  ...sequenceAssets("sylvia", "fly", 6),
+  ...sequenceAssets("sylvia", "wing_guard", 4),
+  ...sequenceAssets("sylvia", "victory", 6)
 ];
 const enemyAssets = [
   { name: "raw_potato_anchor.png", path: join(root, "assets", "_anchor", "raw_potato_anchor.png"), kind: "raw_potato" },
@@ -440,7 +454,7 @@ for (const asset of assets) {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const characterId of ["silsea", "potato89"]) {
+  for (const { id: characterId } of CHARACTER_LIST.filter(({ artReady }) => artReady)) {
     const expectedKeys = new Set(getCharacterAssetKeys(characterId));
     const validatedKeys = new Set();
     for (const sequence of getCharacterSequenceNames(characterId)) {

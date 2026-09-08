@@ -7,12 +7,12 @@ import { PALETTE } from "../data/palette.js";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const frameSize = 128;
 const frameCount = 6;
-const characters = ["silsea", "potato89"];
+const characters = ["silsea", "potato89", "sylvia"];
 const variants = ["base", "unicorn"];
 const sourceIndices = [0, 1, 2, 4, 5, 6];
 
 const sourceSheet = (character, variant) => {
-  const sequence = character === "silsea" ? "run" : "roll";
+  const sequence = character === "potato89" ? "roll" : "run";
   const variantPrefix = variant === "unicorn" ? "unicorn_" : "";
   return join(root, "assets", "characters", character, `${character}_${variantPrefix}${sequence}.png`);
 };
@@ -87,4 +87,4 @@ await sharp({
   .png({ compressionLevel: 9 })
   .toFile(join(root, "references", "character-swim-contact-sheet.png"));
 
-console.log("수영 시트 생성: 실세아·감자89 기본/유니콘 6프레임 4종");
+console.log("수영 시트 생성: 실세아·감자89·실비아 기본/유니콘 6프레임 6종");

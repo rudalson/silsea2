@@ -22,6 +22,8 @@
     "spritesheets": "node scripts/build-character-sheets.js && node scripts/build-unicorn-sheets.js && node scripts/build-swim-assets.js",
     "pumpkin": "node scripts/build-spike-pumpkin-sheets.js && node scripts/build-character-sheets.js",
     "ui:decor": "node scripts/build-ui-decor.js",
+    "c4:color-review": "node scripts/build-c4-character-color-review.js",
+    "c4:sylvia-assets": "node scripts/cleanup-sylvia-frames.js && node scripts/build-character-sheets.js && node scripts/build-unicorn-sheets.js && node scripts/build-swim-assets.js && node scripts/build-c4-sylvia-review.js",
     "validate:mapping": "node scripts/validate-asset-mapping.js",
     "validate:assets": "node scripts/validate-assets.js",
     "validate:runtime": "node scripts/validate-runtime-build.js",

@@ -306,9 +306,24 @@ Output one exact 1536x1024 landscape color source sheet.
 |---|---:|---|---:|---|---|---|
 | `silsea_run_00` | contact | 위 템플릿+접지 포즈 | 190701 | `silsea_anchor.png` | mapping 전량 | 생성 완료 (`assets/characters/silsea/run/`) |
 
+## C4 실비아 애니메이션 생성 기록
+
+- 정체성 입력: `references/could4-character-color-anchors/sylvia_anchor_color_v1.png`
+- 포즈 입력: 각 시퀀스와 같은 실세아 프레임 1장. 실세아는 포즈·카메라·접지 규격에만 사용했다.
+- 채택 원본: `assets/characters/_source/sylvia_<sequence>_<nn>_chroma.png` 56장
+- 생성 방식: Codex 내장 이미지 생성. 서로 다른 프레임을 한 장의 시트로 한꺼번에 만들지 않고 프레임별 독립 호출로 제작했다.
+- 공통 요청: 승인된 실비아의 흰 어린 망아지 체형, 길고 부드러운 분홍 갈기·꼬리, 작은 속눈썹, 분홍 하트를 그대로 유지하면서 포즈 참조의 한 동작만 우향 완전 측면 게임 스프라이트로 그린다. 피사체 뒤에는 균일한 순수 녹색 크로마 배경만 둔다.
+- 시퀀스 요청: `idle 4`, `run 8`, `jump_up 2`, `fall 2`, `land 2`, `hurt 2`, `transform_unicorn 6`, `transform_pegasus 6`, `transform_alicorn 8`, `fly 6`, `wing_guard 4`, `victory 6`의 각 번호에 대응하는 단일 키포즈.
+- 공통 금지: 문자·숫자·UI·풍경·바닥·그림자·워터마크·추가 캐릭터·성인 체형·과장된 여성 신체·기본 동작의 뿔·날개. 변신·비행·방어 시퀀스는 해당 프레임 지시에 필요한 부속물만 허용한다.
+- 후처리: `scripts/postprocess-character-frame.js`에서 크로마 제거, 승인 팔레트 양자화, 112×93 실루엣과 128×128 캔버스·기준선 16px 정렬. `scripts/cleanup-sylvia-frames.js`에서 고립 픽셀을 제거한다.
+- 결정적 파생: 기본 수영 6프레임은 run에서, 유니콘 38프레임은 승인 뿔을 기본형에 용접해 생성한다. 재현 명령은 `npm run c4:sylvia-assets`다.
+- 검토본: `references/could4-sylvia-animation-overview.png`
+- 상태: 22개 시트·100프레임 생성 및 manifest 연결 완료, 최종 런타임 검수 진행 중
+
 ## Style Anchor 승인 후보
 
 | 캐릭터 | 후보 파일 | 생성 방식 | 첨부한 StyleRefs | 후처리 | 상태 |
 |---|---|---|---|---|---|
 | 실세아 | `assets/_anchor/silsea_anchor.png` | built-in imagegen, 우향 run contact pose | `silsea_run.png`, `silsea_sprite-Photoroom.png` | chroma 제거 → 승인 팔레트 양자화 → 128×128 정렬 → 재양자화 | 2026-08-03 승인 |
 | 89% 구운 감자 | `assets/_anchor/potato89_anchor.png` | built-in imagegen, 우향 roll/run contact pose | `silsea_run.png`, `mylittlepony1.webp`, `mario_3.jpg` | chroma 제거 → 승인 팔레트 양자화 → 128×128 정렬 → 재양자화 | 2026-08-03 승인 |
+| 실비아 | `assets/_anchor/sylvia_anchor.png` | built-in imagegen, 실세아의 여성형 우향 contact pose | 승인 흑백 실비아 앵커, `silsea_run.png` | 승인 실루엣 마스크 → 팔레트 양자화 → 112×93/128×128 정렬 | 2026-09-08 흑백 승인·실제 생성 진행 승인 |

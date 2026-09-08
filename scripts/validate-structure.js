@@ -38,6 +38,10 @@ const debugPanel = await readFile(join(root, "src", "systems", "DebugPanel.js"),
 const levelHotReload = await readFile(join(root, "src", "systems", "LevelHotReload.js"), "utf8");
 const debugTuningPresets = await readFile(join(root, "src", "data", "debugTuningPresets.js"), "utf8");
 const characterSelectScene = await readFile(join(root, "src", "scenes", "CharacterSelectScene.js"), "utf8");
+const characters = await readFile(join(root, "src", "data", "characters.js"), "utf8");
+const characterAnimations = await readFile(join(root, "src", "data", "characterAnimations.js"), "utf8");
+const characterSelection = await readFile(join(root, "src", "data", "characterSelection.js"), "utf8");
+const transformationManager = await readFile(join(root, "src", "systems", "TransformationManager.js"), "utf8");
 const stageSelectScene = await readFile(join(root, "src", "scenes", "StageSelectScene.js"), "utf8");
 const uiScene = await readFile(join(root, "src", "scenes", "UIScene.js"), "utf8");
 const levelLoader = await readFile(join(root, "src", "systems", "LevelLoader.js"), "utf8");
@@ -391,6 +395,27 @@ if (debugTuningPresets.includes("localStorage") || debugPanel.includes("registry
 if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
   fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");
 }
+for (const characterId of ["sylvia"]) {
+  if (!characters.includes(`${characterId}: createCharacter({`)) fail(`C4 캐릭터 데이터 누락: ${characterId}`);
+}
+if (!characters.includes('englishName: "Sylsea"') || !characters.includes('englishName: "Sylvia"')) {
+  fail("C4 승인 영문명 Sylsea/Sylvia가 캐릭터 데이터에 없음");
+}
+if (!characterAnimations.includes("CHARACTER_LIST.map") || !assetManager.includes("for (const character of CHARACTER_LIST)")) {
+  fail("C4 애니메이션 또는 초상 preload가 CHARACTER_LIST 기반이 아님");
+}
+if (!characterSelection.includes("CHARACTER_SELECT_COLUMNS = 4")
+  || !characterSelectScene.includes("getCharacterCardLayout")
+  || !characterSelectScene.includes("moveCharacterSelection")) {
+  fail("C4 3인 중앙 정렬 선택 배치 또는 상하좌우 탐색 계약이 없음");
+}
+if (!characterSelectScene.includes("characterSelectAnnouncement") || !characterSelectScene.includes("englishName")) {
+  fail("C4 선택 이름·영문명 접근성 상태가 없음");
+}
+if (transformationManager.includes("ATTACHMENT_LAYOUT")
+  || !transformationManager.includes("this.player.character.render?.attachments")) {
+  fail("C4 변신 부착 좌표가 캐릭터 메타데이터 기반이 아님");
+}
 if (!stageSelectScene.includes("createBackButton") || !stageSelectScene.includes("goBack") || !stageSelectScene.includes("input.pausePressed")) {
   fail("스테이지 선택 화면의 직접 캐릭터 선택 버튼 또는 Esc 복귀가 없음");
 }
@@ -412,4 +437,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1·P9 시험 진입점, 보스 정의·전략·환경 정지 기반, C3 격리 2P 회색상자, level-02~05 확장성");
+console.log("구조 검증 통과: Schema v1/v2 호환, 방향 독립 GameScene·게이트·적·계측, 공용 환경·숨·안개·쓰나미 매니저, 캐러셀·순차 해금, P1·P9 시험 진입점, 보스 정의·전략·환경 정지 기반, C3 격리 2P 회색상자, C4 3인 데이터·선택·fallback 일반화, level-02~05 확장성");

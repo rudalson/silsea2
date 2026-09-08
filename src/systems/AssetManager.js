@@ -2,6 +2,7 @@ import manifest from "../../assets/manifest.json";
 import { COLORS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacterAssetKeys, getCharacterSequenceKey } from "../data/characterAnimations.js";
+import { CHARACTER_LIST } from "../data/characters.js";
 import { getEnemyAssetKeys } from "../data/enemyAnimations.js";
 
 const entries = new Map(manifest.assets.map((asset) => [asset.key, asset]));
@@ -43,8 +44,8 @@ export class AssetManager {
   }
 
   static queueCharacterPortraits(scene) {
-    for (const characterId of ["silsea", "potato89"]) {
-      AssetManager.queueManifestAsset(scene, getCharacterSequenceKey(characterId, "idle"));
+    for (const character of CHARACTER_LIST) {
+      AssetManager.queueManifestAsset(scene, getCharacterSequenceKey(character.id, "idle"));
     }
   }
 
@@ -178,7 +179,8 @@ export class AssetManager {
     context.strokeStyle = outline;
     context.lineWidth = 4;
 
-    if (character.shape === "round") {
+    const fallback = character.fallback ?? { shape: character.shape, profile: character.id };
+    if (fallback.shape === "round") {
       context.fillStyle = bodyColor;
       context.beginPath();
       context.ellipse(43, 66, 29, 24, 0, 0, Math.PI * 2);
@@ -220,14 +222,44 @@ export class AssetManager {
       context.quadraticCurveTo(20, 70, 21, 60);
       context.fill();
       context.stroke();
+      AssetManager.drawFallbackProfile(context, fallback.profile, accentColor, outline);
     }
 
     context.fillStyle = outline;
     context.beginPath();
     context.arc(77, 45, 3.5, 0, Math.PI * 2);
     context.fill();
+    AssetManager.drawSelectionSymbol(context, fallback.selectionSymbol, accentColor, outline);
     texture.refresh();
     return key;
+  }
+
+  static drawFallbackProfile(context, profile, fill, outline) {
+    context.fillStyle = fill;
+    context.strokeStyle = outline;
+    if (profile === "sylvia") {
+      context.beginPath();
+      context.moveTo(61, 29);
+      context.bezierCurveTo(44, 32, 43, 56, 53, 77);
+      context.bezierCurveTo(64, 68, 68, 48, 67, 38);
+      context.closePath();
+      context.fill();
+      context.stroke();
+    }
+  }
+
+  static drawSelectionSymbol(context, symbol, fill, outline) {
+    if (!symbol) return;
+    context.fillStyle = fill;
+    context.strokeStyle = outline;
+    context.lineWidth = 3;
+    context.font = `900 20px ${GAME_FONT_FAMILY}`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    const glyph = symbol === "heart" ? "♥" : symbol === "star" ? "★" : "";
+    if (!glyph) return;
+    context.strokeText(glyph, 40, 64);
+    context.fillText(glyph, 40, 64);
   }
 
   static drawLeg(context, x, y, width, height, fill, outline) {

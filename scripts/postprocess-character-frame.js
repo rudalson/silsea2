@@ -49,7 +49,7 @@ const firstPass = await quantize(alphaPath);
 const trimmed = await sharp(firstPass).trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
 const metadata = await sharp(trimmed).metadata();
 const outputName = parse(output).base.toLowerCase();
-const silseaFrame = outputName.startsWith("silsea_");
+const silseaFrame = outputName.startsWith("silsea_") || outputName.startsWith("sylvia_");
 const potatoFrame = outputName.startsWith("potato89_");
 const frameScale = {
   "dark_cloud_idle_01.png": 0.98,

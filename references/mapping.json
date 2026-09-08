@@ -2,6 +2,7 @@
   "$schemaVersion": 2,
   "$delivery": {
     "manifestGroups": {
+      "sylvia_motion": ["sylvia_idle", "sylvia_run", "sylvia_jump_up", "sylvia_fall", "sylvia_land", "sylvia_hurt", "sylvia_transform_unicorn", "sylvia_transform_pegasus", "sylvia_transform_alicorn", "sylvia_fly", "sylvia_wing_guard", "sylvia_swim", "sylvia_victory", "sylvia_unicorn_idle", "sylvia_unicorn_run", "sylvia_unicorn_jump_up", "sylvia_unicorn_fall", "sylvia_unicorn_land", "sylvia_unicorn_hurt", "sylvia_unicorn_fly", "sylvia_unicorn_swim", "sylvia_unicorn_victory"],
       "unicorn_motion_variants": ["silsea_unicorn_idle", "silsea_unicorn_run", "silsea_unicorn_jump_up", "silsea_unicorn_fall", "silsea_unicorn_land", "silsea_unicorn_hurt", "silsea_unicorn_fly", "silsea_unicorn_swim", "silsea_unicorn_victory", "potato89_unicorn_idle", "potato89_unicorn_roll", "potato89_unicorn_jump_up", "potato89_unicorn_fall", "potato89_unicorn_land", "potato89_unicorn_hurt", "potato89_unicorn_stomp", "potato89_unicorn_fly", "potato89_unicorn_swim", "potato89_unicorn_victory"],
       "raw_potato": ["raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"],
       "wing_guard": ["silsea_wing_guard", "potato89_wing_guard"],
@@ -28,6 +29,7 @@
       "fx_quake_wave": ["src/systems/BossController.js"],
       "ui_portrait_silsea": ["src/scenes/CharacterSelectScene.js", "src/scenes/ClearScene.js", "src/systems/AssetManager.js"],
       "ui_portrait_potato89": ["src/scenes/CharacterSelectScene.js", "src/scenes/ClearScene.js", "src/systems/AssetManager.js"],
+      "ui_portrait_sylvia": ["src/scenes/CharacterSelectScene.js", "src/scenes/ClearScene.js", "src/systems/AssetManager.js"],
       "ui_form_base": ["src/scenes/UIScene.js"],
       "ui_form_unicorn": ["src/scenes/UIScene.js"],
       "ui_form_pegasus": ["src/scenes/UIScene.js"],
@@ -44,6 +46,7 @@
     "planned": []
   },
   "unicorn_motion_variants": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "유니콘·알리콘 상태에서 뿔이 몸과 함께 움직이도록 각 동작 프레임에 직접 합성한 차분." },
+  "sylvia_motion": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "사용자가 승인한 C4 실비아 컬러 앵커를 정체성 기준으로 삼아 여성형 실세아의 기본·변신·수영·승리 22개 시트를 제작했다. 기존 실세아 자료는 어린 망아지 비율과 게임 내 동작 규격에만 사용했다." },
   "wing_guard": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "승인된 P6 앵커의 몸에 붙은 날개를 기준으로 두 플레이어의 정면 방어 4프레임을 제작." },
   "silsea_idle": { "styleRefs": ["silsea_sprite-Photoroom.png", "silsea_run.png"], "note": "실세아 원안 외형과 색상선. 기본형 뿔은 제거." },
   "silsea_run": { "styleRefs": ["silsea_run.png", "silsea_sprite-Photoroom.png"], "note": "8프레임 보행 순서와 원안 외형." },
@@ -190,6 +193,7 @@
 
   "ui_portrait_silsea": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "실세아 얼굴 원안, 기본형 뿔 제거." },
   "ui_portrait_potato89": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp", "mario_3.jpg"], "note": "프로젝트 선 처리와 큰 얼굴의 귀여운 갈색 망아지." },
+  "ui_portrait_sylvia": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "실비아 실제 idle 시트를 사용하며 에셋 실패 때는 분홍 갈기·속눈썹·하트 표식의 코드 도형 fallback을 사용한다." },
   "ui_form_base": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "둥근 상태 아이콘과 프로젝트 선 처리." },
   "ui_form_unicorn": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "뿔 실루엣 상태 아이콘." },
   "ui_form_pegasus": { "styleRefs": ["mylittlepony1.webp", "silsea_sprite-Photoroom.png"], "note": "날개 실루엣 상태 아이콘." },

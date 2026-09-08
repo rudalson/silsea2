@@ -9,6 +9,10 @@ const hornSources = Object.freeze({
     frame: join(root, "assets", "characters", "silsea", "transform_unicorn", "silsea_transform_unicorn_05.png"),
     extract: Object.freeze({ left: 106, top: 19, width: 6, height: 7 })
   }),
+  sylvia: Object.freeze({
+    frame: join(root, "assets", "characters", "sylvia", "transform_unicorn", "sylvia_transform_unicorn_05.png"),
+    extract: Object.freeze({ left: 104, top: 18, width: 8, height: 10 })
+  }),
   potato89: Object.freeze({
     frame: join(root, "assets", "characters", "potato89", "transform_unicorn", "potato89_transform_unicorn_05.png"),
     extract: Object.freeze({ left: 100, top: 16, width: 7, height: 8 })
@@ -20,6 +24,20 @@ const hornSources = Object.freeze({
 // lets animation-specific head movement remain perfectly attached to the character.
 const specs = Object.freeze({
   silsea: Object.freeze({
+    hornWidth: 8,
+    hornHeight: 11,
+    sequences: Object.freeze({
+      idle: [[96, 21, 14], [97, 23, 12], [96, 22, 14], [97, 22, 12]],
+      run: [[95, 23, 14], [97, 23, 10], [95, 23, 14], [97, 21, 10], [96, 22, 14], [98, 21, 10], [96, 22, 14], [97, 22, 10]],
+      jump_up: [[95, 33, 24], [95, 34, 12]],
+      fall: [[96, 23, 14], [100, 37, 25]],
+      land: [[96, 37, 22], [96, 23, 14]],
+      hurt: [[93, 23, 25], [96, 22, 14]],
+      fly: [[96, 24, 14], [96, 22, 10], [96, 25, 14], [97, 42, 18], [96, 24, 24], [96, 25, 14]],
+      victory: [[96, 21, 14], [96, 21, 5], [94, 26, 0], [95, 21, 10], [96, 21, 14], [96, 21, 14]]
+    })
+  }),
+  sylvia: Object.freeze({
     hornWidth: 8,
     hornHeight: 11,
     sequences: Object.freeze({
@@ -240,6 +258,14 @@ const rows = [
   ["silsea", "hurt"],
   ["silsea", "fly"],
   ["silsea", "victory"],
+  ["sylvia", "idle"],
+  ["sylvia", "run"],
+  ["sylvia", "jump_up"],
+  ["sylvia", "fall"],
+  ["sylvia", "land"],
+  ["sylvia", "hurt"],
+  ["sylvia", "fly"],
+  ["sylvia", "victory"],
   ["potato89", "idle"],
   ["potato89", "roll"],
   ["potato89", "jump_up"],

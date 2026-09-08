@@ -11,11 +11,12 @@ const forcePrefix = process.argv.find((argument) => argument.startsWith("--force
 let processed = 0;
 
 for (const filename of files) {
-  const match = filename.match(/^(silsea|potato89)_(.+)_(\d{2})_chroma\.png$/);
+  const match = filename.match(/^(silsea|potato89|sylvia)_(.+)_(\d{2})_chroma\.png$/);
   if (!match) continue;
   const [, character, sequence, frame] = match;
   const output = join(root, "assets", "characters", character, sequence, `${character}_${sequence}_${frame}.png`);
-  if (!forcePrefix || !filename.startsWith(forcePrefix)) {
+  if (forcePrefix && !filename.startsWith(forcePrefix)) continue;
+  if (!forcePrefix) {
     try {
       await access(output);
       continue;
