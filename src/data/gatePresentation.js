@@ -1,3 +1,5 @@
+import { AIRBORNE_GATE_ROUTE, createAirborneGateRoute } from "./airborneGateRoute.js";
+
 export const GATE_KINDS = Object.freeze({
   REAL: "real",
   PRANK: "prank"
@@ -32,7 +34,8 @@ export const GATE_REVIEW_MODES = Object.freeze({
   REAL: "real",
   AIR: "air",
   PRANK: "prank",
-  ARRIVAL: "arrival"
+  ARRIVAL: "arrival",
+  AIR_ROUTE: "air-route"
 });
 
 export const DEFAULT_GATE_PRESENTATION = Object.freeze({
@@ -125,15 +128,29 @@ export function applyGateReviewMode(level, mode) {
   if (!level || !Object.values(GATE_REVIEW_MODES).includes(mode)) return level;
   const direction = level.progression?.direction === "left" ? -1 : 1;
   const existing = normalizeGatePresentation(level.exit?.presentation, GATE_KINDS.REAL);
+  const airborne = mode === GATE_REVIEW_MODES.AIR_ROUTE;
   const exitPresentation = {
     ...existing,
-    placement: mode === GATE_REVIEW_MODES.AIR ? GATE_PLACEMENTS.AIR : GATE_PLACEMENTS.GROUND,
-    graybox: mode !== GATE_REVIEW_MODES.ARRIVAL
+    placement: mode === GATE_REVIEW_MODES.AIR || airborne ? GATE_PLACEMENTS.AIR : GATE_PLACEMENTS.GROUND,
+    airOffset: airborne ? AIRBORNE_GATE_ROUTE.airOffset : existing.airOffset,
+    graybox: mode !== GATE_REVIEW_MODES.ARRIVAL && !airborne
   };
   const arrivalX = Math.max(96, Math.min(
     Number(level.world?.width ?? 1280) - 96,
     Number(level.player?.spawn?.x ?? 160) + direction * 480
   ));
+  const routeX = Math.max(96, Math.min(
+    Number(level.world?.width ?? 1280) - 96,
+    Number(level.player?.spawn?.x ?? 160) + direction * AIRBORNE_GATE_ROUTE.gateDistance
+  ));
+  const exitX = mode === GATE_REVIEW_MODES.ARRIVAL ? arrivalX : airborne ? routeX : level.exit?.x;
+  const airRoute = airborne
+    ? createAirborneGateRoute({
+        gateX: exitX,
+        surfaceY: level.exit?.y ?? level.player?.spawn?.y,
+        direction
+      })
+    : null;
   const prankX = Math.max(96, Math.min(
     Number(level.world?.width ?? 1280) - 96,
     Number(level.player?.spawn?.x ?? 160) + direction * 360
@@ -155,10 +172,22 @@ export function applyGateReviewMode(level, mode) {
     ...level,
     exit: {
       ...level.exit,
-      x: mode === GATE_REVIEW_MODES.ARRIVAL ? arrivalX : level.exit?.x,
-      presentation: exitPresentation
+      x: exitX,
+      presentation: airborne ? { ...exitPresentation, airRoute } : exitPresentation
     },
-    prankGates: [...(level.prankGates ?? []), ...reviewPranks]
+    prankGates: [...(level.prankGates ?? []), ...reviewPranks],
+    checkpoints: airRoute
+      ? [...(level.checkpoints ?? []), airRoute.retryCheckpoint]
+      : level.checkpoints,
+    cameraCues: airRoute
+      ? [...(level.cameraCues ?? []), {
+          id: "gate-review-air-camera",
+          xStart: Math.min(airRoute.retryCheckpoint.x, exitX) - 96,
+          xEnd: Math.max(airRoute.retryCheckpoint.x, exitX) + 96,
+          lookAhead: AIRBORNE_GATE_ROUTE.cameraLookAhead,
+          targetX: exitX
+        }]
+      : level.cameraCues
   };
 }
 
@@ -189,6 +218,36 @@ export function assertGatePresentationShape(level) {
     }
     if (presentation.graybox !== undefined && typeof presentation.graybox !== "boolean") {
       fail(`${label}.graybox는 boolean이어야 합니다.`);
+    }
+    if (presentation.airRoute !== undefined) {
+      const route = presentation.airRoute;
+      const finitePoint = (point) => Number.isFinite(Number(point?.x)) && Number.isFinite(Number(point?.y));
+      if (!finitePoint(route.platform)
+        || !Number.isFinite(Number(route.platform?.width))
+        || !Number.isFinite(Number(route.platform?.height))
+        || route.platform.width <= 0
+        || route.platform.height <= 0) {
+        fail(`${label}.airRoute.platform 좌표와 크기가 필요합니다.`);
+      }
+      if (!Array.isArray(route.guideStars)
+        || route.guideStars.length < 2
+        || route.guideStars.some((star) => !finitePoint(star) || !Number.isFinite(Number(star.size)))) {
+        fail(`${label}.airRoute.guideStars는 유효한 안내점 배열이어야 합니다.`);
+      }
+      if (!Number.isFinite(Number(route.lightBeam?.x))
+        || !Number.isFinite(Number(route.lightBeam?.yTop))
+        || !Number.isFinite(Number(route.lightBeam?.yBottom))
+        || route.lightBeam.yTop >= route.lightBeam.yBottom) {
+        fail(`${label}.airRoute.lightBeam 범위가 필요합니다.`);
+      }
+      if (!route.retryCheckpoint?.id || !finitePoint(route.retryCheckpoint)) {
+        fail(`${label}.airRoute.retryCheckpoint가 필요합니다.`);
+      }
+      if (!["directReachable", "platformReachable"].every(
+        (key) => typeof route.reachability?.[key] === "boolean"
+      )) {
+        fail(`${label}.airRoute.reachability 판정이 필요합니다.`);
+      }
     }
   };
 

@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
+import { DEFAULT_TUNING } from "../src/data/characters.js";
 import level06 from "../src/data/levels/level-06.js";
+import {
+  AIRBORNE_GATE_ROUTE,
+  calculateGateReachability,
+  calculateJumpApex
+} from "../src/data/airborneGateRoute.js";
 import {
   GATE_KINDS,
   GATE_PHASES,
@@ -18,7 +24,12 @@ import {
   getGateArrivalTiming,
   resolveGateArrivalStage
 } from "../src/data/gateArrival.js";
-import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/levelSchema.js";
+import {
+  assertLevelShape,
+  getCameraLookAheadTarget,
+  normalizeLevelDefinition
+} from "../src/data/schema/levelSchema.js";
+import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
 
 const real = normalizeGatePresentation({}, GATE_KINDS.REAL);
 assert.equal(real.kind, GATE_KINDS.REAL);
@@ -76,6 +87,7 @@ assert.equal(getGateReviewMode("?gateReview=real"), GATE_REVIEW_MODES.REAL);
 assert.equal(getGateReviewMode("?gateReview=air"), GATE_REVIEW_MODES.AIR);
 assert.equal(getGateReviewMode("?gateReview=prank"), GATE_REVIEW_MODES.PRANK);
 assert.equal(getGateReviewMode("?gateReview=arrival"), GATE_REVIEW_MODES.ARRIVAL);
+assert.equal(getGateReviewMode("?gateReview=air-route"), GATE_REVIEW_MODES.AIR_ROUTE);
 assert.equal(getGateReviewMode("?gateReview=unknown"), null);
 
 const normalized = normalizeLevelDefinition(level06);
@@ -104,6 +116,36 @@ assert.equal(arrivalReview.exit.presentation.graybox, false);
 assert.equal(arrivalReview.exit.presentation.placement, GATE_PLACEMENTS.GROUND);
 assert.equal(arrivalReview.exit.x, normalized.player.spawn.x + 480);
 
+const apex = calculateJumpApex(DEFAULT_TUNING.jumpVelocity, DEFAULT_TUNING.gravity);
+assert.ok(apex > 136 && apex < 137, "기본형 표준 점프 정점은 약 136px이어야 함");
+const reachability = calculateGateReachability({
+  jumpVelocity: DEFAULT_TUNING.jumpVelocity,
+  gravity: DEFAULT_TUNING.gravity
+});
+assert.equal(reachability.directRise, 74);
+assert.equal(reachability.platformRise, 10);
+assert.equal(reachability.directReachable, true, "지면 표준 점프로 게이트 충돌 영역에 닿아야 함");
+assert.equal(reachability.platformReachable, true, "보조 발판에서는 짧은 점프로 진입 가능해야 함");
+
+const airRouteReview = applyGateReviewMode(normalized, GATE_REVIEW_MODES.AIR_ROUTE);
+const route = airRouteReview.exit.presentation.airRoute;
+assert.equal(airRouteReview.exit.presentation.graybox, false);
+assert.equal(airRouteReview.exit.presentation.placement, GATE_PLACEMENTS.AIR);
+assert.equal(airRouteReview.exit.presentation.airOffset, AIRBORNE_GATE_ROUTE.airOffset);
+assert.equal(resolveGateY(airRouteReview.exit.y, airRouteReview.exit.presentation), 426);
+assert.equal(route.platform.y, 512);
+assert.equal(route.guideStars.length, 3);
+assert.equal(route.retryCheckpoint.id, "gate-review-air-checkpoint");
+assert.equal(airRouteReview.checkpoints.filter(({ id }) => id === route.retryCheckpoint.id).length, 1);
+assert.equal(airRouteReview.cameraCues.at(-1).lookAhead, AIRBORNE_GATE_ROUTE.cameraLookAhead);
+assert.equal(route.reachability.directReachable, true);
+assert.equal(route.reachability.platformReachable, true);
+assert.equal(assertLevelShape(airRouteReview), true);
+
+const easyAirRoute = createRuntimeLevel(airRouteReview, true);
+assert.ok(easyAirRoute.checkpoints.some(({ id }) => id === route.retryCheckpoint.id));
+assert.equal(easyAirRoute.exit.presentation.airRoute.retryCheckpoint.id, route.retryCheckpoint.id);
+
 const normalArrival = getGateArrivalTiming("normal");
 const reducedArrival = getGateArrivalTiming("reduced");
 assert.ok(reducedArrival.stableAtMs < normalArrival.stableAtMs);
@@ -119,6 +161,18 @@ const leftReview = applyGateReviewMode({
   player: { spawn: { x: 4800, y: 576 } }
 }, GATE_REVIEW_MODES.PRANK);
 assert.ok(leftReview.prankGates[0].x < leftReview.player.spawn.x, "역방향 검수 장난 게이트는 진행 방향에 있어야 함");
+
+const leftAirRoute = applyGateReviewMode({
+  ...normalized,
+  progression: { direction: "left" },
+  player: { spawn: { x: 4800, y: 576 } }
+}, GATE_REVIEW_MODES.AIR_ROUTE);
+const leftRoute = leftAirRoute.exit.presentation.airRoute;
+const leftCue = leftAirRoute.cameraCues.at(-1);
+assert.ok(leftAirRoute.exit.x < leftAirRoute.player.spawn.x, "역방향 공중 게이트는 진행 방향에 있어야 함");
+assert.ok(leftRoute.retryCheckpoint.x > leftAirRoute.exit.x, "역방향 체크포인트는 게이트 진입 전이어야 함");
+assert.ok(leftRoute.guideStars.every(({ x }) => x > leftAirRoute.exit.x), "별 궤적은 역방향에서 좌우 반전되어야 함");
+assert.equal(getCameraLookAheadTarget(-180, leftCue.lookAhead), AIRBORNE_GATE_ROUTE.cameraLookAhead);
 
 assert.throws(
   () => assertLevelShape({
@@ -136,6 +190,19 @@ assert.throws(
     ]
   }),
   /id 중복/
+);
+assert.throws(
+  () => assertLevelShape({
+    ...airRouteReview,
+    exit: {
+      ...airRouteReview.exit,
+      presentation: {
+        ...airRouteReview.exit.presentation,
+        airRoute: { ...route, guideStars: [] }
+      }
+    }
+  }),
+  /guideStars는 유효한 안내점 배열/
 );
 
 console.log("게이트 표시 상태·스키마 테스트 통과");

@@ -68,6 +68,8 @@ export class LevelLoader {
     this.terrainObjects = [];
     this.backgroundLayers = [];
     this.backgroundMood = null;
+    this.airborneGateRoute = null;
+    this.airborneGateRouteTweens = [];
   }
 
   build() {
@@ -82,6 +84,7 @@ export class LevelLoader {
     this.createAtmosphere();
     this.createDecorations();
     this.createTerrain();
+    this.createAirborneGateRoute();
     if (this.scene.registry.get("debugEnabled")) this.createSectionMarkers();
     this.createCheckpoints();
     this.createItemMarkers();
@@ -307,6 +310,108 @@ export class LevelLoader {
         tile.setOrigin(0, 0).setDisplaySize(width, height).setDepth(0);
       }
     }
+  }
+
+  createAirborneGateRoute() {
+    const route = this.level.exit?.presentation?.airRoute;
+    if (!route) return;
+
+    const beamHeight = route.lightBeam.yBottom - route.lightBeam.yTop;
+    const beamY = route.lightBeam.yTop + beamHeight / 2;
+    const outerBeam = this.track(this.scene.add.rectangle(
+      route.lightBeam.x,
+      beamY,
+      route.lightBeam.width,
+      beamHeight,
+      COLORS.collectBlue,
+      0.08
+    ));
+    outerBeam.setStrokeStyle(3, COLORS.white, 0.16).setBlendMode("ADD").setDepth(1);
+    const innerBeam = this.track(this.scene.add.rectangle(
+      route.lightBeam.x,
+      beamY,
+      Math.max(20, route.lightBeam.width * 0.34),
+      beamHeight,
+      COLORS.white,
+      0.12
+    ));
+    innerBeam.setBlendMode("ADD").setDepth(1);
+
+    const platformObject = {
+      name: "gate_review_air_platform",
+      type: "platform",
+      x: route.platform.x - route.platform.width / 2,
+      y: route.platform.y,
+      width: route.platform.width,
+      height: route.platform.height
+    };
+    const tilesetKey = this.level.assets.tileset;
+    const useTileset = Boolean(tilesetKey && this.scene.textures.exists(tilesetKey));
+    const platform = this.scene.add.rectangle(
+      route.platform.x,
+      route.platform.y + route.platform.height / 2,
+      route.platform.width,
+      route.platform.height,
+      COLORS.ground,
+      useTileset ? 0 : 1
+    );
+    if (!useTileset) platform.setStrokeStyle(4, COLORS.outline, 1);
+    platform.setDepth(0);
+    this.scene.physics.add.existing(platform, true);
+    this.terrainBodies.add(platform);
+    if (useTileset) {
+      this.createTerrainTiles(platformObject, tilesetKey);
+    } else {
+      const grass = this.track(this.scene.add.rectangle(
+        route.platform.x,
+        route.platform.y + 6,
+        route.platform.width - 4,
+        12,
+        COLORS.grass
+      ));
+      grass.setDepth(1);
+    }
+
+    const guideStars = route.guideStars.map((guide, index) => {
+      const halo = this.track(this.scene.add.circle(
+        guide.x,
+        guide.y,
+        guide.size * 1.45,
+        COLORS.collectBlue,
+        0.12
+      ));
+      halo.setStrokeStyle(2, COLORS.white, 0.24).setDepth(3);
+      const star = this.track(this.scene.add.star(
+        guide.x,
+        guide.y,
+        5,
+        guide.size * 0.38,
+        guide.size,
+        COLORS.collect,
+        0.92
+      ));
+      star.setStrokeStyle(2, COLORS.white, 0.9).setDepth(4);
+      this.airborneGateRouteTweens.push(this.scene.tweens.add({
+        targets: [halo, star],
+        y: `-=${5 + index * 2}`,
+        alpha: { from: 0.62 + index * 0.08, to: 1 },
+        duration: 760 + index * 110,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.InOut"
+      }));
+      return { halo, star };
+    });
+
+    this.airborneGateRouteTweens.push(this.scene.tweens.add({
+      targets: [outerBeam, innerBeam],
+      alpha: { from: 0.08, to: 0.22 },
+      duration: 940,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.InOut"
+    }));
+    this.airborneGateRoute = { route, platform, guideStars, outerBeam, innerBeam };
   }
 
   createSectionMarkers() {
@@ -909,7 +1014,20 @@ export class LevelLoader {
         ...gate.lifecycle.snapshot(),
         placement: gate.presentation.placement,
         graybox: gate.presentation.graybox
-      }))
+      })),
+      airRoute: this.airborneGateRoute ? {
+        platform: { ...this.airborneGateRoute.route.platform },
+        platformBodyEnabled: Boolean(this.airborneGateRoute.platform?.body?.enable),
+        guideCount: this.airborneGateRoute.guideStars.length,
+        lightBeam: { ...this.airborneGateRoute.route.lightBeam },
+        retryCheckpoint: { ...this.airborneGateRoute.route.retryCheckpoint },
+        checkpointRegistered: this.checkpointZones.some(
+          ({ data }) => data.id === this.airborneGateRoute.route.retryCheckpoint.id
+        ),
+        cameraCue: this.level.cameraCues?.find(({ id }) => id === "gate-review-air-camera") ?? null,
+        progressionDirection: this.level.progression?.direction ?? "right",
+        reachability: { ...this.airborneGateRoute.route.reachability }
+      } : null
     };
   }
 
@@ -976,6 +1094,9 @@ export class LevelLoader {
       for (const tween of gate.tweens) tween.stop();
     }
     this.prankGates.length = 0;
+    for (const tween of this.airborneGateRouteTweens) tween.stop();
+    this.airborneGateRouteTweens.length = 0;
+    this.airborneGateRoute = null;
     if (this.terrainBodies?.world?.bodies) {
       this.terrainBodies.destroy(true);
     }
