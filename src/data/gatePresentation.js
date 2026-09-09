@@ -1,4 +1,5 @@
 import { AIRBORNE_GATE_ROUTE, createAirborneGateRoute } from "./airborneGateRoute.js";
+import { createPrankGateReviewEncounter } from "./prankGateEncounter.js";
 
 export const GATE_KINDS = Object.freeze({
   REAL: "real",
@@ -159,11 +160,12 @@ export function applyGateReviewMode(level, mode) {
     ? [{
         id: "gate-review-prank",
         x: prankX,
+        encounter: createPrankGateReviewEncounter(),
         presentation: {
           kind: GATE_KINDS.PRANK,
           placement: GATE_PLACEMENTS.GROUND,
           approachDistance: 150,
-          graybox: true
+          graybox: false
         }
       }]
     : [];
@@ -175,7 +177,8 @@ export function applyGateReviewMode(level, mode) {
       x: exitX,
       presentation: airborne ? { ...exitPresentation, airRoute } : exitPresentation
     },
-    prankGates: [...(level.prankGates ?? []), ...reviewPranks],
+    prankGateReviewOnly: mode === GATE_REVIEW_MODES.PRANK,
+    prankGates: mode === GATE_REVIEW_MODES.PRANK ? reviewPranks : (level.prankGates ?? []),
     checkpoints: airRoute
       ? [...(level.checkpoints ?? []), airRoute.retryCheckpoint]
       : level.checkpoints,
@@ -265,6 +268,16 @@ export function assertGatePresentationShape(level) {
     }
     if (prank.y !== undefined && !Number.isFinite(Number(prank.y))) {
       fail(`prank gate ${prank.id} y는 숫자여야 합니다.`);
+    }
+    if (prank.encounter !== undefined) {
+      if (prank.encounter.resetPolicy !== "scene-restart") {
+        fail(`prank gate ${prank.id}.encounter.resetPolicy는 scene-restart여야 합니다.`);
+      }
+      for (const key of ["collision", "damage", "score", "objectives", "save"]) {
+        if (prank.encounter.harmless?.[key] !== false) {
+          fail(`prank gate ${prank.id}.encounter.harmless.${key}는 false여야 합니다.`);
+        }
+      }
     }
     validatePresentation(prank.presentation, GATE_KINDS.PRANK, `prank gate ${prank.id}.presentation`);
   }

@@ -25,6 +25,12 @@ import {
   resolveGateArrivalStage
 } from "../src/data/gateArrival.js";
 import {
+  PRANK_GATE_ENCOUNTER_STAGES,
+  PRANK_GATE_SAFETY,
+  getPrankGateTiming,
+  resolvePrankGateSafety
+} from "../src/data/prankGateEncounter.js";
+import {
   assertLevelShape,
   getCameraLookAheadTarget,
   normalizeLevelDefinition
@@ -107,9 +113,49 @@ assert.equal(resolveGateY(normalized.exit.y, airReview.exit.presentation), norma
 
 const prankReview = applyGateReviewMode(normalized, GATE_REVIEW_MODES.PRANK);
 assert.equal(prankReview.prankGates.length, 1);
+assert.equal(prankReview.prankGateReviewOnly, true);
 assert.equal(prankReview.prankGates[0].presentation.kind, GATE_KINDS.PRANK);
+assert.equal(prankReview.prankGates[0].presentation.graybox, false);
+assert.equal(prankReview.prankGates[0].encounter.resetPolicy, "scene-restart");
+assert.deepEqual(prankReview.prankGates[0].encounter.harmless, {
+  collision: false,
+  damage: false,
+  score: false,
+  objectives: false,
+  save: false
+});
 assert.ok(prankReview.prankGates[0].x > normalized.player.spawn.x);
 assert.equal(assertLevelShape(prankReview), true);
+
+const replacementPrankReview = applyGateReviewMode({
+  ...normalized,
+  prankGates: [{ id: "existing-prank", x: 900 }]
+}, GATE_REVIEW_MODES.PRANK);
+assert.equal(replacementPrankReview.prankGates.length, 1, "고정 검수에서는 장난 게이트를 최대 1개만 둬야 함");
+assert.equal(replacementPrankReview.prankGates[0].id, "gate-review-prank");
+
+const normalPrankTiming = getPrankGateTiming("normal");
+const reducedPrankTiming = getPrankGateTiming("reduced");
+assert.ok(reducedPrankTiming.reactionMs < normalPrankTiming.reactionMs);
+assert.ok(reducedPrankTiming.popMs < normalPrankTiming.popMs);
+assert.ok(reducedPrankTiming.smokeCount < normalPrankTiming.smokeCount);
+assert.ok(reducedPrankTiming.starCount < normalPrankTiming.starCount);
+assert.equal(PRANK_GATE_ENCOUNTER_STAGES.IDLE, "idle");
+assert.deepEqual(resolvePrankGateSafety(), { eligible: true, reasons: [] });
+assert.deepEqual(resolvePrankGateSafety({ actualGateActive: true }), {
+  eligible: false,
+  reasons: ["actual-gate-active"]
+});
+assert.deepEqual(resolvePrankGateSafety({ bossActive: true }), {
+  eligible: false,
+  reasons: ["boss-active"]
+});
+assert.deepEqual(resolvePrankGateSafety({
+  distanceToCheckpoint: PRANK_GATE_SAFETY.checkpointDistance - 1
+}), { eligible: false, reasons: ["checkpoint-nearby"] });
+assert.deepEqual(resolvePrankGateSafety({
+  secondsToDeadline: PRANK_GATE_SAFETY.deadlineGuardSeconds
+}), { eligible: false, reasons: ["deadline-nearby"] });
 
 const arrivalReview = applyGateReviewMode(normalized, GATE_REVIEW_MODES.ARRIVAL);
 assert.equal(arrivalReview.exit.presentation.graybox, false);
@@ -203,6 +249,19 @@ assert.throws(
     }
   }),
   /guideStars는 유효한 안내점 배열/
+);
+assert.throws(
+  () => assertLevelShape({
+    ...prankReview,
+    prankGates: [{
+      ...prankReview.prankGates[0],
+      encounter: {
+        ...prankReview.prankGates[0].encounter,
+        harmless: { ...prankReview.prankGates[0].encounter.harmless, score: true }
+      }
+    }]
+  }),
+  /encounter.harmless.score는 false/
 );
 
 console.log("게이트 표시 상태·스키마 테스트 통과");

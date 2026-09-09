@@ -600,3 +600,14 @@
 - [x] [A] `npm run test`, `npm run validate`, `npm run build`, `npm run test:soak`, `git diff --check`를 통과함. — 2026-09-09
 - [x] [M] 일반·쉬운 `level-06`과 좌진행 `p9-boss-test-left`에서 실제 게이트, 보조 발판, 별 3개, 빛기둥, 체크포인트와 활성 상태를 확인함. — 2026-09-09 `?gateReview=air-route`
 - [x] [M] 사용자가 대표 공중 게이트의 발견성·점프 궤적·재시도 경로를 승인함. — 2026-09-09 `G4 공중 게이트 경로 승인. G5 진행 가능.`
+
+## 후속 확장 G5 장난 게이트 연출
+
+- [x] [A] 고정 검수 모드는 기존 장난 게이트 목록을 누적하지 않고 `gate-review-prank` 1개만 두며 실제 게이트를 동시에 활성화하지 않음.
+- [x] [A] 실제 게이트 활성, 보스 구간, 체크포인트 256px 이내, 제한 시간 15초 이내의 네 생성 억제 사유를 순수 규칙으로 검사함. — 2026-09-09 `npm run test`
+- [x] [A] 보통 240ms/연기 7/별 9와 효과 약하게 150ms/연기 3/별 4의 상한 및 `idle → reacting → pop → settled` 연출 상태를 고정함.
+- [x] [A] 장난 게이트에 물리 충돌 zone을 만들지 않고 collision·damage·score·objectives·save가 모두 false인 계약을 스키마로 검증함.
+- [x] [A] 접근 1회만 lifecycle을 `vanished`로 전환하며 부활은 소멸 상태를 유지하고 Scene 재시작·검수 핫 리로드는 `scene-restart` 정책으로 초기화함.
+- [x] [M] 일반 원화 검수에서 접근 전 `active/idle`, 펑 이후 `vanished/settled`, 점수 0·피해 0·게이트 진입 false·필수 목표 미완료 유지와 브라우저 warning/error 0건을 확인함. — 2026-09-09 `?gateReview=prank`
+- [x] [M] `effects=reduced&fallback=1&mute=1`에서 도형 게이트, 연기 3+별 4의 `particleCount=7`, 소멸 후 진행 방향 접근성 안내를 확인함.
+- [x] [M] 사용자가 장난의 재미, 실제 게이트 오인 정도와 소멸 직후 실제 출구 방향 인지를 승인함. — 2026-09-09 `G5 장난 게이트 연출 승인. G6 진행 가능.`

@@ -17,6 +17,11 @@ import {
   resolveGateY
 } from "../data/gatePresentation.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
+import {
+  PRANK_GATE_ENCOUNTER_STAGES,
+  getPrankGateTiming,
+  resolvePrankGateSafety
+} from "../data/prankGateEncounter.js";
 import { AssetManager } from "./AssetManager.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
@@ -62,6 +67,7 @@ export class LevelLoader {
     this.hazards = [];
     this.gate = null;
     this.prankGates = [];
+    this.prankGateSuppressions = [];
     this.boss = null;
     this.bossHitLocked = false;
     this.tilemap = null;
@@ -93,7 +99,7 @@ export class LevelLoader {
     this.createBoss();
     this.createPrankGates();
 
-    if (!this.boss) this.spawnGate();
+    if (!this.boss && !this.level.prankGateReviewOnly) this.spawnGate();
     return this;
   }
 
@@ -918,46 +924,88 @@ export class LevelLoader {
   createPrankGates() {
     for (const config of this.level.prankGates ?? []) {
       const x = Number(config.x);
+      const nearestCheckpointDistance = Math.min(
+        Number.POSITIVE_INFINITY,
+        ...(this.level.checkpoints ?? []).map((checkpoint) => Math.abs(Number(checkpoint.x) - x))
+      );
+      const deadlines = [
+        ...(this.level.objectives?.required ?? []),
+        ...(this.level.objectives?.optional ?? [])
+      ].filter(({ type }) => type === "clear_time").map(({ seconds }) => Number(seconds));
+      const secondsToDeadline = deadlines.length
+        ? Math.min(...deadlines) - Number(this.objectiveManager?.context?.elapsed ?? 0)
+        : Number.POSITIVE_INFINITY;
+      const safety = resolvePrankGateSafety({
+        actualGateActive: Boolean(this.gate) || (!this.level.prankGateReviewOnly && !this.boss),
+        bossActive: Boolean(this.boss) && this.getSectionAt(x)?.type === "boss",
+        distanceToCheckpoint: nearestCheckpointDistance,
+        secondsToDeadline
+      });
+      if (!safety.eligible) {
+        this.prankGateSuppressions.push({ id: config.id, reasons: [...safety.reasons] });
+        continue;
+      }
       const surfaceY = config.y ?? this.findSafeY(x);
       const presentation = normalizeGatePresentation(config.presentation, GATE_KINDS.PRANK);
       const y = resolveGateY(surfaceY, presentation);
       const centerY = y - 88;
       const lifecycle = createGateLifecycle(GATE_KINDS.PRANK);
-      const glow = this.track(this.scene.add.ellipse(x, centerY, 148, 178, COLORS.collectPink, 0.12));
-      glow.setStrokeStyle(6, COLORS.white, 0.58).setAlpha(0).setDepth(2);
-      const arch = this.track(this.scene.add.graphics());
-      arch.setPosition(x, centerY - 2).setAlpha(0).setScale(0.72).setDepth(3);
-      for (const [radius, color] of [[58, COLORS.collect], [47, COLORS.collectBlue], [36, COLORS.collectPink]]) {
-        arch.lineStyle(7, color, 0.92);
-        arch.beginPath();
-        arch.arc(0, 0, radius, Math.PI, Math.PI * 2, false);
-        arch.strokePath();
-        arch.lineBetween(-radius, 0, -radius, 76);
-        arch.lineBetween(radius, 0, radius, 76);
+      const key = this.level.assets.objects?.gate;
+      let glow;
+      let arch;
+      let label = null;
+      if (!presentation.graybox && key && this.scene.textures.exists(key)) {
+        glow = this.track(this.scene.add.image(x, centerY, key));
+        glow.setScale(1.48).setTint(COLORS.collectPink).setBlendMode("ADD").setAlpha(0).setDepth(2);
+        arch = this.track(this.scene.add.image(x, centerY, key));
+        arch.setScale(1.28).setAlpha(0).setDepth(3);
+      } else {
+        glow = this.track(this.scene.add.ellipse(x, centerY, 148, 178, COLORS.collectPink, 0.12));
+        glow.setStrokeStyle(6, COLORS.white, 0.58).setAlpha(0).setDepth(2);
+        arch = this.track(this.scene.add.graphics());
+        arch.setPosition(x, centerY - 2).setAlpha(0).setScale(0.72).setDepth(3);
+        for (const [radius, color] of [[58, COLORS.collect], [47, COLORS.collectBlue], [36, COLORS.collectPink]]) {
+          arch.lineStyle(7, color, 0.92);
+          arch.beginPath();
+          arch.arc(0, 0, radius, Math.PI, Math.PI * 2, false);
+          arch.strokePath();
+          arch.lineBetween(-radius, 0, -radius, 76);
+          arch.lineBetween(radius, 0, radius, 76);
+        }
+        label = this.track(this.scene.add.text(x, y - 186, "장난 게이트 · 회색 상자", {
+          fontFamily: GAME_FONT_FAMILY,
+          fontSize: "18px",
+          fontStyle: "700",
+          color: CSS_COLORS.white,
+          backgroundColor: CSS_COLORS.panel,
+          padding: { x: 9, y: 5 }
+        }));
+        label.setOrigin(0.5).setAlpha(0).setDepth(5);
       }
-      const label = this.track(this.scene.add.text(x, y - 186, "장난 게이트 · 회색 상자", {
-        fontFamily: GAME_FONT_FAMILY,
-        fontSize: "18px",
-        fontStyle: "700",
-        color: CSS_COLORS.white,
-        backgroundColor: CSS_COLORS.panel,
-        padding: { x: 9, y: 5 }
-      }));
-      label.setOrigin(0.5).setAlpha(0).setDepth(5);
       lifecycle.transition(GATE_TRANSITIONS.SPAWN);
-      const visuals = [glow, arch, label];
+      const visuals = [glow, arch, label].filter(Boolean);
       const tweens = [
         this.scene.tweens.add({
           targets: visuals,
           alpha: 1,
           duration: 240,
           ease: "Back.Out",
-          onComplete: () => lifecycle.transition(GATE_TRANSITIONS.ACTIVATE)
+          onComplete: () => {
+            lifecycle.transition(GATE_TRANSITIONS.ACTIVATE);
+          }
         }),
         this.scene.tweens.add({
           targets: glow,
           alpha: { from: 0.12, to: 0.42 },
           duration: 520,
+          yoyo: true,
+          repeat: -1,
+          ease: "Sine.InOut"
+        }),
+        this.scene.tweens.add({
+          targets: arch,
+          angle: { from: -1.4, to: 1.4 },
+          duration: 680,
           yoyo: true,
           repeat: -1,
           ease: "Sine.InOut"
@@ -970,9 +1018,17 @@ export class LevelLoader {
         y,
         surfaceY,
         presentation,
+        encounter: config.encounter ?? null,
+        encounterStage: PRANK_GATE_ENCOUNTER_STAGES.IDLE,
+        effectStrength: this.scene.registry.get("screenEffectStrength") === "reduced" ? "reduced" : "normal",
+        safety,
         lifecycle,
         visuals,
-        tweens
+        arch,
+        glow,
+        particles: [],
+        tweens,
+        timers: []
       });
     }
   }
@@ -985,17 +1041,95 @@ export class LevelLoader {
       if (!gate.lifecycle.transition(GATE_TRANSITIONS.APPROACH)) continue;
       for (const tween of gate.tweens) tween.stop();
       gate.tweens.length = 0;
+      gate.encounterStage = PRANK_GATE_ENCOUNTER_STAGES.REACTING;
+      const timing = getPrankGateTiming(gate.effectStrength);
       gate.tweens.push(this.scene.tweens.add({
-        targets: gate.visuals,
-        alpha: 0,
-        scale: 1.34,
-        angle: 8,
-        duration: 190,
-        ease: "Back.In",
-        onComplete: () => gate.visuals.forEach((visual) => visual.destroy())
+        targets: gate.arch,
+        angle: { from: -7, to: 7 },
+        scaleX: { from: gate.arch.scaleX, to: gate.arch.scaleX * 0.9 },
+        scaleY: { from: gate.arch.scaleY, to: gate.arch.scaleY * 1.08 },
+        duration: Math.max(60, Math.floor(timing.reactionMs / 3)),
+        yoyo: true,
+        repeat: 2,
+        ease: "Sine.InOut"
       }));
-      this.scene.events.emit(EVENTS.PRANK_GATE_VANISHED, { id: gate.id, x: gate.x, y: gate.y });
+      gate.timers.push(this.scene.time.delayedCall(timing.reactionMs, () => this.popPrankGate(gate)));
     }
+  }
+
+  popPrankGate(gate) {
+    if (!gate || gate.encounterStage !== PRANK_GATE_ENCOUNTER_STAGES.REACTING) return false;
+    const timing = getPrankGateTiming(gate.effectStrength);
+    gate.encounterStage = PRANK_GATE_ENCOUNTER_STAGES.POP;
+    const centerY = gate.y - 82;
+    for (let index = 0; index < timing.smokeCount; index += 1) {
+      const angle = (Math.PI * 2 * index) / timing.smokeCount;
+      const smoke = this.track(this.scene.add.circle(
+        gate.x + Math.cos(angle) * 18,
+        centerY + Math.sin(angle) * 16,
+        18 + (index % 3) * 4,
+        index % 2 ? COLORS.white : COLORS.soft,
+        0.82
+      ));
+      smoke.setStrokeStyle(2, COLORS.collectPink, 0.42).setDepth(5);
+      gate.particles.push(smoke);
+      gate.tweens.push(this.scene.tweens.add({
+        targets: smoke,
+        x: smoke.x + Math.cos(angle) * (54 + (index % 2) * 18),
+        y: smoke.y + Math.sin(angle) * 42 - 18,
+        alpha: 0,
+        scale: 1.65,
+        duration: timing.popMs,
+        ease: "Cubic.Out",
+        onComplete: () => smoke.destroy()
+      }));
+    }
+    for (let index = 0; index < timing.starCount; index += 1) {
+      const angle = (Math.PI * 2 * index) / timing.starCount - Math.PI / 2;
+      const star = this.track(this.scene.add.star(
+        gate.x,
+        centerY,
+        5,
+        2.4,
+        7 + (index % 3) * 2,
+        index % 2 ? COLORS.collect : COLORS.collectBlue,
+        1
+      ));
+      star.setStrokeStyle(1, COLORS.white, 0.9).setDepth(6);
+      gate.particles.push(star);
+      gate.tweens.push(this.scene.tweens.add({
+        targets: star,
+        x: gate.x + Math.cos(angle) * (72 + (index % 3) * 14),
+        y: centerY + Math.sin(angle) * (58 + (index % 2) * 16) + 26,
+        angle: index % 2 ? 150 : -150,
+        alpha: 0,
+        scale: 0.18,
+        duration: timing.popMs,
+        ease: "Quad.Out",
+        onComplete: () => star.destroy()
+      }));
+    }
+    gate.tweens.push(this.scene.tweens.add({
+      targets: gate.visuals,
+      alpha: 0,
+      scaleX: 1.38,
+      scaleY: 0.56,
+      duration: Math.min(210, timing.popMs),
+      ease: "Back.In",
+      onComplete: () => gate.visuals.forEach((visual) => visual.destroy())
+    }));
+    gate.timers.push(this.scene.time.delayedCall(timing.popMs, () => {
+      gate.encounterStage = PRANK_GATE_ENCOUNTER_STAGES.SETTLED;
+    }));
+    this.scene.audioManager?.playSfx("sfx_random_teleport", { randomizeRate: false, volume: 0.78 });
+    this.scene.events.emit(EVENTS.PRANK_GATE_VANISHED, {
+      id: gate.id,
+      x: gate.x,
+      y: gate.y,
+      direction: this.level.progression?.direction ?? "right",
+      harmless: gate.encounter?.harmless ?? null
+    });
+    return true;
   }
 
   getGatePresentationSnapshot() {
@@ -1013,7 +1147,17 @@ export class LevelLoader {
         id: gate.id,
         ...gate.lifecycle.snapshot(),
         placement: gate.presentation.placement,
-        graybox: gate.presentation.graybox
+        graybox: gate.presentation.graybox,
+        encounterStage: gate.encounterStage,
+        effectStrength: gate.effectStrength,
+        particleCount: gate.particles.filter((particle) => particle.active).length,
+        resetPolicy: gate.encounter?.resetPolicy ?? null,
+        harmless: gate.encounter?.harmless ?? null,
+        safety: gate.safety
+      })),
+      prankSuppressions: this.prankGateSuppressions.map((entry) => ({
+        id: entry.id,
+        reasons: [...entry.reasons]
       })),
       airRoute: this.airborneGateRoute ? {
         platform: { ...this.airborneGateRoute.route.platform },
@@ -1092,8 +1236,10 @@ export class LevelLoader {
     this.gate = null;
     for (const gate of this.prankGates) {
       for (const tween of gate.tweens) tween.stop();
+      for (const timer of gate.timers) timer.remove(false);
     }
     this.prankGates.length = 0;
+    this.prankGateSuppressions.length = 0;
     for (const tween of this.airborneGateRouteTweens) tween.stop();
     this.airborneGateRouteTweens.length = 0;
     this.airborneGateRoute = null;

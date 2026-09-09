@@ -131,8 +131,11 @@ export class GameScene extends Phaser.Scene {
       this.updateAccessibleStatus(`${name} 발견. 발견 보너스 ${reward}점을 얻었습니다.`);
     };
     this.events.on(EVENTS.SECRET_FOUND, this.onSecretFound);
-    this.onPrankGateVanished = () => {
-      this.updateAccessibleStatus("장난 게이트가 펑 사라졌습니다. 실제 출구를 향해 계속 이동하세요.");
+    this.onPrankGateVanished = ({ direction = "right" } = {}) => {
+      const directionLabel = direction === "left" ? "왼쪽" : "오른쪽";
+      this.updateAccessibleStatus(
+        `장난 게이트가 펑 사라졌습니다. 실제 출구는 ${directionLabel} 진행 방향에 있습니다.`
+      );
     };
     this.events.on(EVENTS.PRANK_GATE_VANISHED, this.onPrankGateVanished);
     this.createGameplayManagers();
@@ -154,7 +157,10 @@ export class GameScene extends Phaser.Scene {
     if (this.registry.get("debugEnabled")) {
       const hotReloadAvailable = isLevelHotReloadAvailable();
       this.levelHotReload = new LevelHotReloadController({
-        load: () => getLevel(this.levelId),
+        load: () => applyItemReviewMode(
+          applyGateReviewMode(getLevel(this.levelId), this.gateReviewMode),
+          this.itemReviewMode
+        ),
         prepare: (source) => prepareHotReloadLevel(source, {
           expectedId: this.levelId,
           currentLevel: this.level,
@@ -304,7 +310,15 @@ export class GameScene extends Phaser.Scene {
     const container = document.querySelector("#game-container");
     if (!container) return;
     container.dataset.gateReviewMode = this.gateReviewMode;
-    container.dataset.gateReviewSnapshot = JSON.stringify(this.levelLoader.getGatePresentationSnapshot());
+    container.dataset.gateReviewSnapshot = JSON.stringify({
+      ...this.levelLoader.getGatePresentationSnapshot(),
+      reviewContext: {
+        score: this.scoreManager.score,
+        damageTaken: this.objectiveManager.context.damageTaken,
+        gateEntered: this.objectiveManager.context.gateEntered,
+        requiredComplete: this.objectiveManager.areRequiredComplete()
+      }
+    });
   }
 
   syncItemReviewDiagnostics() {
