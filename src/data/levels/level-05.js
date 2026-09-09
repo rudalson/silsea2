@@ -1,3 +1,5 @@
+import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+
 const tilemapUrl = new URL("../../../assets/levels/level-05/tilemap.json", import.meta.url).href;
 export const P12_WATER_BOSS_ROOM_WIDTH = 2048;
 
@@ -9,7 +11,12 @@ export default {
   visualTheme: "submerged-village",
   order: 5,
   progression: { direction: "right" },
-  exit: { x: 10064, y: 576, enterFrom: "right" },
+  exit: {
+    x: 10064,
+    y: 576,
+    enterFrom: "right",
+    presentation: APPROVED_GROUND_GATE_PRESENTATION
+  },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-05-map",

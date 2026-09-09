@@ -1,3 +1,5 @@
+import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+
 const tilemapUrl = new URL("../../../assets/levels/level-04/tilemap.json", import.meta.url).href;
 export const P10_HULA_BOSS_ROOM_WIDTH = 2048;
 const shifted = (x) => x + P10_HULA_BOSS_ROOM_WIDTH;
@@ -10,7 +12,12 @@ export default {
   visualTheme: "tsunami-village",
   order: 4,
   progression: { direction: "left" },
-  exit: { x: 176, y: 576, enterFrom: "left" },
+  exit: {
+    x: 176,
+    y: 576,
+    enterFrom: "left",
+    presentation: APPROVED_GROUND_GATE_PRESENTATION
+  },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-04-map",

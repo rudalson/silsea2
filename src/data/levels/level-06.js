@@ -1,4 +1,19 @@
+import { createAirborneGateRoute } from "../airborneGateRoute.js";
+import { createApprovedAirGatePresentation } from "../gatePresentation.js";
+
 const tilemapUrl = new URL("../../../assets/levels/level-06/tilemap.json", import.meta.url).href;
+const relayExit = { x: 4944, y: 576 };
+const relayExitRoute = createAirborneGateRoute({
+  gateX: relayExit.x,
+  surfaceY: relayExit.y,
+  direction: 1,
+  retryCheckpoint: {
+    id: "cp_relay_finish",
+    x: 4544,
+    y: 576,
+    restoresHealth: true
+  }
+});
 
 export default {
   schemaVersion: 1,
@@ -8,7 +23,11 @@ export default {
   visualTheme: "rainbow-relay-graybox",
   order: 6,
   progression: { direction: "right" },
-  exit: { x: 4944, y: 576, enterFrom: "right" },
+  exit: {
+    ...relayExit,
+    enterFrom: "right",
+    presentation: createApprovedAirGatePresentation(relayExitRoute)
+  },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-06-map",
@@ -44,7 +63,8 @@ export default {
   cameraCues: [
     { id: "cue_first_pumpkin", xStart: 768, xEnd: 1152, lookAhead: 170, targetX: 1216 },
     { id: "cue_first_pit", xStart: 1856, xEnd: 2240, lookAhead: 190, targetX: 2464 },
-    { id: "cue_mix", xStart: 3264, xEnd: 3648, lookAhead: 180, targetX: 3840 }
+    { id: "cue_mix", xStart: 3264, xEnd: 3648, lookAhead: 180, targetX: 3840 },
+    { id: "cue_relay_air_gate", xStart: 4448, xEnd: 5056, lookAhead: 220, targetX: relayExit.x }
   ],
   checkpoints: [
     { id: "cp_relay_unicorn", x: 1792, y: 576 },

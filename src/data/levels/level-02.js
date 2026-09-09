@@ -1,3 +1,6 @@
+import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+import { createPrankGateEncounter } from "../prankGateEncounter.js";
+
 const tilemapUrl = new URL("../../../assets/levels/level-02/tilemap.json", import.meta.url).href;
 
 export const P13_RANDOM_BOSS_ROOM_WIDTH = 2048;
@@ -109,6 +112,18 @@ export default {
     { id: "cp_star_tree", x: 5120, y: 576, restoresHealth: true },
     { id: "cp_random_ready", x: 6272, y: 576, restoresHealth: true }
   ],
+  prankGates: [{
+    id: "starlight-canopy-prank",
+    x: 2496,
+    encounter: createPrankGateEncounter(),
+    presentation: {
+      kind: "prank",
+      placement: "ground",
+      effects: "normal",
+      approachDistance: 150,
+      graybox: false
+    }
+  }],
   enemies: [
     { id: "e_moonroot_01", type: "raw_potato", x: 896, y: 576, patrol: 160 },
     {
@@ -251,5 +266,5 @@ export default {
       pitScoreLoss: 0
     }
   },
-  exit: { x: 8016, y: 576 }
+  exit: { x: 8016, y: 576, presentation: APPROVED_GROUND_GATE_PRESENTATION }
 };

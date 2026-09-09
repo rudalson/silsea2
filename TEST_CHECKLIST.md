@@ -611,3 +611,16 @@
 - [x] [M] 일반 원화 검수에서 접근 전 `active/idle`, 펑 이후 `vanished/settled`, 점수 0·피해 0·게이트 진입 false·필수 목표 미완료 유지와 브라우저 warning/error 0건을 확인함. — 2026-09-09 `?gateReview=prank`
 - [x] [M] `effects=reduced&fallback=1&mute=1`에서 도형 게이트, 연기 3+별 4의 `particleCount=7`, 소멸 후 진행 방향 접근성 안내를 확인함.
 - [x] [M] 사용자가 장난의 재미, 실제 게이트 오인 정도와 소멸 직후 실제 출구 방향 인지를 승인함. — 2026-09-09 `G5 장난 게이트 연출 승인. G6 진행 가능.`
+
+## 후속 확장 G6 전 레벨 통합
+
+- [x] [A] 여섯 메인 레벨의 실제 게이트 비율을 지상 5·공중 1로 고정하고 `level-06` 공중 게이트의 직접 점프·보조 발판 도달성, 기존 `cp_relay_finish` 복귀점과 `cue_relay_air_gate`를 검사함. — 2026-09-09 `npm run test`
+- [x] [A] 운영 장난 게이트는 `level-02/glow_canopy`의 1개뿐이며 인접 체크포인트에서 256px 이상 떨어지고 첫 학습·회복·보스 구간을 침범하지 않음을 검사함.
+- [x] [A] 실제 게이트가 활성화되거나 플레이어가 보스 구간·제한 시간 15초 이내에 들어가면 남은 장난 게이트의 timer·Tween·시각 오브젝트를 정리하고 `vanished/settled`로 종료함.
+- [x] [A] 실제 여섯 레벨의 변신 아이템 종류 합집합이 뿔·날개·알리콘 세 종류이고 각 배치가 공통 `ITEM_PRESENTATIONS` 계약에 연결됨을 검사함.
+- [x] [A] 전체 규칙·자산·프로덕션 번들·60분 등가 216,000프레임·Scene 재시작 2,000회 검사를 통과함. — 2026-09-09 `npm run test`, `npm run validate`, `npm run build`, `npm run test:soak`, `npm run test:release`
+- [x] [M] `?gateReview=integration` 고정 검수에서 `level-01`~`level-05` 지상 게이트와 `level-06` 공중 게이트가 `active/stable`, `graybox=false`, `zoneEnabled=true`임을 확인함.
+- [x] [M] `level-02/glow_canopy` 운영 장난 게이트가 접근 전 `active/idle`, 접근 후 `vanished/settled`이며 점수 0·피해 0·게이트 진입 false·필수 목표 미완료를 유지함.
+- [x] [M] `level-06` 일반 및 `easy=1&effects=reduced&fallback=1&mute=1`에서 공중 발판 충돌체·체크포인트·카메라 큐·도달성이 유지되고 논리 캔버스가 1280×720임을 확인함.
+- [x] [M] 브라우저 warning/error 0건을 확인함. 실제 게임패드 장치 완주와 어린이 플레이테스트는 수행 완료로 바꾸지 않고 G7 수동 항목으로 유지함.
+- [x] [M] 사용자가 지상 5·공중 1 배치, 운영 장난 게이트 1회와 접근성·성능 통합 결과를 승인함. — 2026-09-09 `G6 전 레벨 통합 승인. G7 진행 가능.`

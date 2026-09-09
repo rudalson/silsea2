@@ -702,6 +702,7 @@ export class LevelLoader {
 
   spawnGate() {
     if (this.gate) return this.gate;
+    this.retirePrankGates("actual-gate-active");
     const x = this.level.exit?.x ?? this.level.world.width - 180;
     const surfaceY = this.level.exit?.y ?? this.findSafeY(x);
     const presentation = normalizeGatePresentation(this.level.exit?.presentation, GATE_KINDS.REAL);
@@ -928,18 +929,11 @@ export class LevelLoader {
         Number.POSITIVE_INFINITY,
         ...(this.level.checkpoints ?? []).map((checkpoint) => Math.abs(Number(checkpoint.x) - x))
       );
-      const deadlines = [
-        ...(this.level.objectives?.required ?? []),
-        ...(this.level.objectives?.optional ?? [])
-      ].filter(({ type }) => type === "clear_time").map(({ seconds }) => Number(seconds));
-      const secondsToDeadline = deadlines.length
-        ? Math.min(...deadlines) - Number(this.objectiveManager?.context?.elapsed ?? 0)
-        : Number.POSITIVE_INFINITY;
       const safety = resolvePrankGateSafety({
         actualGateActive: Boolean(this.gate) || (!this.level.prankGateReviewOnly && !this.boss),
         bossActive: Boolean(this.boss) && this.getSectionAt(x)?.type === "boss",
         distanceToCheckpoint: nearestCheckpointDistance,
-        secondsToDeadline
+        secondsToDeadline: this.getSecondsToOptionalDeadline()
       });
       if (!safety.eligible) {
         this.prankGateSuppressions.push({ id: config.id, reasons: [...safety.reasons] });
@@ -1034,6 +1028,17 @@ export class LevelLoader {
   }
 
   updateGatePresentations(playerX, playerY) {
+    const unsafeReason = this.gate
+      ? "actual-gate-active"
+      : Boolean(this.boss) && this.getSectionAt(Number(playerX))?.type === "boss"
+        ? "boss-active"
+        : this.getSecondsToOptionalDeadline() <= 15
+          ? "deadline-nearby"
+          : null;
+    if (unsafeReason) {
+      this.retirePrankGates(unsafeReason);
+      return;
+    }
     for (const gate of this.prankGates) {
       if (gate.lifecycle.phase !== GATE_PHASES.ACTIVE) continue;
       const distance = Math.hypot(Number(playerX) - gate.x, Number(playerY) - (gate.y - 76));
@@ -1054,6 +1059,39 @@ export class LevelLoader {
         ease: "Sine.InOut"
       }));
       gate.timers.push(this.scene.time.delayedCall(timing.reactionMs, () => this.popPrankGate(gate)));
+    }
+  }
+
+  getSecondsToOptionalDeadline() {
+    const deadlines = [
+      ...(this.level.objectives?.required ?? []),
+      ...(this.level.objectives?.optional ?? [])
+    ].filter(({ type }) => type === "clear_time").map(({ seconds }) => Number(seconds));
+    return deadlines.length
+      ? Math.min(...deadlines) - Number(this.objectiveManager?.context?.elapsed ?? 0)
+      : Number.POSITIVE_INFINITY;
+  }
+
+  retirePrankGates(reason) {
+    for (const gate of this.prankGates) {
+      if (gate.encounterStage === PRANK_GATE_ENCOUNTER_STAGES.SETTLED) continue;
+      if (gate.lifecycle.phase === GATE_PHASES.SPAWNING) {
+        gate.lifecycle.transition(GATE_TRANSITIONS.ACTIVATE);
+      }
+      if (gate.lifecycle.phase === GATE_PHASES.ACTIVE) {
+        gate.lifecycle.transition(GATE_TRANSITIONS.APPROACH);
+      }
+      for (const tween of gate.tweens) tween.stop();
+      for (const timer of gate.timers) timer.remove(false);
+      gate.tweens.length = 0;
+      gate.timers.length = 0;
+      gate.encounterStage = PRANK_GATE_ENCOUNTER_STAGES.SETTLED;
+      for (const visual of [...gate.visuals, ...gate.particles]) {
+        if (visual?.active || visual?.scene) visual.destroy();
+      }
+      if (!this.prankGateSuppressions.some((entry) => entry.id === gate.id && entry.reasons.includes(reason))) {
+        this.prankGateSuppressions.push({ id: gate.id, reasons: [reason] });
+      }
     }
   }
 
@@ -1168,7 +1206,9 @@ export class LevelLoader {
         checkpointRegistered: this.checkpointZones.some(
           ({ data }) => data.id === this.airborneGateRoute.route.retryCheckpoint.id
         ),
-        cameraCue: this.level.cameraCues?.find(({ id }) => id === "gate-review-air-camera") ?? null,
+        cameraCue: this.level.cameraCues?.find(({ id, targetX }) => (
+          id === "gate-review-air-camera" || targetX === this.level.exit.x
+        )) ?? null,
         progressionDirection: this.level.progression?.direction ?? "right",
         reachability: { ...this.airborneGateRoute.route.reachability }
       } : null

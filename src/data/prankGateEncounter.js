@@ -50,9 +50,9 @@ export function resolvePrankGateSafety({
   });
 }
 
-export function createPrankGateReviewEncounter() {
+export function createPrankGateEncounter({ reviewOnly = false } = {}) {
   return Object.freeze({
-    reviewOnly: true,
+    reviewOnly,
     resetPolicy: "scene-restart",
     harmless: Object.freeze({
       collision: false,
@@ -62,4 +62,8 @@ export function createPrankGateReviewEncounter() {
       save: false
     })
   });
+}
+
+export function createPrankGateReviewEncounter() {
+  return createPrankGateEncounter({ reviewOnly: true });
 }

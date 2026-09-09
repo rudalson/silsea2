@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { DEFAULT_TUNING } from "../src/data/characters.js";
 import level06 from "../src/data/levels/level-06.js";
+import { LEVELS } from "../src/data/levels/index.js";
 import {
   AIRBORNE_GATE_ROUTE,
   calculateGateReachability,
@@ -36,6 +37,7 @@ import {
   normalizeLevelDefinition
 } from "../src/data/schema/levelSchema.js";
 import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
+import { ITEM_PRESENTATIONS, TRANSFORMATION_ITEM_TYPES } from "../src/data/itemPresentation.js";
 
 const real = normalizeGatePresentation({}, GATE_KINDS.REAL);
 assert.equal(real.kind, GATE_KINDS.REAL);
@@ -94,12 +96,76 @@ assert.equal(getGateReviewMode("?gateReview=air"), GATE_REVIEW_MODES.AIR);
 assert.equal(getGateReviewMode("?gateReview=prank"), GATE_REVIEW_MODES.PRANK);
 assert.equal(getGateReviewMode("?gateReview=arrival"), GATE_REVIEW_MODES.ARRIVAL);
 assert.equal(getGateReviewMode("?gateReview=air-route"), GATE_REVIEW_MODES.AIR_ROUTE);
+assert.equal(getGateReviewMode("?gateReview=integration"), GATE_REVIEW_MODES.INTEGRATION);
 assert.equal(getGateReviewMode("?gateReview=unknown"), null);
 
-const normalized = normalizeLevelDefinition(level06);
+const normalized = normalizeLevelDefinition({
+  ...level06,
+  exit: { x: level06.exit.x, y: level06.exit.y, enterFrom: level06.exit.enterFrom }
+});
 assert.equal(normalized.prankGates, undefined, "기존 레벨 정규화 결과에 빈 선택 필드를 강제로 추가하지 않아야 함");
 assert.equal(normalized.exit.presentation, undefined);
 assert.equal(assertLevelShape(normalized), true);
+assert.equal(
+  applyGateReviewMode(normalized, GATE_REVIEW_MODES.INTEGRATION),
+  normalized,
+  "통합 검수 모드는 승인된 실제 레벨 데이터를 바꾸지 않아야 함"
+);
+
+const integratedLevels = LEVELS.map((level) => {
+  const normalizedLevel = normalizeLevelDefinition(level);
+  return {
+    ...normalizedLevel,
+    exit: {
+      ...normalizedLevel.exit,
+      presentation: normalizeGatePresentation(normalizedLevel.exit.presentation, GATE_KINDS.REAL)
+    }
+  };
+});
+assert.equal(integratedLevels.length, 6);
+for (const level of integratedLevels) {
+  assert.equal(assertLevelShape(level), true);
+  assert.equal(level.exit.presentation.kind, GATE_KINDS.REAL);
+  assert.equal(level.exit.presentation.graybox, false);
+  assert.ok(level.objectives.required.some(({ type }) => type === "reach_gate"));
+  const easyLevel = createRuntimeLevel(level, true);
+  assert.equal(easyLevel.exit.presentation.placement, level.exit.presentation.placement);
+}
+const integratedAirLevels = integratedLevels.filter(
+  (level) => level.exit.presentation.placement === GATE_PLACEMENTS.AIR
+);
+const integratedGroundLevels = integratedLevels.filter(
+  (level) => level.exit.presentation.placement === GATE_PLACEMENTS.GROUND
+);
+assert.deepEqual(integratedAirLevels.map(({ id }) => id), ["level-06"]);
+assert.equal(integratedGroundLevels.length, 5);
+const integratedRelay = integratedAirLevels[0];
+assert.equal(integratedRelay.exit.presentation.airRoute.retryCheckpoint.id, "cp_relay_finish");
+assert.ok(integratedRelay.checkpoints.some(({ id }) => id === "cp_relay_finish"));
+assert.ok(integratedRelay.cameraCues.some(({ id }) => id === "cue_relay_air_gate"));
+assert.equal(integratedRelay.exit.presentation.airRoute.reachability.directReachable, true);
+assert.equal(integratedRelay.exit.presentation.airRoute.reachability.platformReachable, true);
+
+const productionPrankLevels = integratedLevels.filter((level) => (level.prankGates ?? []).length > 0);
+assert.deepEqual(productionPrankLevels.map(({ id }) => id), ["level-02"]);
+assert.equal(productionPrankLevels[0].prankGates.length, 1);
+const productionPrank = productionPrankLevels[0].prankGates[0];
+assert.equal(productionPrank.id, "starlight-canopy-prank");
+assert.equal(productionPrankLevels[0].sections.find(
+  ({ xStart, xEnd }) => productionPrank.x >= xStart && productionPrank.x < xEnd
+)?.id, "glow_canopy");
+assert.ok(Math.min(...productionPrankLevels[0].checkpoints.map(
+  ({ x }) => Math.abs(x - productionPrank.x)
+)) >= PRANK_GATE_SAFETY.checkpointDistance);
+assert.equal(productionPrank.encounter.reviewOnly, false);
+
+const integratedTransformationTypes = new Set(integratedLevels.flatMap(
+  (level) => (level.items ?? []).map(({ type }) => type).filter((type) => TRANSFORMATION_ITEM_TYPES.includes(type))
+));
+assert.deepEqual([...integratedTransformationTypes].sort(), [...TRANSFORMATION_ITEM_TYPES].sort());
+for (const type of integratedTransformationTypes) {
+  assert.ok(ITEM_PRESENTATIONS[type], `${type} 아이템 연출 규칙이 모든 실제 배치에 연결되어야 함`);
+}
 
 const realReview = applyGateReviewMode(normalized, GATE_REVIEW_MODES.REAL);
 assert.equal(realReview.exit.presentation.kind, GATE_KINDS.REAL);

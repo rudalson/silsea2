@@ -1,3 +1,5 @@
+import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+
 const tilemapUrl = new URL("../../../assets/levels/level-03/tilemap.json", import.meta.url).href;
 
 export const P11_INVISIBLE_BOSS_ROOM_WIDTH = 2048;
@@ -10,7 +12,12 @@ export default {
   visualTheme: "mist-valley",
   order: 3,
   progression: { direction: "right" },
-  exit: { x: 9040, y: 576, enterFrom: "right" },
+  exit: {
+    x: 9040,
+    y: 576,
+    enterFrom: "right",
+    presentation: APPROVED_GROUND_GATE_PRESENTATION
+  },
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-03-map",

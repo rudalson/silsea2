@@ -91,8 +91,11 @@ export class GameScene extends Phaser.Scene {
     this.objectiveManager = new ObjectiveManager(this, this.level.objectives);
     this.checkpointManager = new CheckpointManager(this, this.level.player.spawn);
     this.levelLoader = new LevelLoader(this, this.level, this.objectiveManager).build();
+    const reviewSection = this.levelLoader.getSection(this.registry.get("visualReviewSectionId"));
+    const integrationBossReview = this.gateReviewMode === GATE_REVIEW_MODES.INTEGRATION
+      && reviewSection?.type === "boss";
     const forceGateReview = [GATE_REVIEW_MODES.ARRIVAL, GATE_REVIEW_MODES.AIR_ROUTE]
-      .includes(this.gateReviewMode);
+      .includes(this.gateReviewMode) || integrationBossReview;
     if (forceGateReview && !this.levelLoader.gate) {
       this.gateArrivalReviewOnly = Boolean(this.levelLoader.boss);
       if (this.gateArrivalReviewOnly) {

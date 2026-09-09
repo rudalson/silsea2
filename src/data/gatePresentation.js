@@ -36,7 +36,8 @@ export const GATE_REVIEW_MODES = Object.freeze({
   AIR: "air",
   PRANK: "prank",
   ARRIVAL: "arrival",
-  AIR_ROUTE: "air-route"
+  AIR_ROUTE: "air-route",
+  INTEGRATION: "integration"
 });
 
 export const DEFAULT_GATE_PRESENTATION = Object.freeze({
@@ -47,6 +48,24 @@ export const DEFAULT_GATE_PRESENTATION = Object.freeze({
   approachDistance: 150,
   graybox: false
 });
+
+export const APPROVED_GROUND_GATE_PRESENTATION = Object.freeze({
+  kind: GATE_KINDS.REAL,
+  placement: GATE_PLACEMENTS.GROUND,
+  effects: GATE_EFFECT_STRENGTHS.NORMAL,
+  graybox: false
+});
+
+export function createApprovedAirGatePresentation(airRoute) {
+  return Object.freeze({
+    kind: GATE_KINDS.REAL,
+    placement: GATE_PLACEMENTS.AIR,
+    effects: GATE_EFFECT_STRENGTHS.NORMAL,
+    airOffset: AIRBORNE_GATE_ROUTE.airOffset,
+    graybox: false,
+    airRoute
+  });
+}
 
 const finiteOr = (value, fallback) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 const clamp = (value, min, max, fallback) => Math.max(min, Math.min(max, finiteOr(value, fallback)));
@@ -127,6 +146,7 @@ export function getGateReviewMode(search = "") {
 
 export function applyGateReviewMode(level, mode) {
   if (!level || !Object.values(GATE_REVIEW_MODES).includes(mode)) return level;
+  if (mode === GATE_REVIEW_MODES.INTEGRATION) return level;
   const direction = level.progression?.direction === "left" ? -1 : 1;
   const existing = normalizeGatePresentation(level.exit?.presentation, GATE_KINDS.REAL);
   const airborne = mode === GATE_REVIEW_MODES.AIR_ROUTE;

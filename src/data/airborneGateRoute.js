@@ -33,7 +33,12 @@ export function calculateGateReachability({
   });
 }
 
-export function createAirborneGateRoute({ gateX, surfaceY, direction = 1 } = {}) {
+export function createAirborneGateRoute({
+  gateX,
+  surfaceY,
+  direction = 1,
+  retryCheckpoint = null
+} = {}) {
   const sign = direction < 0 ? -1 : 1;
   const platformTop = Number(surfaceY) - AIRBORNE_GATE_ROUTE.platformTopOffset;
   const guideOffsets = [
@@ -59,7 +64,7 @@ export function createAirborneGateRoute({ gateX, surfaceY, direction = 1 } = {})
       yBottom: Number(surfaceY) - 8,
       width: 78
     }),
-    retryCheckpoint: Object.freeze({
+    retryCheckpoint: Object.freeze(retryCheckpoint ? { ...retryCheckpoint } : {
       id: "gate-review-air-checkpoint",
       x: Number(gateX) - sign * AIRBORNE_GATE_ROUTE.checkpointDistance,
       y: Number(surfaceY),
@@ -68,4 +73,3 @@ export function createAirborneGateRoute({ gateX, surfaceY, direction = 1 } = {})
     reachability: calculateGateReachability()
   });
 }
-
