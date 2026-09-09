@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import "./styles.css";
 import { gameConfig } from "./config/gameConfig.js";
 import { PALETTE } from "./data/palette.js";
+import { applyDisplayMode, getInitialDisplayMode } from "./systems/DisplayModeManager.js";
 
 const root = document.documentElement;
 root.style.setProperty("--color-deep", PALETTE.environmentNear[1]);
@@ -13,10 +14,13 @@ root.style.setProperty("--color-collect", PALETTE.collect[0]);
 root.style.setProperty("--color-outline", PALETTE.environmentNeutral[0]);
 
 const container = document.querySelector("#game-container");
+const initialDisplayMode = getInitialDisplayMode();
+applyDisplayMode(initialDisplayMode, { container, persist: false });
 let game = null;
 
 const startGame = () => {
   game = new Phaser.Game(gameConfig);
+  applyDisplayMode(initialDisplayMode, { container, game, persist: false });
   container?.addEventListener("pointerdown", () => container.focus());
   window.addEventListener("beforeunload", () => game?.destroy(true));
   return game;

@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { COLORS, CSS_COLORS, EVENTS, GAME_WIDTH, SCENE_KEYS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
+import { applyDisplayMode, DISPLAY_MODES } from "../systems/DisplayModeManager.js";
 import { InputManager } from "../systems/InputManager.js";
 
 export class UIScene extends Phaser.Scene {
@@ -285,6 +286,7 @@ export class UIScene extends Phaser.Scene {
       { key: "sfx", label: "효과음 볼륨", adjustable: true },
       { key: "mute", label: "음소거" },
       { key: "effects", label: "화면 효과 강도", adjustable: true },
+      { key: "display", label: "화면 크기", adjustable: true },
       { key: "easy", label: "쉬운 모드" }
     ];
     this.pauseRows = [];
@@ -339,7 +341,7 @@ export class UIScene extends Phaser.Scene {
 
     this.pauseOverlay.add(this.createLabel(
       640,
-      516,
+      565,
       "조작 안내\n이동  ← → / A D / 왼쪽 스틱\n점프·비행  Space / Z / 게임패드 A\n일시정지  Esc / Start   ·   음소거  M   ·   화면 흔들림  V",
       {
         align: "center",
@@ -374,12 +376,25 @@ export class UIScene extends Phaser.Scene {
     if (key === "resume") this.togglePause();
     else if (key === "bgm" || key === "sfx") this.adjustPauseOption(index, 1);
     else if (key === "effects") this.adjustPauseOption(index, 1);
+    else if (key === "display") this.adjustPauseOption(index, 1);
     else if (key === "mute") this.toggleMute();
     else if (key === "easy") this.toggleEasyMode();
   }
 
   adjustPauseOption(index, direction) {
     const key = this.pauseMenuItems[index]?.key;
+    if (key === "display") {
+      const next = this.registry.get("displayMode") === DISPLAY_MODES.FULL
+        ? DISPLAY_MODES.ORIGINAL
+        : DISPLAY_MODES.FULL;
+      this.registry.set("displayMode", applyDisplayMode(next, { game: this.game }));
+      this.gameScene.audioManager?.playSfx("sfx_ui_select", { randomizeRate: false });
+      this.renderPauseMenu();
+      this.gameScene.updateAccessibleStatus(
+        `화면 크기를 ${next === DISPLAY_MODES.FULL ? "화면 맞춤" : "원본 1280 곱하기 720"}으로 바꿨습니다.`
+      );
+      return;
+    }
     if (key === "effects") {
       const next = this.registry.get("screenEffectStrength") === "reduced" ? "normal" : "reduced";
       this.registry.set("screenEffectStrength", next);
@@ -442,6 +457,7 @@ export class UIScene extends Phaser.Scene {
       sfx: `효과음 볼륨  ${Math.round(audio.sfxVolume * 100)}%`,
       mute: `음소거  ${audio.muted ? "ON" : "OFF"} · M`,
       effects: `화면 효과 강도  ${this.registry.get("screenEffectStrength") === "reduced" ? "약하게" : "보통"}`,
+      display: `화면 크기  ${this.registry.get("displayMode") === DISPLAY_MODES.FULL ? "화면 맞춤" : "원본 1280×720"}`,
       easy: `쉬운 모드  ${this.registry.get("easyMode") ? "ON" : "OFF"}`
     };
     this.pauseRows.forEach((row, index) => {

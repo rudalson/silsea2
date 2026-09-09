@@ -89,6 +89,12 @@ import {
 import { ObjectPool } from "../src/systems/ObjectPool.js";
 import { BreathManager } from "../src/systems/BreathManager.js";
 import {
+  DISPLAY_MODES,
+  DISPLAY_MODE_STORAGE_KEY,
+  applyDisplayMode,
+  getInitialDisplayMode
+} from "../src/systems/DisplayModeManager.js";
+import {
   PLAYTEST_STORAGE_KEY,
   PLAYTEST_SCHEMA_VERSION,
   PlaytestManager,
@@ -1823,6 +1829,28 @@ assert.equal(cameraEffects.shake("bossLand"), false);
 assert.equal(shakeCalls.length, 1, "화면 흔들림 Off에서는 camera.shake를 호출하지 않아야 함");
 assert.equal(cameraRegistry.get("screenShakeEnabled"), false);
 cameraEffects.destroy();
+
+const displayStorageValues = new Map([[DISPLAY_MODE_STORAGE_KEY, DISPLAY_MODES.FULL]]);
+const displayStorage = {
+  getItem: (key) => displayStorageValues.get(key) ?? null,
+  setItem: (key, value) => displayStorageValues.set(key, value)
+};
+assert.equal(getInitialDisplayMode({ storage: displayStorage }), DISPLAY_MODES.FULL);
+assert.equal(
+  getInitialDisplayMode({ search: "?display=original", storage: displayStorage }),
+  DISPLAY_MODES.ORIGINAL,
+  "URL 화면 모드는 저장값보다 우선해야 함"
+);
+const displayContainer = { dataset: {} };
+let displayRefreshCount = 0;
+assert.equal(applyDisplayMode(DISPLAY_MODES.ORIGINAL, {
+  container: displayContainer,
+  game: { scale: { refresh: () => { displayRefreshCount += 1; } } },
+  storage: displayStorage
+}), DISPLAY_MODES.ORIGINAL);
+assert.equal(displayContainer.dataset.displayMode, DISPLAY_MODES.ORIGINAL);
+assert.equal(displayStorageValues.get(DISPLAY_MODE_STORAGE_KEY), DISPLAY_MODES.ORIGINAL);
+assert.equal(displayRefreshCount, 1, "화면 모드 변경 시 Phaser 스케일을 즉시 갱신해야 함");
 
 const starCount = level01.items.reduce((total, item) => {
   if (item.type === "star") return total + 1;

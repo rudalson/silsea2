@@ -4,6 +4,7 @@ import { CHARACTER_LIST } from "../data/characters.js";
 import { FORMS } from "../data/gameplay.js";
 import { LEVELS, getLevel } from "../data/levels/index.js";
 import { AssetManager } from "../systems/AssetManager.js";
+import { applyDisplayMode, getInitialDisplayMode } from "../systems/DisplayModeManager.js";
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -29,6 +30,7 @@ export class BootScene extends Phaser.Scene {
 
   create() {
     const query = new URLSearchParams(window.location.search);
+    const displayMode = getInitialDisplayMode({ search: window.location.search });
     const requestedCharacter = query.get("character");
     const playtestEnabled = query.get("playtest") === "1";
     const playtestTesterId = query.get("tester") ?? "anonymous";
@@ -105,6 +107,8 @@ export class BootScene extends Phaser.Scene {
     this.registry.set("coopReviewState", coopReviewEnabled ? query.get("coopState") : null);
     this.registry.set("screenShakeEnabled", query.get("shake") !== "0");
     this.registry.set("screenEffectStrength", query.get("effects") === "reduced" ? "reduced" : "normal");
+    this.registry.set("displayMode", displayMode);
+    applyDisplayMode(displayMode, { game: this.game, persist: false });
     this.registry.set("audioMuted", query.get("mute") === "1");
     this.registry.set("sfxVolume", 0.72);
     this.registry.set("bgmVolume", 0.46);
