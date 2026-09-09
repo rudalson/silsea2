@@ -17,7 +17,8 @@ const outputName = parse(output).name.toLowerCase();
 const layer = outputName.endsWith("_far") ? "far" : outputName.endsWith("_near") ? "near" : "mid";
 const BRIGHTNESS_FACTORS = {
   bg_pit_far: 1.06,
-  bg_pit_mid: 1.18,
+  // 일반 초원과 협곡의 중간 레이어가 전환 지점에서 같은 톤으로 보이게 한다.
+  bg_pit_mid: 1,
   bg_pit_near: 1.35,
   bg_boss_far: 1.18,
   bg_boss_mid: 1.08,

@@ -82,6 +82,11 @@ body {
 }
 
 #game-container[data-display-mode="full"] canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  margin: 0 !important;
   border-radius: 0;
 }
 

@@ -10,6 +10,7 @@
     "palette": "node scripts/extract-palette.js",
     "tiles": "node scripts/generate-tiles.js",
     "background": "node scripts/postprocess-background.js",
+    "background:pit-tone": "node scripts/harmonize-pit-mid.js",
     "background:preview": "node scripts/build-background-previews.js",
     "starlight:assets": "node scripts/build-starlight-assets.js && node scripts/generate-starlight-tiles.js",
     "mist:assets": "node scripts/build-mist-assets.js && node scripts/generate-mist-tiles.js",

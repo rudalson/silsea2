@@ -163,6 +163,11 @@ if (!gameConfig.includes("Phaser.Scale.FIT") || !gameConfig.includes("Phaser.Sca
 if (!styles.includes("100dvh") || !styles.includes("safe-area-inset") || !styles.includes("max-width: 100%") || !styles.includes("max-height: 100%")) {
   fail("동적 뷰포트·안전 영역·캔버스 반응형 CSS가 없음");
 }
+if (!styles.includes('#game-container[data-display-mode="full"] canvas')
+  || !styles.includes("width: 100% !important")
+  || !styles.includes("height: 100% !important")) {
+  fail("화면 맞춤 모드가 브라우저 영역 전체를 채우지 않음");
+}
 if (!["environmentSky", "environmentFar", "environmentMid", "environmentNear", "environmentNeutral"]
   .every((group) => palette.includes(group))) {
   fail("어린이용 밝은 환경 확장 팔레트가 완전하지 않음");
