@@ -31,7 +31,7 @@
     "validate:runtime": "node scripts/validate-runtime-build.js",
     "validate:integration": "node scripts/validate-integration.js",
     "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js && node scripts/validate-asset-mapping.js && node scripts/validate-assets.js && node scripts/validate-integration.js",
-    "test": "node scripts/test-core.js && node scripts/test-gate-presentation.js && node scripts/test-item-presentation.js",
+    "test": "node scripts/test-core.js && node scripts/test-gate-presentation.js && node scripts/test-item-presentation.js && node scripts/test-final-gate-flow.js",
     "test:soak": "node --expose-gc scripts/test-soak.js",
     "test:release": "npm run build && npm run validate:runtime",
     "playtest:analyze": "node scripts/analyze-playtests.js"

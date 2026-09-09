@@ -2,6 +2,7 @@
 
 > Schema version 1 사용자 승인 · 2026-08-03
 > Schema version 2 확장 설계·P1 런타임 구현 승인 · 2026-08-25
+> 게이트 표시 계약·전 레벨 배치 G6 승인 · 2026-09-09
 > 목표: 레벨 파일 1개와 레지스트리 2줄만 추가해 새 스테이지를 선택·플레이할 수 있게 한다.
 
 ## 불변 원칙
@@ -82,23 +83,28 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
     enterFrom: "right",
     presentation: {
       kind: "real",
-      placement: "ground", // ground | air
+      placement: "air",    // ground | air
       effects: "normal",   // normal | reduced
-      airOffset: 96,        // 48~160
-      graybox: false
+      airOffset: 150,       // 48~160
+      graybox: false,
+      airRoute: {
+        platform: { x: 4926, y: 512, width: 192, height: 24 },
+        retryCheckpoint: { id: "cp_relay_finish", x: 4544, y: 576, restoresHealth: true }
+      }
     }
   },
   prankGates: [
     {
-      id: "prank-gate-a",
-      x: 1280,
+      id: "starlight-canopy-prank",
+      x: 2496,
       y: 576, // 생략 시 해당 x의 안전 지면
       presentation: {
         kind: "prank",
         placement: "ground",
         approachDistance: 150, // 80~320
-        graybox: true
-      }
+        graybox: false
+      },
+      encounter: { reviewOnly: false, resetPolicy: "scene-restart" }
     }
   ]
 }
@@ -107,8 +113,11 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 - 상태는 실제 게이트가 `hidden → spawning → active → entered`, 장난 게이트가 `hidden → spawning → active → vanished` 순서로만 전환한다.
 - `active` 이전 실제 게이트는 충돌을 받지 않으며 실제 게이트만 `reach_gate`를 완료할 수 있다.
 - `placement: "air"`는 안전 지면 또는 `exit.y`에서 `airOffset`만큼 위에 둔다. 도달 가능 발판·카메라 안내는 레벨 배치 단계에서 별도로 검증한다.
+- `airRoute`는 보조 발판·별 안내점·빛기둥·기존 체크포인트와 점프 도달성 계산을 묶는다. 체크포인트 ID는 레벨의 `checkpoints`에도 존재해야 한다.
 - `graybox`는 고정 검수와 fallback용 표시 선택이며 게임 규칙을 바꾸지 않는다.
-- `?gateReview=real|air|prank`는 원본 레벨 데이터를 수정하지 않고 회색 상자 상태를 재현한다.
+- 운영 장난 게이트는 실제 게이트 활성·보스 구간·체크포인트 256px 이내·제한 시간 15초 이내에 억제하며, 이미 보이는 장난 게이트도 같은 조건에서 자원을 정리하고 소멸 상태로 끝낸다.
+- `?gateReview=real|air|prank|arrival|air-route`는 원본 레벨 데이터를 수정하지 않고 지정 연출을 재현한다. `integration`은 승인된 원본 배치를 그대로 읽어 최종 진단만 노출한다.
+- 현재 운영 배치는 실제 지상 게이트 `level-01`~`level-05`, 실제 공중 게이트 `level-06`, 장난 게이트 `level-02/glow_canopy` 1개다.
 
 ### version 1 호환 정규화
 
