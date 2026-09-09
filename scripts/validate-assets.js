@@ -222,11 +222,11 @@ const backgroundAssets = [
   { name: "bg_starlight_far", luma: [14, 22] },
   { name: "bg_starlight_mid", luma: [22, 34] },
   { name: "bg_starlight_near", luma: [25, 38], minimumY: 500 },
-  { name: "bg_mist_far", luma: [88, 94] },
+  { name: "bg_mist_far", luma: [82, 88] },
   { name: "bg_mist_mid", luma: [68, 78] },
   { name: "bg_mist_near", luma: [48, 60], minimumY: 500 },
-  { name: "bg_submerged_far", luma: [55, 64] },
-  { name: "bg_submerged_mid", luma: [58, 66], minimumY: 252 },
+  { name: "bg_submerged_far", luma: [65, 70] },
+  { name: "bg_submerged_mid", luma: [66, 72], minimumY: 252 },
   { name: "bg_submerged_near", luma: [58, 67], minimumY: 399 }
 ];
 const starlightDecorationAssets = [

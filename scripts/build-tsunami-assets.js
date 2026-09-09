@@ -14,16 +14,18 @@ const referenceRoot = join(root, "references");
 const WIDTH = 2048;
 const HEIGHT = 720;
 const SEAM_COLUMNS = 2;
-const WAVE_FRAME_WIDTH = 256;
+const WAVE_FRAME_WIDTH = 384;
 const WAVE_FRAME_HEIGHT = 512;
 const WAVE_FRAMES = 8;
+const WAVE_SOURCE = join(sourceRoot, "tsunami_wave_v2_cutout.png");
 
 const palettes = Object.freeze({
   far: [PALETTE.environmentSky[1], ...PALETTE.highlight, PALETTE.environmentNeutral[1], PALETTE.bgMid[0], PALETTE.bgFar[1], PALETTE.environmentNight[2], PALETTE.outline],
   mid: [PALETTE.environmentFar[0], PALETTE.environmentNeutral[2], PALETTE.shadow[2], PALETTE.environmentNeutral[1], PALETTE.bgFar[1], PALETTE.environmentMid[0], PALETTE.environmentNear[1], PALETTE.bgFar[0], PALETTE.outline, ...PALETTE.highlight],
   near: [PALETTE.environmentNeutral[0], PALETTE.outline, PALETTE.environmentNear[2], PALETTE.environmentMid[0], PALETTE.environmentNear[1], PALETTE.bgFar[1], PALETTE.bgFar[0], ...PALETTE.highlight],
   props: [PALETTE.environmentFar[0], PALETTE.environmentNeutral[2], PALETTE.shadow[2], PALETTE.bgFar[1], PALETTE.environmentNeutral[1], PALETTE.environmentNeutral[0], PALETTE.outline, PALETTE.highlight[0], PALETTE.bgFar[0]],
-  effects: [PALETTE.collect[1], PALETTE.bgFar[1], PALETTE.highlight[0], PALETTE.highlight[1], PALETTE.outline, ...PALETTE.danger]
+  effects: [PALETTE.collect[1], PALETTE.bgFar[1], PALETTE.highlight[0], PALETTE.highlight[1], PALETTE.outline, ...PALETTE.danger],
+  wave: [PALETTE.collect[1], PALETTE.environmentSky[0], PALETTE.bgFar[1], PALETTE.bgMid[1], PALETTE.environmentNear[1], PALETTE.highlight[0], PALETTE.environmentFar[0], PALETTE.outline]
 });
 
 const compiledPalettes = Object.fromEntries(Object.entries(palettes).map(([key, colors]) => [
@@ -31,12 +33,40 @@ const compiledPalettes = Object.fromEntries(Object.entries(palettes).map(([key, 
   [...new Set(colors)].map((hex) => ({ hex, rgb: hexToRgb(hex) }))
 ]));
 
+const toneMaps = Object.freeze({
+  bg_tsunami_far: new Map([
+    [PALETTE.environmentSky[1], PALETTE.environmentSky[0]],
+    [PALETTE.bgFar[0], PALETTE.environmentFar[1]],
+    [PALETTE.bgMid[0], PALETTE.environmentMid[0]],
+    [PALETTE.highlight[0], PALETTE.environmentFar[0]],
+    [PALETTE.environmentNeutral[1], PALETTE.environmentMid[1]],
+    [PALETTE.bgFar[1], PALETTE.bgMid[1]]
+  ]),
+  bg_tsunami_mid: new Map([
+    [PALETTE.environmentNeutral[1], PALETTE.environmentMid[0]],
+    [PALETTE.bgFar[1], PALETTE.bgMid[1]],
+    [PALETTE.bgFar[0], PALETTE.environmentFar[1]],
+    [PALETTE.outline, PALETTE.environmentNear[1]],
+    [PALETTE.shadow[2], PALETTE.environmentNear[2]],
+    [PALETTE.highlight[0], PALETTE.environmentFar[0]],
+    [PALETTE.environmentMid[0], PALETTE.environmentNear[0]]
+  ]),
+  bg_tsunami_near: new Map([
+    [PALETTE.environmentMid[0], PALETTE.environmentNear[0]],
+    [PALETTE.bgFar[1], PALETTE.bgMid[1]],
+    [PALETTE.bgFar[0], PALETTE.environmentFar[1]],
+    [PALETTE.environmentNear[2], PALETTE.environmentNeutral[2]],
+    [PALETTE.environmentNeutral[0], PALETTE.environmentNear[1]],
+    [PALETTE.highlight[0], PALETTE.environmentFar[0]]
+  ])
+});
+
 const nearest = (rgb, palette) => palette.reduce((best, candidate) => {
   const distance = colorDistance(rgb, candidate.rgb);
   return distance < best.distance ? { ...candidate, distance } : best;
 }, { ...palette[0], distance: Infinity }).rgb;
 
-const quantize = (data, paletteKey) => {
+const quantize = (data, paletteKey, preserveAlpha = false) => {
   const palette = compiledPalettes[paletteKey];
   for (let index = 0; index < data.length; index += 4) {
     if (data[index + 3] < 48) {
@@ -47,7 +77,21 @@ const quantize = (data, paletteKey) => {
     data[index] = rgb[0];
     data[index + 1] = rgb[1];
     data[index + 2] = rgb[2];
-    data[index + 3] = 255;
+    if (!preserveAlpha) data[index + 3] = 255;
+  }
+};
+
+const applyToneMap = (data, layerName) => {
+  const toneMap = toneMaps[layerName];
+  if (!toneMap) return;
+  const compiled = new Map([...toneMap].map(([from, to]) => [hexToRgb(from).join(","), hexToRgb(to)]));
+  for (let index = 0; index < data.length; index += 4) {
+    if (!data[index + 3]) continue;
+    const mapped = compiled.get(`${data[index]},${data[index + 1]},${data[index + 2]}`);
+    if (!mapped) continue;
+    data[index] = mapped[0];
+    data[index + 1] = mapped[1];
+    data[index + 2] = mapped[2];
   }
 };
 
@@ -91,6 +135,7 @@ const buildBackgroundLayer = async (name, paletteKey, transparent, clearAbove = 
     .toBuffer({ resolveWithObject: true });
   if (clearAbove !== null) data.fill(0, 0, Math.max(0, clearAbove) * WIDTH * 4);
   quantize(data, paletteKey);
+  applyToneMap(data, name);
   makeSeamless(data, info.width, info.height);
   const output = join(backgroundRoot, `${name}.png`);
   await mkdir(dirname(output), { recursive: true });
@@ -116,26 +161,38 @@ const buildShelter = async (sourceName, outputName, width = 448, height = 336) =
   return output;
 };
 
-const waveFrameSvg = (frame) => {
-  const phase = frame / WAVE_FRAMES * Math.PI * 2;
-  const crestY = 86 + Math.round(Math.sin(phase) * 8);
-  const curlX = 54 + Math.round(Math.cos(phase) * 7);
-  const foamShift = Math.round(Math.sin(phase + Math.PI / 3) * 9);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WAVE_FRAME_WIDTH}" height="${WAVE_FRAME_HEIGHT}" viewBox="0 0 ${WAVE_FRAME_WIDTH} ${WAVE_FRAME_HEIGHT}">
-    <path d="M256 0V512H64C83 474 82 431 69 392C57 355 63 316 84 284C100 259 105 225 92 197C79 169 68 139 77 112C88 76 120 49 159 50C128 65 111 91 116 119C121 148 153 158 176 143C198 129 206 101 193 80C178 55 144 44 116 52C91 59 70 75 ${curlX} ${crestY}C42 ${crestY + 18} 34 ${crestY + 43} 42 ${crestY + 64}C20 ${crestY + 42} 14 ${crestY + 13} 26 ${crestY - 10}C40 ${crestY - 37} 66 ${crestY - 58} 98 ${crestY - 65}C151 ${crestY - 78} 207 ${crestY - 53} 230 ${crestY - 4}C245 ${crestY + 30} 246 ${crestY + 78} 256 ${crestY + 111}Z" fill="${PALETTE.collect[1]}" stroke="${PALETTE.outline}" stroke-width="8" stroke-linejoin="round"/>
-    <path d="M29 ${crestY - 10}C48 ${crestY - 42} 82 ${crestY - 66} 118 ${crestY - 65}C151 ${crestY - 65} 184 ${crestY - 49} 202 ${crestY - 21}C174 ${crestY - 37} 145 ${crestY - 37} 122 ${crestY - 24}C101 ${crestY - 13} 88 ${crestY + 9} 90 ${crestY + 32}C75 ${crestY + 10} 50 ${crestY + 4} 29 ${crestY - 10}Z" fill="${PALETTE.highlight[0]}" stroke="${PALETTE.outline}" stroke-width="5"/>
-    <path d="M89 214C121 198 158 205 188 188M76 304C112 286 151 296 194 274M71 398C110 380 157 388 204 365" fill="none" stroke="${PALETTE.bgFar[1]}" stroke-width="12" stroke-linecap="round"/>
-    <g fill="${PALETTE.highlight[0]}" stroke="${PALETTE.outline}" stroke-width="3">
-      <circle cx="${56 + foamShift}" cy="${crestY + 11}" r="13"/><circle cx="${85 + foamShift}" cy="${crestY - 9}" r="10"/><circle cx="${118 + foamShift}" cy="${crestY - 24}" r="8"/>
-      <circle cx="${45 - foamShift}" cy="${crestY + 69}" r="8"/><circle cx="${72 - foamShift}" cy="${crestY + 87}" r="6"/>
-    </g>
-  </svg>`;
-};
-
 const buildWaveSheet = async () => {
-  const frames = await Promise.all(Array.from({ length: WAVE_FRAMES }, async (_, frame) => (
-    sharp(Buffer.from(waveFrameSvg(frame))).png().toBuffer()
-  )));
+  const source = await sharp(WAVE_SOURCE)
+    .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 }, threshold: 2 })
+    .png()
+    .toBuffer();
+  const motion = [
+    { width: 346, height: 470, left: 19, top: 30 },
+    { width: 352, height: 476, left: 16, top: 25 },
+    { width: 358, height: 484, left: 13, top: 18 },
+    { width: 362, height: 488, left: 11, top: 15 },
+    { width: 358, height: 484, left: 13, top: 18 },
+    { width: 352, height: 476, left: 16, top: 25 },
+    { width: 348, height: 472, left: 18, top: 29 },
+    { width: 344, height: 468, left: 20, top: 32 }
+  ];
+  const frames = await Promise.all(motion.map(async ({ width, height, left, top }) => {
+    const resized = await sharp(source)
+      .resize(width, height, { fit: "fill", kernel: sharp.kernel.lanczos3 })
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    quantize(resized.data, "wave", true);
+    const input = await sharp(resized.data, { raw: resized.info }).png().toBuffer();
+    return sharp({
+      create: {
+        width: WAVE_FRAME_WIDTH,
+        height: WAVE_FRAME_HEIGHT,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      }
+    }).composite([{ input, left, top }]).png().toBuffer();
+  }));
   const output = join(effectRoot, "fx_tsunami_wave.png");
   await mkdir(dirname(output), { recursive: true });
   await sharp({
@@ -178,21 +235,24 @@ const [houseOpen, houseWeathered, shelterHill, wave, warning] = await Promise.al
 const composite = await sharp(far).composite([{ input: mid }, { input: near }]).png().toBuffer();
 await sharp(composite).resize(1024, 360).png({ compressionLevel: 9 }).toFile(join(referenceRoot, "background-tsunami-preview.png"));
 
-const waveFrame = await sharp(wave).extract({ left: 0, top: 0, width: WAVE_FRAME_WIDTH, height: WAVE_FRAME_HEIGHT }).resize(214, 430).png().toBuffer();
+const waveFrame = await sharp(wave).extract({ left: 0, top: 0, width: WAVE_FRAME_WIDTH, height: WAVE_FRAME_HEIGHT }).resize(300, 430).png().toBuffer();
 const cardHouse = await sharp(houseOpen).resize(300, 225, { fit: "contain" }).png().toBuffer();
 await sharp(composite).resize(1280, 720).composite([
   { input: cardHouse, left: 700, top: 350 },
-  { input: waveFrame, left: 1066, top: 188 }
+  { input: waveFrame, left: 980, top: 188 }
 ]).png({ compressionLevel: 9 }).toFile(join(backgroundRoot, "stage_preview_tsunami.png"));
 
 const effectBackground = await sharp({
-  create: { width: 1024, height: 384, channels: 4, background: PALETTE.environmentSky[1] }
+  create: { width: 1024, height: 384, channels: 4, background: PALETTE.environmentSky[0] }
 }).png().toBuffer();
 const previewAssets = await Promise.all([
   sharp(houseOpen).resize(265, 199, { fit: "contain" }).png().toBuffer(),
   sharp(houseWeathered).resize(265, 199, { fit: "contain" }).png().toBuffer(),
   sharp(shelterHill).resize(420, 210, { fit: "contain" }).png().toBuffer(),
-  sharp(waveFrame).resize(150, 300, { fit: "contain" }).png().toBuffer(),
+  sharp(waveFrame).resize(150, 300, {
+    fit: "contain",
+    background: { r: 0, g: 0, b: 0, alpha: 0 }
+  }).png().toBuffer(),
   sharp(warning).resize(112, 112, { fit: "contain" }).png().toBuffer()
 ]);
 await sharp(effectBackground).composite([

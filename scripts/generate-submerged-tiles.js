@@ -22,18 +22,19 @@ const atlasHeight = rows * cellSize;
 const channels = 4;
 
 const colorMap = new Map([
-  [PALETTE.environmentNeutral[0], PALETTE.outline],
+  [PALETTE.environmentNeutral[0], PALETTE.environmentNear[1]],
   [PALETTE.environmentNear[0], PALETTE.environmentNeutral[2]],
-  [PALETTE.environmentMid[1], PALETTE.environmentNeutral[1]],
+  [PALETTE.environmentMid[1], PALETTE.bgFar[1]],
   [PALETTE.environmentFar[1], PALETTE.environmentFar[0]],
   [PALETTE.environmentNear[2], PALETTE.shadow[2]],
-  [PALETTE.environmentNeutral[2], PALETTE.bgFar[1]]
+  [PALETTE.environmentNeutral[2], PALETTE.collect[1]]
 ].map(([from, to]) => [hexToRgb(from).join(","), hexToRgb(to)]));
-const outline = hexToRgb(PALETTE.outline);
+const outline = hexToRgb(PALETTE.environmentNear[1]);
 const roofLight = hexToRgb(PALETTE.environmentNeutral[2]);
 const roofDark = hexToRgb(PALETTE.shadow[2]);
-const wallLight = hexToRgb(PALETTE.environmentFar[0]);
-const submerged = hexToRgb(PALETTE.bgFar[1]);
+const wallLight = hexToRgb(PALETTE.environmentSky[0]);
+const submerged = hexToRgb(PALETTE.bgMid[1]);
+const windowGlow = hexToRgb(PALETTE.collect[0]);
 const caustic = hexToRgb(PALETTE.highlight[0]);
 
 const setPixel = (buffer, width, x, y, rgb, alpha = 255) => {
@@ -61,7 +62,7 @@ const drawSubmergedWall = (tile, frameName, variant) => {
     for (let y = 23; y < 44; y += 1) {
       for (let x = windowX; x < windowX + 18; x += 1) {
         const border = x === windowX || x === windowX + 17 || y === 23 || y === 43 || x === windowX + 8;
-        setPixel(tile, tileSize, x, y, border ? outline : submerged);
+        setPixel(tile, tileSize, x, y, border ? outline : windowGlow);
       }
     }
   }
@@ -90,7 +91,7 @@ const recolorTile = async (frameName, index) => {
     data[offset + 2] = mapped[2];
   }
   if (frameName.startsWith("dirt") || frameName.startsWith("cliff")) {
-    const stoneLight = hexToRgb(PALETTE.environmentNeutral[1]);
+    const stoneLight = hexToRgb(PALETTE.bgFar[1]);
     for (let offset = 0; offset < data.length; offset += 4) {
       if (data[offset] === roofDark[0] && data[offset + 1] === roofDark[1] && data[offset + 2] === roofDark[2]) {
         data[offset] = stoneLight[0];
@@ -134,7 +135,7 @@ for (const [index, frameName] of frameNames.entries()) {
 const previewWidth = 768;
 const previewHeight = 384;
 const preview = Buffer.alloc(previewWidth * previewHeight * channels);
-const water = hexToRgb(PALETTE.environmentNight[2]);
+const water = hexToRgb(PALETTE.bgFar[1]);
 for (let index = 0; index < preview.length; index += 4) {
   preview[index] = water[0];
   preview[index + 1] = water[1];

@@ -768,7 +768,7 @@
     { "key": "shelter_house_open", "type": "image", "url": "/assets/environment/shelter_house_open.png", "width": 448, "height": 336 },
     { "key": "shelter_house_weathered", "type": "image", "url": "/assets/environment/shelter_house_weathered.png", "width": 448, "height": 336 },
     { "key": "shelter_hill", "type": "image", "url": "/assets/environment/shelter_hill.png", "width": 512, "height": 256 },
-    { "key": "fx_tsunami_wave", "type": "spritesheet", "url": "/assets/effects/fx_tsunami_wave.png", "frameWidth": 256, "frameHeight": 512, "frames": 8 },
+    { "key": "fx_tsunami_wave", "type": "spritesheet", "url": "/assets/effects/fx_tsunami_wave.png", "frameWidth": 384, "frameHeight": 512, "frames": 8 },
     { "key": "fx_tsunami_warning", "type": "image", "url": "/assets/effects/fx_tsunami_warning.png", "width": 128, "height": 128 },
     { "key": "fx_water_surface", "type": "spritesheet", "url": "/assets/effects/fx_water_surface.png", "frameWidth": 384, "frameHeight": 64, "frames": 4 },
     { "key": "fx_water_caustics", "type": "spritesheet", "url": "/assets/effects/fx_water_caustics.png", "frameWidth": 256, "frameHeight": 128, "frames": 4 },

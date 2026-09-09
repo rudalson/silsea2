@@ -26,6 +26,37 @@ const compiledPalettes = Object.fromEntries(Object.entries(palettes).map(([key, 
   [...new Set(colors)].map((hex) => ({ hex, rgb: hexToRgb(hex) }))
 ]));
 
+const toneMaps = Object.freeze({
+  bg_submerged_far: new Map([
+    [PALETTE.environmentSky[1], PALETTE.environmentSky[0]],
+    [PALETTE.highlight[0], PALETTE.environmentFar[0]],
+    [PALETTE.environmentNeutral[1], PALETTE.environmentMid[1]],
+    [PALETTE.bgMid[0], PALETTE.environmentMid[0]],
+    [PALETTE.bgFar[0], PALETTE.environmentFar[1]],
+    [PALETTE.bgFar[1], PALETTE.collect[1]],
+    [PALETTE.environmentNight[2], PALETTE.bgFar[1]]
+  ]),
+  bg_submerged_mid: new Map([
+    [PALETTE.environmentNeutral[1], PALETTE.environmentMid[0]],
+    [PALETTE.bgFar[1], PALETTE.bgMid[1]],
+    [PALETTE.bgMid[0], PALETTE.environmentFar[1]],
+    [PALETTE.shadow[2], PALETTE.environmentNear[2]],
+    [PALETTE.bgFar[0], PALETTE.environmentFar[1]],
+    [PALETTE.outline, PALETTE.environmentNear[1]],
+    [PALETTE.highlight[0], PALETTE.environmentFar[0]]
+  ]),
+  bg_submerged_near: new Map([
+    [PALETTE.bgFar[1], PALETTE.bgMid[1]],
+    [PALETTE.environmentNeutral[1], PALETTE.environmentMid[0]],
+    [PALETTE.bgFar[0], PALETTE.environmentFar[1]],
+    [PALETTE.environmentNeutral[0], PALETTE.environmentNear[1]],
+    [PALETTE.bgMid[0], PALETTE.collect[2]],
+    [PALETTE.highlight[0], PALETTE.environmentFar[0]],
+    [PALETTE.environmentNight[2], PALETTE.bgFar[1]],
+    [PALETTE.outline, PALETTE.environmentNear[1]]
+  ])
+});
+
 const nearest = (rgb, palette) => palette.reduce((best, candidate) => {
   const distance = colorDistance(rgb, candidate.rgb);
   return distance < best.distance ? { ...candidate, distance } : best;
@@ -43,6 +74,20 @@ const quantize = (data, paletteKey) => {
     data[index + 1] = rgb[1];
     data[index + 2] = rgb[2];
     data[index + 3] = 255;
+  }
+};
+
+const applyToneMap = (data, layerName) => {
+  const toneMap = toneMaps[layerName];
+  if (!toneMap) return;
+  const compiled = new Map([...toneMap].map(([from, to]) => [hexToRgb(from).join(","), hexToRgb(to)]));
+  for (let index = 0; index < data.length; index += 4) {
+    if (!data[index + 3]) continue;
+    const mapped = compiled.get(`${data[index]},${data[index + 1]},${data[index + 2]}`);
+    if (!mapped) continue;
+    data[index] = mapped[0];
+    data[index + 1] = mapped[1];
+    data[index + 2] = mapped[2];
   }
 };
 
@@ -85,6 +130,7 @@ const buildBackgroundLayer = async (name, paletteKey, transparent, clearAbove = 
     .toBuffer({ resolveWithObject: true });
   if (clearAbove !== null) data.fill(0, 0, Math.max(0, clearAbove) * WIDTH * 4);
   quantize(data, paletteKey);
+  applyToneMap(data, name);
   makeSeamless(data, info.width, info.height);
   const output = join(backgroundRoot, `${name}.png`);
   await mkdir(dirname(output), { recursive: true });
@@ -164,7 +210,7 @@ await sharp(composite).resize(1024, 360).png({ compressionLevel: 9 }).toFile(joi
 await sharp(composite).resize(1280, 720).png({ compressionLevel: 9 }).toFile(join(backgroundRoot, "stage_preview_submerged.png"));
 
 const effectPreview = await sharp({
-  create: { width: 1024, height: 384, channels: 4, background: PALETTE.environmentNight[2] }
+  create: { width: 1024, height: 384, channels: 4, background: PALETTE.bgFar[1] }
 }).png().toBuffer();
 const previewFrames = await Promise.all([
   sharp(surface).extract({ left: 0, top: 0, width: 384, height: 64 }).png().toBuffer(),

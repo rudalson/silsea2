@@ -13,6 +13,7 @@ import { FORMS } from "../data/gameplay.js";
 import { SeededRandom } from "./SeededRandom.js";
 
 const WAVE_WIDTH = 196;
+const WAVE_VISUAL_WIDTH = 320;
 
 export class EnvironmentMechanicsManager {
   constructor(scene, player, level, healthManager, transformationManager) {
@@ -324,7 +325,7 @@ export class EnvironmentMechanicsManager {
     const forceFallback = this.scene.registry.get("forceAssetFallback");
 
     this.fogOverlay = this.track(
-      this.scene.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, COLORS.soft, 1)
+      this.scene.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, COLORS.skyBottom, 1)
     );
     this.fogOverlay.setOrigin(0).setScrollFactor(0).setDepth(18).setAlpha(0);
     this.mistMaskGraphics = this.track(this.scene.add.graphics().setScrollFactor(0));
@@ -723,7 +724,7 @@ export class EnvironmentMechanicsManager {
     this.waveWarningTween?.pause?.();
     const view = this.scene.cameras.main.worldView;
     const leftward = this.tsunami.direction === "left";
-    const x = leftward ? view.right + WAVE_WIDTH / 2 : view.left - WAVE_WIDTH / 2;
+    const x = leftward ? view.right + WAVE_VISUAL_WIDTH / 2 : view.left - WAVE_VISUAL_WIDTH / 2;
     const effectKeys = this.level.assets.effects ?? {};
     const waveKey = effectKeys.tsunamiWave;
     const forceFallback = this.scene.registry.get("forceAssetFallback");
@@ -740,7 +741,7 @@ export class EnvironmentMechanicsManager {
       this.waveVisual = this.track(this.scene.add.sprite(x, GAME_HEIGHT - 42, waveKey, 0));
       this.waveVisual
         .setOrigin(0.5, 1)
-        .setDisplaySize(WAVE_WIDTH * 1.16, GAME_HEIGHT * 0.86)
+        .setDisplaySize(WAVE_VISUAL_WIDTH, GAME_HEIGHT * 0.86)
         .setFlipX(!leftward)
         .setDepth(22)
         .play(animationKey);
