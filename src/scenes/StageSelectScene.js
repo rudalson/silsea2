@@ -242,17 +242,17 @@ export class StageSelectScene extends Phaser.Scene {
       entry.container
         .setX(GAME_WIDTH / 2 + relative * 390)
         .setVisible(visible)
-        .setAlpha(selected ? 1 : 0.7);
+        .setAlpha(selected ? 1 : 0.94);
       if (entry.card.input) entry.card.input.enabled = visible;
       entry.card.setStrokeStyle(selected ? 8 : 4, selected ? COLORS.collect : COLORS.outline);
       entry.card.setScale(selected ? 1.05 : 1);
       entry.previewFrame.setStrokeStyle(selected ? 5 : 3, selected ? COLORS.collect : COLORS.outline).setAlpha(selected ? 1 : 0.72);
       entry.preview
         .setDisplaySize(selected ? 310 : 292, selected ? 171 : 161)
-        .setAlpha(selected ? 1 : 0.72);
+        .setAlpha(1);
       entry.order.setAlpha(selected ? 1 : 0.7);
       entry.title.setColor(selected ? CSS_COLORS.collect : CSS_COLORS.white);
-      entry.description.setAlpha(selected ? 1 : 0.62);
+      entry.description.setAlpha(selected ? 1 : 0.85);
     });
     this.pageIndicator?.setText(LEVELS.map((_, index) => index === this.selected ? "●" : "○").join("  "));
   }

@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { buildStorybookStagePreview } from "./build-storybook-stage-previews.js";
 import { PALETTE } from "../data/palette.js";
 import { hexToRgb } from "./image-utils.js";
 
@@ -61,6 +62,5 @@ const composite = await sharp(outputs.far)
 await mkdir(referenceDirectory, { recursive: true });
 await sharp(composite).resize(1024, 360).png({ compressionLevel: 9 })
   .toFile(join(referenceDirectory, "background-mist-preview.png"));
-await sharp(composite).resize(1280, 720).png({ compressionLevel: 9 })
-  .toFile(join(outputDirectory, "stage_preview_mist.png"));
+await buildStorybookStagePreview("mist");
 console.log("안개 배경 미리보기와 스테이지 선택 이미지 갱신");

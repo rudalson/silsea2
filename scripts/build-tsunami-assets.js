@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { buildStorybookStagePreview } from "./build-storybook-stage-previews.js";
 import { PALETTE } from "../data/palette.js";
 import { colorDistance, hexToRgb } from "./image-utils.js";
 
@@ -236,11 +237,7 @@ const composite = await sharp(far).composite([{ input: mid }, { input: near }]).
 await sharp(composite).resize(1024, 360).png({ compressionLevel: 9 }).toFile(join(referenceRoot, "background-tsunami-preview.png"));
 
 const waveFrame = await sharp(wave).extract({ left: 0, top: 0, width: WAVE_FRAME_WIDTH, height: WAVE_FRAME_HEIGHT }).resize(300, 430).png().toBuffer();
-const cardHouse = await sharp(houseOpen).resize(300, 225, { fit: "contain" }).png().toBuffer();
-await sharp(composite).resize(1280, 720).composite([
-  { input: cardHouse, left: 700, top: 350 },
-  { input: waveFrame, left: 980, top: 188 }
-]).png({ compressionLevel: 9 }).toFile(join(backgroundRoot, "stage_preview_tsunami.png"));
+await buildStorybookStagePreview("tsunami");
 
 const effectBackground = await sharp({
   create: { width: 1024, height: 384, channels: 4, background: PALETTE.environmentSky[0] }

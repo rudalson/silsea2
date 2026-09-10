@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { buildStorybookStagePreview } from "./build-storybook-stage-previews.js";
 import { PALETTE } from "../data/palette.js";
 import { colorDistance, hexToRgb } from "./image-utils.js";
 
@@ -145,7 +146,7 @@ const [bank, clear, beacon, breeze] = await Promise.all([
 
 const composite = await sharp(far).composite([{ input: mid }, { input: near }]).png().toBuffer();
 await sharp(composite).resize(1024, 360).png({ compressionLevel: 9 }).toFile(join(referenceRoot, "background-mist-preview.png"));
-await sharp(composite).resize(1280, 720).png({ compressionLevel: 9 }).toFile(join(backgroundRoot, "stage_preview_mist.png"));
+await buildStorybookStagePreview("mist");
 
 const effectBackground = await sharp({
   create: { width: 896, height: 256, channels: 4, background: PALETTE.environmentSky[1] }

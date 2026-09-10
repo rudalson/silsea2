@@ -21,15 +21,9 @@ const atlasWidth = columns * cellSize;
 const atlasHeight = rows * cellSize;
 const channels = 4;
 
-const colorMap = new Map([
-  [PALETTE.environmentNeutral[0], PALETTE.environmentNeutral[0]],
-  [PALETTE.environmentNear[0], PALETTE.environmentNear[1]],
-  [PALETTE.environmentMid[1], PALETTE.environmentNight[1]],
-  [PALETTE.environmentFar[1], PALETTE.environmentFar[1]],
-  [PALETTE.environmentNear[2], PALETTE.environmentNight[2]],
-  [PALETTE.environmentNeutral[2], PALETTE.environmentNeutral[1]]
-].map(([from, to]) => [hexToRgb(from).join(","), hexToRgb(to)]));
-const rootColor = hexToRgb(PALETTE.environmentNight[1]);
+// Keep the bright grass and warm soil of the base tiles, matching the
+// storybook selection card. Moon specks distinguish the starlight terrain.
+const rootColor = hexToRgb(PALETTE.environmentNeutral[2]);
 const glowColor = hexToRgb(PALETTE.collect[0]);
 
 const setPixel = (buffer, width, x, y, rgb, alpha = 255) => {
@@ -62,20 +56,13 @@ const addMoonSpecks = (tile, variant) => {
   }
 };
 
-const recolorTile = async (frameName, index) => {
+const decorateTile = async (frameName, index) => {
   const frame = sourceAtlas.frames[frameName].frame;
   const { data } = await sharp(sourceImage)
     .extract({ left: frame.x, top: frame.y, width: tileSize, height: tileSize })
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  for (let offset = 0; offset < data.length; offset += 4) {
-    const mapped = colorMap.get(`${data[offset]},${data[offset + 1]},${data[offset + 2]}`);
-    if (!mapped) continue;
-    data[offset] = mapped[0];
-    data[offset + 1] = mapped[1];
-    data[offset + 2] = mapped[2];
-  }
   if (frameName.startsWith("dirt") || frameName.startsWith("cliff") || frameName.startsWith("platform")) {
     drawRootVeins(data, index);
   }
@@ -84,7 +71,7 @@ const recolorTile = async (frameName, index) => {
 };
 
 const frameNames = Object.keys(sourceAtlas.frames);
-const tiles = await Promise.all(frameNames.map(recolorTile));
+const tiles = await Promise.all(frameNames.map(decorateTile));
 const atlas = Buffer.alloc(atlasWidth * atlasHeight * channels);
 const frames = {};
 for (const [index, frameName] of frameNames.entries()) {
@@ -113,7 +100,7 @@ for (const [index, frameName] of frameNames.entries()) {
 const previewWidth = 768;
 const previewHeight = 384;
 const preview = Buffer.alloc(previewWidth * previewHeight * channels);
-const sky = hexToRgb(PALETTE.environmentNight[0]);
+const sky = hexToRgb("#9185EF");
 for (let index = 0; index < preview.length; index += 4) setPixel(preview, previewWidth, (index / 4) % previewWidth, Math.floor(index / 4 / previewWidth), sky);
 const tileMap = new Map(frameNames.map((name, index) => [name, tiles[index]]));
 const blit = (name, x, y) => {

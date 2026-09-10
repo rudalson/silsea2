@@ -219,9 +219,11 @@ const backgroundAssets = [
   { name: "bg_boss_far", luma: [70, 86] },
   { name: "bg_boss_mid", luma: [52, 70] },
   { name: "bg_boss_near", luma: [42, 62], minimumY: 576 },
-  { name: "bg_starlight_far", luma: [14, 22] },
-  { name: "bg_starlight_mid", luma: [22, 34] },
-  { name: "bg_starlight_near", luma: [25, 38], minimumY: 500 },
+  // Full-color storybook art retains gradients and alpha; gameplay sprites
+  // and the other environment sets still use the restricted palette.
+  { name: "bg_starlight_far", luma: [55, 78], fullColor: true, coverage: [1, 1] },
+  { name: "bg_starlight_mid", luma: [45, 75], fullColor: true, coverage: [0.15, 0.55] },
+  { name: "bg_starlight_near", luma: [45, 75], fullColor: true, coverage: [0.1, 0.31], minimumY: 500 },
   { name: "bg_mist_far", luma: [82, 88] },
   { name: "bg_mist_mid", luma: [68, 78] },
   { name: "bg_mist_near", luma: [48, 60], minimumY: 500 },
@@ -230,10 +232,10 @@ const backgroundAssets = [
   { name: "bg_submerged_near", luma: [58, 67], minimumY: 399 }
 ];
 const starlightDecorationAssets = [
-  { name: "decor_star_tree", width: 640, height: 640 },
-  { name: "decor_moon_branch", width: 384, height: 256 },
-  { name: "decor_firefly", width: 192, height: 160 },
-  { name: "decor_star_flower", width: 256, height: 192 }
+  { name: "decor_star_tree", width: 640, height: 640, fullColor: true },
+  { name: "decor_moon_branch", width: 384, height: 256, fullColor: true },
+  { name: "decor_firefly", width: 192, height: 160, fullColor: true },
+  { name: "decor_star_flower", width: 256, height: 192, fullColor: true }
 ];
 const resultStickerAssets = [
   "ui_result_sticker_clear",
@@ -629,7 +631,13 @@ for (const asset of backgroundAssets) {
     }
 
     if (!visible) errors.push(`${asset.name}.png: 불투명 픽셀이 없음`);
-    if (outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (!asset.fullColor && outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (asset.coverage) {
+      const coverage = visible / (info.width * info.height);
+      if (coverage < asset.coverage[0] || coverage > asset.coverage[1]) {
+        errors.push(`${asset.name}.png: 가시 영역 비율 ${coverage.toFixed(3)} (${asset.coverage.join("~")} 아님)`);
+      }
+    }
     if (seamDelta !== 0) errors.push(`${asset.name}.png: 좌우 seam 최대 차이 ${seamDelta}`);
     if (visible) {
       const meanLuma = (lumaTotal / visible) * 100;
@@ -668,7 +676,37 @@ for (const asset of starlightDecorationAssets) {
       data[(info.width * info.height - 1) * 4 + 3]
     ];
     if (!visible) errors.push(`${asset.name}.png: 불투명 픽셀이 없음`);
-    if (outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (!asset.fullColor && outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (asset.fullColor && visible / (info.width * info.height) > 0.85) {
+      errors.push(`${asset.name}.png: 장식 배경의 투명 영역이 부족함`);
+    }
+    if (asset.name === "decor_firefly") {
+      // Round firefly glows must not contain a detached, flat strip from
+      // the neighboring tree sprite, even at very low alpha (ADD blending).
+      let band = null;
+      for (let y = 0; y <= info.height; y += 1) {
+        let left = info.width;
+        let right = -1;
+        if (y < info.height) {
+          for (let x = 0; x < info.width; x += 1) {
+            if (data[(y * info.width + x) * 4 + 3] === 0) continue;
+            left = Math.min(left, x);
+            right = Math.max(right, x);
+          }
+        }
+        if (right >= left) {
+          band ??= { top: y, left, right };
+          band.left = Math.min(band.left, left);
+          band.right = Math.max(band.right, right);
+        } else if (band) {
+          const height = y - band.top;
+          if (height <= 8 && band.right - band.left + 1 > height * 8) {
+            errors.push(`${asset.name}.png: 분리된 가로선 조각 y=${band.top}~${y - 1}`);
+          }
+          band = null;
+        }
+      }
+    }
     if (cornerAlpha.some((alpha) => alpha > 8)) errors.push(`${asset.name}.png: 모서리 투명 여백 없음`);
   } catch (error) {
     errors.push(`${asset.name}.png: 장식 파일을 읽을 수 없음 (${error.message})`);
