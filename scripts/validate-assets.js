@@ -78,7 +78,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: enemy === "potato_archer" };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -121,6 +121,10 @@ const characterAssets = [
   ...sequenceAssets("sylvia", "victory", 6)
 ];
 const enemyAssets = [
+  ...enemySequenceAssets("potato_archer", "idle", 2),
+  ...enemySequenceAssets("potato_archer", "aim", 3),
+  ...enemySequenceAssets("potato_archer", "shoot", 3),
+  ...enemySequenceAssets("potato_archer", "defeated", 4),
   { name: "raw_potato_anchor.png", path: join(root, "assets", "_anchor", "raw_potato_anchor.png"), kind: "raw_potato" },
   ...enemySequenceAssets("raw_potato", "idle", 2),
   ...enemySequenceAssets("raw_potato", "roll", 6),
@@ -339,20 +343,23 @@ for (const asset of assets) {
     maxX = Math.max(maxX, x);
     maxY = Math.max(maxY, y);
     const rgb = [data[index], data[index + 1], data[index + 2]];
-    if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
+    if (!asset.fullColor && Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
     if (asset.kind === "item" && Math.min(...itemRgb.map((entry) => colorDistance(rgb, entry))) > ITEM_PALETTE_EDGE_TOLERANCE) {
       outsideCollect += 1;
     }
   }
   if (!opaque) errors.push(`${name}: 불투명 픽셀이 없음`);
   const outsidePaletteRatio = opaque ? outside / opaque : 0;
-  if (opaque) qualityMeasurements.outsidePalette.push({ name, value: outsidePaletteRatio });
+  if (opaque && !asset.fullColor) qualityMeasurements.outsidePalette.push({ name, value: outsidePaletteRatio });
   if (outsidePaletteRatio > QUALITY_THRESHOLDS.outsidePaletteRatio) errors.push(`${name}: 팔레트 외 픽셀 5% 초과`);
   if (asset.kind === "item" && outsideCollect > 0) errors.push(`${name}: collect 팔레트 밖 픽셀 ${outsideCollect}개`);
   if (opaque) {
     const subjectWidth = maxX - minX + 1;
     const subjectHeight = maxY - minY + 1;
     const baseline = info.height - (maxY + 1);
+    if (asset.kind === "potato_archer" && (subjectWidth < 70 || subjectWidth > 112 || subjectHeight < 70 || subjectHeight > 96)) {
+      errors.push(`${name}: 감자 궁수 실루엣 ${subjectWidth}x${subjectHeight}px (너비 70~112px, 높이 70~96px 아님)`);
+    }
     if (name.startsWith("potato89_roll_")) {
       let faceXTotal = 0;
       let facePixels = 0;
@@ -508,7 +515,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "spike_pumpkin", "dark_cloud", "magpie", "potato_king", "hula_king", "invisible_king"]) {
+  for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "potato_king", "hula_king", "invisible_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

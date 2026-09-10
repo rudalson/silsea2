@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { buildPotatoArcherAssets } from "./build-potato-archer-assets.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = join(root, "assets", "_source", "p6", "p6_combat_devices_color_source.png");
@@ -13,10 +14,6 @@ const regions = Object.freeze({
   silseaActive: { left: 335, top: 82, width: 240, height: 280 },
   potatoReady: { left: 850, top: 88, width: 220, height: 276 },
   potatoActive: { left: 1080, top: 84, width: 195, height: 286 },
-  archerIdle: { left: 65, top: 392, width: 300, height: 240 },
-  archerAim: { left: 350, top: 390, width: 320, height: 250 },
-  archerShoot: { left: 700, top: 388, width: 260, height: 252 },
-  archerDefeated: { left: 1040, top: 410, width: 245, height: 238 },
   arrow: { left: 1320, top: 466, width: 190, height: 118 },
   emitter: { left: 60, top: 666, width: 270, height: 300 },
   switchOn: { left: 378, top: 700, width: 270, height: 270 },
@@ -233,7 +230,6 @@ const removedPixels = await removeConnectedBackground();
 
 const silseaOptions = { width: frameSize, height: frameSize, maxWidth: 118, maxHeight: 108, bottomPad: 16, palette: "silsea", minimumComponentPixels: 120 };
 const potatoOptions = { width: frameSize, height: frameSize, maxWidth: 118, maxHeight: 108, bottomPad: 16, palette: "potato", minimumComponentPixels: 120 };
-const enemyOptions = { width: frameSize, height: frameSize, maxWidth: 118, maxHeight: 94, bottomPad: 16, palette: "archer", minimumComponentPixels: 55 };
 
 const silseaGuard = await buildSequence({
   rootDirectory: join(root, "assets", "characters", "silsea", "wing_guard"),
@@ -251,35 +247,12 @@ const potatoGuard = await buildSequence({
   options: potatoOptions
 });
 
-const archerDirectory = join(root, "assets", "enemies", "potato_archer");
-const archerIdle = await buildSequence({
-  rootDirectory: join(archerDirectory, "idle"),
-  prefix: "potato_archer_idle",
-  regions: [regions.archerIdle, regions.archerIdle],
-  variants: [{}, { scaleMultiplier: 0.985, yOffset: 2 }],
-  options: enemyOptions
-});
-const archerAim = await buildSequence({
-  rootDirectory: join(archerDirectory, "aim"),
-  prefix: "potato_archer_aim",
-  regions: [regions.archerAim, regions.archerAim, regions.archerAim],
-  variants: [{ scaleMultiplier: 0.98 }, {}, { scaleMultiplier: 1.01 }],
-  options: enemyOptions
-});
-const archerShoot = await buildSequence({
-  rootDirectory: join(archerDirectory, "shoot"),
-  prefix: "potato_archer_shoot",
-  regions: [regions.archerShoot, regions.archerShoot, regions.archerShoot],
-  variants: [{ scaleMultiplier: 1.01 }, {}, { scaleMultiplier: 0.98, yOffset: 2 }],
-  options: enemyOptions
-});
-const archerDefeated = await buildSequence({
-  rootDirectory: join(archerDirectory, "defeated"),
-  prefix: "potato_archer_defeated",
-  regions: [regions.archerDefeated, regions.archerDefeated, regions.archerDefeated, regions.archerDefeated],
-  variants: [{}, { scaleMultiplier: 0.96, yOffset: 2 }, { scaleMultiplier: 0.9, yOffset: 5 }, { scaleMultiplier: 0.82, yOffset: 8 }],
-  options: enemyOptions
-});
+const {
+  idle: archerIdle,
+  aim: archerAim,
+  shoot: archerShoot,
+  defeated: archerDefeated
+} = await buildPotatoArcherAssets();
 
 const staticSpecs = [
   ["projectiles/projectile_arrow.png", regions.arrow, { width: 64, height: 32, maxWidth: 60, maxHeight: 24, palette: "archer" }],
