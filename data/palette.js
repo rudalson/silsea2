@@ -5,6 +5,8 @@ export const PALETTE = {
   source: "references/images",
   base: ["#F1F6FA", "#DEB5C6", "#D294AC", "#957242"],
   shadow: ["#9598A2", "#745767", "#5D4326"],
+  // 실비아 전용 다색 팔레트. 실세아의 기존 색상은 유지한다.
+  sylvia: ["#D8C5F0", "#A18AC4", "#79639E", "#495077", "#30334F", "#F4ECFF", "#7BDBCF", "#47A9B6", "#80C7F2", "#578BCA", "#AA84DA", "#F2B6D8", "#FFF0A6"],
   highlight: ["#F4FBFD", "#CDE5B9"],
   outline: "#42474E",
   danger: ["#D1333D", "#752B5A"],
@@ -19,5 +21,18 @@ export const PALETTE = {
   environmentMid: ["#82CB70", "#59AE72"],
   environmentNear: ["#51CE87", "#285144", "#9A6535"],
   environmentNight: ["#172447", "#193A3E", "#214D59"],
-  environmentNeutral: ["#45494B", "#A8AA96", "#D09A4E"]
+  environmentNeutral: ["#45494B", "#A8AA96", "#D09A4E"],
+  storybook: {
+    bg: "#EFE1CD",
+    heading: "#CF6CA7",
+    label: "#78455F",
+    arrow: "#A76587",
+    buttonShadow: "#795348",
+    buttonHover: "#F6C9DF",
+    buttonNormal: "#F9DFEB",
+    buttonBorder: "#B87D9B",
+    buttonInner: "#FFF7E6",
+    caption: "#664D53",
+    captionStroke: "#FFF4E1"
+  }
 };

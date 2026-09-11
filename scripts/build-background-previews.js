@@ -1,10 +1,14 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, rename, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 import { PALETTE } from "../data/palette.js";
 
 const PREVIEW_WIDTH = 1024;
 const PREVIEW_HEIGHT = 360;
 const moods = ["normal", "pit", "boss"];
+const savePreview = async (path, buffer) => {
+  await writeFile(`${path}.tmp`, buffer);
+  await rename(`${path}.tmp`, path);
+};
 
 await mkdir("references", { recursive: true });
 const previews = [];
@@ -20,11 +24,11 @@ for (const mood of moods) {
     .png({ compressionLevel: 9 })
     .toBuffer();
   const path = `references/background-${mood}-preview.png`;
-  await sharp(preview).toFile(path);
+  await savePreview(path, preview);
   previews.push(preview);
 }
 
-await sharp({
+const contactSheet = await sharp({
   create: {
     width: PREVIEW_WIDTH,
     height: PREVIEW_HEIGHT * previews.length,
@@ -34,6 +38,7 @@ await sharp({
 })
   .composite(previews.map((input, index) => ({ input, left: 0, top: index * PREVIEW_HEIGHT })))
   .png({ compressionLevel: 9 })
-  .toFile("references/background-mood-contact-sheet.png");
+  .toBuffer();
+await savePreview("references/background-mood-contact-sheet.png", contactSheet);
 
 console.log("배경 미리보기 생성: normal, pit, boss, contact sheet");

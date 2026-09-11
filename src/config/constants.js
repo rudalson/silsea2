@@ -78,7 +78,18 @@ export const CSS_COLORS = Object.freeze({
   whiteSoft: withAlpha(PALETTE.highlight[0], "DD"),
   dangerSoft: withAlpha(PALETTE.danger[1], "DD"),
   dangerMedium: withAlpha(PALETTE.danger[1], "CC"),
-  collectSoft: withAlpha(PALETTE.collect[0], "EE")
+  collectSoft: withAlpha(PALETTE.collect[0], "EE"),
+  storybookBg: PALETTE.storybook.bg,
+  storybookHeading: PALETTE.storybook.heading,
+  storybookLabel: PALETTE.storybook.label,
+  storybookArrow: PALETTE.storybook.arrow,
+  storybookButtonShadow: PALETTE.storybook.buttonShadow,
+  storybookButtonHover: PALETTE.storybook.buttonHover,
+  storybookButtonNormal: PALETTE.storybook.buttonNormal,
+  storybookButtonBorder: PALETTE.storybook.buttonBorder,
+  storybookButtonInner: PALETTE.storybook.buttonInner,
+  storybookCaption: PALETTE.storybook.caption,
+  storybookCaptionStroke: PALETTE.storybook.captionStroke
 });
 
 export const COLORS = Object.freeze(

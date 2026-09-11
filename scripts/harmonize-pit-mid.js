@@ -4,6 +4,14 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { PALETTE } from "../data/palette.js";
 import { hexToRgb } from "./image-utils.js";
+import { buildRainbowAssets } from "./build-rainbow-assets.js";
+
+// The default command now restores the shared full-color storybook set.
+// Explicit input/output arguments retain the legacy conversion utility.
+if (process.argv.length === 2) {
+  await buildRainbowAssets();
+  process.exit(0);
+}
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const input = process.argv[2] ?? join(root, "assets", "_source", "backgrounds", "bg_pit_mid_original-v1.png");

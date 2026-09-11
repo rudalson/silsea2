@@ -214,15 +214,11 @@ const requiredTileFrames = [
   "slope_down"
 ];
 const backgroundAssets = [
-  { name: "bg_normal_far", luma: [82, 94] },
-  { name: "bg_normal_mid", luma: [62, 78] },
-  { name: "bg_normal_near", luma: [50, 68], minimumY: 540 },
-  { name: "bg_pit_far", luma: [82, 94] },
-  { name: "bg_pit_mid", luma: [60, 80] },
-  { name: "bg_pit_near", luma: [48, 68], minimumY: 540 },
-  { name: "bg_boss_far", luma: [70, 86] },
-  { name: "bg_boss_mid", luma: [52, 70] },
-  { name: "bg_boss_near", luma: [42, 62], minimumY: 576 },
+  ...["normal", "pit", "boss"].flatMap((mood) => [
+    { name: `bg_${mood}_far`, luma: [60, 90], fullColor: true, mirrored: true, coverage: [1, 1] },
+    { name: `bg_${mood}_mid`, luma: [45, 75], fullColor: true, mirrored: true, coverage: [0.15, 0.4], minimumY: 220 },
+    { name: `bg_${mood}_near`, luma: [45, 75], fullColor: true, mirrored: true, coverage: [0.2, 0.36], minimumY: 460 }
+  ]),
   // Full-color storybook art retains gradients and alpha; gameplay sprites
   // and the other environment sets still use the restricted palette.
   { name: "bg_starlight_far", luma: [55, 78], fullColor: true, coverage: [1, 1] },
@@ -645,7 +641,9 @@ for (const asset of backgroundAssets) {
         errors.push(`${asset.name}.png: 가시 영역 비율 ${coverage.toFixed(3)} (${asset.coverage.join("~")} 아님)`);
       }
     }
-    if (seamDelta !== 0) errors.push(`${asset.name}.png: 좌우 seam 최대 차이 ${seamDelta}`);
+    // Mirrored repetition joins right/right and left/left, so the opposite
+    // edges need not match. Legacy repeatable layers retain that contract.
+    if (!asset.mirrored && seamDelta !== 0) errors.push(`${asset.name}.png: 좌우 seam 최대 차이 ${seamDelta}`);
     if (visible) {
       const meanLuma = (lumaTotal / visible) * 100;
       if (meanLuma < asset.luma[0] || meanLuma > asset.luma[1]) {

@@ -236,7 +236,8 @@ export class LevelLoader {
 
     // 원본과 좌우 반전본을 교차하면 맞닿는 두 가장자리가 같은 픽셀이 된다.
     // 각 타일을 4px 겹쳐 그려 소수점 카메라 이동·텍스처 필터링으로 생기는
-    // 1px 수직 틈도 가린다. 원본의 가장자리 픽셀은 후처리 단계에서 동일하다.
+    // 1px 수직 틈도 가린다. 반전 반복은 같은 쪽 가장자리끼리 맞닿으므로
+    // 원본의 왼쪽·오른쪽 픽셀을 강제로 복사할 필요가 없다.
     for (let index = -1; index * tileWidth < worldWidth + tileWidth; index += 1) {
       const image = this.track(this.scene.add.image(
         index * tileWidth + tileWidth / 2,

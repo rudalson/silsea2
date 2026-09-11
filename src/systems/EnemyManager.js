@@ -221,11 +221,16 @@ export class EnemyManager {
   }
 
   updatePotatoArcher(enemy, now) {
+    const state = enemy.getData("state");
+    // Keep the telegraphed shot readable; otherwise follow the player's side,
+    // including during cooldown and after a one-shot archer has fired.
+    if (state !== "telegraph" && now >= (enemy.getData("facingLockedUntil") ?? 0)) {
+      this.faceArcherToward(enemy, this.player.body?.center?.x ?? this.player.x);
+    }
     if (!this.isOnScreen(enemy, 80)) {
       this.cancelArcherTelegraph(enemy);
       return;
     }
-    const state = enemy.getData("state");
     const triggerX = enemy.getData("triggerX") ?? enemy.x - this.progressionSign * 420;
     if (state === "idle" && hasReachedProgressTrigger(this.player.x, triggerX, this.level)) {
       const activationDelayMs = enemy.getData("activationDelayMs") ?? 0;
@@ -251,9 +256,19 @@ export class EnemyManager {
     }
   }
 
+  faceArcherToward(enemy, targetX, deadZone = 8) {
+    const distance = targetX - enemy.x;
+    // Avoid rapidly flipping when the player jumps directly above the archer.
+    if (Math.abs(distance) <= deadZone) return;
+    const facing = distance < 0 ? -1 : 1;
+    enemy.setData("facing", facing);
+    enemy.setFlipX?.(facing < 0);
+  }
+
   beginArcherTelegraph(enemy, now) {
     const targetX = this.player.body?.center?.x ?? this.player.x;
     const targetY = this.player.body?.center?.y ?? this.player.y - 30;
+    this.faceArcherToward(enemy, targetX, 0);
     const telegraphMs = (enemy.getData("telegraphMs") ?? ARCHER_RULES.telegraphMs)
       * (this.projectileDifficulty.telegraphMultiplier ?? 1);
     enemy.setData({
@@ -278,7 +293,8 @@ export class EnemyManager {
   }
 
   fireArcherArrow(enemy, now) {
-    const originX = enemy.x - this.progressionSign * 28;
+    const facing = enemy.getData("facing") ?? (enemy.flipX ? -1 : 1);
+    const originX = enemy.x + facing * 28;
     const originY = enemy.y - 42;
     const angle = Phaser.Math.Angle.Between(originX, originY, enemy.getData("targetX"), enemy.getData("targetY"));
     const speed = (enemy.getData("arrowSpeed") ?? ARCHER_RULES.arrowSpeed)
@@ -294,7 +310,8 @@ export class EnemyManager {
     enemy.getData("aimLine")?.clear().setAlpha(1);
     this.clearTelegraphColor(enemy);
     enemy.setScale(1);
-    EnemyAnimationManager.play(enemy, "attack", false);
+    const attack = EnemyAnimationManager.play(enemy, "attack", false);
+    enemy.setData("facingLockedUntil", now + (attack?.durations.reduce((sum, duration) => sum + duration, 0) ?? 0));
     if (enemy.getData("oneShot")) {
       enemy.setData("state", "spent");
       return;

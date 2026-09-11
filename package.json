@@ -13,6 +13,7 @@
     "background:pit-tone": "node scripts/harmonize-pit-mid.js",
     "background:mist-tone": "node scripts/harmonize-mist-backgrounds.js",
     "background:preview": "node scripts/build-background-previews.js",
+    "rainbow:assets": "node scripts/build-rainbow-assets.js && node scripts/build-background-previews.js",
     "starlight:assets": "node scripts/build-starlight-assets.js && node scripts/generate-starlight-tiles.js",
     "mist:assets": "node scripts/build-mist-assets.js && node scripts/harmonize-mist-backgrounds.js && node scripts/generate-mist-tiles.js",
     "tsunami:assets": "node scripts/extract-tsunami-wave-source.js && node scripts/build-tsunami-assets.js && node scripts/generate-tsunami-tiles.js",

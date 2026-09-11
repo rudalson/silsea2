@@ -96,10 +96,9 @@ export const CHARACTERS = Object.freeze({
     id: "sylvia",
     name: "실비아",
     englishName: "Sylvia",
-    description: "부드럽고 용감한 바다빛 친구",
-    color: PALETTE.base[1],
-    accent: PALETTE.collect[2],
-    selectionSymbol: "heart",
+    description: "씩씩하고 다정한 무지갯빛 소년",
+    color: PALETTE.sylvia[0],
+    accent: PALETTE.sylvia[6],
     artReady: true
   })
 });

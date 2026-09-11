@@ -10,8 +10,8 @@ const hornSources = Object.freeze({
     extract: Object.freeze({ left: 106, top: 19, width: 6, height: 7 })
   }),
   sylvia: Object.freeze({
-    frame: join(root, "assets", "characters", "sylvia", "transform_unicorn", "sylvia_transform_unicorn_05.png"),
-    extract: Object.freeze({ left: 104, top: 18, width: 8, height: 10 })
+    frame: join(root, "assets", "_source", "character-refresh", "sylvia-horn.png"),
+    extract: Object.freeze({ left: 0, top: 0, width: 8, height: 10 })
   }),
   potato89: Object.freeze({
     frame: join(root, "assets", "characters", "potato89", "transform_unicorn", "potato89_transform_unicorn_05.png"),
@@ -203,10 +203,21 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
   const frames = [];
 
   for (let index = 0; index < anchors.length; index += 1) {
-    const [anchorX, anchorY, angle] = anchors[index];
+    let [anchorX, anchorY, angle] = anchors[index];
     const horn = await getHorn(character, width, height, angle);
     const inputPath = framePath(character, sequence, index);
     const baseAlpha = await readAlpha(inputPath);
+    if (character === "sylvia") {
+      // The refreshed head has a shorter mane and a stronger muzzle. Attach to
+      // the upper forehead contour instead of the previous character's ear.
+      anchorX = 108;
+      for (let y = 12; y < 72; y++) {
+        if (alphaAt(baseAlpha, anchorX, y) > ALPHA_THRESHOLD) {
+          anchorY = y + 1;
+          break;
+        }
+      }
+    }
     const weld = placeHornAtAnchor(baseAlpha, horn, anchorX, anchorY);
     const frame = await sharp(inputPath)
       .composite([{

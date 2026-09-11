@@ -743,7 +743,7 @@
     { "key": "bg_boss_far", "type": "image", "url": "/assets/backgrounds/bg_boss_far.png", "width": 2048, "height": 720 },
     { "key": "bg_boss_mid", "type": "image", "url": "/assets/backgrounds/bg_boss_mid.png", "width": 2048, "height": 720 },
     { "key": "bg_boss_near", "type": "image", "url": "/assets/backgrounds/bg_boss_near.png", "width": 2048, "height": 720 },
-    { "key": "bg_intro", "type": "image", "url": "/assets/backgrounds/bg_intro.png", "width": 1680, "height": 944 },
+    { "key": "bg_intro", "type": "image", "url": "/assets/backgrounds/bg_intro.png", "width": 2034, "height": 1362 },
     { "key": "bg_character_select", "type": "image", "url": "/assets/backgrounds/bg_character_select.png", "width": 1680, "height": 944 },
     { "key": "bg_stage_select", "type": "image", "url": "/assets/backgrounds/bg_stage_select.png", "width": 1680, "height": 944 },
     { "key": "bg_stage_select_calm", "type": "image", "url": "/assets/backgrounds/bg_stage_select_calm.png", "width": 1672, "height": 941 },

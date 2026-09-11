@@ -12,6 +12,7 @@ root.style.setProperty("--color-soft", PALETTE.environmentFar[0]);
 root.style.setProperty("--color-white", PALETTE.highlight[0]);
 root.style.setProperty("--color-collect", PALETTE.collect[0]);
 root.style.setProperty("--color-outline", PALETTE.environmentNeutral[0]);
+root.style.setProperty("--color-storybook-bg", PALETTE.storybook.bg);
 
 const container = document.querySelector("#game-container");
 const initialDisplayMode = getInitialDisplayMode();
