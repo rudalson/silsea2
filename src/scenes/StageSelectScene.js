@@ -163,12 +163,25 @@ export class StageSelectScene extends Phaser.Scene {
       })).setOrigin(0.5);
       container.add(children);
       card.on("pointerover", () => {
-        if (this.selected === index) return;
-        this.selected = index;
-        this.audioManager.playSfx("sfx_ui_move");
-        this.renderSelection();
+        if (index === this.selected) {
+          card.setScale(1.07);
+        } else {
+          card.setStrokeStyle(5, COLORS.collect);
+          card.setScale(1.02);
+        }
       });
-      card.on("pointerdown", () => this.confirmStage());
+      card.on("pointerout", () => {
+        const isSelected = index === this.selected;
+        card.setStrokeStyle(isSelected ? 8 : 4, isSelected ? COLORS.collect : COLORS.outline);
+        card.setScale(isSelected ? 1.05 : 1);
+      });
+      card.on("pointerdown", () => {
+        if (this.selected === index) {
+          this.confirmStage();
+        } else {
+          this.selectStage(index);
+        }
+      });
       this.cards.push({
         container,
         card,
@@ -184,6 +197,8 @@ export class StageSelectScene extends Phaser.Scene {
       });
     });
 
+    this.createNavButtons();
+
     this.pageIndicator = this.add.text(GAME_WIDTH / 2, 594, "", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "22px",
@@ -192,7 +207,11 @@ export class StageSelectScene extends Phaser.Scene {
       backgroundColor: CSS_COLORS.panelSoft,
       padding: { x: 13, y: 5 }
     }).setOrigin(0.5).setDepth(4);
-    this.add.text(GAME_WIDTH / 2, 650, "← → 선택   ·   Space / Z 시작   ·   Esc 캐릭터 선택", {
+
+    this.createDotIndicators();
+    this.setupWheelControl();
+
+    this.add.text(GAME_WIDTH / 2, 650, "← → / 클릭 선택   ·   Space / Z / 카드 클릭 시작   ·   Esc 캐릭터 선택", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       fontStyle: "700",
@@ -207,13 +226,92 @@ export class StageSelectScene extends Phaser.Scene {
     });
   }
 
+  createNavButtons() {
+    const createButton = (x, symbol, direction) => {
+      const buttonContainer = this.add.container(x, 370).setDepth(5);
+      const bg = this.add.circle(0, 0, 26, COLORS.near, 0.92)
+        .setStrokeStyle(3, COLORS.collect, 0.95);
+      const label = this.add.text(symbol === "◀" ? -2 : 2, 0, symbol, {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "24px",
+        fontStyle: "900",
+        color: CSS_COLORS.collect
+      }).setOrigin(0.5);
+      buttonContainer.add([bg, label]);
+
+      bg.setInteractive({ useHandCursor: true });
+      bg.on("pointerover", () => {
+        bg.setScale(1.15).setStrokeStyle(4, COLORS.white);
+        label.setScale(1.15).setColor(CSS_COLORS.white);
+      });
+      bg.on("pointerout", () => {
+        bg.setScale(1).setStrokeStyle(3, COLORS.collect);
+        label.setScale(1).setColor(CSS_COLORS.collect);
+      });
+      bg.on("pointerdown", () => {
+        this.navigate(direction);
+      });
+      return buttonContainer;
+    };
+
+    this.leftNavButton = createButton(44, "◀", -1);
+    this.rightNavButton = createButton(GAME_WIDTH - 44, "▶", 1);
+  }
+
+  createDotIndicators() {
+    const count = LEVELS.length;
+    const dotSpacing = 28;
+    const startX = GAME_WIDTH / 2 - ((count - 1) * dotSpacing) / 2;
+    for (let i = 0; i < count; i += 1) {
+      const dotX = startX + i * dotSpacing;
+      const hitArea = this.add.circle(dotX, 594, 15, COLORS.outline, 0.001)
+        .setDepth(5)
+        .setInteractive({ useHandCursor: true });
+      hitArea.on("pointerover", () => {
+        if (i !== this.selected) {
+          hitArea.setFillStyle(COLORS.collect, 0.25);
+        }
+      });
+      hitArea.on("pointerout", () => {
+        hitArea.setFillStyle(COLORS.outline, 0.001);
+      });
+      hitArea.on("pointerdown", () => {
+        this.selectStage(i);
+      });
+    }
+  }
+
+  setupWheelControl() {
+    this.lastWheelTime = 0;
+    this.input.on("wheel", (pointer, currentlyOver, deltaX, deltaY) => {
+      const now = this.time.now;
+      if (now - this.lastWheelTime < 220) return;
+      const delta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+      if (Math.abs(delta) < 8) return;
+      this.lastWheelTime = now;
+      this.navigate(delta > 0 ? 1 : -1);
+    });
+  }
+
+  navigate(direction) {
+    if (this.starting) return;
+    this.selected = Phaser.Math.Wrap(this.selected + direction, 0, LEVELS.length);
+    this.audioManager.playSfx("sfx_ui_move");
+    this.renderSelection();
+  }
+
+  selectStage(index) {
+    if (this.starting || this.selected === index) return;
+    this.selected = Phaser.Math.Wrap(index, 0, LEVELS.length);
+    this.audioManager.playSfx("sfx_ui_move");
+    this.renderSelection();
+  }
+
   update() {
     const input = this.inputManager.sample();
     if (Math.abs(input.moveX) > 0.5 && !this.axisLocked) {
-      this.selected = Phaser.Math.Wrap(this.selected + Math.sign(input.moveX), 0, LEVELS.length);
+      this.navigate(Math.sign(input.moveX));
       this.axisLocked = true;
-      this.audioManager.playSfx("sfx_ui_move");
-      this.renderSelection();
     }
     if (Math.abs(input.moveX) < 0.2) this.axisLocked = false;
     if (input.confirmPressed) this.confirmStage();
