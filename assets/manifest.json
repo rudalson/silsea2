@@ -683,6 +683,16 @@
       "frames": 16
     },
     {
+      "key": "rainbow_tileset",
+      "type": "atlas",
+      "url": "/assets/tiles/rainbow_tileset.png",
+      "atlasUrl": "/assets/tiles/rainbow_tileset.json",
+      "tileWidth": 64,
+      "tileHeight": 64,
+      "extrude": 2,
+      "frames": 16
+    },
+    {
       "key": "starlight_tileset",
       "type": "atlas",
       "url": "/assets/tiles/starlight_tileset.png",

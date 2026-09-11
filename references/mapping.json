@@ -153,7 +153,8 @@
   "stage_preview_rainbow_relay": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 C1 앵커의 시작 발판·두 짧은 틈·구름 이동 발판·분절 붕괴 발판·별 호·무지개 게이트를 유지한 6번 선택 카드." },
 
   "grass_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "팔레트와 흙/잔디 층만 참고해 코드 생성. 이미지 생성 금지." },
-  "starlight_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P2 앵커를 따라 기존 64px 충돌 프레임 계약에 달빛 윗면과 뿌리 무늬를 코드로 추가한 전용 타일." },
+  "rainbow_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "사용자 제공 Kenney New Platformer Pack 1.1(CC0)의 terrain_grass 타일을 원색 그대로 조립한 무지개 언덕 전용 64px·2px extrusion 타일. 실제 원본 경로는 atlas의 sourceFile에 기록." },
+  "starlight_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "사용자 제공 Kenney New Platformer Pack 1.1(CC0)의 terrain_purple 타일을 원색 그대로 조립한 별빛 숲 전용 64px·2px extrusion 타일. 실제 원본 경로는 atlas의 sourceFile에 기록." },
   "mist_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P3 앵커를 따라 기존 64px 충돌 프레임 계약에 이끼 윗면과 암석 균열을 코드로 추가한 전용 타일." },
   "village_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P4 앵커를 따라 기존 64px 충돌 프레임 계약에 흰 수선과 젖은 석축 무늬를 코드로 추가한 전용 타일." },
   "submerged_village_tileset": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "승인 P5 앵커에 따라 기존 64px·2px extrusion 계약에 황토 지붕 윗면, 회청 수중 벽·바닥, 창과 빛결을 추가한 전용 타일." },

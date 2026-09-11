@@ -2,6 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { KENNEY_TILESETS, readKenneyTile } from "./kenney-tiles.js";
 import { PALETTE } from "../data/palette.js";
 import {
   getCharacterAnimationSpec,
@@ -540,12 +541,13 @@ try {
   errors.push(`manifest.json: 적 시트 검증 불가 (${error.message})`);
 }
 
-const tilesetKeys = ["grass_tileset", "starlight_tileset", "mist_tileset", "village_tileset", "submerged_village_tileset"];
+const tilesetKeys = ["grass_tileset", "rainbow_tileset", "starlight_tileset", "mist_tileset", "village_tileset", "submerged_village_tileset"];
 for (const tilesetKey of tilesetKeys) {
 try {
   const tilesetPath = join(root, "assets", "tiles", `${tilesetKey}.png`);
   const atlasPath = join(root, "assets", "tiles", `${tilesetKey}.json`);
   const atlas = JSON.parse(await readFile(atlasPath, "utf8"));
+  const kenneyTheme = KENNEY_TILESETS[tilesetKey];
   const { data, info } = await sharp(tilesetPath).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   if (info.width !== 272 || info.height !== 272 || info.channels !== 4) {
     errors.push(`${tilesetKey}.png: 272x272 RGBA 아틀라스가 아님`);
@@ -560,7 +562,9 @@ try {
     const rgb = [data[index], data[index + 1], data[index + 2]];
     if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > 0) outsidePalette += 1;
   }
-  if (outsidePalette > 0) errors.push(`${tilesetKey}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+  // Imported CC0 tiles retain their source colors. Verify their pixels against
+  // the supplied pack below instead of quantizing them to the generated palette.
+  if (!kenneyTheme && outsidePalette > 0) errors.push(`${tilesetKey}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
 
   const pixelEquals = (leftX, leftY, rightX, rightY) => {
     const left = (leftY * info.width + leftX) * 4;
@@ -578,6 +582,16 @@ try {
       continue;
     }
     if (frame.w !== 64 || frame.h !== 64) errors.push(`${tilesetKey}.json: ${frameName}이 64x64가 아님`);
+    if (kenneyTheme) {
+      const source = await readKenneyTile(kenneyTheme, frameName);
+      if (atlas.frames[frameName].sourceFile !== source.sourceFile) errors.push(`${tilesetKey}/${frameName}: Kenney 원본 경로 불일치`);
+      let mismatches = 0;
+      for (let y = 0; y < 64; y++) {
+        const actual = data.subarray(((frame.y + y) * info.width + frame.x) * 4, ((frame.y + y) * info.width + frame.x + 64) * 4);
+        if (!actual.equals(source.data.subarray(y * 64 * 4, (y + 1) * 64 * 4))) mismatches++;
+      }
+      if (mismatches) errors.push(`${tilesetKey}/${frameName}: Kenney 원본 픽셀 불일치 ${mismatches}행`);
+    }
     let extrusionMismatch = 0;
     for (let offset = 0; offset < 64; offset += 1) {
       for (let padding = 1; padding <= 2; padding += 1) {

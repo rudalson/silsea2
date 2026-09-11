@@ -460,7 +460,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   createGameplayManagers() {
-    this.terrainMechanics = new TerrainMechanicsManager(this, this.player, this.level.terrainMechanics);
+    this.terrainMechanics = new TerrainMechanicsManager(this, this.player, {
+      ...this.level.terrainMechanics,
+      tileset: this.level.assets.tileset
+    });
     this.footstepManager = new FootstepManager(this.player, this.audioManager, this.levelLoader.tilemap);
     this.transformationManager = new TransformationManager(this, this.player, this.levelLoader, this.difficulty);
     this.itemPresentation = new ItemPresentationManager(

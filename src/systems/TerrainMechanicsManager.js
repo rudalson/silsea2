@@ -26,6 +26,8 @@ export class TerrainMechanicsManager {
     this.updrafts = [];
     this.crumblePlatforms = [];
     this.visualTheme = config.visualTheme ?? "default";
+    this.tilesetKey = ["rainbow_tileset", "starlight_tileset"].includes(config.tileset)
+      && scene.textures.exists(config.tileset) ? config.tileset : null;
 
     for (const platform of config.movingPlatforms ?? []) this.createMovingPlatform(platform);
     for (const updraft of config.updrafts ?? []) this.createUpdraft(updraft);
@@ -46,7 +48,9 @@ export class TerrainMechanicsManager {
     platform.setDepth(MOVING_PLATFORM_DEPTH);
 
     const visual = this.track(
-      this.visualTheme === "starlit-forest"
+      this.tilesetKey
+        ? this.createTilePlatformVisual(centerX, centerY, config.width, config.height)
+        : this.visualTheme === "starlit-forest"
         ? this.createBranchVisual(centerX, centerY, config.width, config.height)
         : this.createCloudVisual(centerX, centerY, config.width, config.height)
     );
@@ -69,6 +73,19 @@ export class TerrainMechanicsManager {
     };
     this.movingPlatforms.push(entry);
     this.interactions.push(this.scene.physics.add.collider(this.player, platform));
+  }
+
+  createTilePlatformVisual(x, y, width, height, crumbling = false) {
+    const container = this.scene.add.container(x, y).setDepth(MOVING_PLATFORM_DEPTH);
+    const columns = Math.max(2, Math.ceil(width / 64));
+    const segmentWidth = width / columns;
+    for (let column = 0; column < columns; column++) {
+      const frame = column === 0 ? "platform_left" : column === columns - 1 ? "platform_right" : "platform_mid";
+      const tile = this.scene.add.image(-width / 2 + segmentWidth * column, -height / 2, this.tilesetKey, frame)
+        .setOrigin(0, 0).setDisplaySize(segmentWidth - (crumbling ? 3 : 0), height);
+      container.add(tile);
+    }
+    return container;
   }
 
   createCloudVisual(x, y, width, height) {
@@ -164,6 +181,7 @@ export class TerrainMechanicsManager {
   }
 
   createCrumbleVisual(x, y, width, height) {
+    if (this.tilesetKey) return this.createTilePlatformVisual(x, y, width, height, true);
     const container = this.scene.add.container(x, y).setDepth(CRUMBLE_PLATFORM_DEPTH);
     const segmentWidth = width / 3;
     const segments = Array.from({ length: 3 }, (_, index) => {
@@ -272,7 +290,12 @@ export class TerrainMechanicsManager {
   createCrumbleFragments(entry) {
     const segmentWidth = entry.width / 3;
     for (let index = 0; index < 3; index += 1) {
-      const fragment = this.scene.add.rectangle(
+      const fragment = this.tilesetKey
+        ? this.scene.add.image(
+          entry.x + segmentWidth * (index + 0.5), entry.y + entry.height / 2,
+          this.tilesetKey, index === 0 ? "platform_left" : index === 2 ? "platform_right" : "platform_mid"
+        ).setDisplaySize(segmentWidth - 8, entry.height * 0.72)
+        : this.scene.add.rectangle(
         entry.x + segmentWidth * (index + 0.5),
         entry.y + entry.height / 2,
         segmentWidth - 8,
@@ -280,7 +303,8 @@ export class TerrainMechanicsManager {
         COLORS.collect,
         0.9
       );
-      fragment.setStrokeStyle(2, COLORS.outline, 0.62).setDepth(CRUMBLE_PLATFORM_DEPTH);
+      if (!this.tilesetKey) fragment.setStrokeStyle(2, COLORS.outline, 0.62);
+      fragment.setDepth(CRUMBLE_PLATFORM_DEPTH);
       this.scene.tweens.add({
         targets: fragment,
         x: fragment.x + (index - 1) * 22,

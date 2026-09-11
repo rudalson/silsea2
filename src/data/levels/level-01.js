@@ -8,7 +8,7 @@ export default {
   assets: {
     tilemap: tilemapUrl,
     tilemapKey: "level-01-map",
-    tileset: "grass_tileset",
+    tileset: "rainbow_tileset",
     preview: "stage_preview_rainbow_hill",
     backgrounds: {
       normal: { far: "bg_normal_far", mid: "bg_normal_mid", near: "bg_normal_near" },

@@ -28,6 +28,14 @@
 - `assets/backgrounds/bg_intro.png`는 2026-09-11 시작 화면에 반영하도록 사용자가 첨부한 이미지다.
 - 첨부 원본을 그대로 보관하고 런타임에서 비율을 유지해 표시한다. 이미지에 포함된 제목·금색 액자·리본·캐릭터 위에 시작 버튼만 추가한다.
 
+## Kenney 타일 에셋
+
+- 출처: 사용자가 제공한 `assets/kenney_new-platformer-pack-1.1/`의 **New Platformer Pack 1.1**, 제작자 Kenney.
+- 동봉된 `License.txt`에 표기된 라이선스: **CC0 1.0**.
+- 무지개 언덕은 `terrain_grass_*`, 별빛 숲은 `terrain_purple_*` 타일을 사용한다.
+- 원본 색상과 64×64 크기를 유지하고, 좌향 경사에는 좌우 반전, 아틀라스에는 2px 가장자리 확장을 적용했다.
+- 원본 파일별 대응 관계는 `assets/tiles/rainbow_tileset.json`, `assets/tiles/starlight_tileset.json`에 기록한다.
+
 ## 자체 생성 오디오
 
 - `assets/audio/`의 현재 WAV는 외부 음원이나 녹음을 사용하지 않고 프로젝트의 `scripts/generate-audio.js`가 결정적으로 합성했다.
