@@ -231,9 +231,9 @@ const backgroundAssets = [
   { name: "bg_tsunami_far", luma: [60, 88], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_tsunami_mid", luma: [45, 78], fullColor: true, mirrored: true, coverage: [0.15, 0.5], minimumY: 180 },
   { name: "bg_tsunami_near", luma: [40, 75], fullColor: true, mirrored: true, coverage: [0.1, 0.25], minimumY: 450 },
-  { name: "bg_submerged_far", luma: [65, 70] },
-  { name: "bg_submerged_mid", luma: [66, 72], minimumY: 252 },
-  { name: "bg_submerged_near", luma: [58, 67], minimumY: 399 }
+  { name: "bg_submerged_far", luma: [55, 85], fullColor: true, mirrored: true, coverage: [1, 1] },
+  { name: "bg_submerged_mid", luma: [45, 80], fullColor: true, mirrored: true, coverage: [0.1, 0.28], minimumY: 400 },
+  { name: "bg_submerged_near", luma: [45, 80], fullColor: true, mirrored: true, coverage: [0.08, 0.23], minimumY: 560 }
 ];
 const starlightDecorationAssets = [
   { name: "decor_star_tree", width: 640, height: 640, fullColor: true },

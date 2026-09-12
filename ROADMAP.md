@@ -404,6 +404,17 @@ G7 최종 승인까지 완료했다. 이후 확장은 별도 요구사항·단�
 - 검수 화면: `references/tsunami-storybook-runtime.png`, `references/tsunami-storybook-wave-runtime.png`
 - 기존 파도·대피처·지형·레벨 배치·게임 규칙은 유지합니다. 이번 수정에 대한 사용자 최종 승인이나 커밋은 별도로 기록합니다.
 
+## 2026-09-13 — 물에 잠긴 마을 배경 개선
+
+- [x] 선택 썸네일을 참조해 밝고 선명한 동화풍 배경 3레이어 새로 제작
+- [x] 맑은 청록빛 물·따뜻한 지붕색·크림색 벽·산호와 수초를 실제 잠수 구간에 적용
+- [x] 배경 제한 팔레트 양자화·강제 톤 치환 제거 및 재생성 명령 연결
+- [x] 수면 y=320 정렬, 중경 집 크기와 간격 조절, 전경 y=560 아래 배치
+- [x] 짧은·긴 잠수 구간 브라우저 육안 검수, 에셋·게임 테스트·프로덕션 빌드·런타임 패키지 검증 통과
+- 원본·생성 프롬프트: `assets/_source/submerged/storybook/README.md`
+- 검수 화면: `references/submerged-storybook-runtime.png`, `references/submerged-storybook-long-runtime.png`
+- 기존 지형·충돌·수면 효과·수영·호흡 규칙은 유지합니다.
+
 ## 커밋 계획
 
 | 시점 | 커밋 메시지 예시 |
