@@ -228,6 +228,9 @@ const backgroundAssets = [
   { name: "bg_mist_far", luma: [65, 90], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_mist_mid", luma: [55, 80], fullColor: true, mirrored: true, coverage: [0.25, 0.6], minimumY: 300 },
   { name: "bg_mist_near", luma: [45, 80], fullColor: true, mirrored: true, coverage: [0.2, 0.4], minimumY: 430 },
+  { name: "bg_tsunami_far", luma: [60, 88], fullColor: true, mirrored: true, coverage: [1, 1] },
+  { name: "bg_tsunami_mid", luma: [45, 78], fullColor: true, mirrored: true, coverage: [0.15, 0.5], minimumY: 180 },
+  { name: "bg_tsunami_near", luma: [40, 75], fullColor: true, mirrored: true, coverage: [0.1, 0.25], minimumY: 450 },
   { name: "bg_submerged_far", luma: [65, 70] },
   { name: "bg_submerged_mid", luma: [66, 72], minimumY: 252 },
   { name: "bg_submerged_near", luma: [58, 67], minimumY: 399 }

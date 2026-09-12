@@ -322,6 +322,8 @@ Output one exact 1536x1024 landscape color source sheet.
 
 ## Style Anchor 승인 후보
 
+2026-09-13 쓰나미 마을 배경 3종은 [동화풍 배경 원본 기록](assets/_source/tsunami/storybook/README.md)의 생성 프롬프트를 사용합니다. 선택 썸네일이 화풍 참조이며, 기존 배경 양자화·톤 치환은 적용하지 않습니다.
+
 2026-09-12 안개 골짜기 배경 3종의 현재 생성 프롬프트는 [동화풍 배경 원본 기록](assets/_source/mist/storybook/README.md)을 사용합니다. 기존 안개 배경 프롬프트와 제한 팔레트 후처리는 이 세 배경에 적용하지 않습니다.
 
 | 캐릭터 | 후보 파일 | 생성 방식 | 첨부한 StyleRefs | 후처리 | 상태 |
