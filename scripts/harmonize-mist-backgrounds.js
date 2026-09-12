@@ -1,4 +1,5 @@
-import { mkdir } from "node:fs/promises";
+// Historical palette conversion only. Never overwrite the storybook refresh.
+import { access, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -11,6 +12,11 @@ const sourceDirectory = join(root, "assets", "_source", "backgrounds");
 const outputDirectory = join(root, "assets", "backgrounds");
 const referenceDirectory = join(root, "references");
 const outputs = {};
+
+const storybookSource = join(root, "assets", "_source", "mist", "storybook", "bg_mist_far.png");
+if (await access(storybookSource).then(() => true, () => false)) {
+  throw new Error("동화풍 배경이 설치되어 있습니다. 과거 팔레트 보정 대신 npm run mist:assets를 실행하세요.");
+}
 
 const mappings = {
   far: [

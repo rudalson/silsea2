@@ -7,18 +7,14 @@ import { PALETTE } from "../data/palette.js";
 import { colorDistance, hexToRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const sourceRoot = join(root, "assets", "_source", "mist");
+const sourceRoot = join(root, "assets", "_source", "mist", "storybook");
 const backgroundRoot = join(root, "assets", "backgrounds");
 const effectRoot = join(root, "assets", "effects");
 const referenceRoot = join(root, "references");
 const WIDTH = 2048;
 const HEIGHT = 720;
-const SEAM_COLUMNS = 2;
 
 const palettes = Object.freeze({
-  far: [PALETTE.environmentSky[1], ...PALETTE.highlight, PALETTE.environmentNeutral[1], PALETTE.shadow[0], PALETTE.outline],
-  mid: [PALETTE.environmentNeutral[1], PALETTE.shadow[0], PALETTE.outline, ...PALETTE.highlight, PALETTE.environmentFar[0], PALETTE.collect[0]],
-  near: [PALETTE.environmentNeutral[0], PALETTE.outline, PALETTE.environmentFar[1], ...PALETTE.highlight, PALETTE.collect[1]],
   effects: [PALETTE.environmentNeutral[0], PALETTE.outline, PALETTE.environmentFar[1], ...PALETTE.highlight, PALETTE.environmentFar[0], PALETTE.collect[0], PALETTE.collect[1]]
 });
 
@@ -47,49 +43,98 @@ const quantize = (data, paletteKey) => {
   }
 };
 
-const makeSeamless = (data, width, height) => {
-  const source = Buffer.from(data);
-  for (let offset = 0; offset < SEAM_COLUMNS; offset += 1) {
-    const rightX = width - 1 - offset;
-    for (let y = 0; y < height; y += 1) {
-      const sourceIndex = (y * width + offset) * 4;
-      const targetIndex = (y * width + rightX) * 4;
-      source.copy(data, targetIndex, sourceIndex, sourceIndex + 4);
-    }
-  }
-};
-
-const loadTransparentSource = async (input) => {
+const loadTransparentSource = async (input, layer) => {
   const metadata = await sharp(input).metadata();
   if (metadata.hasAlpha) return sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 
+  // The generated exports painted a neutral checkerboard instead of alpha.
+  // Remove only neutral matte connected to the top edge, as in the rainbow
+  // asset builder. Enclosed stones, flower highlights and mist stay intact.
   const { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  for (let index = 0; index < data.length; index += 4) {
-    const red = data[index];
-    const green = data[index + 1];
-    const blue = data[index + 2];
-    const minimum = Math.min(red, green, blue);
-    const maximum = Math.max(red, green, blue);
-    if (minimum >= 226 && maximum - minimum <= 24) data.fill(0, index, index + 4);
+  const seen = new Uint8Array(info.width * info.height);
+  const queue = new Int32Array(seen.length);
+  let head = 0;
+  let tail = 0;
+  const visit = (pixel) => {
+    if (seen[pixel]) return;
+    seen[pixel] = 1;
+    const i = pixel * 4;
+    if (Math.max(data[i], data[i + 1], data[i + 2]) - Math.min(data[i], data[i + 1], data[i + 2]) > 24) return;
+    queue[tail++] = pixel;
+  };
+  for (let x = 0; x < info.width; x += 1) visit(x);
+  while (head < tail) {
+    const pixel = queue[head++];
+    data.fill(0, pixel * 4, pixel * 4 + 4);
+    if (pixel % info.width > 0) visit(pixel - 1);
+    if (pixel % info.width < info.width - 1) visit(pixel + 1);
+    if (pixel >= info.width) visit(pixel - info.width);
+    if (pixel + info.width < seen.length) visit(pixel + info.width);
   }
+  // These exports reserve the upper quarter/half as empty background.
+  // Clear isolated tinted matte specks there before computing the tight crop.
+  const emptyRows = Math.floor(info.height * (layer === "near" ? 0.5 : 0.25));
+  data.fill(0, 0, emptyRows * info.width * 4);
+  if (tail / seen.length < 0.3) throw new Error(`${input}: 투명 여백이 부족합니다`);
   return { data, info };
 };
 
-const buildBackgroundLayer = async (name, paletteKey, transparent, clearAbove = null) => {
-  const input = join(sourceRoot, `${name}_generated.png`);
+const buildBackgroundLayer = async (name, layer, transparent) => {
+  const input = join(sourceRoot, `${name}.png`);
   const source = transparent
-    ? await loadTransparentSource(input)
+    ? await loadTransparentSource(input, layer)
     : await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  const { data, info } = await sharp(source.data, { raw: source.info })
-    .resize(WIDTH, HEIGHT, { fit: "fill", kernel: sharp.kernel.lanczos3 })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  if (clearAbove !== null) data.fill(0, 0, Math.max(0, clearAbove) * WIDTH * 4);
-  quantize(data, paletteKey);
-  makeSeamless(data, info.width, info.height);
+  let pipeline = sharp(source.data, { raw: source.info });
+  if (transparent) {
+    const top = layer === "near" ? 430 : 300;
+    let firstVisibleY = source.info.height;
+    for (let index = 3; index < source.data.length; index += 4) {
+      if (source.data[index] >= 16) {
+        firstVisibleY = Math.floor(index / 4 / source.info.width);
+        break;
+      }
+    }
+    if (firstVisibleY === source.info.height) throw new Error(`${name}: 전경이 없습니다`);
+    const cropped = await pipeline.extract({ left: 0, top: firstVisibleY,
+      width: source.info.width, height: source.info.height - firstVisibleY }).png().toBuffer();
+    let content = await sharp(cropped)
+      .resize(layer === "near" ? WIDTH / 2 : WIDTH,
+        layer === "near" ? Math.round((source.info.height - firstVisibleY) * (WIDTH / 2) / source.info.width) : 420,
+        { fit: "fill" })
+      .png().toBuffer();
+    if (layer === "near") {
+      // Continue the low mist to the viewport bottom, including open pits.
+      // The visible flowers keep their proportions and stay above the ground.
+      const { width, height } = await sharp(content).metadata();
+      const bottom = HEIGHT - top - height;
+      const edge = await sharp(content).extract({ left: 0, top: height - 1, width, height: 1 })
+        .raw().toBuffer();
+      const softEdge = await sharp(edge, { raw: { width, height: 1, channels: 4 } })
+        .resize(width, bottom).blur(40).raw().toBuffer();
+      for (let y = 0; y < bottom; y += 1) {
+        const blend = Math.min(1, y / 40);
+        for (let x = 0; x < width * 4; x += 1) {
+          const i = y * width * 4 + x;
+          softEdge[i] = Math.round(edge[x] * (1 - blend) + softEdge[i] * blend);
+        }
+      }
+      const tail = await sharp(softEdge, { raw: { width, height: bottom, channels: 4 } }).png().toBuffer();
+      content = await sharp(content).extend({ bottom, background: "#00000000" })
+        .composite([{ input: tail, left: 0, top: height }]).png().toBuffer();
+    }
+    const pieces = [{ input: content, left: 0, top }];
+    if (layer === "near") {
+      // Preserve round flowers rather than flattening the entire wide strip.
+      pieces.push({ input: await sharp(content).flop().png().toBuffer(), left: WIDTH / 2, top });
+    }
+    pipeline = sharp({ create: { width: WIDTH, height: HEIGHT, channels: 4, background: "#00000000" } })
+      .composite(pieces);
+  }
+  // Keep full color and soft alpha. Runtime mirror repetition joins each edge
+  // to itself; copying opposite edge columns creates a visible vertical stripe.
   const output = join(backgroundRoot, `${name}.png`);
   await mkdir(dirname(output), { recursive: true });
-  await sharp(data, { raw: info }).png({ compressionLevel: 9 }).toFile(output);
+  await pipeline.resize(WIDTH, HEIGHT, { fit: "fill" }).png({ compressionLevel: 9 }).toFile(output);
   return output;
 };
 
@@ -136,7 +181,7 @@ const mistBreezeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="192" heigh
 await mkdir(referenceRoot, { recursive: true });
 const far = await buildBackgroundLayer("bg_mist_far", "far", false);
 const mid = await buildBackgroundLayer("bg_mist_mid", "mid", true);
-const near = await buildBackgroundLayer("bg_mist_near", "near", true, 500);
+const near = await buildBackgroundLayer("bg_mist_near", "near", true);
 const [bank, clear, beacon, breeze] = await Promise.all([
   renderEffect("fx_mist_bank", 384, 128, mistBankSvg),
   renderEffect("fx_mist_clear", 256, 256, mistClearSvg),

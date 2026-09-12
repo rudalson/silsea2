@@ -322,6 +322,8 @@ Output one exact 1536x1024 landscape color source sheet.
 
 ## Style Anchor 승인 후보
 
+2026-09-12 안개 골짜기 배경 3종의 현재 생성 프롬프트는 [동화풍 배경 원본 기록](assets/_source/mist/storybook/README.md)을 사용합니다. 기존 안개 배경 프롬프트와 제한 팔레트 후처리는 이 세 배경에 적용하지 않습니다.
+
 | 캐릭터 | 후보 파일 | 생성 방식 | 첨부한 StyleRefs | 후처리 | 상태 |
 |---|---|---|---|---|---|
 | 실세아 | `assets/_anchor/silsea_anchor.png` | built-in imagegen, 우향 run contact pose | `silsea_run.png`, `silsea_sprite-Photoroom.png` | chroma 제거 → 승인 팔레트 양자화 → 128×128 정렬 → 재양자화 | 2026-08-03 승인 |
