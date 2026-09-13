@@ -7,7 +7,10 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 export const KENNEY_PACK = "assets/kenney_new-platformer-pack-1.1";
 export const KENNEY_TILESETS = Object.freeze({
   rainbow_tileset: "grass",
-  starlight_tileset: "purple"
+  starlight_tileset: "purple",
+  mist_tileset: "grass",
+  village_tileset: "sand",
+  submerged_village_tileset: "dirt"
 });
 export const KENNEY_FRAME_SOURCES = Object.freeze({
   grass_top: "block_top",
@@ -88,7 +91,8 @@ export async function buildKenneyTileset(key) {
   for (const [column, name] of [[2, "platform_left"], [3, "platform_mid"], [4, "platform_right"]]) place(name, column * size, 64);
   place("slope_up", 5 * size, 128);
   place("slope_down", 6 * size, 128);
-  await sharp({ create: { width: 768, height: 384, channels: 4, background: theme === "grass" ? "#bce4ef" : "#57567d" } })
-    .composite(layers).png().toFile(join(root, `references/${key.replace("_", "-")}-preview.png`));
+  const previewName = key === "submerged_village_tileset" ? "submerged-tileset" : key.replace("_", "-");
+  await sharp({ create: { width: 768, height: 384, channels: 4, background: theme === "purple" ? "#57567d" : "#bce4ef" } })
+    .composite(layers).png().toFile(join(root, `references/${previewName}-preview.png`));
   console.log(`${key}: Kenney ${theme}, 16 frames, 64px, 2px extrusion`);
 }

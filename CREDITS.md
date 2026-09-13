@@ -33,8 +33,10 @@
 - 출처: 사용자가 제공한 `assets/kenney_new-platformer-pack-1.1/`의 **New Platformer Pack 1.1**, 제작자 Kenney.
 - 동봉된 `License.txt`에 표기된 라이선스: **CC0 1.0**.
 - 무지개 언덕은 `terrain_grass_*`, 별빛 숲은 `terrain_purple_*` 타일을 사용한다.
+- 안개 골짜기는 `terrain_grass_*`, 쓰나미 마을은 `terrain_sand_*`, 물에 잠긴 마을은 `terrain_dirt_*` 타일을 사용한다. 각각 초록 언덕, 밝은 해안 모래, 주황색 윗면과 회색 석재 벽의 조합에 맞춰 선택했다.
 - 원본 색상과 64×64 크기를 유지하고, 좌향 경사에는 좌우 반전, 아틀라스에는 2px 가장자리 확장을 적용했다.
 - 원본 파일별 대응 관계는 `assets/tiles/rainbow_tileset.json`, `assets/tiles/starlight_tileset.json`에 기록한다.
+- 추가 3개 스테이지의 대응 관계는 `assets/tiles/mist_tileset.json`, `assets/tiles/village_tileset.json`, `assets/tiles/submerged_village_tileset.json`에 기록한다. `npm run tiles:kenney`와 각 스테이지 에셋 재생성 명령은 같은 Kenney 빌더를 사용한다.
 
 ## 자체 생성 오디오
 

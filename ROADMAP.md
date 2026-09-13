@@ -415,6 +415,16 @@ G7 최종 승인까지 완료했다. 이후 확장은 별도 요구사항·단�
 - 검수 화면: `references/submerged-storybook-runtime.png`, `references/submerged-storybook-long-runtime.png`
 - 기존 지형·충돌·수면 효과·수영·호흡 규칙은 유지합니다.
 
+## 2026-09-13 — 세 스테이지 Kenney 타일 교체
+
+- [x] 저장된 Kenney New Platformer Pack 1.1을 육안 비교해 안개 골짜기 `grass`, 쓰나미 마을 `sand`, 물에 잠긴 마을 `dirt` 테마 선정
+- [x] 각 16프레임을 원본 픽셀로 교체하고 기존 64px 규격·2px extrude·프레임명 유지
+- [x] 스테이지별 재생성 스크립트를 공용 Kenney 빌더로 연결하고 출처·테마·원본 파일을 아틀라스와 크레딧에 기록
+- [x] 세 스테이지 실제 브라우저 화면에서 지면·공중 발판·수중 벽과 배경의 조합 검수
+- [x] `npm run validate`, `npm test`, `npm run build`, `npm run validate:runtime` 통과 — Kenney 원본 픽셀·2px 경계·레벨/게임 규칙·배포용 에셋 포함 확인
+- 검수 화면: `references/mist-kenney-tiles-runtime.png`, `references/tsunami-kenney-tiles-runtime.png`, `references/submerged-kenney-tiles-runtime.png`
+- 기존 레벨 배치와 충돌·이동·수영 규칙은 유지한다. 에셋 검증은 공용 Kenney 테마 목록을 통해 원본 픽셀 일치와 경계 확장을 검사한다.
+
 ## 커밋 계획
 
 | 시점 | 커밋 메시지 예시 |
