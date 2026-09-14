@@ -376,8 +376,16 @@ for (const asset of assets) {
         errors.push(`${name}: 구운 감자 roll 프레임이 오른쪽을 보지 않음 (얼굴 x=${faceCenterX.toFixed(1)}, 몸 중심 x=${subjectCenterX.toFixed(1)})`);
       }
     }
-    if (asset.kind === "character") qualityMeasurements.characterHeight.push({ name, value: subjectHeight });
-    if (asset.kind === "character" && Math.abs(subjectHeight - QUALITY_THRESHOLDS.characterHeight) / QUALITY_THRESHOLDS.characterHeight > QUALITY_THRESHOLDS.characterHeightToleranceRatio) {
+    // Authored Sylsea poses keep one body scale, so tucked legs / extended
+    // wings intentionally change silhouette height. The old constant-height
+    // rule forced per-frame stretching and caused the visible size pumping.
+    const authoredSilsea = name.startsWith("silsea_") && name !== "silsea_anchor.png";
+    const airborneSilsea = authoredSilsea && /^silsea_(jump_up|fall|fly|swim|wing_guard|transform_pegasus)_/.test(name);
+    if (asset.kind === "character" && !authoredSilsea) qualityMeasurements.characterHeight.push({ name, value: subjectHeight });
+    if (authoredSilsea && (subjectHeight < 60 || subjectHeight > 124 || subjectWidth < 70 || subjectWidth > 112)) {
+      errors.push(`${name}: 실세아 포즈 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);
+    }
+    if (asset.kind === "character" && !authoredSilsea && Math.abs(subjectHeight - QUALITY_THRESHOLDS.characterHeight) / QUALITY_THRESHOLDS.characterHeight > QUALITY_THRESHOLDS.characterHeightToleranceRatio) {
       errors.push(`${name}: 캐릭터 높이 ${subjectHeight}px (96px ±5% 아님)`);
     }
     if (asset.kind === "raw_potato" && (subjectWidth < 96 || subjectWidth > 112 || subjectHeight < 65 || subjectHeight > 101)) {
@@ -449,8 +457,8 @@ for (const asset of assets) {
         errors.push(`${name}: 관문 중앙 통과 공간이 투명하지 않음`);
       }
     }
-    if (asset.kind !== "item") qualityMeasurements.baseline.push({ name, value: baseline });
-    if (asset.kind !== "item" && Math.abs(baseline - QUALITY_THRESHOLDS.baseline) > QUALITY_THRESHOLDS.baselineTolerancePx) {
+    if (asset.kind !== "item" && !airborneSilsea) qualityMeasurements.baseline.push({ name, value: baseline });
+    if (asset.kind !== "item" && !airborneSilsea && Math.abs(baseline - QUALITY_THRESHOLDS.baseline) > QUALITY_THRESHOLDS.baselineTolerancePx) {
       errors.push(`${name}: 발 기준선 ${baseline}px (16px ±2 아님)`);
     }
     const minimumHorizontalMargin = asset.kind === "invisible_king" ? 0 : asset.kind === "hula_king" ? 4 : 8;

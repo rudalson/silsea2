@@ -47,6 +47,19 @@ const SEQUENCE_TIMINGS = Object.freeze({
   victory: Object.freeze({ durations: [150, 110, 110, 140, 180, 280], repeat: -1 })
 });
 
+// Quiet holds and a short blink, rather than a rapid breathing loop. Airborne
+// poses finish once and hold; the player changes them when velocity changes.
+const SILSEA_TIMINGS = Object.freeze({
+  idle: { durations: [2200, 180, 100, 720], repeat: -1 },
+  move: { durations: [75, 65, 75, 85, 75, 65, 75, 85], repeat: -1 },
+  jump: { durations: [100, 180], repeat: 0 },
+  fall: { durations: [160, 220], repeat: 0 },
+  fly: { durations: [130, 85, 70, 110, 110, 135], repeat: -1 },
+  wing_guard: { durations: [100, 100, 700, 100], repeat: 0 },
+  swim: { durations: [160, 140, 150, 160, 140, 150], repeat: -1 },
+  victory: { durations: [160, 180, 140, 160, 180, 560], repeat: -1 }
+});
+
 export const getCharacterSequenceKey = (characterId, sequence) =>
   CHARACTER_SEQUENCE_KEYS[characterId]?.[sequence] ?? null;
 
@@ -58,7 +71,7 @@ export const getCharacterAnimationKey = (characterId, sequence, variant = "base"
 export const getCharacterAnimationSpec = (characterId, sequence, variant = "base") => {
   const variantTextureKey = variant === "unicorn" ? UNICORN_SEQUENCE_KEYS[characterId]?.[sequence] : null;
   const textureKey = variantTextureKey ?? getCharacterSequenceKey(characterId, sequence);
-  const timing = SEQUENCE_TIMINGS[sequence];
+  const timing = (characterId === "silsea" && SILSEA_TIMINGS[sequence]) || SEQUENCE_TIMINGS[sequence];
   if (!textureKey || !timing) return null;
   return {
     key: getCharacterAnimationKey(characterId, sequence, variantTextureKey ? variant : "base"),

@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
@@ -6,8 +7,8 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const frameSize = 128;
 const hornSources = Object.freeze({
   silsea: Object.freeze({
-    frame: join(root, "assets", "characters", "silsea", "transform_unicorn", "silsea_transform_unicorn_05.png"),
-    extract: Object.freeze({ left: 106, top: 19, width: 6, height: 7 })
+    frame: join(root, "assets", "_source", "silsea-animation", "horn.png"),
+    extract: Object.freeze({ left: 0, top: 0, width: 6, height: 7 })
   }),
   sylvia: Object.freeze({
     frame: join(root, "assets", "_source", "character-refresh", "sylvia-horn.png"),
@@ -34,6 +35,7 @@ const specs = Object.freeze({
       land: [[96, 37, 22], [96, 23, 14]],
       hurt: [[93, 23, 25], [96, 22, 14]],
       fly: [[96, 24, 14], [96, 22, 10], [96, 25, 14], [97, 42, 18], [96, 24, 24], [96, 25, 14]],
+      swim: Array.from({ length: 6 }, () => [102, 32, 14]),
       victory: [[96, 21, 14], [96, 21, 5], [94, 26, 0], [95, 21, 10], [96, 21, 14], [96, 21, 14]]
     })
   }),
@@ -204,9 +206,20 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
 
   for (let index = 0; index < anchors.length; index += 1) {
     let [anchorX, anchorY, angle] = anchors[index];
-    const horn = await getHorn(character, width, height, angle);
     const inputPath = framePath(character, sequence, index);
     const baseAlpha = await readAlpha(inputPath);
+    if (character === "silsea") {
+      // All refreshed poses share the same canvas scale. Find the forehead
+      // contour so the horn stays welded when the head lifts or lowers.
+      anchorX = 102;
+      for (let y = 12; y < 85; y++) {
+        if (alphaAt(baseAlpha, anchorX, y) > ALPHA_THRESHOLD) {
+          anchorY = y + 1;
+          break;
+        }
+      }
+      angle = 14;
+    }
     if (character === "sylvia") {
       // The refreshed head has a shorter mane and a stronger muzzle. Attach to
       // the upper forehead contour instead of the previous character's ear.
@@ -218,6 +231,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
         }
       }
     }
+    const horn = await getHorn(character, width, height, angle);
     const weld = placeHornAtAnchor(baseAlpha, horn, anchorX, anchorY);
     const frame = await sharp(inputPath)
       .composite([{
@@ -225,7 +239,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
         left: weld.left,
         top: weld.top
       }])
-      .png({ palette: true, colours: 128, dither: 0 })
+      .png(character === "silsea" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 })
       .toBuffer();
     const resultAlpha = await readAlpha(frame);
     const contact = countAddedContacts(baseAlpha, resultAlpha);
@@ -239,7 +253,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
     frames.push(frame);
   }
 
-  await sharp({
+  const sheet = await sharp({
     create: {
       width: frameSize * frames.length,
       height: frameSize,
@@ -250,7 +264,14 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
     input,
     left: index * frameSize,
     top: 0
-  }))).png({ palette: true, colours: 128, dither: 0 }).toFile(sheetPath(character, sequence));
+  }))).png(character === "silsea" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 }).toBuffer();
+  const output = sheetPath(character, sequence);
+  const existing = await readFile(output).catch((error) => {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  });
+  // Leave identical sheets alone during rebuilds, including other characters.
+  if (!existing?.equals(sheet)) await writeFile(output, sheet);
 };
 
 for (const [character, spec] of Object.entries(specs)) {

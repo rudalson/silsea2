@@ -56,7 +56,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (!this.body.enable) return;
     if (now < (this.controlLockedUntil ?? 0)) return;
     const swimming = ability.mode === "swim";
-    const grounded = !swimming && (this.body.blocked.down || this.body.touching.down);
+    let grounded = !swimming && this.body.velocity.y >= 0 && (this.body.blocked.down || this.body.touching.down);
     if (swimming) {
       this.airborneLandingSpeed = 0;
       this.bufferedJumpUntil = -Infinity;
@@ -79,6 +79,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const canUseCoyote = now - this.lastGroundedAt <= this.tuning.coyoteTime;
     if (now <= this.bufferedJumpUntil && (grounded || canUseCoyote)) {
       this.performJump();
+      grounded = false;
       this.bufferedJumpUntil = -Infinity;
       this.lastGroundedAt = -Infinity;
     }
@@ -119,20 +120,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (grounded) this.fallCuePlayed = false;
 
     this.stateMachine.updateFromBody(this.body);
-    if (grounded && !this.wasGrounded) {
+    if (grounded && !this.wasGrounded && this.airborneLandingSpeed > 60) {
       this.playLandingFeedback(this.airborneLandingSpeed);
-      this.airborneLandingSpeed = 0;
     }
-    this.updateCharacterAnimation(ability, now);
+    if (grounded) this.airborneLandingSpeed = 0;
+    this.updateCharacterAnimation(ability, now, delta);
     this.wasGrounded = grounded;
   }
 
   performJump() {
     this.setVelocityY(this.tuning.jumpVelocity);
-    this.playCharacterAnimation("jump");
+    // A buffered jump can interrupt landing, but never a hurt/transform lock.
+    this.playCharacterAnimation("jump", { force: this.currentVisualSequence === "land" });
     this.scene.audioManager?.playSfx("sfx_jump");
+    if (this.character.id === "silsea" && this.usesCharacterArt) return;
     this.playScaleFeedback(0.9, 1.15, 80, () => {
-      this.scene.tweens.add({
+      this.feedbackTween = this.scene.tweens.add({
         targets: this,
         scaleX: this.baseScaleX,
         scaleY: this.baseScaleY,
@@ -145,15 +148,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   playLandingFeedback(impactSpeed = 0) {
     this.playCharacterAnimation("land", { lockMs: 200 });
     this.scene.audioManager?.playSfx("sfx_land", { volume: 0.78 });
-    this.playScaleFeedback(1.2, 0.8, 80, () => {
-      this.scene.tweens.add({
-        targets: this,
-        scaleX: this.baseScaleX,
-        scaleY: this.baseScaleY,
-        duration: 120,
-        ease: "Sine.Out"
+    if (this.character.id !== "silsea" || !this.usesCharacterArt) {
+      this.playScaleFeedback(1.2, 0.8, 80, () => {
+        this.feedbackTween = this.scene.tweens.add({
+          targets: this,
+          scaleX: this.baseScaleX,
+          scaleY: this.baseScaleY,
+          duration: 120,
+          ease: "Sine.Out"
+        });
       });
-    });
+    }
 
     this.scene.particleEffects?.emitLanding(this.x, this.y - 4, impactSpeed);
   }
@@ -170,7 +175,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  updateCharacterAnimation(ability, now) {
+  updateCharacterAnimation(ability, now, delta = 16.67) {
     if (!this.usesCharacterArt || now < this.animationLockedUntil) return;
     if (ability.mode === "guard" && this.visualVariant === "base") {
       this.playCharacterAnimation("wing_guard");
@@ -180,8 +185,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.playCharacterAnimation("swim");
       return;
     }
-    if (ability.mode === "fly") {
+    if (ability.mode === "fly" || ability.mode === "glide") {
       this.playCharacterAnimation("fly");
+      // A slow, open-wing recovery reads as gliding; retain phase on entry.
+      this.anims.timeScale = ability.mode === "glide" ? 0.45 : 1;
       return;
     }
     if (this.stateMachine.state === "rising") {
@@ -192,15 +199,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.playCharacterAnimation("fall");
       return;
     }
-    this.playCharacterAnimation(Math.abs(this.body.velocity.x) > 28 ? "move" : "idle");
+    const speed = Math.abs(this.body.velocity.x);
+    const moving = speed > (this.currentVisualSequence === "move" ? 12 : 28);
+    this.playCharacterAnimation(moving ? "move" : "idle");
+    if (moving && this.character.id === "silsea") {
+      const targetRate = Phaser.Math.Clamp(speed / this.tuning.maxSpeed, 0.3, 1.25);
+      this.anims.timeScale += (targetRate - this.anims.timeScale) * (1 - Math.exp(-delta / 80));
+    }
   }
 
   playCharacterAnimation(sequence, { force = false, lockMs = 0 } = {}) {
     if (!this.usesCharacterArt) return null;
     const now = this.scene.time.now;
     if (!force && now < this.animationLockedUntil) return null;
-    const spec = CharacterAnimationManager.play(this, this.character, sequence, true, this.visualVariant);
+    const previousKey = this.anims.currentAnim?.key;
+    const spec = CharacterAnimationManager.play(this, this.character, sequence, !force, this.visualVariant);
     if (!spec) return null;
+    if (force) this.animationLockedUntil = 0;
+    if (previousKey !== spec.key || force) this.anims.timeScale = 1;
     this.currentVisualSequence = sequence;
     if (lockMs > 0) this.animationLockedUntil = Math.max(this.animationLockedUntil, now + lockMs);
     return spec;
@@ -222,8 +238,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   playVictoryAnimation() {
-    this.animationLockedUntil = Infinity;
-    return this.playCharacterAnimation("victory", { force: true });
+    return this.playCharacterAnimation("victory", { force: true, lockMs: Infinity });
   }
 
   setVisualForm(form) {

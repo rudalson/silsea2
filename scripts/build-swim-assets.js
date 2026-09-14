@@ -32,6 +32,18 @@ const bubbleSvg = (index) => {
 };
 
 const buildFrame = async (character, variant, index) => {
+  if (character === "silsea") {
+    // Sylsea has authored paddling poses; never replace them with a resized,
+    // rotating run cycle (which changed her body size on entering water).
+    const input = outputFrame(character, "base", index);
+    if (variant === "base") return input;
+    const frame = await sharp(join(root, "assets/characters/silsea/silsea_unicorn_swim.png"))
+      .extract({ left: index * frameSize, top: 0, width: frameSize, height: frameSize }).png().toBuffer();
+    const output = outputFrame(character, variant, index);
+    await mkdir(dirname(output), { recursive: true });
+    await sharp(frame).png().toFile(output);
+    return output;
+  }
   const angle = [-5, -3, 0, 3, 1, -2][index];
   const top = [5, 3, 1, 0, 2, 4][index];
   // sharp는 회전과 추출 순서를 재정렬할 수 있으므로 먼저 프레임을 버퍼로 확정한다.

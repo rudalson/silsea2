@@ -36,6 +36,9 @@ export class CharacterAnimationManager {
   static play(sprite, character, sequence, ignoreIfPlaying = true, variant = "base") {
     const spec = CharacterAnimationManager.getSpec(character, sequence, variant);
     if (!spec || !sprite.scene.anims.exists(spec.key)) return null;
+    // Phaser's ignoreIfPlaying only covers a currently running animation.
+    // Re-requesting a finished jump/fall every update would restart its pose.
+    if (ignoreIfPlaying && sprite.anims.currentAnim?.key === spec.key) return spec;
     sprite.play(spec.key, ignoreIfPlaying);
     return spec;
   }

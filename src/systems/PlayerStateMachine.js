@@ -12,9 +12,8 @@ export class PlayerStateMachine {
   }
 
   updateFromBody(body) {
-    if (body.blocked.down || body.touching.down) return this.set("grounded");
     if (body.velocity.y < 0) return this.set("rising");
+    if (body.blocked.down || body.touching.down) return this.set("grounded");
     return this.set("falling");
   }
 }
-

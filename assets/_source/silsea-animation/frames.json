@@ -1,0 +1,15 @@
+{
+  "idle": 4,
+  "run": 8,
+  "jump_up": 2,
+  "fall": 2,
+  "land": 2,
+  "hurt": 2,
+  "wing_guard": 4,
+  "fly": 6,
+  "swim": 6,
+  "victory": 6,
+  "transform_unicorn": 6,
+  "transform_pegasus": 6,
+  "transform_alicorn": 8
+}
