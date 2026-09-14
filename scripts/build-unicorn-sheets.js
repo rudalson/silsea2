@@ -15,8 +15,8 @@ const hornSources = Object.freeze({
     extract: Object.freeze({ left: 0, top: 0, width: 8, height: 10 })
   }),
   potato89: Object.freeze({
-    frame: join(root, "assets", "characters", "potato89", "transform_unicorn", "potato89_transform_unicorn_05.png"),
-    extract: Object.freeze({ left: 100, top: 16, width: 7, height: 8 })
+    frame: join(root, "assets", "_source", "potato89-animation", "horn.png"),
+    extract: Object.freeze({ left: 0, top: 0, width: 7, height: 8 })
   })
 });
 
@@ -65,6 +65,7 @@ const specs = Object.freeze({
       hurt: [[78, 22, 25], [85, 28, 14]],
       stomp: [[83, 27, 14], [82, 22, 14], [91, 33, 24], [85, 28, 14]],
       fly: [[84, 25, 14], [85, 26, 10], [86, 24, 14], [85, 28, 18], [84, 28, 24], [85, 23, 14]],
+      swim: Array.from({ length: 6 }, () => [94, 34, 14]),
       victory: [[85, 28, 14], [84, 23, 5], [82, 22, 14], [83, 22, 5], [85, 23, 14], [85, 28, 14]]
     })
   })
@@ -208,10 +209,10 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
     let [anchorX, anchorY, angle] = anchors[index];
     const inputPath = framePath(character, sequence, index);
     const baseAlpha = await readAlpha(inputPath);
-    if (character === "silsea") {
+    if (character === "silsea" || character === "potato89") {
       // All refreshed poses share the same canvas scale. Find the forehead
       // contour so the horn stays welded when the head lifts or lowers.
-      anchorX = 102;
+      anchorX = character === "silsea" ? 102 : 94;
       for (let y = 12; y < 85; y++) {
         if (alphaAt(baseAlpha, anchorX, y) > ALPHA_THRESHOLD) {
           anchorY = y + 1;
@@ -239,7 +240,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
         left: weld.left,
         top: weld.top
       }])
-      .png(character === "silsea" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 })
+      .png(character === "silsea" || character === "potato89" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 })
       .toBuffer();
     const resultAlpha = await readAlpha(frame);
     const contact = countAddedContacts(baseAlpha, resultAlpha);
@@ -264,7 +265,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
     input,
     left: index * frameSize,
     top: 0
-  }))).png(character === "silsea" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 }).toBuffer();
+  }))).png(character === "silsea" || character === "potato89" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 }).toBuffer();
   const output = sheetPath(character, sequence);
   const existing = await readFile(output).catch((error) => {
     if (error.code === "ENOENT") return null;

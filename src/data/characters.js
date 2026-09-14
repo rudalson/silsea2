@@ -51,7 +51,8 @@ const createCharacter = ({
   render = silseaLikeRender,
   artReady = false,
   moveSequence = "run",
-  hasStomp = false
+  hasStomp = false,
+  stableBody = false
 }) => Object.freeze({
   id,
   name,
@@ -64,7 +65,7 @@ const createCharacter = ({
   fallback: Object.freeze({ shape, profile, selectionSymbol }),
   render,
   artReady,
-  animation: Object.freeze({ moveSequence, hasStomp }),
+  animation: Object.freeze({ moveSequence, hasStomp, stableBody }),
   physics: sharedPhysics,
   tuning: DEFAULT_TUNING
 });
@@ -77,6 +78,7 @@ export const CHARACTERS = Object.freeze({
     description: "빠르고 용감한 친구",
     color: PALETTE.base[0],
     accent: PALETTE.base[2],
+    stableBody: true,
     artReady: true
   }),
   potato89: createCharacter({
@@ -90,6 +92,7 @@ export const CHARACTERS = Object.freeze({
     render: potatoRender,
     artReady: true,
     moveSequence: "roll",
+    stableBody: true,
     hasStomp: true
   }),
   sylvia: createCharacter({

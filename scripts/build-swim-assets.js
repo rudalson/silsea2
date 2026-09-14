@@ -32,12 +32,12 @@ const bubbleSvg = (index) => {
 };
 
 const buildFrame = async (character, variant, index) => {
-  if (character === "silsea") {
-    // Sylsea has authored paddling poses; never replace them with a resized,
+  if (character === "silsea" || character === "potato89") {
+    // Refreshed characters have authored paddling poses; never replace them with a resized,
     // rotating run cycle (which changed her body size on entering water).
     const input = outputFrame(character, "base", index);
     if (variant === "base") return input;
-    const frame = await sharp(join(root, "assets/characters/silsea/silsea_unicorn_swim.png"))
+    const frame = await sharp(join(root, "assets", "characters", character, `${character}_unicorn_swim.png`))
       .extract({ left: index * frameSize, top: 0, width: frameSize, height: frameSize }).png().toBuffer();
     const output = outputFrame(character, variant, index);
     await mkdir(dirname(output), { recursive: true });

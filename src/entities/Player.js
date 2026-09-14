@@ -133,7 +133,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // A buffered jump can interrupt landing, but never a hurt/transform lock.
     this.playCharacterAnimation("jump", { force: this.currentVisualSequence === "land" });
     this.scene.audioManager?.playSfx("sfx_jump");
-    if (this.character.id === "silsea" && this.usesCharacterArt) return;
+    if (this.character.animation.stableBody && this.usesCharacterArt) return;
     this.playScaleFeedback(0.9, 1.15, 80, () => {
       this.feedbackTween = this.scene.tweens.add({
         targets: this,
@@ -148,7 +148,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   playLandingFeedback(impactSpeed = 0) {
     this.playCharacterAnimation("land", { lockMs: 200 });
     this.scene.audioManager?.playSfx("sfx_land", { volume: 0.78 });
-    if (this.character.id !== "silsea" || !this.usesCharacterArt) {
+    if (!this.character.animation.stableBody || !this.usesCharacterArt) {
       this.playScaleFeedback(1.2, 0.8, 80, () => {
         this.feedbackTween = this.scene.tweens.add({
           targets: this,
@@ -202,7 +202,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const speed = Math.abs(this.body.velocity.x);
     const moving = speed > (this.currentVisualSequence === "move" ? 12 : 28);
     this.playCharacterAnimation(moving ? "move" : "idle");
-    if (moving && this.character.id === "silsea") {
+    if (moving && this.character.animation.stableBody) {
       const targetRate = Phaser.Math.Clamp(speed / this.tuning.maxSpeed, 0.3, 1.25);
       this.anims.timeScale += (targetRate - this.anims.timeScale) * (1 - Math.exp(-delta / 80));
     }

@@ -60,6 +60,19 @@ const SILSEA_TIMINGS = Object.freeze({
   victory: { durations: [160, 180, 140, 160, 180, 560], repeat: -1 }
 });
 
+// A slightly weightier gait / wingbeat suits the short-legged round pony.
+const POTATO_TIMINGS = Object.freeze({
+  idle: { durations: [2500, 180, 110, 810], repeat: -1 },
+  move: { durations: [90, 80, 80, 90, 90, 80, 80, 90], repeat: -1 },
+  jump: { durations: [110, 190], repeat: 0 },
+  fall: { durations: [170, 230], repeat: 0 },
+  fly: { durations: [150, 90, 80, 120, 130, 150], repeat: -1 },
+  wing_guard: { durations: [110, 100, 700, 100], repeat: 0 },
+  swim: { durations: [180, 150, 160, 180, 150, 160], repeat: -1 },
+  victory: { durations: [180, 160, 160, 180, 200, 700], repeat: -1 }
+});
+const CHARACTER_TIMINGS = { silsea: SILSEA_TIMINGS, potato89: POTATO_TIMINGS };
+
 export const getCharacterSequenceKey = (characterId, sequence) =>
   CHARACTER_SEQUENCE_KEYS[characterId]?.[sequence] ?? null;
 
@@ -71,7 +84,7 @@ export const getCharacterAnimationKey = (characterId, sequence, variant = "base"
 export const getCharacterAnimationSpec = (characterId, sequence, variant = "base") => {
   const variantTextureKey = variant === "unicorn" ? UNICORN_SEQUENCE_KEYS[characterId]?.[sequence] : null;
   const textureKey = variantTextureKey ?? getCharacterSequenceKey(characterId, sequence);
-  const timing = (characterId === "silsea" && SILSEA_TIMINGS[sequence]) || SEQUENCE_TIMINGS[sequence];
+  const timing = CHARACTER_TIMINGS[characterId]?.[sequence] ?? SEQUENCE_TIMINGS[sequence];
   if (!textureKey || !timing) return null;
   return {
     key: getCharacterAnimationKey(characterId, sequence, variantTextureKey ? variant : "base"),
