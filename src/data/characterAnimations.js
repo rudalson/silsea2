@@ -71,7 +71,17 @@ const POTATO_TIMINGS = Object.freeze({
   swim: { durations: [180, 150, 160, 180, 150, 160], repeat: -1 },
   victory: { durations: [180, 160, 160, 180, 200, 700], repeat: -1 }
 });
-const CHARACTER_TIMINGS = { silsea: SILSEA_TIMINGS, potato89: POTATO_TIMINGS };
+const SYLVIA_TIMINGS = Object.freeze({
+  idle: { durations: [2400, 180, 100, 820], repeat: -1 },
+  move: { durations: [80, 70, 75, 85, 80, 70, 75, 85], repeat: -1 },
+  jump: { durations: [110, 190], repeat: 0 },
+  fall: { durations: [160, 240], repeat: 0 },
+  fly: { durations: [145, 95, 75, 110, 125, 150], repeat: -1 },
+  wing_guard: { durations: [110, 100, 700, 100], repeat: 0 },
+  swim: { durations: [170, 150, 160, 170, 150, 160], repeat: -1 },
+  victory: { durations: [180, 160, 160, 180, 220, 700], repeat: -1 }
+});
+const CHARACTER_TIMINGS = { silsea: SILSEA_TIMINGS, potato89: POTATO_TIMINGS, sylvia: SYLVIA_TIMINGS };
 
 export const getCharacterSequenceKey = (characterId, sequence) =>
   CHARACTER_SEQUENCE_KEYS[characterId]?.[sequence] ?? null;

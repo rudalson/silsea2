@@ -38,7 +38,8 @@ assert.ok(getCharacterAnimationSpec("silsea", "idle").durationMs >= 3000);
 // dimensions. Only the authored eye patch may change, in both visual forms.
 const idleCases = [
   { characterId: "silsea", eye: { left: 93, top: 37, right: 110, bottom: 53 } },
-  { characterId: "potato89", eye: { left: 76, top: 40, right: 97, bottom: 68 } }
+  { characterId: "potato89", eye: { left: 76, top: 40, right: 97, bottom: 68 } },
+  { characterId: "sylvia", eye: { left: 92, top: 32, right: 105, bottom: 47 } }
 ];
 for (const { characterId, eye } of idleCases) for (const prefix of [characterId, `${characterId}_unicorn`]) {
   const frames = [];
@@ -58,40 +59,44 @@ for (const { characterId, eye } of idleCases) for (const prefix of [characterId,
   }
   assert.ok(changedEyePixels > 0, `${prefix} 눈 깜빡임이 있어야 함`);
 }
-for (const id of ["silsea", "potato89"]) {
+for (const id of ["silsea", "potato89", "sylvia"]) {
   assert.equal(getCharacter(id).animation.stableBody, true, `${id} 점프/착지에서 몸체 크기 보존 필요`);
   assert.equal(getCharacterAnimationSpec(id, "fall").repeat, 0);
   assert.ok(getCharacterAnimationSpec(id, "idle").durationMs >= 3000);
 }
-assert.equal(getCharacter("sylvia").animation.stableBody, false);
+assert.equal(getCharacter("sylvia").sex, "female");
+assert.equal(getCharacter("silsea").sex, "male");
+assert.ok(!getCharacter("sylvia").description.includes("소년"));
 assert.ok(getCharacterAnimationSpec("potato89", "move").durationMs > getCharacterAnimationSpec("silsea", "move").durationMs);
 
 // Check every authored pony pose, including stomp, guard and swim, against
 // its runtime strip. This catches stale sheets and cropped hooves/wing tips.
-const { sequences } = JSON.parse(await readFile(new URL("../assets/_source/potato89-animation/frames.json", import.meta.url), "utf8"));
-assert.equal(Object.values(sequences).reduce((n, count) => n + count, 0), 66);
-const airborne = new Set(["jump_up", "fall", "fly", "swim", "wing_guard", "transform_pegasus"]);
-for (const [sequence, count] of Object.entries(sequences)) {
-  const sheetPath = fileURLToPath(new URL(`../assets/characters/potato89/potato89_${sequence}.png`, import.meta.url));
-  for (let i = 0; i < count; i++) {
-    const framePath = fileURLToPath(new URL(`../assets/characters/potato89/${sequence}/potato89_${sequence}_${String(i).padStart(2, "0")}.png`, import.meta.url));
-    const raw = await sharp(framePath).ensureAlpha().raw().toBuffer();
-    const packed = await sharp(sheetPath).extract({ left: i * 128, top: 0, width: 128, height: 128 }).ensureAlpha().raw().toBuffer();
-    for (let p = 0; p < raw.length; p += 4) {
-      assert.equal(packed[p + 3], raw[p + 3], `${sequence}/${i}: 시트 투명도 불일치`);
-      // Alpha compositing may round a color channel by one display level.
-      for (let c = 0; c < 3; c++) assert.ok(Math.abs(packed[p + c] - raw[p + c]) * raw[p + 3] / 255 <= 1,
-        `${sequence}/${i}: 런타임 시트가 개별 프레임과 다름 (${p / 4})`);
+for (const [characterId, expectedCount] of [["potato89", 66], ["sylvia", 62]]) {
+  const { sequences } = JSON.parse(await readFile(new URL(`../assets/_source/${characterId}-animation/frames.json`, import.meta.url), "utf8"));
+  assert.equal(Object.values(sequences).reduce((n, count) => n + count, 0), expectedCount);
+  const airborne = new Set(["jump_up", "fall", "fly", "swim", "wing_guard", "transform_pegasus"]);
+  for (const [sequence, count] of Object.entries(sequences)) {
+    const sheetPath = fileURLToPath(new URL(`../assets/characters/${characterId}/${characterId}_${sequence}.png`, import.meta.url));
+    for (let i = 0; i < count; i++) {
+      const framePath = fileURLToPath(new URL(`../assets/characters/${characterId}/${sequence}/${characterId}_${sequence}_${String(i).padStart(2, "0")}.png`, import.meta.url));
+      const raw = await sharp(framePath).ensureAlpha().raw().toBuffer();
+      const packed = await sharp(sheetPath).extract({ left: i * 128, top: 0, width: 128, height: 128 }).ensureAlpha().raw().toBuffer();
+      for (let p = 0; p < raw.length; p += 4) {
+        assert.equal(packed[p + 3], raw[p + 3], `${sequence}/${i}: 시트 투명도 불일치`);
+        // Alpha compositing may round a color channel by one display level.
+        for (let c = 0; c < 3; c++) assert.ok(Math.abs(packed[p + c] - raw[p + c]) * raw[p + 3] / 255 <= 1,
+          `${sequence}/${i}: 런타임 시트가 개별 프레임과 다름 (${p / 4})`);
+      }
+      let minX = 128, maxX = 0, minY = 128, maxY = 0;
+      for (let p = 0; p < raw.length; p += 4) {
+        if (raw[p + 3] < 16) continue;
+        const x = (p / 4) % 128, y = Math.floor(p / 4 / 128);
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      assert.ok(minX >= 8 && maxX <= 119 && minY >= 2 && maxY <= 125, `${sequence}/${i}: 스프라이트가 가장자리에 잘림`);
+      if (!airborne.has(sequence)) assert.ok(Math.abs(maxY - 111) <= 2, `${sequence}/${i}: 지상 발 기준선 불일치`);
     }
-    let minX = 128, maxX = 0, minY = 128, maxY = 0;
-    for (let p = 0; p < raw.length; p += 4) {
-      if (raw[p + 3] < 16) continue;
-      const x = (p / 4) % 128, y = Math.floor(p / 4 / 128);
-      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-    }
-    assert.ok(minX >= 8 && maxX <= 119 && minY >= 2 && maxY <= 125, `${sequence}/${i}: 스프라이트가 가장자리에 잘림`);
-    if (!airborne.has(sequence)) assert.ok(Math.abs(maxY - 111) <= 2, `${sequence}/${i}: 지상 발 기준선 불일치`);
   }
 }
 console.log("캐릭터 애니메이션 회귀 테스트 통과: 대기 픽셀 안정성·눈 깜빡임·점프 접촉·단발 자세 유지·변신 전환");

@@ -380,8 +380,8 @@ for (const asset of assets) {
     // Authored poses keep one body scale, so tucked legs / extended
     // wings intentionally change silhouette height. The old constant-height
     // rule forced per-frame stretching and caused the visible size pumping.
-    const authoredCharacter = /^(silsea|potato89)_/.test(name) && !name.endsWith("_anchor.png");
-    const airborneCharacter = authoredCharacter && /^(silsea|potato89)_(jump_up|fall|fly|swim|wing_guard|transform_pegasus)_/.test(name);
+    const authoredCharacter = /^(silsea|potato89|sylvia)_/.test(name) && !name.endsWith("_anchor.png");
+    const airborneCharacter = authoredCharacter && /^(silsea|potato89|sylvia)_(jump_up|fall|fly|swim|wing_guard|transform_pegasus)_/.test(name);
     if (asset.kind === "character" && !authoredCharacter) qualityMeasurements.characterHeight.push({ name, value: subjectHeight });
     if (authoredCharacter && (subjectHeight < 60 || subjectHeight > 124 || subjectWidth < 70 || subjectWidth > 112)) {
       errors.push(`${name}: 포즈 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);

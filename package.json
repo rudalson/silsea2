@@ -30,7 +30,7 @@
     "pumpkin": "node scripts/build-spike-pumpkin-sheets.js && node scripts/build-character-sheets.js",
     "ui:decor": "node scripts/build-ui-decor.js",
     "c4:color-review": "node scripts/build-c4-character-color-review.js",
-    "c4:sylvia-assets": "node scripts/cleanup-sylvia-frames.js && node scripts/build-character-sheets.js && node scripts/build-unicorn-sheets.js && node scripts/build-swim-assets.js && node scripts/build-c4-sylvia-review.js",
+    "c4:sylvia-assets": "npm run sylvia:assets",
     "g2:item-review": "node scripts/build-g2-item-anchor-review.js",
     "g3:gate-storyboard": "node scripts/build-g3-gate-storyboard.js",
     "validate:mapping": "node scripts/validate-asset-mapping.js",
@@ -41,7 +41,8 @@
     "test": "node scripts/test-core.js && node scripts/test-character-animation.js && node scripts/test-gate-presentation.js && node scripts/test-item-presentation.js && node scripts/test-final-gate-flow.js",
     "test:soak": "node --expose-gc scripts/test-soak.js",
     "test:release": "npm run build && npm run validate:runtime",
-    "playtest:analyze": "node scripts/analyze-playtests.js"
+    "playtest:analyze": "node scripts/analyze-playtests.js",
+    "sylvia:assets": "node scripts/build-sylvia-animation.js && node scripts/build-unicorn-sheets.js && node scripts/build-swim-assets.js && node scripts/build-c4-sylvia-review.js"
   },
   "dependencies": {
     "phaser": "3.90.0"

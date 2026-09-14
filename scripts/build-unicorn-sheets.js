@@ -11,7 +11,7 @@ const hornSources = Object.freeze({
     extract: Object.freeze({ left: 0, top: 0, width: 6, height: 7 })
   }),
   sylvia: Object.freeze({
-    frame: join(root, "assets", "_source", "character-refresh", "sylvia-horn.png"),
+    frame: join(root, "assets", "_source", "sylvia-animation", "horn.png"),
     extract: Object.freeze({ left: 0, top: 0, width: 8, height: 10 })
   }),
   potato89: Object.freeze({
@@ -50,6 +50,7 @@ const specs = Object.freeze({
       land: [[96, 37, 22], [96, 23, 14]],
       hurt: [[93, 23, 25], [96, 22, 14]],
       fly: [[96, 24, 14], [96, 22, 10], [96, 25, 14], [97, 42, 18], [96, 24, 24], [96, 25, 14]],
+      swim: Array.from({ length: 6 }, () => [104, 32, 14]),
       victory: [[96, 21, 14], [96, 21, 5], [94, 26, 0], [95, 21, 10], [96, 21, 14], [96, 21, 14]]
     })
   }),
@@ -209,10 +210,10 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
     let [anchorX, anchorY, angle] = anchors[index];
     const inputPath = framePath(character, sequence, index);
     const baseAlpha = await readAlpha(inputPath);
-    if (character === "silsea" || character === "potato89") {
+    if (["silsea", "potato89", "sylvia"].includes(character)) {
       // All refreshed poses share the same canvas scale. Find the forehead
       // contour so the horn stays welded when the head lifts or lowers.
-      anchorX = character === "silsea" ? 102 : 94;
+      anchorX = character === "silsea" ? 102 : character === "sylvia" ? 104 : 94;
       for (let y = 12; y < 85; y++) {
         if (alphaAt(baseAlpha, anchorX, y) > ALPHA_THRESHOLD) {
           anchorY = y + 1;
@@ -220,17 +221,6 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
         }
       }
       angle = 14;
-    }
-    if (character === "sylvia") {
-      // The refreshed head has a shorter mane and a stronger muzzle. Attach to
-      // the upper forehead contour instead of the previous character's ear.
-      anchorX = 108;
-      for (let y = 12; y < 72; y++) {
-        if (alphaAt(baseAlpha, anchorX, y) > ALPHA_THRESHOLD) {
-          anchorY = y + 1;
-          break;
-        }
-      }
     }
     const horn = await getHorn(character, width, height, angle);
     const weld = placeHornAtAnchor(baseAlpha, horn, anchorX, anchorY);
@@ -240,7 +230,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
         left: weld.left,
         top: weld.top
       }])
-      .png(character === "silsea" || character === "potato89" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 })
+      .png({ compressionLevel: 9 })
       .toBuffer();
     const resultAlpha = await readAlpha(frame);
     const contact = countAddedContacts(baseAlpha, resultAlpha);
@@ -265,7 +255,7 @@ const buildSequence = async (character, sequence, anchors, width, height) => {
     input,
     left: index * frameSize,
     top: 0
-  }))).png(character === "silsea" || character === "potato89" ? { compressionLevel: 9 } : { palette: true, colours: 128, dither: 0 }).toBuffer();
+  }))).png({ compressionLevel: 9 }).toBuffer();
   const output = sheetPath(character, sequence);
   const existing = await readFile(output).catch((error) => {
     if (error.code === "ENOENT") return null;

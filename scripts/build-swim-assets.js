@@ -2,68 +2,26 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { PALETTE } from "../data/palette.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const frameSize = 128;
 const frameCount = 6;
 const characters = ["silsea", "potato89", "sylvia"];
 const variants = ["base", "unicorn"];
-const sourceIndices = [0, 1, 2, 4, 5, 6];
-
-const sourceSheet = (character, variant) => {
-  const sequence = character === "potato89" ? "roll" : "run";
-  const variantPrefix = variant === "unicorn" ? "unicorn_" : "";
-  return join(root, "assets", "characters", character, `${character}_${variantPrefix}${sequence}.png`);
-};
-
 const outputFrame = (character, variant, index) => {
   const sequence = variant === "unicorn" ? "unicorn_swim" : "swim";
   return join(root, "assets", "characters", character, sequence, `${character}_${sequence}_${String(index).padStart(2, "0")}.png`);
 };
 
-const bubbleSvg = (index) => {
-  const y = 62 - index * 4;
-  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-    <g fill="${PALETTE.highlight[0]}" fill-opacity="0.14" stroke="${PALETTE.collect[1]}" stroke-width="2">
-      <circle cx="106" cy="${y}" r="5"/><circle cx="116" cy="${y - 16}" r="3"/>
-    </g>
-  </svg>`);
-};
-
 const buildFrame = async (character, variant, index) => {
-  if (character === "silsea" || character === "potato89") {
-    // Refreshed characters have authored paddling poses; never replace them with a resized,
-    // rotating run cycle (which changed her body size on entering water).
-    const input = outputFrame(character, "base", index);
-    if (variant === "base") return input;
-    const frame = await sharp(join(root, "assets", "characters", character, `${character}_unicorn_swim.png`))
-      .extract({ left: index * frameSize, top: 0, width: frameSize, height: frameSize }).png().toBuffer();
-    const output = outputFrame(character, variant, index);
-    await mkdir(dirname(output), { recursive: true });
-    await sharp(frame).png().toFile(output);
-    return output;
-  }
-  const angle = [-5, -3, 0, 3, 1, -2][index];
-  const top = [5, 3, 1, 0, 2, 4][index];
-  // sharp는 회전과 추출 순서를 재정렬할 수 있으므로 먼저 프레임을 버퍼로 확정한다.
-  const sourceFrameBuffer = await sharp(sourceSheet(character, variant))
-    .extract({ left: sourceIndices[index] * frameSize, top: 0, width: frameSize, height: frameSize })
-    .png()
-    .toBuffer();
-  const source = await sharp(sourceFrameBuffer)
-    .rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .resize(118, 118, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png()
-    .toBuffer();
+  // Every character has authored paddling poses at its normal drawing scale.
+  const input = outputFrame(character, "base", index);
+  if (variant === "base") return input;
+  const frame = await sharp(join(root, "assets", "characters", character, `${character}_unicorn_swim.png`))
+    .extract({ left: index * frameSize, top: 0, width: frameSize, height: frameSize }).png().toBuffer();
   const output = outputFrame(character, variant, index);
   await mkdir(dirname(output), { recursive: true });
-  await sharp({
-    create: { width: frameSize, height: frameSize, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
-  }).composite([
-    { input: source, left: 4, top },
-    { input: bubbleSvg(index), left: 0, top: 0 }
-  ]).png({ compressionLevel: 9 }).toFile(output);
+  await sharp(frame).png().toFile(output);
   return output;
 };
 

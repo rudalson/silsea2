@@ -43,6 +43,7 @@ const createCharacter = ({
   name,
   englishName,
   description,
+  sex = null,
   color,
   accent,
   shape = "slender",
@@ -58,6 +59,7 @@ const createCharacter = ({
   name,
   englishName,
   description,
+  sex,
   color: toNumber(color),
   accent: toNumber(accent),
   shape,
@@ -75,6 +77,7 @@ export const CHARACTERS = Object.freeze({
     id: "silsea",
     name: "실세아",
     englishName: "Sylsea",
+    sex: "male",
     description: "빠르고 용감한 친구",
     color: PALETTE.base[0],
     accent: PALETTE.base[2],
@@ -99,9 +102,11 @@ export const CHARACTERS = Object.freeze({
     id: "sylvia",
     name: "실비아",
     englishName: "Sylvia",
-    description: "씩씩하고 다정한 무지갯빛 소년",
+    description: "우아하고 다정한 무지갯빛 친구",
+    sex: "female",
     color: PALETTE.sylvia[0],
     accent: PALETTE.sylvia[6],
+    stableBody: true,
     artReady: true
   })
 });
