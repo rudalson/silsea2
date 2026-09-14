@@ -114,12 +114,17 @@ const buildDecorations = async () => {
   const topHeight = Math.round(sheet.info.height * 0.64);
   const bottomTop = topHeight;
   const bottomHeight = sheet.info.height - bottomTop;
-  // The tree's soft root silhouette extends below the shared 64% split.
+  // The tree's soft root silhouette extends below the shared 64% split and
+  // slightly past the 50% split (ends at x=631).
   // Start the firefly crop in the empty gap, before its glow begins at 71%.
+  // Start the moon branch crop in the empty gap (x=651) before the branch begins at x=718,
+  // preventing stray tree silhouette pixels from bleeding into decor_moon_branch.
   const fireflyTop = Math.round(sheet.info.height * 0.70);
+  const moonBranchLeft = halfWidth + 24;
+  const moonBranchWidth = sheet.info.width - moonBranchLeft;
   return Promise.all([
     normalizeDecoration(sheet, { left: 0, top: 0, width: halfWidth, height: topHeight }, "decor_star_tree", 640, 640),
-    normalizeDecoration(sheet, { left: halfWidth, top: 0, width: rightWidth, height: topHeight }, "decor_moon_branch", 384, 256),
+    normalizeDecoration(sheet, { left: moonBranchLeft, top: 0, width: moonBranchWidth, height: topHeight }, "decor_moon_branch", 384, 256),
     normalizeDecoration(sheet, { left: 0, top: fireflyTop, width: halfWidth, height: sheet.info.height - fireflyTop }, "decor_firefly", 192, 160),
     normalizeDecoration(sheet, { left: halfWidth, top: bottomTop, width: rightWidth, height: bottomHeight }, "decor_star_flower", 256, 192)
   ]);
