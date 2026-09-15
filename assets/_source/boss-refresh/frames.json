@@ -1,0 +1,2076 @@
+{
+  "potato_king": {
+    "sequences": {
+      "idle": 4,
+      "jump": 4,
+      "fall": 2,
+      "land": 4,
+      "shoot": 4,
+      "hurt": 3,
+      "defeated": 8
+    },
+    "idleEyeRegion": {
+      "left": 32,
+      "top": 56,
+      "width": 54,
+      "height": 28
+    },
+    "scale": 0.717948717948718,
+    "idleHeight": 84,
+    "measurements": [
+      {
+        "sequence": "idle",
+        "index": 0,
+        "sourceBounds": [
+          18,
+          30,
+          152,
+          146
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "idle",
+        "index": 1,
+        "sourceBounds": [
+          175,
+          30,
+          309,
+          146
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "idle",
+        "index": 2,
+        "sourceBounds": [
+          331,
+          30,
+          463,
+          146
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "idle",
+        "index": 3,
+        "sourceBounds": [
+          487,
+          30,
+          621,
+          146
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "jump",
+        "index": 0,
+        "sourceBounds": [
+          17,
+          197,
+          150,
+          307
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "jump",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          188,
+          307,
+          308
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "jump",
+        "index": 2,
+        "sourceBounds": [
+          327,
+          170,
+          461,
+          291
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "jump",
+        "index": 3,
+        "sourceBounds": [
+          483,
+          167,
+          628,
+          295
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "fall",
+        "index": 0,
+        "sourceBounds": [
+          13,
+          330,
+          157,
+          456
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "fall",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          338,
+          318,
+          464
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "land",
+        "index": 0,
+        "sourceBounds": [
+          13,
+          508,
+          149,
+          613
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "land",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          502,
+          309,
+          613
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "land",
+        "index": 2,
+        "sourceBounds": [
+          330,
+          492,
+          467,
+          613
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "land",
+        "index": 3,
+        "sourceBounds": [
+          488,
+          492,
+          621,
+          613
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "shoot",
+        "index": 0,
+        "sourceBounds": [
+          18,
+          641,
+          152,
+          760
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "shoot",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          643,
+          310,
+          761
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "shoot",
+        "index": 2,
+        "sourceBounds": [
+          324,
+          643,
+          464,
+          760
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "shoot",
+        "index": 3,
+        "sourceBounds": [
+          489,
+          641,
+          621,
+          761
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "hurt",
+        "index": 0,
+        "sourceBounds": [
+          10,
+          789,
+          152,
+          913
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "hurt",
+        "index": 1,
+        "sourceBounds": [
+          177,
+          797,
+          310,
+          912
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "hurt",
+        "index": 2,
+        "sourceBounds": [
+          331,
+          797,
+          464,
+          913
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 0,
+        "sourceBounds": [
+          19,
+          954,
+          152,
+          1069
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 1,
+        "sourceBounds": [
+          177,
+          953,
+          308,
+          1068
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 2,
+        "sourceBounds": [
+          332,
+          954,
+          464,
+          1068
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 3,
+        "sourceBounds": [
+          484,
+          957,
+          613,
+          1069
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 4,
+        "sourceBounds": [
+          637,
+          957,
+          773,
+          1069
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 5,
+        "sourceBounds": [
+          797,
+          952,
+          927,
+          1068
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 6,
+        "sourceBounds": [
+          943,
+          952,
+          1087,
+          1068
+        ],
+        "scale": 0.717948717948718
+      },
+      {
+        "sequence": "defeated",
+        "index": 7,
+        "sourceBounds": [
+          1110,
+          958,
+          1239,
+          1069
+        ],
+        "scale": 0.717948717948718
+      }
+    ]
+  },
+  "hula_king": {
+    "sequences": {
+      "idle": 4,
+      "spin": 8,
+      "warning": 4,
+      "throw": 6,
+      "vulnerable": 4,
+      "hurt": 3,
+      "defeated": 8
+    },
+    "idleEyeRegion": {
+      "left": 32,
+      "top": 56,
+      "width": 54,
+      "height": 28
+    },
+    "scale": 0.7058823529411765,
+    "idleHeight": 84,
+    "measurements": [
+      {
+        "sequence": "idle",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          30,
+          148,
+          148
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "idle",
+        "index": 1,
+        "sourceBounds": [
+          172,
+          30,
+          304,
+          148
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "idle",
+        "index": 2,
+        "sourceBounds": [
+          330,
+          30,
+          461,
+          148
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "idle",
+        "index": 3,
+        "sourceBounds": [
+          485,
+          30,
+          617,
+          148
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 0,
+        "sourceBounds": [
+          9,
+          178,
+          152,
+          302
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 1,
+        "sourceBounds": [
+          169,
+          177,
+          310,
+          301
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 2,
+        "sourceBounds": [
+          327,
+          178,
+          467,
+          301
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 3,
+        "sourceBounds": [
+          486,
+          178,
+          624,
+          301
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 4,
+        "sourceBounds": [
+          641,
+          177,
+          777,
+          301
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 5,
+        "sourceBounds": [
+          792,
+          177,
+          934,
+          300
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 6,
+        "sourceBounds": [
+          949,
+          177,
+          1089,
+          301
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "spin",
+        "index": 7,
+        "sourceBounds": [
+          1103,
+          177,
+          1243,
+          302
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "warning",
+        "index": 0,
+        "sourceBounds": [
+          9,
+          337,
+          150,
+          456
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "warning",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          327,
+          311,
+          456
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "warning",
+        "index": 2,
+        "sourceBounds": [
+          335,
+          332,
+          486,
+          456
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "warning",
+        "index": 3,
+        "sourceBounds": [
+          497,
+          340,
+          646,
+          457
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "throw",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          487,
+          153,
+          607
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "throw",
+        "index": 1,
+        "sourceBounds": [
+          163,
+          489,
+          320,
+          608
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "throw",
+        "index": 2,
+        "sourceBounds": [
+          321,
+          490,
+          490,
+          608
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "throw",
+        "index": 3,
+        "sourceBounds": [
+          501,
+          487,
+          631,
+          608
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "throw",
+        "index": 4,
+        "sourceBounds": [
+          637,
+          486,
+          774,
+          607
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "throw",
+        "index": 5,
+        "sourceBounds": [
+          796,
+          485,
+          931,
+          607
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          638,
+          149,
+          757
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 1,
+        "sourceBounds": [
+          168,
+          642,
+          304,
+          757
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 2,
+        "sourceBounds": [
+          328,
+          639,
+          460,
+          757
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 3,
+        "sourceBounds": [
+          486,
+          637,
+          616,
+          760
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "hurt",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          777,
+          151,
+          903
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "hurt",
+        "index": 1,
+        "sourceBounds": [
+          170,
+          785,
+          305,
+          902
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "hurt",
+        "index": 2,
+        "sourceBounds": [
+          330,
+          785,
+          464,
+          902
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          939,
+          150,
+          1053
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 1,
+        "sourceBounds": [
+          172,
+          939,
+          305,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 2,
+        "sourceBounds": [
+          328,
+          939,
+          461,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 3,
+        "sourceBounds": [
+          488,
+          943,
+          616,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 4,
+        "sourceBounds": [
+          640,
+          942,
+          772,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 5,
+        "sourceBounds": [
+          801,
+          939,
+          929,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 6,
+        "sourceBounds": [
+          948,
+          939,
+          1085,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      },
+      {
+        "sequence": "defeated",
+        "index": 7,
+        "sourceBounds": [
+          1101,
+          942,
+          1239,
+          1052
+        ],
+        "scale": 0.7058823529411765
+      }
+    ]
+  },
+  "invisible_king": {
+    "sequences": {
+      "idle": 4,
+      "reveal": 6,
+      "hide": 6,
+      "attack": 6,
+      "hurt": 3,
+      "defeated": 8
+    },
+    "idleEyeRegion": {
+      "left": 39,
+      "top": 60,
+      "width": 48,
+      "height": 23
+    },
+    "scale": 0.5874125874125874,
+    "idleHeight": 84,
+    "measurements": [
+      {
+        "sequence": "idle",
+        "index": 0,
+        "sourceBounds": [
+          11,
+          35,
+          157,
+          177
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "idle",
+        "index": 1,
+        "sourceBounds": [
+          176,
+          35,
+          317,
+          176
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "idle",
+        "index": 2,
+        "sourceBounds": [
+          334,
+          34,
+          474,
+          176
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "idle",
+        "index": 3,
+        "sourceBounds": [
+          492,
+          34,
+          635,
+          176
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "reveal",
+        "index": 0,
+        "sourceBounds": [
+          25,
+          201,
+          142,
+          338
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "reveal",
+        "index": 1,
+        "sourceBounds": [
+          185,
+          199,
+          304,
+          338
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "reveal",
+        "index": 2,
+        "sourceBounds": [
+          346,
+          198,
+          465,
+          338
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "reveal",
+        "index": 3,
+        "sourceBounds": [
+          486,
+          197,
+          630,
+          339
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "reveal",
+        "index": 4,
+        "sourceBounds": [
+          640,
+          193,
+          798,
+          338
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "reveal",
+        "index": 5,
+        "sourceBounds": [
+          803,
+          195,
+          952,
+          338
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hide",
+        "index": 0,
+        "sourceBounds": [
+          12,
+          361,
+          157,
+          503
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hide",
+        "index": 1,
+        "sourceBounds": [
+          168,
+          361,
+          320,
+          502
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hide",
+        "index": 2,
+        "sourceBounds": [
+          332,
+          362,
+          473,
+          503
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hide",
+        "index": 3,
+        "sourceBounds": [
+          504,
+          361,
+          621,
+          503
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hide",
+        "index": 4,
+        "sourceBounds": [
+          653,
+          362,
+          776,
+          502
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hide",
+        "index": 5,
+        "sourceBounds": [
+          818,
+          361,
+          935,
+          502
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "attack",
+        "index": 0,
+        "sourceBounds": [
+          10,
+          526,
+          146,
+          668
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "attack",
+        "index": 1,
+        "sourceBounds": [
+          184,
+          527,
+          305,
+          668
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "attack",
+        "index": 2,
+        "sourceBounds": [
+          339,
+          528,
+          463,
+          667
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "attack",
+        "index": 3,
+        "sourceBounds": [
+          478,
+          527,
+          632,
+          669
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "attack",
+        "index": 4,
+        "sourceBounds": [
+          639,
+          526,
+          786,
+          669
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "attack",
+        "index": 5,
+        "sourceBounds": [
+          806,
+          527,
+          938,
+          669
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hurt",
+        "index": 0,
+        "sourceBounds": [
+          11,
+          690,
+          157,
+          833
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hurt",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          693,
+          303,
+          832
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "hurt",
+        "index": 2,
+        "sourceBounds": [
+          335,
+          691,
+          473,
+          831
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 0,
+        "sourceBounds": [
+          13,
+          853,
+          153,
+          994
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 1,
+        "sourceBounds": [
+          175,
+          855,
+          304,
+          994
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 2,
+        "sourceBounds": [
+          336,
+          855,
+          463,
+          994
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 3,
+        "sourceBounds": [
+          488,
+          855,
+          627,
+          994
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 4,
+        "sourceBounds": [
+          646,
+          852,
+          782,
+          993
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 5,
+        "sourceBounds": [
+          795,
+          853,
+          926,
+          994
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 6,
+        "sourceBounds": [
+          939,
+          850,
+          1086,
+          991
+        ],
+        "scale": 0.5874125874125874
+      },
+      {
+        "sequence": "defeated",
+        "index": 7,
+        "sourceBounds": [
+          1099,
+          851,
+          1238,
+          994
+        ],
+        "scale": 0.5874125874125874
+      }
+    ]
+  },
+  "water_king": {
+    "sequences": {
+      "idle": 4,
+      "submerge": 6,
+      "emerge": 6,
+      "attack": 6,
+      "dizzy": 4,
+      "hurt": 3,
+      "defeated": 8
+    },
+    "idleEyeRegion": {
+      "left": 37,
+      "top": 70,
+      "width": 51,
+      "height": 23
+    },
+    "scale": 0.65625,
+    "idleHeight": 84,
+    "measurements": [
+      {
+        "sequence": "idle",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          26,
+          159,
+          153
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "idle",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          26,
+          315,
+          153
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "idle",
+        "index": 2,
+        "sourceBounds": [
+          327,
+          26,
+          471,
+          153
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "idle",
+        "index": 3,
+        "sourceBounds": [
+          482,
+          24,
+          626,
+          153
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "submerge",
+        "index": 0,
+        "sourceBounds": [
+          15,
+          181,
+          159,
+          306
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "submerge",
+        "index": 1,
+        "sourceBounds": [
+          177,
+          189,
+          312,
+          305
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "submerge",
+        "index": 2,
+        "sourceBounds": [
+          330,
+          190,
+          465,
+          304
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "submerge",
+        "index": 3,
+        "sourceBounds": [
+          487,
+          193,
+          619,
+          305
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "submerge",
+        "index": 4,
+        "sourceBounds": [
+          642,
+          194,
+          775,
+          305
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "submerge",
+        "index": 5,
+        "sourceBounds": [
+          795,
+          197,
+          934,
+          306
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "emerge",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          344,
+          151,
+          460
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "emerge",
+        "index": 1,
+        "sourceBounds": [
+          172,
+          332,
+          312,
+          461
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "emerge",
+        "index": 2,
+        "sourceBounds": [
+          327,
+          336,
+          470,
+          460
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "emerge",
+        "index": 3,
+        "sourceBounds": [
+          482,
+          333,
+          626,
+          460
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "emerge",
+        "index": 4,
+        "sourceBounds": [
+          639,
+          333,
+          780,
+          460
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "emerge",
+        "index": 5,
+        "sourceBounds": [
+          793,
+          332,
+          937,
+          460
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "attack",
+        "index": 0,
+        "sourceBounds": [
+          18,
+          487,
+          140,
+          613
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "attack",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          488,
+          297,
+          613
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "attack",
+        "index": 2,
+        "sourceBounds": [
+          330,
+          488,
+          465,
+          612
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "attack",
+        "index": 3,
+        "sourceBounds": [
+          477,
+          488,
+          620,
+          612
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "attack",
+        "index": 4,
+        "sourceBounds": [
+          640,
+          489,
+          779,
+          613
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "attack",
+        "index": 5,
+        "sourceBounds": [
+          793,
+          485,
+          937,
+          613
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "dizzy",
+        "index": 0,
+        "sourceBounds": [
+          16,
+          640,
+          156,
+          765
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "dizzy",
+        "index": 1,
+        "sourceBounds": [
+          175,
+          639,
+          313,
+          765
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "dizzy",
+        "index": 2,
+        "sourceBounds": [
+          331,
+          642,
+          469,
+          766
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "dizzy",
+        "index": 3,
+        "sourceBounds": [
+          488,
+          641,
+          628,
+          768
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "hurt",
+        "index": 0,
+        "sourceBounds": [
+          15,
+          787,
+          154,
+          921
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "hurt",
+        "index": 1,
+        "sourceBounds": [
+          171,
+          790,
+          311,
+          921
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "hurt",
+        "index": 2,
+        "sourceBounds": [
+          331,
+          792,
+          466,
+          921
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 0,
+        "sourceBounds": [
+          19,
+          949,
+          149,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 1,
+        "sourceBounds": [
+          176,
+          947,
+          305,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 2,
+        "sourceBounds": [
+          331,
+          947,
+          463,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 3,
+        "sourceBounds": [
+          488,
+          949,
+          616,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 4,
+        "sourceBounds": [
+          641,
+          949,
+          770,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 5,
+        "sourceBounds": [
+          796,
+          949,
+          926,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 6,
+        "sourceBounds": [
+          944,
+          947,
+          1080,
+          1078
+        ],
+        "scale": 0.65625
+      },
+      {
+        "sequence": "defeated",
+        "index": 7,
+        "sourceBounds": [
+          1100,
+          948,
+          1233,
+          1078
+        ],
+        "scale": 0.65625
+      }
+    ]
+  },
+  "random_king": {
+    "sequences": {
+      "idle": 4,
+      "draw": 6,
+      "teleport": 6,
+      "attack": 6,
+      "taunt": 6,
+      "vulnerable": 4,
+      "hurt": 3,
+      "defeated": 8
+    },
+    "idleEyeRegion": {
+      "left": 34,
+      "top": 48,
+      "width": 33,
+      "height": 20
+    },
+    "scale": 0.5957446808510638,
+    "idleHeight": 84,
+    "measurements": [
+      {
+        "sequence": "idle",
+        "index": 0,
+        "sourceBounds": [
+          30,
+          11,
+          151,
+          151
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "idle",
+        "index": 1,
+        "sourceBounds": [
+          186,
+          11,
+          307,
+          151
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "idle",
+        "index": 2,
+        "sourceBounds": [
+          344,
+          11,
+          463,
+          151
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "idle",
+        "index": 3,
+        "sourceBounds": [
+          497,
+          11,
+          620,
+          151
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "draw",
+        "index": 0,
+        "sourceBounds": [
+          34,
+          157,
+          142,
+          298
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "draw",
+        "index": 1,
+        "sourceBounds": [
+          188,
+          157,
+          298,
+          299
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "draw",
+        "index": 2,
+        "sourceBounds": [
+          327,
+          157,
+          457,
+          298
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "draw",
+        "index": 3,
+        "sourceBounds": [
+          476,
+          157,
+          610,
+          298
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "draw",
+        "index": 4,
+        "sourceBounds": [
+          648,
+          156,
+          768,
+          299
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "draw",
+        "index": 5,
+        "sourceBounds": [
+          800,
+          156,
+          932,
+          299
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "teleport",
+        "index": 0,
+        "sourceBounds": [
+          20,
+          305,
+          152,
+          445
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "teleport",
+        "index": 1,
+        "sourceBounds": [
+          193,
+          306,
+          299,
+          445
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "teleport",
+        "index": 2,
+        "sourceBounds": [
+          338,
+          306,
+          452,
+          446
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "teleport",
+        "index": 3,
+        "sourceBounds": [
+          483,
+          305,
+          630,
+          446
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "teleport",
+        "index": 4,
+        "sourceBounds": [
+          648,
+          307,
+          774,
+          446
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "teleport",
+        "index": 5,
+        "sourceBounds": [
+          806,
+          306,
+          933,
+          446
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "attack",
+        "index": 0,
+        "sourceBounds": [
+          33,
+          453,
+          142,
+          593
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "attack",
+        "index": 1,
+        "sourceBounds": [
+          169,
+          453,
+          301,
+          593
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "attack",
+        "index": 2,
+        "sourceBounds": [
+          333,
+          453,
+          457,
+          593
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "attack",
+        "index": 3,
+        "sourceBounds": [
+          486,
+          452,
+          621,
+          593
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "attack",
+        "index": 4,
+        "sourceBounds": [
+          644,
+          450,
+          781,
+          593
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "attack",
+        "index": 5,
+        "sourceBounds": [
+          809,
+          451,
+          933,
+          593
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "taunt",
+        "index": 0,
+        "sourceBounds": [
+          32,
+          599,
+          143,
+          740
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "taunt",
+        "index": 1,
+        "sourceBounds": [
+          188,
+          600,
+          299,
+          741
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "taunt",
+        "index": 2,
+        "sourceBounds": [
+          345,
+          599,
+          454,
+          741
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "taunt",
+        "index": 3,
+        "sourceBounds": [
+          501,
+          597,
+          607,
+          741
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "taunt",
+        "index": 4,
+        "sourceBounds": [
+          649,
+          598,
+          764,
+          741
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "taunt",
+        "index": 5,
+        "sourceBounds": [
+          802,
+          599,
+          932,
+          742
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 0,
+        "sourceBounds": [
+          33,
+          748,
+          142,
+          889
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 1,
+        "sourceBounds": [
+          189,
+          748,
+          297,
+          889
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 2,
+        "sourceBounds": [
+          346,
+          748,
+          453,
+          889
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "vulnerable",
+        "index": 3,
+        "sourceBounds": [
+          503,
+          748,
+          608,
+          889
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "hurt",
+        "index": 0,
+        "sourceBounds": [
+          21,
+          896,
+          153,
+          1038
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "hurt",
+        "index": 1,
+        "sourceBounds": [
+          183,
+          896,
+          307,
+          1038
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "hurt",
+        "index": 2,
+        "sourceBounds": [
+          340,
+          896,
+          455,
+          1039
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 0,
+        "sourceBounds": [
+          31,
+          1051,
+          137,
+          1173
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 1,
+        "sourceBounds": [
+          186,
+          1051,
+          296,
+          1172
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 2,
+        "sourceBounds": [
+          342,
+          1055,
+          449,
+          1173
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 3,
+        "sourceBounds": [
+          491,
+          1051,
+          603,
+          1171
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 4,
+        "sourceBounds": [
+          650,
+          1050,
+          763,
+          1171
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 5,
+        "sourceBounds": [
+          806,
+          1048,
+          919,
+          1173
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 6,
+        "sourceBounds": [
+          953,
+          1048,
+          1074,
+          1172
+        ],
+        "scale": 0.5957446808510638
+      },
+      {
+        "sequence": "defeated",
+        "index": 7,
+        "sourceBounds": [
+          1108,
+          1048,
+          1229,
+          1171
+        ],
+        "scale": 0.5957446808510638
+      }
+    ]
+  }
+}

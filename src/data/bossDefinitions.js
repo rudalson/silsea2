@@ -140,7 +140,7 @@ export const BOSS_DEFINITIONS = Object.freeze({
     render: freezeRender({
       placeholderColor: COLORS.collectBlue,
       art: {
-        origin: { x: 0.5, y: 116 / 128 },
+        origin: { x: 0.5, y: 112 / 128 },
         scale: 1.5,
         body: { width: 80, height: 82, offsetX: 24, offsetY: 28, center: false }
       },

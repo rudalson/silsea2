@@ -415,3 +415,7 @@ await sharp({
 ]).png({ compressionLevel: 9 }).toFile(contactSheet);
 
 console.log(`P11 최종 에셋 생성: 보스 ${4 + 6 + 6 + 6 + 3 + 8}프레임·빛/잔상/공격 ${6 + 4 + 6}프레임·왕관 효과 1종 · 배경 제거 ${removedPixels}픽셀`);
+
+// Preserve the current storybook boss when rebuilding the legacy phase effects.
+const { execFileSync } = await import("node:child_process");
+execFileSync(process.execPath, [join(root, "scripts/build-boss-refresh.js"), "invisible_king"], { stdio: "inherit" });

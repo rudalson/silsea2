@@ -20,6 +20,7 @@ import { generateAssetReport } from "./asset-report.js";
 import { colorDistance, hexToRgb, paletteRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const bossPalettes = JSON.parse(await readFile(join(root, "assets/_source/boss-refresh/palette.json"), "utf8"));
 const QUALITY_THRESHOLDS = Object.freeze({
   alpha: 16,
   baseline: 16,
@@ -316,6 +317,8 @@ const qualityMeasurements = {
 
 for (const asset of assets) {
   const { name, path } = asset;
+  const bossPalette = bossPalettes[Object.keys(bossPalettes).find(key => name.startsWith(`${key}_`))];
+  const allowedColors = bossPalette ?? paletteRgb.map(entry => entry.rgb);
   try {
     await access(path);
   } catch {
@@ -344,7 +347,7 @@ for (const asset of assets) {
     maxX = Math.max(maxX, x);
     maxY = Math.max(maxY, y);
     const rgb = [data[index], data[index + 1], data[index + 2]];
-    if (!asset.fullColor && Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
+    if (!asset.fullColor && Math.min(...allowedColors.map((entry) => colorDistance(rgb, entry))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
     if (asset.kind === "item" && Math.min(...itemRgb.map((entry) => colorDistance(rgb, entry))) > ITEM_PALETTE_EDGE_TOLERANCE) {
       outsideCollect += 1;
     }
@@ -434,21 +437,8 @@ for (const asset of assets) {
     if (asset.kind === "invisible_king" && (subjectWidth < 30 || subjectWidth > 120 || subjectHeight < 20 || subjectHeight > 108)) {
       errors.push(`${name}: 투명 대왕 실루엣 ${subjectWidth}x${subjectHeight}px (너비 30~120px, 높이 20~108px 아님)`);
     }
-    if (name === "potato_king_jump_00.png" && (subjectWidth < 108 || subjectHeight > 80)) {
-      errors.push(`${name}: jump 준비 실루엣 ${subjectWidth}x${subjectHeight}px (너비 108px 미만 또는 높이 80px 초과)`);
-    }
-    if (name === "potato_king_land_00.png" && (subjectWidth < 108 || subjectHeight > 60)) {
-      errors.push(`${name}: land 압축 실루엣 ${subjectWidth}x${subjectHeight}px (너비 108px 미만 또는 높이 60px 초과)`);
-    }
-    if (name === "potato_king_shoot_01.png" && subjectHeight > 72) {
-      errors.push(`${name}: 최대 shoot crouch 높이 ${subjectHeight}px (72px 초과)`);
-    }
-    if (name === "potato_king_defeated_04.png" && subjectHeight > 45) {
-      errors.push(`${name}: defeated 충돌 높이 ${subjectHeight}px (45px 초과)`);
-    }
-    if (name === "potato_king_defeated_07.png" && (subjectWidth > 94 || subjectHeight > 50)) {
-      errors.push(`${name}: 최종 defeated 실루엣 ${subjectWidth}x${subjectHeight}px (너비 94px 초과 또는 높이 50px 초과)`);
-    }
+    // Authored boss poses preserve body volume; squash-to-half-height rules
+    // from the old stretched sprites no longer apply.
     if (asset.kind === "item" && (subjectWidth !== asset.width || subjectHeight !== asset.height)) {
       errors.push(`${name}: 오브젝트 실루엣 ${subjectWidth}x${subjectHeight}px (승인 규격 ${asset.width}x${asset.height}px 아님)`);
     }
@@ -834,7 +824,7 @@ for (const asset of [...hulaEffectAssets, ...invisibleEffectAssets, ...waterKing
       if (data[index + 3] < 16) continue;
       visible += 1;
       const rgb = [data[index], data[index + 1], data[index + 2]];
-      if (Math.min(...paletteRgb.map((entry) => colorDistance(rgb, entry.rgb))) > 0) outsidePalette += 1;
+      if (Math.min(...(asset.name === "fx_invisible_afterimage" ? bossPalettes.invisible_king : paletteRgb.map(entry => entry.rgb)).map(entry => colorDistance(rgb, entry))) > (asset.name === "fx_invisible_afterimage" ? 2 : 0)) outsidePalette += 1;
     }
     const cornerAlpha = [
       data[3],

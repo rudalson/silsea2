@@ -106,7 +106,7 @@ const ENEMY_TIMINGS = Object.freeze({
     defeated: Object.freeze({ durations: [100, 100, 120, 260], repeat: 0 })
   }),
   potato_king: Object.freeze({
-    idle: Object.freeze({ durations: [210, 190, 210, 190], repeat: -1 }),
+    idle: Object.freeze({ durations: [2300, 180, 110, 810], repeat: -1 }),
     jump: Object.freeze({ durations: [180, 140, 120, 160], repeat: 0 }),
     fall: Object.freeze({ durations: [160, 160], repeat: -1 }),
     land: Object.freeze({ durations: [90, 80, 110, 180], repeat: 0 }),
@@ -115,7 +115,7 @@ const ENEMY_TIMINGS = Object.freeze({
     defeated: Object.freeze({ durations: [150, 120, 110, 110, 130, 160, 220, 360], repeat: 0 })
   }),
   hula_king: Object.freeze({
-    idle: Object.freeze({ durations: [220, 200, 220, 200], repeat: -1 }),
+    idle: Object.freeze({ durations: [2300, 180, 110, 810], repeat: -1 }),
     spin: Object.freeze({ durations: [90, 85, 90, 85, 90, 85, 90, 105], repeat: -1 }),
     warning: Object.freeze({ durations: [240, 210, 220, 230], repeat: -1 }),
     throw: Object.freeze({ durations: [80, 75, 85, 95, 120, 190], repeat: 0 }),
@@ -124,7 +124,7 @@ const ENEMY_TIMINGS = Object.freeze({
     defeated: Object.freeze({ durations: [130, 110, 110, 120, 140, 170, 220, 320], repeat: 0 })
   }),
   invisible_king: Object.freeze({
-    idle: Object.freeze({ durations: [230, 210, 230, 210], repeat: -1 }),
+    idle: Object.freeze({ durations: [2300, 180, 110, 810], repeat: -1 }),
     reveal: Object.freeze({ durations: [150, 160, 170, 190, 240, 290], repeat: 0 }),
     hide: Object.freeze({ durations: [70, 70, 70, 70, 70, 70], repeat: 0 }),
     attack: Object.freeze({ durations: [130, 130, 140, 150, 160, 190], repeat: 0 }),
@@ -132,7 +132,7 @@ const ENEMY_TIMINGS = Object.freeze({
     defeated: Object.freeze({ durations: [120, 100, 110, 120, 140, 170, 220, 320], repeat: 0 })
   }),
   water_king: Object.freeze({
-    idle: Object.freeze({ durations: [180, 170, 180, 190], repeat: -1 }),
+    idle: Object.freeze({ durations: [2300, 180, 110, 810], repeat: -1 }),
     submerge: Object.freeze({ durations: [70, 75, 80, 85, 85, 85], repeat: 0 }),
     emerge: Object.freeze({ durations: [80, 80, 85, 90, 90, 95], repeat: 0 }),
     attack: Object.freeze({ durations: [90, 95, 100, 100, 105, 110], repeat: 0 }),
@@ -141,7 +141,7 @@ const ENEMY_TIMINGS = Object.freeze({
     defeated: Object.freeze({ durations: [130, 140, 150, 160, 170, 180, 190, 220], repeat: 0 })
   }),
   random_king: Object.freeze({
-    idle: Object.freeze({ durations: [180, 170, 180, 190], repeat: -1 }),
+    idle: Object.freeze({ durations: [2300, 180, 110, 810], repeat: -1 }),
     draw: Object.freeze({ durations: [90, 90, 95, 100, 105, 120], repeat: -1 }),
     teleport: Object.freeze({ durations: [75, 75, 80, 85, 90, 105], repeat: 0 }),
     attack: Object.freeze({ durations: [80, 85, 90, 95, 105, 130], repeat: 0 }),
