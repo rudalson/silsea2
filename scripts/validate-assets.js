@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: enemy === "potato_archer" };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -127,7 +127,7 @@ const enemyAssets = [
   ...enemySequenceAssets("potato_archer", "aim", 3),
   ...enemySequenceAssets("potato_archer", "shoot", 3),
   ...enemySequenceAssets("potato_archer", "defeated", 4),
-  { name: "raw_potato_anchor.png", path: join(root, "assets", "_anchor", "raw_potato_anchor.png"), kind: "raw_potato" },
+  { name: "raw_potato_anchor.png", path: join(root, "assets", "_anchor", "raw_potato_anchor.png"), kind: "raw_potato", fullColor: true },
   ...enemySequenceAssets("raw_potato", "idle", 2),
   ...enemySequenceAssets("raw_potato", "roll", 6),
   ...enemySequenceAssets("raw_potato", "defeated", 4),
@@ -176,15 +176,15 @@ const enemyAssets = [
   ...enemySequenceAssets("random_king", "hurt", 3),
   ...enemySequenceAssets("random_king", "defeated", 8)
 ];
-const itemAsset = (key, width, height) => [
-  { name: `${key}_anchor.png`, path: join(root, "assets", "_anchor", `${key}_anchor.png`), key, kind: "item", width, height },
-  { name: `${key}.png`, path: join(root, "assets", "items", `${key}.png`), key, kind: "item", width, height }
+const itemAsset = (key, width, height, fullColor = false) => [
+  { name: `${key}_anchor.png`, path: join(root, "assets", "_anchor", `${key}_anchor.png`), key, kind: "item", width, height, fullColor },
+  { name: `${key}.png`, path: join(root, "assets", "items", `${key}.png`), key, kind: "item", width, height, fullColor }
 ];
 const itemAssets = [
-  ...itemAsset("item_star", 96, 93),
+  ...itemAsset("item_star", 72, 70, true),
   ...itemAsset("item_percent_small", 70, 72),
   ...itemAsset("item_percent_large", 94, 96),
-  ...itemAsset("item_horn", 75, 96),
+  ...itemAsset("item_horn", 48, 96, true),
   ...itemAsset("item_wings", 96, 55),
   ...itemAsset("item_alicorn", 96, 51),
   ...itemAsset("checkpoint_flag", 91, 96),
@@ -348,7 +348,7 @@ for (const asset of assets) {
     maxY = Math.max(maxY, y);
     const rgb = [data[index], data[index + 1], data[index + 2]];
     if (!asset.fullColor && Math.min(...allowedColors.map((entry) => colorDistance(rgb, entry))) > QUALITY_THRESHOLDS.paletteDistance) outside += 1;
-    if (asset.kind === "item" && Math.min(...itemRgb.map((entry) => colorDistance(rgb, entry))) > ITEM_PALETTE_EDGE_TOLERANCE) {
+    if (asset.kind === "item" && !asset.fullColor && Math.min(...itemRgb.map((entry) => colorDistance(rgb, entry))) > ITEM_PALETTE_EDGE_TOLERANCE) {
       outsideCollect += 1;
     }
   }
@@ -439,7 +439,9 @@ for (const asset of assets) {
     }
     // Authored boss poses preserve body volume; squash-to-half-height rules
     // from the old stretched sprites no longer apply.
-    if (asset.kind === "item" && (subjectWidth !== asset.width || subjectHeight !== asset.height)) {
+    // Soft antialiased outlines can lose at most two edge pixels below alpha 16.
+    const itemSizeTolerance = asset.fullColor ? 2 : 0;
+    if (asset.kind === "item" && (Math.abs(subjectWidth - asset.width) > itemSizeTolerance || Math.abs(subjectHeight - asset.height) > itemSizeTolerance)) {
       errors.push(`${name}: 오브젝트 실루엣 ${subjectWidth}x${subjectHeight}px (승인 규격 ${asset.width}x${asset.height}px 아님)`);
     }
     if (asset.key === "rainbow_gate") {

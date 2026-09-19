@@ -335,7 +335,10 @@ export class EnemyManager {
     const patrol = enemy.getData("patrol") ?? 160;
     if (enemy.x <= spawnX - patrol) enemy.body.setVelocityX(72);
     if (enemy.x >= spawnX + patrol) enemy.body.setVelocityX(-72);
-    if (enemy.getData("usesArt")) EnemyAnimationManager.play(enemy, "move");
+    if (enemy.getData("usesArt")) {
+      enemy.setFlipX(enemy.body.velocity.x > 0);
+      EnemyAnimationManager.play(enemy, "move");
+    }
     else enemy.setRotation(enemy.rotation + enemy.body.velocity.x * 0.0008);
   }
 

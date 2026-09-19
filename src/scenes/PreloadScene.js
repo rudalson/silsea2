@@ -80,6 +80,10 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    // Painted pickups and potato frames retain smooth edges at fractional scales.
+    for (const key of ["item_horn", "item_star", "raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"]) {
+      if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+    }
     if (this.registry.get("coopReviewEnabled") && this.levelId === "c3-coop-test") {
       this.scene.start(SCENE_KEYS.COOP_PROTOTYPE, { levelId: this.levelId });
       return;

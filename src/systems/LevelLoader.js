@@ -517,7 +517,7 @@ export class LevelLoader {
           const angle = Math.PI + (Math.PI * index) / Math.max(1, item.count - 1);
           const x = item.x + Math.cos(angle) * item.radius;
           const y = item.y + Math.sin(angle) * item.radius;
-          register(`${item.id}-${index}`, "star", x, y, createVisuals("star", x, y, 0.78));
+          register(`${item.id}-${index}`, "star", x, y, createVisuals("star", x, y));
         }
         continue;
       }
