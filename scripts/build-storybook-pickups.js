@@ -39,6 +39,34 @@ for (const [name, width, height] of [["star", 72, 70], ["horn", 48, 96]]) {
   await copyFile(output, join(root, "assets/_anchor", `item_${name}_anchor.png`));
 }
 
+const refreshedItems = [
+  { source: "percent", outputs: [["percent_small", 68, 68], ["percent_large", 92, 92]] },
+  { source: "wings", outputs: [["wings", 96, 62]] },
+  { source: "checkpoint", outputs: [["checkpoint_flag", 82, 96]] }
+];
+const refreshedPreview = [];
+for (const asset of refreshedItems) {
+  const art = await cropAlpha(join(source, `${asset.source}.png`), true);
+  for (const [name, width, height] of asset.outputs) {
+    const output = join(root, "assets/items", `item_${name}.png`);
+    const finalOutput = name === "checkpoint_flag"
+      ? join(root, "assets/items/checkpoint_flag.png")
+      : output;
+    const rendered = await frame(art, width, height);
+    await sharp(rendered).toFile(finalOutput);
+    await copyFile(finalOutput, join(root, "assets/_anchor", `${name === "checkpoint_flag" ? "checkpoint_flag" : `item_${name}`}_anchor.png`));
+    if (name !== "percent_small") refreshedPreview.push(rendered);
+  }
+}
+
+const previewBackground = Buffer.from(`<svg width="${refreshedPreview.length * 192}" height="192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" rx="20" fill="#fff6d8"/>
+</svg>`);
+await sharp(previewBackground)
+  .composite(refreshedPreview.map((input, index) => ({ input, left: index * 192 + 32, top: 16 })))
+  .png()
+  .toFile(join(root, "references/storybook-item-refresh.png"));
+
 const potato = await cropAlpha(join(source, "potato.png"), true);
 const defeated = await cropAlpha(join(source, "potato-defeated.png"), true);
 // Retain the existing two / six / four-frame timing contract and 16px baseline.
@@ -65,4 +93,4 @@ for (const [sequence, poses] of Object.entries(sequences)) {
 }
 await copyFile(join(root, "assets/enemies/raw_potato/idle/raw_potato_idle_00.png"), join(root, "assets/_anchor/raw_potato_anchor.png"));
 await canvas(768, 416).composite(strips).png().toFile(join(root, "references/storybook-potato-animation.png"));
-console.log("Built storybook horn, star, and all 12 potato frames with original manifest keys and alpha.");
+console.log("Built storybook horn, star, percent tokens, wings, checkpoint, and all 12 potato frames with original manifest keys and alpha.");

@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato", "dark_cloud", "magpie"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -135,12 +135,12 @@ const enemyAssets = [
   ...enemySequenceAssets("spike_pumpkin", "idle", 2),
   ...enemySequenceAssets("spike_pumpkin", "warning", 2),
   ...enemySequenceAssets("spike_pumpkin", "break", 6),
-  { name: "dark_cloud_anchor.png", path: join(root, "assets", "_anchor", "dark_cloud_anchor.png"), kind: "dark_cloud" },
+  { name: "dark_cloud_anchor.png", path: join(root, "assets", "_anchor", "dark_cloud_anchor.png"), kind: "dark_cloud", fullColor: true },
   ...enemySequenceAssets("dark_cloud", "idle", 4),
   ...enemySequenceAssets("dark_cloud", "charge", 4),
   ...enemySequenceAssets("dark_cloud", "attack", 3),
   ...enemySequenceAssets("dark_cloud", "defeated", 4),
-  { name: "magpie_anchor.png", path: join(root, "assets", "_anchor", "magpie_anchor.png"), kind: "magpie" },
+  { name: "magpie_anchor.png", path: join(root, "assets", "_anchor", "magpie_anchor.png"), kind: "magpie", fullColor: true },
   ...enemySequenceAssets("magpie", "fly", 6),
   ...enemySequenceAssets("magpie", "warning", 3),
   ...enemySequenceAssets("magpie", "dive", 4),
@@ -182,12 +182,12 @@ const itemAsset = (key, width, height, fullColor = false) => [
 ];
 const itemAssets = [
   ...itemAsset("item_star", 72, 70, true),
-  ...itemAsset("item_percent_small", 70, 72),
-  ...itemAsset("item_percent_large", 94, 96),
+  ...itemAsset("item_percent_small", 68, 68, true),
+  ...itemAsset("item_percent_large", 92, 92, true),
   ...itemAsset("item_horn", 48, 96, true),
-  ...itemAsset("item_wings", 96, 55),
+  ...itemAsset("item_wings", 96, 62, true),
   ...itemAsset("item_alicorn", 96, 51),
-  ...itemAsset("checkpoint_flag", 91, 96),
+  ...itemAsset("checkpoint_flag", 82, 96, true),
   ...itemAsset("rainbow_gate", 112, 104)
 ];
 // 수집물은 수집 팔레트만 쓰되, 밝은 배경에서도 실루엣이 무너지지 않도록
@@ -398,34 +398,34 @@ for (const asset of assets) {
     if (asset.kind === "spike_pumpkin" && (subjectWidth < 96 || subjectWidth > 112 || subjectHeight < 35 || subjectHeight > 80)) {
       errors.push(`${name}: 가시 호박 실루엣 ${subjectWidth}x${subjectHeight}px (너비 96~112px, 높이 35~80px 아님)`);
     }
-    if (asset.kind === "dark_cloud" && (subjectWidth < 72 || subjectWidth > 112 || subjectHeight < 25 || subjectHeight > 96)) {
-      errors.push(`${name}: 먹구름 실루엣 ${subjectWidth}x${subjectHeight}px (너비 72~112px, 높이 25~96px 아님)`);
+    if (asset.kind === "dark_cloud" && (subjectWidth < 62 || subjectWidth > 112 || subjectHeight < 34 || subjectHeight > 104)) {
+      errors.push(`${name}: 먹구름 실루엣 ${subjectWidth}x${subjectHeight}px (너비 62~112px, 높이 34~104px 아님)`);
     }
     if (name.startsWith("dark_cloud_idle_") && subjectWidth < 108) {
       errors.push(`${name}: idle 폭 ${subjectWidth}px (108px 미만)`);
     }
-    if (name === "dark_cloud_charge_03.png" && subjectWidth > 82) {
-      errors.push(`${name}: 최대 charge 폭 ${subjectWidth}px (82px 초과)`);
-    }
-    if (name === "dark_cloud_attack_01.png" && subjectHeight < 80) {
-      errors.push(`${name}: 핵심 attack 높이 ${subjectHeight}px (80px 미만)`);
+    if (name === "dark_cloud_attack_01.png" && subjectHeight < 96) {
+      errors.push(`${name}: 핵심 attack 높이 ${subjectHeight}px (96px 미만)`);
     }
     if (name === "dark_cloud_defeated_03.png" && subjectWidth > 76) {
       errors.push(`${name}: 최종 defeated 폭 ${subjectWidth}px (76px 초과)`);
     }
-    if (asset.kind === "magpie" && (subjectWidth < 31 || subjectWidth > 112 || subjectHeight < 31 || subjectHeight > 96)) {
-      errors.push(`${name}: 까치 실루엣 ${subjectWidth}x${subjectHeight}px (너비 31~112px, 높이 31~96px 아님)`);
+    if (asset.kind === "magpie" && (subjectWidth < 58 || subjectWidth > 114 || subjectHeight < 36 || subjectHeight > 112)) {
+      errors.push(`${name}: 까치 실루엣 ${subjectWidth}x${subjectHeight}px (너비 58~114px, 높이 36~112px 아님)`);
     }
     if (name.startsWith("magpie_fly_") && subjectWidth < 108) {
       errors.push(`${name}: fly 폭 ${subjectWidth}px (108px 미만)`);
     }
-    if (name === "magpie_dive_02.png" && (subjectWidth > 40 || subjectHeight < 90)) {
-      errors.push(`${name}: 수직 dive 실루엣 ${subjectWidth}x${subjectHeight}px (너비 40px 초과 또는 높이 90px 미만)`);
+    if (name === "magpie_dive_02.png" && (subjectWidth > 62 || subjectHeight < 104)) {
+      errors.push(`${name}: 수직 dive 실루엣 ${subjectWidth}x${subjectHeight}px (너비 62px 초과 또는 높이 104px 미만)`);
     }
     if (name.startsWith("magpie_stunned_") && subjectHeight < 90) {
       errors.push(`${name}: stunned 높이 ${subjectHeight}px (90px 미만)`);
     }
-    if ((name === "magpie_defeated_02.png" || name === "magpie_defeated_03.png") && subjectHeight > 40) {
+    if (name === "magpie_defeated_02.png" && subjectHeight > 56) {
+      errors.push(`${name}: defeated 전환 높이 ${subjectHeight}px (56px 초과)`);
+    }
+    if (name === "magpie_defeated_03.png" && subjectHeight > 40) {
       errors.push(`${name}: 최종 defeated 높이 ${subjectHeight}px (40px 초과)`);
     }
     if (asset.kind === "potato_king" && (subjectWidth < 77 || subjectWidth > 112 || subjectHeight < 39 || subjectHeight > 96)) {

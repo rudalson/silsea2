@@ -46,8 +46,8 @@
 |---|---|---|
 | `raw_potato` | M | idle 2, roll 6, defeated 4 |
 | `spike_pumpkin` | M | idle 2, warning 2, break 6 |
-| `dark_cloud` | M | idle 4, charge 4, attack 3, defeated 4 |
-| `magpie` | M | fly 6, warning 3, dive 4, stunned 4, defeated 4 |
+| `dark_cloud` | M | 동화풍 풀컬러 idle 4, charge 4, attack 3, defeated 4 |
+| `magpie` | M | 동화풍 풀컬러 fly 6, warning 3, dive 4, stunned 4, defeated 4 |
 | `potato_king` | M | idle 4, jump 4, fall 2, land 4, shoot 4, hurt 3, defeated 8 |
 
 ## 아이템과 진행 오브젝트
@@ -55,12 +55,12 @@
 | 키 | 우선 | 크기 | 실루엣 |
 |---|---|---:|---|
 | `item_star` | M | 96 | 5각 별 |
-| `item_percent_small` | M | 96 | 작은 원 토큰 |
-| `item_percent_large` | M | 128 | 큰 이중 원 토큰 |
+| `item_percent_small` | M | 96 | 둥근 금빛 % 메달·청록 에나멜 기호 |
+| `item_percent_large` | M | 128 | 큰 금빛 % 메달·청록 에나멜 기호 |
 | `item_horn` | M | 96 | 나선 원뿔·공통 후광/낙하 글리터 |
-| `item_wings` | M | 96 | 깃털 날개 한 쌍·공통 후광/낙하 글리터 |
+| `item_wings` | M | 96 | 진주빛 둥근 깃털 날개 한 쌍·금빛 중앙 장식 |
 | `item_alicorn` | M | 128 | 뿔+날개·공통 후광/낙하 글리터 |
-| `checkpoint_flag` | M | 128 | 둥근 깃발 |
+| `checkpoint_flag` | M | 128 | 금빛 별 기둥·크림/분홍 깃발·청록 꽃 받침 |
 | `rainbow_gate` | M | 128 | 큰 아치. 실제 지상·공중과 장난 게이트가 재사용하며 움직임·등장 순서·소멸로 역할 구분 |
 
 ## 배경

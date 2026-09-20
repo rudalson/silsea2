@@ -80,8 +80,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    // Painted pickups and potato frames retain smooth edges at fractional scales.
-    for (const key of ["item_horn", "item_star", "raw_potato_idle", "raw_potato_roll", "raw_potato_defeated"]) {
+    // Painted pickups and enemies retain smooth edges at fractional scales.
+    for (const key of ["item_horn", "item_star", "item_percent_small", "item_percent_large", "item_wings", "checkpoint_flag", "raw_potato_idle", "raw_potato_roll", "raw_potato_defeated", "dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated", "magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     if (this.registry.get("coopReviewEnabled") && this.levelId === "c3-coop-test") {

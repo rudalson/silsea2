@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "codex-clipboard-ad08e566-9c7f-43e5-92f0-e60c61c68b8a.png (visual style and palette reference only)",
+  "shared": "Polished hand-painted children's storybook 2D platform game sprite; soft dimensional shading; saturated candy colors; crisp edge; exactly one centered subject; genuine transparent background; no scenery, text, border, frame, watermark, pixel art, flat vector art, black outline, photorealism, or glow halo.",
+  "assets": {
+    "dark-cloud-idle.png": "Compact rounded plush storm-cloud spirit, deep grape and lavender body, navy lower shadow, rosy highlights, mischievous eyes, tiny golden lightning tail, three-quarter front view facing right, calm idle expression.",
+    "dark-cloud-attack.png": "Charged pose of the storm-cloud spirit, compressed and energized, focused eyes, bright golden lightning in its center and one short bolt pointing down.",
+    "magpie-fly.png": "Rounded cheeky magpie facing right in mid-flight with lifted wings, deep teal and midnight feathers, creamy white patches, turquoise highlights, coral beak and feet, long tail and determined eye.",
+    "magpie-stunned.png": "Same magpie tilted upright with drooping wings, spiral eyes, and two tiny golden stars circling above its head."
+  }
+}

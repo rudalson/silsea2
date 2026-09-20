@@ -445,7 +445,7 @@ export class LevelLoader {
       let visuals;
       if (key && this.scene.textures.exists(key)) {
         const flag = this.track(this.scene.add.image(checkpoint.x, checkpoint.y - 48, key));
-        flag.setDepth(3).setAlpha(0.82);
+        flag.setDepth(3).setAlpha(0.92);
         visuals = [flag];
       } else {
         const pole = this.track(this.scene.add.rectangle(checkpoint.x, checkpoint.y - 54, 8, 108, COLORS.outline));
