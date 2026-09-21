@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stage 1 runtime checks</title>
+    <style>
+      #checks { position: fixed; z-index: 100; left: 12px; bottom: 12px; max-width: 780px;
+        padding: 14px; background: #172b36ee; color: white; font: 14px/1.5 monospace; border-radius: 8px; }
+      #checks button { padding: 8px 16px; cursor: pointer; }
+      #results { max-height: 180px; overflow: auto; white-space: pre-wrap; margin: 8px 0 0; }
+    </style>
+  </head>
+  <body>
+    <main id="app"><div id="game-container" tabindex="0" aria-label="게임 화면"></div>
+      <p id="game-status" class="sr-only" role="status"></p></main>
+    <aside id="checks"><button id="run" disabled>준비 중</button><pre id="results" role="status">Loading…</pre></aside>
+    <script type="module" src="./stage1-runtime.js"></script>
+  </body>
+</html>

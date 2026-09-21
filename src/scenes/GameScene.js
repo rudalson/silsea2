@@ -398,6 +398,7 @@ export class GameScene extends Phaser.Scene {
       const overlap = this.physics.add.overlap(this.player, checkpoint.zone, () => {
         if (this.isForcedReplayActive()) return;
         if (!this.checkpointManager.activate(checkpoint.data)) return;
+        checkpoint.passageVisual?.setVisible(false);
         this.transformationManager.restoreFlight();
         if (checkpoint.data.restoresHealth) {
           this.healthManager.restoreFull();
@@ -523,6 +524,7 @@ export class GameScene extends Phaser.Scene {
     if (!collectible?.active) return;
     collectible.active = false;
     collectible.zone.body.enable = false;
+    collectible.passageVisual?.setVisible(false);
     this.particleEffects.clearMagnetTrail(collectible.id);
     this.itemPresentation?.collect(collectible.id);
     const multiplier = this.transformationManager.scoreMultiplier;
@@ -740,10 +742,12 @@ export class GameScene extends Phaser.Scene {
       if (!playerState.collectedItemIds.has(collectible.id)) continue;
       collectible.active = false;
       collectible.zone.body.enable = false;
+      collectible.passageVisual?.setVisible(false);
       for (const visual of collectible.visuals) visual.setVisible(false);
     }
     for (const checkpoint of nextLoader.checkpointZones) {
       if (!this.checkpointManager.activated.has(checkpoint.data.id)) continue;
+      checkpoint.passageVisual?.setVisible(false);
       const fallbackFlag = checkpoint.visuals.at(-1);
       if (fallbackFlag?.setFillStyle) fallbackFlag.setFillStyle(COLORS.collect);
       for (const visual of checkpoint.visuals) visual.setAlpha(1);
@@ -785,11 +789,7 @@ export class GameScene extends Phaser.Scene {
     this.createGameplayManagers();
 
     if (playerState.form?.form) {
-      this.transformationManager.setForm(playerState.form.form, false);
-      this.transformationManager.flightMs = Math.min(playerState.form.flightMs, playerState.form.flightMaxMs);
-      if (playerState.form.alicornRemainingMs > 0) {
-        this.transformationManager.alicornEndsAt = this.time.now + playerState.form.alicornRemainingMs;
-      }
+      this.transformationManager.restoreSnapshot(playerState.form, this.time.now);
     }
     this.healthManager.hp = Math.min(this.healthManager.maxHp, Math.max(1, playerState.hp));
     this.healthManager.emitHp();

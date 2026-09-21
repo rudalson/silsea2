@@ -1,4 +1,5 @@
 import { EVENTS } from "../config/constants.js";
+import { getProgressionSign } from "../data/schema/levelSchema.js";
 
 export class CheckpointManager {
   constructor(scene, spawn) {
@@ -11,6 +12,7 @@ export class CheckpointManager {
 
   activate(checkpoint) {
     if (this.activated.has(checkpoint.id)) return false;
+    if ((checkpoint.x - this.current.x) * getProgressionSign(this.scene.level) < 0) return false;
     this.activated.add(checkpoint.id);
     this.current = { id: checkpoint.id, x: checkpoint.x, y: checkpoint.y };
     this.scene.events.emit(EVENTS.CHECKPOINT, checkpoint);

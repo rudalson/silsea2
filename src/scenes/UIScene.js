@@ -161,12 +161,27 @@ export class UIScene extends Phaser.Scene {
 
     this.createPauseOverlay();
 
-    this.onCheckpoint = () => this.showToast("안전 지점 저장!");
+    this.onCheckpoint = ({ restoresHealth }) => this.showToast(
+      restoresHealth ? "안전 지점 저장 · 체력과 비행 에너지 회복!" : "안전 지점 저장 · 비행 에너지 회복!",
+      1800
+    );
     this.onBossHit = ({ displayName, hp, maxHp }) => {
       this.bossText.setText(`${displayName}  ${"●".repeat(hp)}${"○".repeat(maxHp - hp)}`).setVisible(true);
     };
     this.onBossDefeated = ({ displayName, levelName }) => this.showToast(`${displayName} 격파! ${levelName} 클리어!`);
-    this.onFormChanged = ({ form }) => this.showToast(`${this.formName(form)} 변신!`);
+    this.onFormChanged = ({ form, emphasize, retainsMagnet }) => {
+      const lessons = {
+        unicorn: "유니콘! 가까운 별이 따라와요 · 가시는 점프로 피하세요",
+        pegasus: `페가수스! 점프를 누르고 있으면 비행${retainsMagnet ? " · 자석도 유지!" : ""}`,
+        alicorn: "12초 알리콘! 감자를 돌파하고 별을 모으세요 · 점수 2배!"
+      };
+      this.showToast(
+        emphasize && this.gameScene.level.progression?.retainAbilities
+          ? lessons[form] ?? `${this.formName(form)} 변신!`
+          : `${this.formName(form)} 변신!`,
+        emphasize ? 3200 : 750
+      );
+    };
     this.onFormWarning = () => this.showToast("알리콘 종료까지 3초!");
     this.onItemCollected = ({ type }) => {
       if (type === "percent_large" && this.time.now >= (this.secretToastUntil ?? 0)) {
@@ -221,7 +236,7 @@ export class UIScene extends Phaser.Scene {
     const combo = this.gameScene.scoreManager?.combo ?? 0;
     this.comboText.setText(combo >= 2 ? `${combo} COMBO` : "");
     const form = this.gameScene.transformationManager?.getSnapshot(this.gameScene.time.now);
-    this.formText.setText(`${this.formName(form?.form)}${form?.guardPhase && form.guardPhase !== "idle" ? " · 날개 방어" : ""}`);
+    this.formText.setText(`${this.formName(form?.form)}${form?.guardPhase && form.guardPhase !== "idle" ? " · 방어" : form?.retainsMagnet ? " · 자석" : ""}`);
     const ratio = form ? form.flightMs / form.flightMaxMs : 1;
     this.flightBar.setScale(Math.max(0.001, ratio), 1);
     this.flightTrack.setVisible(form?.form === "pegasus");
@@ -514,10 +529,10 @@ export class UIScene extends Phaser.Scene {
     return { badge, label };
   }
 
-  showToast(message) {
+  showToast(message, holdMs = 750) {
     this.toast.setText(message).setAlpha(1).setY(164);
     this.tweens.killTweensOf(this.toast);
-    this.tweens.add({ targets: this.toast, alpha: 0, y: 144, delay: 750, duration: 350 });
+    this.tweens.add({ targets: this.toast, alpha: 0, y: 144, delay: holdMs, duration: 350 });
   }
 
   formName(form) {

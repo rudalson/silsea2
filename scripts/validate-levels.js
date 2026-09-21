@@ -15,6 +15,7 @@ import {
   getTerrainObjectSurface
 } from "../src/data/footsteps.js";
 import { HAZARD_TYPES, ITEM_TYPES } from "../src/data/items.js";
+import { findLayoutIssues } from "./lib/level-layout.js";
 import { ALL_LEVELS, LEVELS } from "../src/data/levels/index.js";
 import { OBJECTIVE_PRESENTATIONS } from "../src/data/objectivePresentation.js";
 import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/levelSchema.js";
@@ -441,6 +442,9 @@ for (const sourceLevel of ALL_LEVELS) {
   if (tilemap.height * tilemap.tileheight !== level.world.height) fail(level, "tilemap 높이와 world.height 불일치");
   const terrainLayer = getTerrainLayer(tilemap);
   const terrain = terrainLayer?.objects ?? [];
+  if (level.id === "level-01") {
+    for (const issue of findLayoutIssues(level, terrain)) fail(level, issue);
+  }
   if (tilemap.width * tilemap.tilewidth !== level.world.width) fail(level, "tilemap 폭과 world.width가 다름");
   if (terrain.length === 0) fail(level, "terrain object layer가 비어 있음");
   for (const object of terrain) {

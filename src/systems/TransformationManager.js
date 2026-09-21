@@ -29,6 +29,8 @@ export class TransformationManager {
     this.flightDrainMultiplier = difficulty.player?.flightDrainMultiplier ?? 1;
     this.form = FORMS.BASE;
     this.returnForm = FORMS.BASE;
+    this.retainAbilities = levelLoader.level?.progression?.retainAbilities === true;
+    this.unlockedAbilities = new Set();
     this.flightMs = CORE_RULES.flightMaxMs;
     this.alicornEndsAt = 0;
     this.warningSent = false;
@@ -65,8 +67,17 @@ export class TransformationManager {
   }
 
   collect(itemType, now) {
-    const nextForm = ITEM_TO_FORM[itemType];
+    let nextForm = ITEM_TO_FORM[itemType];
     if (!nextForm) return false;
+    if (itemType === "horn" || itemType === "wings") this.unlockedAbilities.add(itemType);
+    if (this.retainAbilities && nextForm !== FORMS.ALICORN) {
+      nextForm = this.unlockedAbilities.has("wings") ? FORMS.PEGASUS : FORMS.UNICORN;
+      // A late or repeated pickup must not interrupt fever or remove flight.
+      if (this.form === FORMS.ALICORN) {
+        this.returnForm = nextForm;
+        return true;
+      }
+    }
     if (nextForm === FORMS.ALICORN) {
       this.returnForm = this.form === FORMS.ALICORN ? this.returnForm : this.form;
       this.alicornEndsAt = now + CORE_RULES.alicornDurationMs;
@@ -93,7 +104,10 @@ export class TransformationManager {
       this.syncFormVisuals();
     }
     if (emphasize) this.playTransformPresentation(form);
-    this.scene.events.emit(EVENTS.FORM_CHANGED, { form, flightMs: this.flightMs, emphasize });
+    this.scene.events.emit(EVENTS.FORM_CHANGED, {
+      form, flightMs: this.flightMs, emphasize,
+      retainsMagnet: form === FORMS.PEGASUS && this.magnetRadius > 0
+    });
   }
 
   syncFormVisuals() {
@@ -370,6 +384,9 @@ export class TransformationManager {
   get magnetRadius() {
     if (this.form === FORMS.ALICORN) return CORE_RULES.alicornMagnetRadius;
     if (this.form === FORMS.UNICORN) return CORE_RULES.magnetRadius;
+    if (this.retainAbilities && this.form === FORMS.PEGASUS && this.unlockedAbilities.has("horn")) {
+      return CORE_RULES.magnetRadius;
+    }
     return 0;
   }
 
@@ -392,6 +409,9 @@ export class TransformationManager {
   getSnapshot(now) {
     return {
       form: this.form,
+      returnForm: this.returnForm,
+      unlockedAbilities: [...(this.unlockedAbilities ?? [])],
+      retainsMagnet: this.form === FORMS.PEGASUS && this.magnetRadius > 0,
       flightMs: this.flightMs,
       flightMaxMs: CORE_RULES.flightMaxMs,
       guardPhase: this.guardPhase,
@@ -399,6 +419,14 @@ export class TransformationManager {
       guardCooldownRemainingMs: Math.max(0, this.guardCooldownUntil - now),
       alicornRemainingMs: this.form === FORMS.ALICORN ? Math.max(0, this.alicornEndsAt - now) : 0
     };
+  }
+
+  restoreSnapshot(snapshot, now) {
+    this.unlockedAbilities = new Set(snapshot.unlockedAbilities ?? []);
+    this.returnForm = snapshot.returnForm ?? FORMS.BASE;
+    this.flightMs = Math.min(snapshot.flightMs, CORE_RULES.flightMaxMs);
+    this.alicornEndsAt = now + (snapshot.alicornRemainingMs ?? 0);
+    this.setForm(snapshot.form, false);
   }
 
   destroy() {

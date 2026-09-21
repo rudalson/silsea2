@@ -17,6 +17,7 @@ import {
   resolveGateY
 } from "../data/gatePresentation.js";
 import { ITEM_DEFINITIONS } from "../data/items.js";
+import { expandLevelItems, getCheckpointTrigger, getItemTrigger } from "../data/levelInteractions.js";
 import {
   PRANK_GATE_ENCOUNTER_STAGES,
   getPrankGateTiming,
@@ -456,10 +457,36 @@ export class LevelLoader {
         flag.setDepth(3);
         visuals = [pole, flag];
       }
-      const zone = this.scene.add.zone(checkpoint.x, checkpoint.y - 48, 64, 112);
+      const bounds = getCheckpointTrigger(checkpoint);
+      const zone = this.track(this.scene.add.zone(bounds.x, bounds.y, bounds.width, bounds.height));
       this.scene.physics.add.existing(zone, true);
-      this.checkpointZones.push({ zone, data: checkpoint, visuals });
+      const passageVisual = checkpoint.activationTop === undefined ? null
+        : this.createPassageMarker(checkpoint.x, checkpoint.activationTop, checkpoint.y, COLORS.collectBlue);
+      if (checkpoint.restoresHealth) {
+        visuals.unshift(this.track(this.scene.add.text(checkpoint.x, checkpoint.y - 134, "체력 · 비행 회복", {
+          fontFamily: GAME_FONT_FAMILY, fontSize: "17px", color: CSS_COLORS.white,
+          stroke: CSS_COLORS.panel, strokeThickness: 4
+        }).setOrigin(0.5).setDepth(4)));
+      }
+      this.checkpointZones.push({ zone, data: checkpoint, visuals, passageVisual });
     }
+  }
+
+  createPassageMarker(x, top, bottom, color, label = null) {
+    const marker = this.track(this.scene.add.container(0, 0).setDepth(2));
+    const beam = this.scene.add.graphics();
+    beam.fillStyle(color, 0.08).fillRect(x - 24, top, 48, bottom - top);
+    beam.lineStyle(2, color, 0.3);
+    beam.lineBetween(x - 24, top, x - 24, bottom);
+    beam.lineBetween(x + 24, top, x + 24, bottom);
+    marker.add(beam);
+    if (label) {
+      marker.add(this.scene.add.text(x, bottom - 132, label, {
+        fontFamily: GAME_FONT_FAMILY, fontSize: "16px", color: CSS_COLORS.white,
+        stroke: CSS_COLORS.panel, strokeThickness: 4
+      }).setOrigin(0.5));
+    }
+    return marker;
   }
 
   createItemMarkers() {
@@ -499,31 +526,20 @@ export class LevelLoader {
       return [glow, marker];
     };
 
-    const register = (id, type, x, y, visuals) => {
-      const zone = this.track(this.scene.add.zone(x, y, 48, 48));
+    const register = (item, visuals) => {
+      const { id, type, x, y } = item;
+      const bounds = getItemTrigger(item);
+      const zone = this.track(this.scene.add.zone(bounds.x, bounds.y, bounds.width, bounds.height));
       this.scene.physics.add.existing(zone, true);
-      const collectible = { id, type, x, y, zone, visuals, active: true, magnetizing: false };
+      const passageVisual = item.activationTop === undefined ? null
+        : this.createPassageMarker(x, item.activationTop, y + 44, ITEM_DEFINITIONS[type].color, "빛기둥을 지나면 변신!");
+      const collectible = { id, type, x, y, zone, visuals, passageVisual, active: true, magnetizing: false };
       this.collectibles.push(collectible);
       return collectible;
     };
 
-    for (const item of this.level.items) {
-      if (item.type === "star") {
-        register(item.id, "star", item.x, item.y, createVisuals("star", item.x, item.y));
-        continue;
-      }
-      if (item.type === "star_arc") {
-        for (let index = 0; index < item.count; index += 1) {
-          const angle = Math.PI + (Math.PI * index) / Math.max(1, item.count - 1);
-          const x = item.x + Math.cos(angle) * item.radius;
-          const y = item.y + Math.sin(angle) * item.radius;
-          register(`${item.id}-${index}`, "star", x, y, createVisuals("star", x, y));
-        }
-        continue;
-      }
-
-      const visualY = item.y - 44;
-      register(item.id, item.type, item.x, visualY, createVisuals(item.type, item.x, visualY));
+    for (const item of expandLevelItems(this.level.items)) {
+      register(item, createVisuals(item.type, item.x, item.y));
     }
   }
 

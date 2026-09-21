@@ -92,5 +92,21 @@ export function assertLevelShape(level) {
 
   assertGatePresentationShape(level);
 
+  if (level.progression?.retainAbilities !== undefined && typeof level.progression.retainAbilities !== "boolean") {
+    throw new Error(`[${level.id}] progression.retainAbilities는 boolean이어야 합니다.`);
+  }
+  for (const [kind, entries] of [["item", level.items ?? []], ["checkpoint", level.checkpoints ?? []]]) {
+    for (const entry of entries) {
+      if (entry.activationTop === undefined) continue;
+      const bottom = entry.y + (kind === "item" ? -20 : 8);
+      if (!Number.isFinite(entry.activationTop) || entry.activationTop < 0 || entry.activationTop >= bottom) {
+        throw new Error(`[${level.id}] ${kind} ${entry.id} activationTop 범위가 잘못되었습니다.`);
+      }
+      if (kind === "item" && !["horn", "wings", "alicorn"].includes(entry.type)) {
+        throw new Error(`[${level.id}] 통과 획득은 변신 아이템에만 사용할 수 있습니다.`);
+      }
+    }
+  }
+
   return true;
 }
