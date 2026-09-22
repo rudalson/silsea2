@@ -77,7 +77,7 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 
 | 필드 | 규칙 |
 |---|---|
-| `progression.retainAbilities` | boolean, 기본 false. true이면 획득한 뿔·날개 능력을 함께 유지하며 피버 종료·레벨 데이터 다시 읽기에도 복원한다. 현재 스테이지 1만 사용한다. |
+| `progression.retainAbilities` | boolean, 기본 false. true이면 획득한 뿔·날개 능력을 함께 유지하며 피버 종료·레벨 데이터 다시 읽기에도 복원한다. 현재 스테이지 1~5가 사용한다. |
 | `items[].activationTop` | 뿔·날개·알리콘에만 허용. 수집 영역의 월드 y 상단이며 `0 <= 값 < item.y - 20`. 폭 48px, 하단은 `item.y - 20`. |
 | `checkpoints[].activationTop` | 체크포인트 감지 영역의 월드 y 상단이며 `0 <= 값 < checkpoint.y + 8`. 폭 64px, 복귀 좌표는 기존 `x,y`를 사용한다. |
 

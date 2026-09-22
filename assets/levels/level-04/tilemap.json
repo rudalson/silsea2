@@ -8,20 +8,48 @@
       "id": 1,
       "name": "terrain",
       "properties": [
-        { "name": "groundSurface", "type": "string", "value": "shallow_water" },
-        { "name": "platformSurface", "type": "string", "value": "wood" }
+        {
+          "name": "groundSurface",
+          "type": "string",
+          "value": "shallow_water"
+        },
+        {
+          "name": "platformSurface",
+          "type": "string",
+          "value": "wood"
+        }
       ],
       "objects": [
-        { "height": 192, "id": 1, "name": "hula_boss_ground", "properties": [{ "name": "surface", "type": "string", "value": "stone" }], "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 0, "y": 576 },
-        { "height": 192, "id": 2, "name": "village_ground", "rotation": 0, "type": "ground", "visible": true, "width": 8192, "x": 2048, "y": 576 },
-        { "height": 48, "id": 3, "name": "intro_hill_roof", "rotation": 0, "type": "platform", "visible": true, "width": 288, "x": 9248, "y": 416 },
-        { "height": 48, "id": 4, "name": "hill_roof", "rotation": 0, "type": "platform", "visible": true, "width": 288, "x": 8000, "y": 384 },
-        { "height": 48, "id": 5, "name": "house_a_roof", "rotation": 0, "type": "platform", "visible": true, "width": 352, "x": 6496, "y": 336 },
-        { "height": 48, "id": 6, "name": "house_b_roof", "rotation": 0, "type": "platform", "visible": true, "width": 352, "x": 5312, "y": 320 },
-        { "height": 48, "id": 7, "name": "high_step_1", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 4512, "y": 512 },
-        { "height": 48, "id": 8, "name": "high_step_2", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 4256, "y": 448 },
-        { "height": 48, "id": 9, "name": "high_step_3", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 4000, "y": 384 },
-        { "height": 48, "id": 10, "name": "high_shelter", "rotation": 0, "type": "platform", "visible": true, "width": 320, "x": 3584, "y": 320 }
+        {"height":192,"id":1,"name":"hula_boss_ground","properties":[{"name":"surface","type":"string","value":"stone"}],"rotation":0,"type":"ground","visible":true,"width":2048,"x":0,"y":576},
+        {"height":192,"id":2,"name":"village_ground","rotation":0,"type":"ground","visible":true,"width":8192,"x":14336,"y":576},
+        {"height":48,"id":3,"name":"intro_hill_roof","rotation":0,"type":"platform","visible":true,"width":288,"x":21536,"y":416},
+        {"height":48,"id":4,"name":"hill_roof","rotation":0,"type":"platform","visible":true,"width":288,"x":20288,"y":384},
+        {"height":48,"id":5,"name":"house_a_roof","rotation":0,"type":"platform","visible":true,"width":352,"x":18784,"y":336},
+        {"height":48,"id":6,"name":"house_b_roof","rotation":0,"type":"platform","visible":true,"width":352,"x":17600,"y":320},
+        {"height":48,"id":7,"name":"high_step_1","rotation":0,"type":"platform","visible":true,"width":224,"x":16800,"y":512},
+        {"height":48,"id":8,"name":"high_step_2","rotation":0,"type":"platform","visible":true,"width":224,"x":16544,"y":448},
+        {"height":48,"id":9,"name":"high_step_3","rotation":0,"type":"platform","visible":true,"width":224,"x":16288,"y":384},
+        {"height":48,"id":10,"name":"high_shelter","rotation":0,"type":"platform","visible":true,"width":320,"x":15872,"y":320},
+        {"name":"shelter_relay_floor","x":11264,"y":576,"width":3072,"height":192,"type":"ground","rotation":0,"visible":true,"id":11},
+        {"name":"shelter_relay_step","x":13600,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":12},
+        {"name":"shelter_relay_upper","x":13280,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":13},
+        {"name":"shelter_relay_roof_step","x":12720,"y":512,"width":160,"height":64,"type":"ground","rotation":0,"visible":true,"id":14},
+        {"name":"shelter_relay_roof_bonus","x":12512,"y":416,"width":176,"height":32,"type":"platform","rotation":0,"visible":true,"id":15},
+        {"name":"roof_escape_floor","x":8192,"y":576,"width":3072,"height":192,"type":"ground","rotation":0,"visible":true,"id":16},
+        {"name":"roof_escape_step","x":10528,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":17},
+        {"name":"roof_escape_upper","x":10208,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":18},
+        {"name":"roof_escape_roof_step","x":9648,"y":512,"width":160,"height":64,"type":"ground","rotation":0,"visible":true,"id":19},
+        {"name":"roof_escape_roof_bonus","x":9440,"y":416,"width":176,"height":32,"type":"platform","rotation":0,"visible":true,"id":20},
+        {"name":"wave_crossing_floor","x":5120,"y":576,"width":3072,"height":192,"type":"ground","rotation":0,"visible":true,"id":21},
+        {"name":"wave_crossing_step","x":7456,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":22},
+        {"name":"wave_crossing_upper","x":7136,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":23},
+        {"name":"wave_crossing_roof_step","x":6576,"y":512,"width":160,"height":64,"type":"ground","rotation":0,"visible":true,"id":24},
+        {"name":"wave_crossing_roof_bonus","x":6368,"y":416,"width":176,"height":32,"type":"platform","rotation":0,"visible":true,"id":25},
+        {"name":"village_finale_floor","x":2048,"y":576,"width":3072,"height":192,"type":"ground","rotation":0,"visible":true,"id":26},
+        {"name":"village_finale_step","x":4384,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":27},
+        {"name":"village_finale_upper","x":4064,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":28},
+        {"name":"village_finale_roof_step","x":3504,"y":512,"width":160,"height":64,"type":"ground","rotation":0,"visible":true,"id":29},
+        {"name":"village_finale_roof_bonus","x":3296,"y":416,"width":176,"height":32,"type":"platform","rotation":0,"visible":true,"id":30}
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -31,7 +59,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 11,
+  "nextobjectid": 31,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -40,5 +68,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 160
+  "width": 352
 }

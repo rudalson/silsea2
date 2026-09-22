@@ -1,10 +1,11 @@
 import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+import { expandCampaignLevel } from "./campaignExpansion.js";
 
 const tilemapUrl = new URL("../../../assets/levels/level-04/tilemap.json", import.meta.url).href;
 export const P10_HULA_BOSS_ROOM_WIDTH = 2048;
 const shifted = (x) => x + P10_HULA_BOSS_ROOM_WIDTH;
 
-export default {
+export default expandCampaignLevel({
   schemaVersion: 2,
   id: "level-04",
   name: "쓰나미 마을",
@@ -96,11 +97,16 @@ export default {
     { id: "e_tsunami_exit", type: "raw_potato", x: shifted(768), y: 576, patrol: 96 }
   ],
   items: [
+    { id: "tsunami_horn", type: "horn", x: shifted(7808), y: 576, activationTop: 0 },
+    { id: "tsunami_wings", type: "wings", x: shifted(768), y: 576, activationTop: 0 },
+    ...[6912, 6720, 5824, 5120, 4096, 3008, 1024, 768].map((x, index) => ({
+      id: `tsunami_trail_${index}`, type: "star_arc", x: shifted(x), y: 496, count: 7, radius: 96
+    })),
     { id: "tsunami_intro_arc", type: "star_arc", x: shifted(7680), y: 458, count: 7, radius: 116 },
     { id: "tsunami_hill_arc_a", type: "star_arc", x: shifted(6400), y: 438, count: 7, radius: 120 },
     { id: "tsunami_hill_reward", type: "percent_small", x: shifted(5504), y: 480 },
-    { id: "tsunami_house_arc_a", type: "star_arc", x: shifted(4608), y: 420, count: 7, radius: 116 },
-    { id: "tsunami_house_arc_b", type: "star_arc", x: shifted(3376), y: 408, count: 7, radius: 120 },
+    { id: "tsunami_house_arc_a", type: "star_arc", x: shifted(4608), y: 520, count: 7, radius: 104 },
+    { id: "tsunami_house_arc_b", type: "star_arc", x: shifted(3376), y: 520, count: 7, radius: 104 },
     { id: "tsunami_high_arc", type: "star_arc", x: shifted(1728), y: 244, count: 7, radius: 116 },
     { id: "tsunami_high_secret_reward", type: "percent_large", x: shifted(1728), y: 288 },
     { id: "tsunami_exit_reward", type: "percent_large", x: shifted(640), y: 480 }
@@ -125,7 +131,7 @@ export default {
   },
   hazards: [
     { id: "tsunami_thorn_hill", type: "spike_pumpkin", x: shifted(5632), y: 576 },
-    { id: "tsunami_thorn_high", type: "spike_pumpkin", x: shifted(2688), y: 576 }
+    { id: "tsunami_thorn_high", type: "spike_pumpkin", x: shifted(3008), y: 576 }
   ],
   environment: {
     tsunami: {
@@ -185,4 +191,4 @@ export default {
       pitScoreLoss: 0
     }
   }
-};
+});

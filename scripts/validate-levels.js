@@ -30,7 +30,7 @@ const s6DecorationExpectations = Object.freeze({
   decor_grass: { levelId: "level-01", x: 640, y: 578, flipX: false },
   decor_flower: { levelId: "level-01", x: 3200, y: 578, flipX: false },
   decor_rock: { levelId: "level-03", x: 576, y: 578, flipX: false },
-  decor_sign: { levelId: "level-04", x: 9920, y: 578, flipX: true }
+  decor_sign: { levelId: "level-04", x: 22208, y: 578, flipX: true }
 });
 
 const fail = (level, message) => errors.push(`[${level.id ?? "unknown"}] ${message}`);
@@ -442,7 +442,7 @@ for (const sourceLevel of ALL_LEVELS) {
   if (tilemap.height * tilemap.tileheight !== level.world.height) fail(level, "tilemap 높이와 world.height 불일치");
   const terrainLayer = getTerrainLayer(tilemap);
   const terrain = terrainLayer?.objects ?? [];
-  if (level.id === "level-01") {
+  if (["level-01", "level-02", "level-03", "level-04", "level-05"].includes(level.id)) {
     for (const issue of findLayoutIssues(level, terrain)) fail(level, issue);
   }
   if (tilemap.width * tilemap.tilewidth !== level.world.width) fail(level, "tilemap 폭과 world.width가 다름");
@@ -514,9 +514,9 @@ for (const sourceLevel of ALL_LEVELS) {
   }
 
   if (level.id === "level-04") {
-    const shift = 2048;
+    const shift = 14336;
     const hulaSection = level.sections.find(({ id }) => id === "boss_hula");
-    if (!hulaSection || hulaSection.xStart !== 0 || hulaSection.xEnd !== shift) fail(level, "P10 훌라후프 보스룸이 0~2048이 아님");
+    if (!hulaSection || hulaSection.xStart !== 0 || hulaSection.xEnd !== 2048) fail(level, "P10 훌라후프 보스룸이 0~2048이 아님");
     if (hulaSection?.boss?.key !== "hula_king") fail(level, "P10 boss key가 hula_king이 아님");
     if (!hulaSection?.boss?.environment?.suspend?.includes("tsunami")) fail(level, "P10 보스룸에서 쓰나미가 정지되지 않음");
     if (level.world.width !== 8192 + shift || level.player.spawn.x !== 8000 + shift) fail(level, "P10 world/player 좌표 이동 누락");
@@ -524,7 +524,7 @@ for (const sourceLevel of ALL_LEVELS) {
       [level.checkpoints.find(({ id }) => id === "cp_tsunami_exit")?.x, 1024 + shift, "checkpoint"],
       [level.enemies.find(({ id }) => id === "e_tsunami_hill")?.x, 6480 + shift, "enemy"],
       [level.items.find(({ id }) => id === "tsunami_house_arc_b")?.x, 3376 + shift, "item"],
-      [level.hazards.find(({ id }) => id === "tsunami_thorn_high")?.x, 2688 + shift, "hazard"],
+      [level.hazards.find(({ id }) => id === "tsunami_thorn_high")?.x, 3008 + shift, "hazard"],
       [level.environment.tsunami.shelters.find(({ id }) => id === "shelter_house_a")?.xStart, 4448 + shift, "shelter"],
       [level.cameraCues.find(({ id }) => id === "cue_high_shelter")?.targetX, 896 + shift, "camera cue"],
       [level.difficulty.easyMode.extraCheckpoints.find(({ id }) => id === "cp_easy_high")?.x, 2176 + shift, "easy checkpoint"],
@@ -535,14 +535,14 @@ for (const sourceLevel of ALL_LEVELS) {
     }
   }
   if (level.id === "level-02") {
-    const originalWidth = 6144;
+    const originalWidth = 16384;
     const roomWidth = 2048;
     const randomSection = level.sections.find(({ id }) => id === "boss_random");
     if (!randomSection || randomSection.xStart !== originalWidth || randomSection.xEnd !== originalWidth + roomWidth) {
-      fail(level, "P13 랜덤대왕 보스룸이 기존 코스 오른쪽 6144~8192에 있지 않음");
+      fail(level, "랜덤대왕 보스룸은 확장 필드 끝 16384~18432여야 함");
     }
     if (randomSection?.boss?.key !== "random_king") fail(level, "P13 boss key가 random_king이 아님");
-    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 8016) {
+    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 18256) {
       fail(level, "P13 world/exit 확장 누락");
     }
     if (level.checkpoints.find(({ id }) => id === "cp_random_ready")?.restoresHealth !== true) {
@@ -579,14 +579,14 @@ for (const sourceLevel of ALL_LEVELS) {
     }
   }
   if (level.id === "level-03") {
-    const originalWidth = 7168;
+    const originalWidth = 18432;
     const roomWidth = 2048;
     const invisibleSection = level.sections.find(({ id }) => id === "boss_invisible");
     if (!invisibleSection || invisibleSection.xStart !== originalWidth || invisibleSection.xEnd !== originalWidth + roomWidth) {
-      fail(level, "P11 투명 대왕 보스룸이 기존 코스 오른쪽 7168~9216에 있지 않음");
+      fail(level, "투명 대왕 보스룸은 확장 필드 끝 18432~20480여야 함");
     }
     if (invisibleSection?.boss?.key !== "invisible_king") fail(level, "P11 boss key가 invisible_king이 아님");
-    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 9040) fail(level, "P11 world/exit 확장 누락");
+    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 20304) fail(level, "P11 world/exit 확장 누락");
     if (level.checkpoints.find(({ id }) => id === "cp_invisible_ready")?.restoresHealth !== true) {
       fail(level, "P11 보스 직전 완전 회복 체크포인트가 없음");
     }
@@ -622,14 +622,14 @@ for (const sourceLevel of ALL_LEVELS) {
     if (bossGuides.filter(({ kind }) => kind === "beacon").length < 3) fail(level, "P11 보스룸 광원 비콘이 3개 미만");
   }
   if (level.id === "level-05") {
-    const originalWidth = 8192;
+    const originalWidth = 22528;
     const roomWidth = 2048;
     const waterSection = level.sections.find(({ id }) => id === "boss_water");
     if (!waterSection || waterSection.xStart !== originalWidth || waterSection.xEnd !== originalWidth + roomWidth) {
-      fail(level, "P12 물대왕 보스룸이 기존 코스 오른쪽 8192~10240에 있지 않음");
+      fail(level, "물대왕 보스룸은 확장 필드 끝 22528~24576여야 함");
     }
     if (waterSection?.boss?.key !== "water_king") fail(level, "P12 boss key가 water_king이 아님");
-    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 10064) {
+    if (level.world.width !== originalWidth + roomWidth || level.exit.x !== 24400) {
       fail(level, "P12 world/exit 확장 누락");
     }
     const ready = level.checkpoints.find(({ id }) => id === "cp_water_ready");

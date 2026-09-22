@@ -1,10 +1,11 @@
 import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+import { expandCampaignLevel } from "./campaignExpansion.js";
 
 const tilemapUrl = new URL("../../../assets/levels/level-03/tilemap.json", import.meta.url).href;
 
 export const P11_INVISIBLE_BOSS_ROOM_WIDTH = 2048;
 
-export default {
+export default expandCampaignLevel({
   schemaVersion: 2,
   id: "level-03",
   name: "안개 골짜기",
@@ -104,6 +105,12 @@ export default {
     { id: "e_mist_recovery", type: "raw_potato", x: 6656, y: 576, patrol: 112 }
   ],
   items: [
+    { id: "mist_horn", type: "horn", x: 576, y: 576, activationTop: 0 },
+    { id: "mist_intro_trail", type: "star_arc", x: 1280, y: 496, count: 8, radius: 120 },
+    { id: "mist_landing_trail", type: "star_arc", x: 2368, y: 496, count: 8, radius: 112 },
+    { id: "mist_practice_trail", type: "star_arc", x: 3104, y: 496, count: 7, radius: 104 },
+    { id: "mist_application_trail", type: "star_arc", x: 4704, y: 496, count: 8, radius: 112 },
+    { id: "mist_wings", type: "wings", x: 6880, y: 576, activationTop: 0 },
     { id: "mist_first_star", type: "star", x: 384, y: 496 },
     { id: "mist_intro_arc", type: "star_arc", x: 960, y: 430, count: 7, radius: 122 },
     { id: "mist_practice_arc", type: "star_arc", x: 1920, y: 374, count: 8, radius: 128 },
@@ -197,8 +204,8 @@ export default {
   difficulty: {
     easyMode: {
       extraCheckpoints: [
-        { id: "cp_easy_application", x: 4544, y: 576 },
-        { id: "cp_easy_combination", x: 6272, y: 576 }
+        { id: "cp_easy_application", x: 4576, y: 576 },
+        { id: "cp_easy_combination", x: 6304, y: 576 }
       ],
       removeEnemies: ["e_mist_application"],
       player: { extraHp: 1, flightDrainMultiplier: 0.75 },
@@ -208,4 +215,4 @@ export default {
       pitScoreLoss: 0
     }
   }
-};
+});

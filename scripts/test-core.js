@@ -476,18 +476,18 @@ assert.equal(getCameraLookAheadTarget(180, 150), -150);
 assert.equal(getCameraLookAheadTarget(-180, 150), 150);
 assert.equal(getCameraLookAheadTarget(35, 150), 0);
 const level02Archers = level02.enemies.filter(({ type }) => type === "potato_archer");
-assert.equal(level02Archers.length, 3);
+assert.equal(level02Archers.length, 7);
 assert.equal(level02Archers[0].oneShot, true);
 assert.ok(level02Archers.every(({ x }) => x > 2496), "궁수는 날개 획득 뒤에만 배치해야 함");
 assert.ok(level02Archers.every(({ x }) => x < 3840 || x >= 4992), "낭떠러지 위에 궁수를 배치하면 안 됨");
 assert.equal(level02.hazards.some(({ id }) => id === "thorn_canopy" || id === "thorn_star_tree"), false);
-assert.equal(level02.environment.lasers.switches.length, 2);
-assert.equal(level02.environment.lasers.beams.length, 2);
+assert.equal(level02.environment.lasers.switches.length, 3);
+assert.equal(level02.environment.lasers.beams.length, 3);
 const level02SwitchIds = new Set(level02.environment.lasers.switches.map(({ id }) => id));
 for (const beam of level02.environment.lasers.beams) {
   assert.ok(level02SwitchIds.has(beam.switchId));
   assert.ok(beam.x >= 4992, "레이저는 낭떠러지 종료 뒤에 배치해야 함");
-  assert.ok(beam.x < 5964, "레이저는 게이트 앞 안전지대를 침범하면 안 됨");
+  assert.ok(beam.x < level02.world.width - 2048 - 256, "레이저는 보스 앞 안전지대를 침범하면 안 됨");
 }
 const normalizedLevel02 = normalizeLevelDefinition(level02);
 const easyLevel02Difficulty = getDifficultySettings(normalizedLevel02, true);
@@ -530,19 +530,19 @@ assert.deepEqual(
   [...new Set(level04.environment.tsunami.shelters.map(({ type }) => type))].sort(),
   ["high", "hill", "house"]
 );
-assert.equal(isInsideShelter({ x: 9392, y: 520 }, level04.environment.tsunami.shelters), true);
-assert.equal(isInsideShelter({ x: 9048, y: 520 }, level04.environment.tsunami.shelters), false);
+assert.equal(isInsideShelter({ x: 21680, y: 520 }, level04.environment.tsunami.shelters), true);
+assert.equal(isInsideShelter({ x: 21336, y: 520 }, level04.environment.tsunami.shelters), false);
 assert.equal(P10_HULA_BOSS_ROOM_WIDTH, 2048);
-assert.equal(level04.world.width, 10240);
-assert.equal(level04.player.spawn.x, 10048);
+assert.equal(level04.world.width, 22528);
+assert.equal(level04.player.spawn.x, 22336);
 const hulaBossSection = level04.sections.find(({ id }) => id === "boss_hula");
 assert.deepEqual(
   { xStart: hulaBossSection.xStart, xEnd: hulaBossSection.xEnd, key: hulaBossSection.boss.key },
   { xStart: 0, xEnd: 2048, key: "hula_king" }
 );
 assert.deepEqual(hulaBossSection.boss.environment.suspend, ["tsunami"]);
-assert.equal(level04.sections.find(({ id }) => id === "tsunami_exit").xStart, 2048);
-assert.equal(level04.checkpoints.find(({ id }) => id === "cp_tsunami_exit").x, 3072);
+assert.equal(level04.sections.find(({ id }) => id === "tsunami_exit").xStart, 14336);
+assert.equal(level04.checkpoints.find(({ id }) => id === "cp_tsunami_exit").x, 15360);
 assert.equal(level04.environment.tsunami.shelters.every(({ xStart }) => xStart >= 2048), true);
 assert.equal(level04.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "hula_king"), true);
 assert.equal(level05.order, 5);
@@ -558,8 +558,8 @@ assert.deepEqual(level05.assets.effects, {
   bubble: "fx_bubble"
 });
 assert.equal(level05.assets.bgm.field, "bgm_submerged");
-assert.equal(level05.environment.waterZones.length, 3);
-assert.equal(level05.environment.breathPoints.length, 4);
+assert.equal(level05.environment.waterZones.length, 7);
+assert.equal(level05.environment.breathPoints.length, 16);
 assert.equal(level05.environment.breath.depleteSeconds, 12);
 assert.equal(level05.environment.breath.refillSeconds, 2);
 assert.equal(level05.environment.breath.damageInterval, 2.5);
@@ -642,8 +642,9 @@ assert.equal(level03.assets.bgm.boss, "bgm_boss");
 assert.equal(getMistZoneAt(639, mistZones), null);
 assert.equal(getMistZoneAt(640, mistZones).id, "mist_intro");
 assert.equal(getMistZoneAt(1664, mistZones).id, "mist_practice");
-assert.equal(getMistZoneAt(7168, mistZones).id, "boss_invisible");
-assert.equal(getMistZoneAt(9216, mistZones), null);
+assert.equal(getMistZoneAt(7168, mistZones).id, "lantern_steps");
+assert.equal(getMistZoneAt(18432, mistZones).id, "boss_invisible");
+assert.equal(getMistZoneAt(20480, mistZones), null);
 assert.deepEqual(resolveMistProfile(mistZones[0]), { density: 0.26, visibilityRadius: 430 });
 const reducedMistProfile = resolveMistProfile(mistZones[0], { reduced: true });
 assert.ok(Math.abs(reducedMistProfile.density - 0.143) < 0.0001);
@@ -869,12 +870,12 @@ assert.equal(canHitHulaKing("vulnerable_rest", true), true);
 assert.equal(canHitHulaKing("vulnerable_rest", false), false);
 
 assert.equal(P11_INVISIBLE_BOSS_ROOM_WIDTH, 2048);
-assert.equal(level03.world.width, 9216);
-assert.equal(level03.exit.x, 9040);
+assert.equal(level03.world.width, 20480);
+assert.equal(level03.exit.x, 20304);
 const invisibleBossSection = level03.sections.find(({ id }) => id === "boss_invisible");
 assert.deepEqual(
   { xStart: invisibleBossSection.xStart, xEnd: invisibleBossSection.xEnd, key: invisibleBossSection.boss.key },
-  { xStart: 7168, xEnd: 9216, key: "invisible_king" }
+  { xStart: 18432, xEnd: 20480, key: "invisible_king" }
 );
 assert.equal(level03.checkpoints.find(({ id }) => id === "cp_invisible_ready")?.restoresHealth, true);
 assert.equal(level03.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "invisible_king"), true);
@@ -914,12 +915,12 @@ assert.equal(canHitInvisibleKing("revealed", true), false);
 assert.equal(canHitInvisibleKing("hidden_memory_window", false), false);
 
 assert.equal(P12_WATER_BOSS_ROOM_WIDTH, 2048);
-assert.equal(level05.world.width, 10240);
-assert.equal(level05.exit.x, 10064);
+assert.equal(level05.world.width, 24576);
+assert.equal(level05.exit.x, 24400);
 const waterBossSection = level05.sections.find(({ id }) => id === "boss_water");
 assert.deepEqual(
   { xStart: waterBossSection.xStart, xEnd: waterBossSection.xEnd, key: waterBossSection.boss.key },
-  { xStart: 8192, xEnd: 10240, key: "water_king" }
+  { xStart: 22528, xEnd: 24576, key: "water_king" }
 );
 assert.equal(level05.checkpoints.find(({ id }) => id === "cp_water_ready")?.restoresBreath, true);
 assert.equal(level05.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "water_king"), true);
@@ -979,12 +980,12 @@ assert.equal(easyRelayLevel.terrainMechanics.crumblePlatforms[0].crumbleDelayMs,
 assert.equal(easyRelayLevel.items, level06.items);
 
 assert.equal(P13_RANDOM_BOSS_ROOM_WIDTH, 2048);
-assert.equal(level02.world.width, 8192);
-assert.equal(level02.exit.x, 8016);
+assert.equal(level02.world.width, 18432);
+assert.equal(level02.exit.x, 18256);
 const randomBossSection = level02.sections.find(({ id }) => id === "boss_random");
 assert.deepEqual(
   { xStart: randomBossSection.xStart, xEnd: randomBossSection.xEnd, key: randomBossSection.boss.key },
-  { xStart: 6144, xEnd: 8192, key: "random_king" }
+  { xStart: 16384, xEnd: 18432, key: "random_king" }
 );
 assert.equal(level02.checkpoints.find(({ id }) => id === "cp_random_ready")?.restoresHealth, true);
 assert.equal(level02.objectives.required.some(({ type, target }) => type === "defeat_boss" && target === "random_king"), true);

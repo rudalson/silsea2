@@ -8,24 +8,54 @@
       "id": 1,
       "name": "terrain",
       "properties": [
-        { "name": "groundSurface", "type": "string", "value": "dirt" },
-        { "name": "platformSurface", "type": "string", "value": "wood" }
+        {
+          "name": "groundSurface",
+          "type": "string",
+          "value": "dirt"
+        },
+        {
+          "name": "platformSurface",
+          "type": "string",
+          "value": "wood"
+        }
       ],
       "objects": [
-        { "height": 192, "id": 1, "name": "moonlit_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1792, "x": 0, "y": 576 },
-        { "height": 48, "id": 2, "name": "moonroot_branch", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 448, "y": 480 },
-        { "height": 48, "id": 3, "name": "high_moonroot_branch", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 960, "y": 416 },
-        { "height": 192, "id": 4, "name": "glow_canopy_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1536, "x": 2304, "y": 576 },
-        { "height": 48, "id": 5, "name": "glow_branch_low", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 2624, "y": 448 },
-        { "height": 48, "id": 6, "name": "glow_branch_high", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 3008, "y": 384 },
-        { "height": 48, "id": 7, "name": "glow_branch_exit", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3456, "y": 448 },
-        { "height": 48, "id": 8, "name": "gap_root_01", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3904, "y": 512 },
-        { "height": 48, "id": 9, "name": "gap_root_02", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 4320, "y": 448 },
-        { "height": 48, "id": 10, "name": "gap_root_03", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 4608, "y": 384 },
-        { "height": 192, "id": 11, "name": "star_tree_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1152, "x": 4992, "y": 576 },
-        { "height": 48, "id": 12, "name": "star_tree_branch_low", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5312, "y": 448 },
-        { "height": 48, "id": 13, "name": "star_tree_branch_high", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 5632, "y": 384 },
-        { "height": 192, "id": 14, "name": "random_boss_ground", "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 6144, "y": 576 }
+        {"height":192,"id":1,"name":"moonlit_ground","rotation":0,"type":"ground","visible":true,"width":1792,"x":0,"y":576},
+        {"height":48,"id":2,"name":"moonroot_branch","rotation":0,"type":"platform","visible":true,"width":192,"x":448,"y":480},
+        {"height":48,"id":3,"name":"high_moonroot_branch","rotation":0,"type":"platform","visible":true,"width":256,"x":960,"y":416},
+        {"height":192,"id":4,"name":"glow_canopy_ground","rotation":0,"type":"ground","visible":true,"width":1536,"x":2304,"y":576},
+        {"height":48,"id":5,"name":"glow_branch_low","rotation":0,"type":"platform","visible":true,"width":192,"x":2624,"y":448},
+        {"height":48,"id":6,"name":"glow_branch_high","rotation":0,"type":"platform","visible":true,"width":256,"x":3008,"y":384},
+        {"height":48,"id":7,"name":"glow_branch_exit","rotation":0,"type":"platform","visible":true,"width":192,"x":3456,"y":448},
+        {"height":48,"id":8,"name":"gap_root_01","rotation":0,"type":"platform","visible":true,"width":192,"x":3904,"y":512},
+        {"height":48,"id":9,"name":"gap_root_02","rotation":0,"type":"platform","visible":true,"width":176,"x":4320,"y":448},
+        {"height":48,"id":10,"name":"gap_root_03","rotation":0,"type":"platform","visible":true,"width":224,"x":4608,"y":384},
+        {"height":192,"id":11,"name":"star_tree_ground","rotation":0,"type":"ground","visible":true,"width":1152,"x":4992,"y":576},
+        {"height":48,"id":12,"name":"star_tree_branch_low","rotation":0,"type":"platform","visible":true,"width":192,"x":5312,"y":448},
+        {"height":48,"id":13,"name":"star_tree_branch_high","rotation":0,"type":"platform","visible":true,"width":192,"x":5632,"y":384},
+        {"height":192,"id":14,"name":"random_boss_ground","rotation":0,"type":"ground","visible":true,"width":2048,"x":16384,"y":576},
+        {"name":"canopy_guard_floor","x":6144,"y":576,"width":2560,"height":192,"type":"ground","rotation":0,"visible":true,"id":15},
+        {"name":"canopy_guard_step","x":6688,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":16},
+        {"name":"canopy_guard_upper","x":6944,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":17},
+        {"name":"branch_crossing_floor_a","x":8704,"y":576,"width":1248,"height":192,"type":"ground","rotation":0,"visible":true,"id":18},
+        {"name":"branch_crossing_floor_b","x":10400,"y":576,"width":864,"height":192,"type":"ground","rotation":0,"visible":true,"id":19},
+        {"name":"branch_crossing_bridge_0","x":10000,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":20},
+        {"name":"branch_crossing_bridge_1","x":10208,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":21},
+        {"name":"branch_crossing_step","x":9248,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":22},
+        {"name":"branch_crossing_upper","x":9504,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":23},
+        {"name":"laser_grove_floor_a","x":11264,"y":576,"width":1248,"height":192,"type":"ground","rotation":0,"visible":true,"id":24},
+        {"name":"laser_grove_floor_b","x":13088,"y":576,"width":736,"height":192,"type":"ground","rotation":0,"visible":true,"id":25},
+        {"name":"laser_grove_bridge_0","x":12560,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":26},
+        {"name":"laser_grove_bridge_1","x":12768,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":27},
+        {"name":"laser_grove_bridge_2","x":12976,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":28},
+        {"name":"laser_grove_step","x":11808,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":29},
+        {"name":"laser_grove_upper","x":12064,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":30},
+        {"name":"starlight_finale_floor_a","x":13824,"y":576,"width":1248,"height":192,"type":"ground","rotation":0,"visible":true,"id":31},
+        {"name":"starlight_finale_floor_b","x":15520,"y":576,"width":864,"height":192,"type":"ground","rotation":0,"visible":true,"id":32},
+        {"name":"starlight_finale_bridge_0","x":15120,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":33},
+        {"name":"starlight_finale_bridge_1","x":15328,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":34},
+        {"name":"starlight_finale_step","x":14368,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":35},
+        {"name":"starlight_finale_upper","x":14624,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":36}
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -35,7 +65,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 15,
+  "nextobjectid": 37,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -44,5 +74,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 128
+  "width": 288
 }

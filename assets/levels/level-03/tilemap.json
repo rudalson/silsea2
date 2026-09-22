@@ -8,25 +8,55 @@
       "id": 1,
       "name": "terrain",
       "properties": [
-        { "name": "groundSurface", "type": "string", "value": "stone" },
-        { "name": "platformSurface", "type": "string", "value": "wood" }
+        {
+          "name": "groundSurface",
+          "type": "string",
+          "value": "stone"
+        },
+        {
+          "name": "platformSurface",
+          "type": "string",
+          "value": "wood"
+        }
       ],
       "objects": [
-        { "height": 192, "id": 1, "name": "mist_intro_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1664, "x": 0, "y": 576 },
-        { "height": 48, "id": 2, "name": "practice_step_low", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 1728, "y": 512 },
-        { "height": 48, "id": 3, "name": "practice_step_high", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 1952, "y": 448 },
-        { "height": 192, "id": 4, "name": "mist_practice_ground", "rotation": 0, "type": "ground", "visible": true, "width": 1280, "x": 2176, "y": 576 },
-        { "height": 48, "id": 5, "name": "application_step_01", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 3520, "y": 512 },
-        { "height": 48, "id": 6, "name": "application_step_02", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 3840, "y": 448 },
-        { "height": 48, "id": 7, "name": "application_step_03", "rotation": 0, "type": "platform", "visible": true, "width": 192, "x": 4160, "y": 512 },
-        { "height": 192, "id": 8, "name": "mist_application_ground", "rotation": 0, "type": "ground", "visible": true, "width": 704, "x": 4544, "y": 576 },
-        { "height": 48, "id": 9, "name": "combination_step_01", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 5312, "y": 512 },
-        { "height": 48, "id": 10, "name": "combination_step_02", "rotation": 0, "type": "platform", "visible": true, "width": 160, "x": 5600, "y": 432 },
-        { "height": 48, "id": 11, "name": "combination_step_03", "rotation": 0, "type": "platform", "visible": true, "width": 176, "x": 5904, "y": 496 },
-        { "height": 192, "id": 12, "name": "mist_recovery_ground", "rotation": 0, "type": "ground", "visible": true, "width": 896, "x": 6272, "y": 576 },
-        { "height": 192, "id": 13, "name": "invisible_boss_ground", "rotation": 0, "type": "ground", "visible": true, "width": 2048, "x": 7168, "y": 576 },
-        { "height": 48, "id": 14, "name": "invisible_left_memory_step", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 7744, "y": 496 },
-        { "height": 48, "id": 15, "name": "invisible_right_memory_step", "rotation": 0, "type": "platform", "visible": true, "width": 224, "x": 8416, "y": 496 }
+        {"height":192,"id":1,"name":"mist_intro_ground","rotation":0,"type":"ground","visible":true,"width":1664,"x":0,"y":576},
+        {"height":48,"id":2,"name":"practice_step_low","rotation":0,"type":"platform","visible":true,"width":160,"x":1728,"y":512},
+        {"height":48,"id":3,"name":"practice_step_high","rotation":0,"type":"platform","visible":true,"width":160,"x":1952,"y":448},
+        {"height":192,"id":4,"name":"mist_practice_ground","rotation":0,"type":"ground","visible":true,"width":1280,"x":2176,"y":576},
+        {"height":48,"id":5,"name":"application_step_01","rotation":0,"type":"platform","visible":true,"width":176,"x":3520,"y":512},
+        {"height":48,"id":6,"name":"application_step_02","rotation":0,"type":"platform","visible":true,"width":192,"x":3840,"y":448},
+        {"height":48,"id":7,"name":"application_step_03","rotation":0,"type":"platform","visible":true,"width":192,"x":4160,"y":512},
+        {"height":192,"id":8,"name":"mist_application_ground","rotation":0,"type":"ground","visible":true,"width":704,"x":4544,"y":576},
+        {"height":48,"id":9,"name":"combination_step_01","rotation":0,"type":"platform","visible":true,"width":176,"x":5312,"y":512},
+        {"height":48,"id":10,"name":"combination_step_02","rotation":0,"type":"platform","visible":true,"width":160,"x":5600,"y":432},
+        {"height":48,"id":11,"name":"combination_step_03","rotation":0,"type":"platform","visible":true,"width":176,"x":5904,"y":496},
+        {"height":192,"id":12,"name":"mist_recovery_ground","rotation":0,"type":"ground","visible":true,"width":896,"x":6272,"y":576},
+        {"height":192,"id":13,"name":"invisible_boss_ground","rotation":0,"type":"ground","visible":true,"width":2048,"x":18432,"y":576},
+        {"height":48,"id":14,"name":"invisible_left_memory_step","rotation":0,"type":"platform","visible":true,"width":224,"x":19008,"y":496},
+        {"height":48,"id":15,"name":"invisible_right_memory_step","rotation":0,"type":"platform","visible":true,"width":224,"x":19680,"y":496},
+        {"name":"lantern_steps_floor","x":7168,"y":576,"width":2816,"height":192,"type":"ground","rotation":0,"visible":true,"id":16},
+        {"name":"lantern_steps_step","x":7712,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":17},
+        {"name":"lantern_steps_upper","x":7968,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":18},
+        {"name":"mist_windway_floor_a","x":9984,"y":576,"width":1248,"height":192,"type":"ground","rotation":0,"visible":true,"id":19},
+        {"name":"mist_windway_floor_b","x":11680,"y":576,"width":1120,"height":192,"type":"ground","rotation":0,"visible":true,"id":20},
+        {"name":"mist_windway_bridge_0","x":11280,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":21},
+        {"name":"mist_windway_bridge_1","x":11488,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":22},
+        {"name":"mist_windway_step","x":10528,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":23},
+        {"name":"mist_windway_upper","x":10784,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":24},
+        {"name":"hidden_crossing_floor_a","x":12800,"y":576,"width":1248,"height":192,"type":"ground","rotation":0,"visible":true,"id":25},
+        {"name":"hidden_crossing_floor_b","x":14624,"y":576,"width":992,"height":192,"type":"ground","rotation":0,"visible":true,"id":26},
+        {"name":"hidden_crossing_bridge_0","x":14096,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":27},
+        {"name":"hidden_crossing_bridge_1","x":14304,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":28},
+        {"name":"hidden_crossing_bridge_2","x":14512,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":29},
+        {"name":"hidden_crossing_step","x":13344,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":30},
+        {"name":"hidden_crossing_upper","x":13600,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":31},
+        {"name":"mist_finale_floor_a","x":15616,"y":576,"width":1248,"height":192,"type":"ground","rotation":0,"visible":true,"id":32},
+        {"name":"mist_finale_floor_b","x":17312,"y":576,"width":1120,"height":192,"type":"ground","rotation":0,"visible":true,"id":33},
+        {"name":"mist_finale_bridge_0","x":16912,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":34},
+        {"name":"mist_finale_bridge_1","x":17120,"y":512,"width":144,"height":32,"type":"platform","rotation":0,"visible":true,"id":35},
+        {"name":"mist_finale_step","x":16160,"y":512,"width":192,"height":64,"type":"ground","rotation":0,"visible":true,"id":36},
+        {"name":"mist_finale_upper","x":16416,"y":416,"width":256,"height":32,"type":"platform","rotation":0,"visible":true,"id":37}
       ],
       "opacity": 1,
       "type": "objectgroup",
@@ -36,7 +66,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 16,
+  "nextobjectid": 38,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -45,5 +75,5 @@
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
-  "width": 144
+  "width": 320
 }

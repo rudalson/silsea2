@@ -1,11 +1,12 @@
 import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+import { expandCampaignLevel } from "./campaignExpansion.js";
 import { createPrankGateEncounter } from "../prankGateEncounter.js";
 
 const tilemapUrl = new URL("../../../assets/levels/level-02/tilemap.json", import.meta.url).href;
 
 export const P13_RANDOM_BOSS_ROOM_WIDTH = 2048;
 
-export default {
+export default expandCampaignLevel({
   schemaVersion: 1,
   id: "level-02",
   name: "별빛 숲",
@@ -162,10 +163,10 @@ export default {
   items: [
     { id: "moonlit_star", type: "star", x: 320, y: 496 },
     { id: "moonlit_arc", type: "star_arc", x: 704, y: 424, count: 8, radius: 132 },
-    { id: "moonlit_horn", type: "horn", x: 1216, y: 496 },
+    { id: "moonlit_horn", type: "horn", x: 1216, y: 576, activationTop: 0 },
     { id: "moonlit_reward", type: "percent_small", x: 1536, y: 496 },
-    { id: "wing_glade", type: "wings", x: 2496, y: 496 },
-    { id: "canopy_arc_low", type: "star_arc", x: 2768, y: 430, count: 10, radius: 148 },
+    { id: "wing_glade", type: "wings", x: 2496, y: 576, activationTop: 0 },
+    { id: "canopy_arc_low", type: "star_arc", x: 2768, y: 408, count: 10, radius: 148 },
     { id: "canopy_arc_high", type: "star_arc", x: 3264, y: 350, count: 10, radius: 134 },
     { id: "canopy_reward", type: "percent_large", x: 3648, y: 376 },
     { id: "gap_arc_01", type: "star_arc", x: 4064, y: 392, count: 9, radius: 130 },
@@ -267,4 +268,4 @@ export default {
     }
   },
   exit: { x: 8016, y: 576, presentation: APPROVED_GROUND_GATE_PRESENTATION }
-};
+});

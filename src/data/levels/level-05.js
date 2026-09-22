@@ -1,9 +1,10 @@
 import { APPROVED_GROUND_GATE_PRESENTATION } from "../gatePresentation.js";
+import { expandCampaignLevel } from "./campaignExpansion.js";
 
 const tilemapUrl = new URL("../../../assets/levels/level-05/tilemap.json", import.meta.url).href;
 export const P12_WATER_BOSS_ROOM_WIDTH = 2048;
 
-export default {
+export default expandCampaignLevel({
   schemaVersion: 2,
   id: "level-05",
   name: "물에 잠긴 마을",
@@ -92,17 +93,25 @@ export default {
   ],
   enemies: [],
   items: [
+    { id: "entry_horn", type: "horn", x: 448, y: 288, activationTop: 0 },
+    { id: "entry_stars", type: "star_arc", x: 640, y: 208, count: 7, radius: 104 },
+    { id: "short_deep_bonus", type: "percent_large", x: 2016, y: 672 },
+    { id: "long_deep_bonus", type: "percent_large", x: 4512, y: 672 },
+    { id: "combined_deep_bonus", type: "percent_large", x: 6752, y: 672 },
+    ...[1800, 4224, 6064, 6944].map((x, index) => ({
+      id: `breathing_reward_${index}`, type: "star_arc", x, y: 216, count: 7, radius: 72
+    })),
     { id: "short_dive_arc", type: "star_arc", x: 1600, y: 644, count: 7, radius: 92 },
     { id: "short_surface_arc", type: "star_arc", x: 2384, y: 470, count: 6, radius: 104 },
     { id: "short_form_reward", type: "horn", x: 2944, y: 288 },
     { id: "long_dive_arc_a", type: "star_arc", x: 3648, y: 648, count: 7, radius: 92 },
     { id: "long_dive_arc_b", type: "star_arc", x: 4352, y: 648, count: 7, radius: 92 },
     { id: "long_surface_arc", type: "star_arc", x: 4864, y: 470, count: 6, radius: 104 },
-    { id: "long_form_reward", type: "wings", x: 5248, y: 288 },
+    { id: "long_form_reward", type: "wings", x: 5248, y: 288, activationTop: 0 },
     { id: "combined_dive_arc_a", type: "star_arc", x: 5760, y: 646, count: 6, radius: 90 },
-    { id: "combined_breath_arc", type: "star_arc", x: 6160, y: 442, count: 5, radius: 88 },
+    { id: "combined_breath_arc", type: "star_arc", x: 6064, y: 442, count: 5, radius: 64 },
     { id: "combined_dive_arc_b", type: "star_arc", x: 6624, y: 646, count: 6, radius: 90 },
-    { id: "sunken_tower_secret_arc", type: "star_arc", x: 7360, y: 372, count: 6, radius: 96 },
+    { id: "sunken_tower_secret_arc", type: "star_arc", x: 7520, y: 208, count: 6, radius: 96 },
     { id: "final_reward", type: "percent_large", x: 7552, y: 288 }
   ],
   secrets: [
@@ -184,4 +193,4 @@ export default {
       pitScoreLoss: 0
     }
   }
-};
+});
