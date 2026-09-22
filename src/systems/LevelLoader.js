@@ -460,33 +460,8 @@ export class LevelLoader {
       const bounds = getCheckpointTrigger(checkpoint);
       const zone = this.track(this.scene.add.zone(bounds.x, bounds.y, bounds.width, bounds.height));
       this.scene.physics.add.existing(zone, true);
-      const passageVisual = checkpoint.activationTop === undefined ? null
-        : this.createPassageMarker(checkpoint.x, checkpoint.activationTop, checkpoint.y, COLORS.collectBlue);
-      if (checkpoint.restoresHealth) {
-        visuals.unshift(this.track(this.scene.add.text(checkpoint.x, checkpoint.y - 134, "체력 · 비행 회복", {
-          fontFamily: GAME_FONT_FAMILY, fontSize: "17px", color: CSS_COLORS.white,
-          stroke: CSS_COLORS.panel, strokeThickness: 4
-        }).setOrigin(0.5).setDepth(4)));
-      }
-      this.checkpointZones.push({ zone, data: checkpoint, visuals, passageVisual });
+      this.checkpointZones.push({ zone, data: checkpoint, visuals });
     }
-  }
-
-  createPassageMarker(x, top, bottom, color, label = null) {
-    const marker = this.track(this.scene.add.container(0, 0).setDepth(2));
-    const beam = this.scene.add.graphics();
-    beam.fillStyle(color, 0.08).fillRect(x - 24, top, 48, bottom - top);
-    beam.lineStyle(2, color, 0.3);
-    beam.lineBetween(x - 24, top, x - 24, bottom);
-    beam.lineBetween(x + 24, top, x + 24, bottom);
-    marker.add(beam);
-    if (label) {
-      marker.add(this.scene.add.text(x, bottom - 132, label, {
-        fontFamily: GAME_FONT_FAMILY, fontSize: "16px", color: CSS_COLORS.white,
-        stroke: CSS_COLORS.panel, strokeThickness: 4
-      }).setOrigin(0.5));
-    }
-    return marker;
   }
 
   createItemMarkers() {
