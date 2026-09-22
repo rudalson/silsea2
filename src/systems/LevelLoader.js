@@ -531,9 +531,7 @@ export class LevelLoader {
       const bounds = getItemTrigger(item);
       const zone = this.track(this.scene.add.zone(bounds.x, bounds.y, bounds.width, bounds.height));
       this.scene.physics.add.existing(zone, true);
-      const passageVisual = item.activationTop === undefined ? null
-        : this.createPassageMarker(x, item.activationTop, y + 44, ITEM_DEFINITIONS[type].color, "빛기둥을 지나면 변신!");
-      const collectible = { id, type, x, y, zone, visuals, passageVisual, active: true, magnetizing: false };
+      const collectible = { id, type, x, y, zone, visuals, active: true, magnetizing: false };
       this.collectibles.push(collectible);
       return collectible;
     };
