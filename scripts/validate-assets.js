@@ -224,9 +224,9 @@ const backgroundAssets = [
   ]),
   // Full-color storybook art retains gradients and alpha; gameplay sprites
   // and the other environment sets still use the restricted palette.
-  { name: "bg_starlight_far", luma: [55, 78], fullColor: true, coverage: [1, 1] },
-  { name: "bg_starlight_mid", luma: [45, 75], fullColor: true, coverage: [0.15, 0.55] },
-  { name: "bg_starlight_near", luma: [45, 75], fullColor: true, coverage: [0.1, 0.31], minimumY: 500 },
+  { name: "bg_starlight_far", luma: [55, 78], fullColor: true, mirrored: true, coverage: [1, 1] },
+  { name: "bg_starlight_mid", luma: [45, 75], fullColor: true, mirrored: true, coverage: [0.15, 0.55] },
+  { name: "bg_starlight_near", luma: [45, 75], fullColor: true, mirrored: true, coverage: [0.1, 0.31], minimumY: 500 },
   { name: "bg_mist_far", luma: [65, 90], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_mist_mid", luma: [55, 80], fullColor: true, mirrored: true, coverage: [0.25, 0.6], minimumY: 300 },
   { name: "bg_mist_near", luma: [45, 80], fullColor: true, mirrored: true, coverage: [0.2, 0.4], minimumY: 430 },
@@ -635,11 +635,19 @@ for (const asset of backgroundAssets) {
     let lumaTotal = 0;
     let firstVisibleY = info.height;
     let seamDelta = 0;
+    let copiedEdgeStripRows = 0;
     for (let y = 0; y < info.height; y += 1) {
       const left = y * info.width * 4;
       const right = (y * info.width + info.width - 1) * 4;
       for (let channel = 0; channel < 4; channel += 1) {
         seamDelta = Math.max(seamDelta, Math.abs(data[left + channel] - data[right + channel]));
+      }
+      if (asset.name.startsWith("bg_starlight_")) {
+        const samePixel = (a, b) => [0, 1, 2, 3].every((channel) => data[a + channel] === data[b + channel]);
+        const innerRight = right - 8;
+        const forcedEdge = samePixel(left, right) && samePixel(left + 4, right - 4);
+        const abruptStrip = [0, 1, 2, 3].some((channel) => Math.abs(data[right - 4 + channel] - data[innerRight + channel]) > 6);
+        if (forcedEdge && abruptStrip) copiedEdgeStripRows += 1;
       }
     }
     for (let index = 0; index < data.length; index += 4) {
@@ -662,6 +670,7 @@ for (const asset of backgroundAssets) {
     // Mirrored repetition joins right/right and left/left, so the opposite
     // edges need not match. Legacy repeatable layers retain that contract.
     if (!asset.mirrored && seamDelta !== 0) errors.push(`${asset.name}.png: 좌우 seam 최대 차이 ${seamDelta}`);
+    if (copiedEdgeStripRows > 20) errors.push(`${asset.name}.png: 반복 배경 안쪽에 복사된 세로 경계 ${copiedEdgeStripRows}행`);
     if (visible) {
       const meanLuma = (lumaTotal / visible) * 100;
       if (meanLuma < asset.luma[0] || meanLuma > asset.luma[1]) {

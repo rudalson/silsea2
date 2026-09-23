@@ -7,6 +7,7 @@ import { buildPotatoArcherAssets } from "./build-potato-archer-assets.js";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = join(root, "assets", "_source", "p6", "p6_combat_devices_color_source.png");
 const alphaSource = join(root, "assets", "_source", "p6", "p6_combat_devices_color_source_alpha.png");
+const storybookLaserSource = join(root, "assets", "_source", "starlight-lasers");
 const frameSize = 128;
 
 const regions = Object.freeze({
@@ -204,6 +205,21 @@ const writeBuffer = async (path, buffer) => {
   await sharp(buffer).png({ compressionLevel: 9 }).toFile(path);
 };
 
+const placeStorybookLaserOnCanvas = async (name, { width, height, maxWidth, maxHeight, bottomPad = 0 }) => {
+  const trimmed = await sharp(join(storybookLaserSource, name))
+    .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png().toBuffer();
+  const metadata = await sharp(trimmed).metadata();
+  const scale = Math.min(maxWidth / metadata.width, maxHeight / metadata.height);
+  const resizedWidth = Math.max(1, Math.round(metadata.width * scale));
+  const resizedHeight = Math.max(1, Math.round(metadata.height * scale));
+  const resized = await sharp(trimmed).resize(resizedWidth, resizedHeight).png().toBuffer();
+  return sharp({
+    create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
+  }).composite([{ input: resized, left: Math.round((width - resizedWidth) / 2), top: height - bottomPad - resizedHeight }])
+    .png({ compressionLevel: 9 }).toBuffer();
+};
+
 const buildSequence = async ({ rootDirectory, prefix, regions: frameRegions, variants, options }) => {
   const frames = [];
   for (let index = 0; index < frameRegions.length; index += 1) {
@@ -262,11 +278,18 @@ const staticSpecs = [
   ["effects/fx_laser_warning.png", regions.warning, { width: 64, height: 256, maxWidth: 54, maxHeight: 248, bottomPad: 4, palette: "device" }],
   ["effects/fx_laser_beam.png", regions.beam, { width: 96, height: 256, maxWidth: 88, maxHeight: 248, bottomPad: 4, palette: "device" }]
 ];
+const storybookLaserFiles = new Set([
+  "laser_emitter.png", "laser_switch_on.png", "laser_switch_off.png", "fx_laser_warning.png", "fx_laser_beam.png"
+]);
 
 const staticOutputs = [];
 for (const [relativePath, region, options] of staticSpecs) {
   const output = join(root, "assets", relativePath);
-  await writeBuffer(output, await placeOnCanvas(region, options));
+  const name = relativePath.split("/").at(-1);
+  const image = storybookLaserFiles.has(name)
+    ? await placeStorybookLaserOnCanvas(name, options)
+    : await placeOnCanvas(region, options);
+  await writeBuffer(output, image);
   staticOutputs.push(output);
 }
 

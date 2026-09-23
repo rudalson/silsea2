@@ -294,11 +294,20 @@ export class LevelLoader {
     const rows = Math.ceil(object.height / tileSize);
     const platform = object.type === "platform";
     const waterFloor = this.level.visualTheme === "submerged-village" && object.name?.includes("_water_floor");
+    // Section boundaries can split one continuous floor into separate physics
+    // objects. Only exposed sides should receive outlined edge tiles.
+    const joins = (edgeX, matches) => this.terrainObjects.some((neighbor) =>
+      neighbor !== object && neighbor.type === object.type
+      && neighbor.y === object.y && neighbor.height === object.height
+      && matches(neighbor, edgeX)
+    );
+    const joinedLeft = joins(object.x, (neighbor, edgeX) => neighbor.x + neighbor.width === edgeX);
+    const joinedRight = joins(object.x + object.width, (neighbor, edgeX) => neighbor.x === edgeX);
 
     for (let row = 0; row < rows; row += 1) {
       for (let column = 0; column < columns; column += 1) {
-        const isLeft = column === 0;
-        const isRight = column === columns - 1;
+        const isLeft = column === 0 && !joinedLeft;
+        const isRight = column === columns - 1 && !joinedRight;
         let frame;
         if (waterFloor) {
           frame = isLeft ? "dirt_left" : isRight ? "dirt_right" : (column * 2 + row) % 5 === 0 ? "dirt_variant" : "dirt";

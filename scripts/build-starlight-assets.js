@@ -11,7 +11,6 @@ const decorationRoot = join(root, "assets", "decorations");
 const referenceRoot = join(root, "references");
 const WIDTH = 2048;
 const HEIGHT = 720;
-const SEAM_COLUMNS = 2;
 
 // Preserve the storybook palette and soft alpha edges; quantizing these
 // illustrations to the old night palette made the entire stage muddy.
@@ -19,18 +18,6 @@ const loadTransparentSource = async (input) => {
   const metadata = await sharp(input).metadata();
   if (!metadata.hasAlpha) throw new Error(`${input}: 실제 알파 채널이 필요합니다`);
   return sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-};
-
-const makeSeamless = (data, width, height) => {
-  const source = Buffer.from(data);
-  for (let offset = 0; offset < SEAM_COLUMNS; offset += 1) {
-    const rightX = width - 1 - offset;
-    for (let y = 0; y < height; y += 1) {
-      const sourceIndex = (y * width + offset) * 4;
-      const targetIndex = (y * width + rightX) * 4;
-      source.copy(data, targetIndex, sourceIndex, sourceIndex + 4);
-    }
-  }
 };
 
 const buildBackgroundLayer = async (name, layer, transparent) => {
@@ -53,7 +40,9 @@ const buildBackgroundLayer = async (name, layer, transparent) => {
     .resize(WIDTH, HEIGHT, { fit: "fill", kernel: sharp.kernel.lanczos3 })
     .raw()
     .toBuffer({ resolveWithObject: true });
-  makeSeamless(data, info.width, info.height);
+  // Runtime alternates normal and horizontally mirrored tiles. Each join
+  // therefore meets the same source edge; copying the opposite edge here
+  // would leave a visible two-pixel vertical strip inside every tile.
   const output = join(backgroundRoot, `${name}.png`);
   await mkdir(dirname(output), { recursive: true });
   await sharp(data, { raw: info }).png({ compressionLevel: 9 }).toFile(output);
