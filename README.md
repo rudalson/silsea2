@@ -59,7 +59,7 @@ npm run preview
 - 무보스 `level-06`은 세 변신 코스를 잇는 릴레이이며, 기본 점프나 보조 발판으로 공중 게이트에 들어가 마무리합니다. `level-02`의 장난 게이트는 가까이 가면 무해하게 사라지고 진행도를 바꾸지 않습니다.
 - 최고 점수와 달성 목표는 브라우저 `localStorage`의 `silsea:progress:v1`에 저장됩니다. 저장소 사용이 차단되면 현재 탭의 메모리 상태로 계속 플레이합니다.
 
-더 자세한 규칙은 [GAME_DESIGN.md](./GAME_DESIGN.md), 레벨 데이터 규격은 [LEVEL_SCHEMA.md](./LEVEL_SCHEMA.md), 현재 진행 상태는 [ROADMAP.md](./ROADMAP.md)를 참고합니다.
+더 자세한 규칙은 [GAME_DESIGN.md](./GAME_DESIGN.md), 레벨 데이터 규격은 [LEVEL_SCHEMA.md](./LEVEL_SCHEMA.md), 개발 역사와 마일스톤은 [공식 개발 위키](./wiki/Home.md) 및 [ROADMAP.md](./docs/archive/ROADMAP.md)를 참고합니다.
 
 ## 플레이테스트 기록
 
@@ -73,7 +73,7 @@ http://localhost:5173/?playtest=1&tester=child-03&level=level-05&easy=1&effects=
 
 플레이 중 구간별 체류시간, 피격, HP 손실, 추락, 체크포인트와 부활 좌표, 쓰나미 피격, 숨 0 도달, 투사체 방어, 비밀 공간 발견, 보스 key·phase별 체류시간·실패 밟기·유효 타격·보스방 HP 손실·랜덤 결과와 20초 이상 진행하지 못한 위치가 자동 기록됩니다. 클리어 화면에서 `E` 또는 결과 저장 버튼을 누르면 현재 브라우저에 저장된 최근 24개 세션과 분석 결과를 JSON으로 내려받습니다.
 
-분석 결과는 서로 다른 테스트 ID 3명의 완주 기록이 모였는지, 두 명 이상이 같은 구간에서 피격·추락·정체했는지, 일반 모드 6~9분과 쉬운 모드 5~8분 범위를 충족했는지, 모드별 평균 HP 손실과 보스별 평균·phase 시간·타격·실패·HP 손실을 표시합니다. 다른 장치에서 받은 JSON은 `npm run playtest:analyze -- <파일...>`로 합쳐 분석할 수 있습니다. 기록은 브라우저 `localStorage`의 `silsea:playtests:v2`에만 저장되며 외부로 전송되지 않습니다. 기존 v1 기록은 읽을 때 함께 병합합니다. 현재 3인×5레벨 실행 절차는 [최종 플레이테스트 가이드](./references/FINAL_PLAYTEST_GUIDE.md), 기록 양식은 [최종 관찰표](./references/FINAL_PLAYTEST_OBSERVATION_SHEET.md)를 따릅니다.
+분석 결과는 서로 다른 테스트 ID 3명의 완주 기록이 모였는지, 두 명 이상이 같은 구간에서 피격·추락·정체했는지, 일반 모드 6~9분과 쉬운 모드 5~8분 범위를 충족했는지, 모드별 평균 HP 손실과 보스별 평균·phase 시간·타격·실패·HP 손실을 표시합니다. 다른 장치에서 받은 JSON은 `npm run playtest:analyze -- <파일...>`로 합쳐 분석할 수 있습니다. 기록은 브라우저 `localStorage`의 `silsea:playtests:v2`에만 저장되며 외부로 전송되지 않습니다. 기존 v1 기록은 읽을 때 함께 병합합니다. 현재 3인×5레벨 실행 절차는 [최종 플레이테스트 가이드](./docs/archive/reviews/FINAL_PLAYTEST_GUIDE.md), 기록 양식은 [최종 관찰표](./docs/archive/reviews/FINAL_PLAYTEST_OBSERVATION_SHEET.md)를 따릅니다.
 
 현재 확장 P1의 공용 환경 기술은 개발 전용 시험 코스에서 확인할 수 있습니다. 이 코스는 스테이지 선택과 저장 진행도에는 나타나지 않습니다.
 
@@ -88,9 +88,9 @@ http://localhost:5173/?p1test=1&debug=1
 
 ## 검증
 
-스테이지 2~5의 거리·보상·후반 코스 조정은 [캠페인 밸런스 기록](./CAMPAIGN_BALANCE.md)에 정리했습니다. `npm test`는 양 난이도의 배치 안전성과 거리·보상 증가, 수중 호흡 간격, 데이터와 충돌 맵 일치도 검사합니다.
+스테이지 2~5의 거리·보상·후반 코스 조정은 [캠페인 밸런스 기록](./docs/archive/CAMPAIGN_BALANCE.md)에 정리했습니다. `npm test`는 양 난이도의 배치 안전성과 거리·보상 증가, 수중 호흡 간격, 데이터와 충돌 맵 일치도 검사합니다.
 
-스테이지 1 배치 개선 내역은 [게임 요소 검토 및 적용 기록](./STAGE1_GAMEPLAY_REVIEW.md)에 정리했습니다. `npm test`에는 아이템과 지형 겹침, 적 순찰 공간, 체크포인트 복귀 위치, 능력 유지 회귀 검사가 포함됩니다.
+스테이지 1 배치 개선 내역은 [게임 요소 검토 및 적용 기록](./docs/archive/STAGE1_GAMEPLAY_REVIEW.md)에 정리했습니다. `npm test`에는 아이템과 지형 겹침, 적 순찰 공간, 체크포인트 복귀 위치, 능력 유지 회귀 검사가 포함됩니다.
 
 개발 서버에서 `/scripts/stage1-runtime.html?visualReview=level-01&section=tutorial&offset=128`을 열고 **런타임 검증 실행**을 누르면 실제 Phaser 충돌과 입력으로 보스 직전까지 검사합니다. `&character=potato89` 또는 `&character=sylvia`, `&easy=1`을 붙여 캐릭터와 난이도를 바꿀 수 있습니다. 이 개발용 페이지는 공중 획득·회복·복귀를 검사한 뒤 레벨을 재시작해 본선을 주행하며, 보스 처치나 사람의 체감 난이도는 평가하지 않습니다.
 
@@ -182,13 +182,36 @@ http://localhost:5173/?fallback=1
 
 이 경계를 먼저 지키면 기존 레벨 파일과 적·보스 데이터는 그대로 재사용할 수 있습니다. 온라인 멀티플레이는 입력 지연, 권한 모델과 상태 동기화가 별도로 필요하므로 로컬 2P와 같은 작업으로 취급하지 않습니다.
 
-## 관련 문서
+## 프로젝트 문서 및 위키 안내
 
-- [ROADMAP.md](./ROADMAP.md): Phase별 진행 상태와 승인 게이트
-- [STAGE_EXPANSION_PLAN.md](./STAGE_EXPANSION_PLAN.md): 별빛 숲 이후 신규 스테이지의 에셋·개발 단계·사용자 확인 게이트
-- [GAME_DESIGN.md](./GAME_DESIGN.md): 게임 규칙과 설계 원칙
-- [LEVEL_SCHEMA.md](./LEVEL_SCHEMA.md): 데이터 기반 레벨 규격
-- [ASSET_LIST.md](./ASSET_LIST.md): 이미지 제작 규격과 에셋 키
-- [AUDIO_LIST.md](./AUDIO_LIST.md): 오디오 키와 재생 규칙
-- [TEST_CHECKLIST.md](./TEST_CHECKLIST.md): 자동·수동·플레이테스트 체크리스트
-- [CREDITS.md](./CREDITS.md): 제작 및 에셋 출처 기록
+### 1. 핵심 활성 문서 (저장소 관리)
+
+코드 개발, 레벨 디자인, 아트 및 테스트 시 상시 참조하는 프로젝트의 필수 기준 문서입니다:
+
+| 문서 | 설명 |
+|---|---|
+| [GAME_DESIGN.md](./GAME_DESIGN.md) | 게임 핵심 룰, 3인 캐릭터, 변신 시스템 및 기믹 명세 |
+| [LEVEL_SCHEMA.md](./LEVEL_SCHEMA.md) | Tiled / JS 레벨 데이터 규격 및 스키마 검증 기준 |
+| [CHARACTER_BIBLE.md](./CHARACTER_BIBLE.md) | 캐릭터 3종 외형, 애니메이션 및 팔레트 규격 |
+| [ART_BIBLE.md](./ART_BIBLE.md) | 2D 셀 카툰 화풍 원칙 및 공용 팔레트 규격 |
+| [ASSET_LIST.md](./ASSET_LIST.md) | 시각 및 오디오 에셋 키와 런타임 파일 매핑 목록 |
+| [AUDIO_LIST.md](./AUDIO_LIST.md) | BGM/SFX 오디오 규격 및 재생 규칙 명세 |
+| [TEST_CHECKLIST.md](./TEST_CHECKLIST.md) | 릴리스 전 자동·수동 및 기기 테스트 체크리스트 |
+| [CREDITS.md](./CREDITS.md) | 제작진 및 서드파티 에셋(Kenney 등) 라이선스 |
+| [AGENTS.md](./AGENTS.md) | 에이전트 작업 지침 및 Conventional Commits 규칙 |
+
+### 2. 공식 개발 위키 (GitHub Wiki)
+
+전체 개발 역사, 마일스톤 완료 이력, 보스/기믹 상세 내역은 `wiki/` 패키지로 체계화되어 있습니다:
+
+- [위키 대문 (Home)](./wiki/Home.md)
+- [개발 로드맵 (Development Roadmap)](./wiki/Development-Roadmap.md)
+- [스테이지 및 보스 확장 역사 (Stage Expansion)](./wiki/Stage-Expansion-History.md)
+- [추가 기능 확장 (Should & Could)](./wiki/Feature-Expansions.md)
+- [품질 및 부하 테스트 보고서 (Performance & Testing)](./wiki/Performance-and-Testing.md)
+- [마일스톤 리뷰 문서 색인 (Reviews Index)](./wiki/Reviews-Index.md)
+- [GitHub Wiki 마이그레이션 가이드](./wiki/WIKI_MIGRATION_GUIDE.md)
+
+### 3. 히스토리 아카이브 (Archived Documents)
+
+마일스톤 완료 후 보관된 과거 계획서 및 단계별 검토 보고서는 [docs/archive/](./docs/archive/) 디렉토리에서 확인할 수 있습니다.
