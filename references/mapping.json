@@ -116,6 +116,7 @@
   "item_percent_large": { "styleRefs": ["mario_1.jpg", "mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "작은 토큰보다 큰 이중 원형 실루엣." },
   "item_horn": { "styleRefs": ["silsea_sprite-Photoroom.png", "mylittlepony1.webp"], "note": "실세아 원안의 뿔과 변신 판독성." },
   "item_wings": { "styleRefs": ["mylittlepony1.webp", "silsea_sprite-Photoroom.png"], "note": "깃털 날개의 판독성과 프로젝트 선 처리." },
+  "fx_pegasus_folded_wing": { "styleRefs": ["mylittlepony1.webp", "silsea_sprite-Photoroom.png"], "note": "페가수스 대기·이동 때 몸통 옆에 붙는 단일 접힌 날개. 비행 프레임과 같은 크림·분홍 깃털 톤." },
   "item_alicorn": { "styleRefs": ["mylittlepony1.webp", "mario_3.jpg", "silsea_sprite-Photoroom.png"], "note": "뿔+날개 결합과 피버 축제감." },
   "checkpoint_flag": { "styleRefs": ["mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "멀리서 읽히는 진행 오브젝트와 프로젝트 선 처리." },
   "rainbow_gate": { "styleRefs": ["mario_2.webp", "mario_3.jpg", "silsea_sprite-Photoroom.png"], "note": "큰 목적지 실루엣과 축제감." },

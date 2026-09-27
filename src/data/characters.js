@@ -24,7 +24,7 @@ const sharedPhysics = Object.freeze({
   displayHeight: 96
 });
 
-const createRenderMetadata = ({ wingsX = -7, wingsY = -61 } = {}) => Object.freeze({
+const createRenderMetadata = ({ wingsX = -6, wingsY = -49 } = {}) => Object.freeze({
   frameWidth: 128,
   frameHeight: 128,
   baselineY: 112,
@@ -36,7 +36,7 @@ const createRenderMetadata = ({ wingsX = -7, wingsY = -61 } = {}) => Object.free
 });
 
 const silseaLikeRender = createRenderMetadata();
-const potatoRender = createRenderMetadata({ wingsX: -5, wingsY: -57 });
+const potatoRender = createRenderMetadata({ wingsX: -5, wingsY: -46 });
 
 const createCharacter = ({
   id,

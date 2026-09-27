@@ -51,9 +51,9 @@ export class TransformationManager {
   }
 
   createVisuals() {
-    this.wings = this.scene.add.image(0, 0, "item_wings")
-      .setDisplaySize(128, 73)
-      .setDepth(9)
+    this.wings = this.scene.add.image(0, 0, "fx_pegasus_folded_wing")
+      .setDisplaySize(48, 36)
+      .setDepth(11)
       .setVisible(false);
     this.guardVisual = this.scene.add.graphics().setDepth(12).setVisible(false);
     this.rainbowOverlay = this.scene.add.rectangle(
@@ -323,8 +323,9 @@ export class TransformationManager {
 
   updateVisualPositions(now) {
     const direction = this.player.flipX ? -1 : 1;
-    const layout = this.player.character.render?.attachments ?? { wingsX: -7, wingsY: -61 };
+    const layout = this.player.character.render?.attachments ?? { wingsX: -6, wingsY: -49 };
     this.wings.setPosition(this.player.x + direction * layout.wingsX, this.player.y + layout.wingsY);
+    this.wings.setFlipX(this.player.flipX);
     if (!this.formVisualTimer) {
       const animationKey = this.player.anims.currentAnim?.key ?? "";
       const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;

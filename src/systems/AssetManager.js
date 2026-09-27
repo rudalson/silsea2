@@ -51,6 +51,7 @@ export class AssetManager {
 
   static queueCharacterAssets(scene, characterId) {
     for (const key of getCharacterAssetKeys(characterId)) AssetManager.queueManifestAsset(scene, key);
+    AssetManager.queueManifestAsset(scene, "fx_pegasus_folded_wing");
   }
 
   static queueEnemyAssets(scene, level) {

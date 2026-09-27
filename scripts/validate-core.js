@@ -252,7 +252,7 @@ if (!transformManager.includes("this.transforming || this.form === FORMS.ALICORN
   fail("변신 정지 중 피격 방지가 연결되지 않음");
 }
 if (transformManager.includes('this.scene.add.image(0, 0, "item_horn")')
-  || !transformManager.includes('this.scene.add.image(0, 0, "item_wings")')
+  || !transformManager.includes('this.scene.add.image(0, 0, "fx_pegasus_folded_wing")')
   || !player.includes("setVisualForm(form)")
   || !characterAnimator.includes("getCharacterAnimationVariants")) {
   fail("유니콘 뿔 프레임 합성 또는 날개 부착물 연결이 올바르지 않음");
