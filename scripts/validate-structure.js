@@ -395,7 +395,7 @@ if (debugTuningPresets.includes("localStorage") || debugPanel.includes("registry
 if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
   fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");
 }
-for (const characterId of ["sylvia"]) {
+for (const characterId of ["sylvia", "sunlight", "moonlight"]) {
   if (!characters.includes(`${characterId}: createCharacter({`)) fail(`C4 캐릭터 데이터 누락: ${characterId}`);
 }
 if (!characters.includes('englishName: "Sylsea"') || !characters.includes('englishName: "Sylvia"')) {
@@ -404,10 +404,10 @@ if (!characters.includes('englishName: "Sylsea"') || !characters.includes('engli
 if (!characterAnimations.includes("CHARACTER_LIST.map") || !assetManager.includes("for (const character of CHARACTER_LIST)")) {
   fail("C4 애니메이션 또는 초상 preload가 CHARACTER_LIST 기반이 아님");
 }
-if (!characterSelection.includes("CHARACTER_SELECT_COLUMNS = 4")
+if (!characterSelection.includes("CHARACTER_SELECT_COLUMNS = 3")
   || !characterSelectScene.includes("getCharacterCardLayout")
   || !characterSelectScene.includes("moveCharacterSelection")) {
-  fail("C4 3인 중앙 정렬 선택 배치 또는 상하좌우 탐색 계약이 없음");
+  fail("캐릭터 3열 중앙 정렬 선택 배치 또는 상하좌우 탐색 계약이 없음");
 }
 if (!characterSelectScene.includes("characterSelectAnnouncement") || !characterSelectScene.includes("englishName")) {
   fail("C4 선택 이름·영문명 접근성 상태가 없음");

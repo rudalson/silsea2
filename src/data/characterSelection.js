@@ -1,4 +1,4 @@
-export const CHARACTER_SELECT_COLUMNS = 4;
+export const CHARACTER_SELECT_COLUMNS = 3;
 
 export const getCharacterCardLayout = (count, {
   gameWidth = 1280,

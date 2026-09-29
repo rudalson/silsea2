@@ -113,7 +113,7 @@ export class TransformationManager {
   syncFormVisuals() {
     const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
     this.player.setVisualForm?.(this.form);
-    this.wings.setVisible(hasWings);
+    this.wings.setVisible(hasWings && !(this.player.usesCharacterArt && this.player.character.render?.integratedWings));
   }
 
   playTransformPresentation(form) {
@@ -329,7 +329,8 @@ export class TransformationManager {
     if (!this.formVisualTimer) {
       const animationKey = this.player.anims.currentAnim?.key ?? "";
       const hasWings = this.form === FORMS.PEGASUS || this.form === FORMS.ALICORN;
-      const integratedWings = animationKey.endsWith(":fly")
+      const integratedWings = (this.player.usesCharacterArt && this.player.character.render?.integratedWings)
+        || animationKey.endsWith(":fly")
         || animationKey.endsWith(":unicorn:fly")
         || animationKey.endsWith(":wing_guard")
         || animationKey.endsWith(":transform_pegasus")

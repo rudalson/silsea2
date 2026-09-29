@@ -242,7 +242,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   setVisualForm(form) {
-    const nextVariant = form === FORMS.UNICORN || form === FORMS.ALICORN ? "unicorn" : "base";
+    const nextVariant = this.character.render?.integratedWings
+      ? (form === FORMS.UNICORN ? "unicorn" : form === FORMS.PEGASUS ? "pegasus" : form === FORMS.ALICORN ? "alicorn" : "base")
+      : (form === FORMS.UNICORN || form === FORMS.ALICORN ? "unicorn" : "base");
     if (nextVariant === this.visualVariant) return;
     this.visualVariant = nextVariant;
     if (!this.currentVisualSequence.startsWith("transform_")) {

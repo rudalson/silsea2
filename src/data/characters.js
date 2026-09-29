@@ -24,7 +24,9 @@ const sharedPhysics = Object.freeze({
   displayHeight: 96
 });
 
-const createRenderMetadata = ({ wingsX = -6, wingsY = -49 } = {}) => Object.freeze({
+const createRenderMetadata = ({ wingsX = -6, wingsY = -49, integratedHorn = false, integratedWings = false } = {}) => Object.freeze({
+  integratedHorn,
+  integratedWings,
   frameWidth: 128,
   frameHeight: 128,
   baselineY: 112,
@@ -37,6 +39,7 @@ const createRenderMetadata = ({ wingsX = -6, wingsY = -49 } = {}) => Object.free
 
 const silseaLikeRender = createRenderMetadata();
 const potatoRender = createRenderMetadata({ wingsX: -5, wingsY: -46 });
+const celestialRender = createRenderMetadata({ integratedWings: true });
 
 const createCharacter = ({
   id,
@@ -106,6 +109,30 @@ export const CHARACTERS = Object.freeze({
     sex: "female",
     color: PALETTE.sylvia[0],
     accent: PALETTE.sylvia[6],
+    stableBody: true,
+    artReady: true
+  }),
+  sunlight: createCharacter({
+    id: "sunlight",
+    name: "선라이트",
+    englishName: "Sunlight",
+    description: "햇살 날개로 용기를 전하는 친구",
+    color: PALETTE.sunlight[0],
+    accent: PALETTE.sunlight[2],
+    selectionSymbol: "sun",
+    render: celestialRender,
+    stableBody: true,
+    artReady: true
+  }),
+  moonlight: createCharacter({
+    id: "moonlight",
+    name: "문라이트",
+    englishName: "Moonlight",
+    description: "수줍지만 강한 초승달의 친구",
+    color: PALETTE.moonlight[0],
+    accent: PALETTE.moonlight[3],
+    selectionSymbol: "moon",
+    render: celestialRender,
     stableBody: true,
     artReady: true
   })

@@ -7,7 +7,7 @@ import {
 export class CharacterAnimationManager {
   static register(scene, character) {
     for (const sequence of getCharacterSequenceNames(character.id)) {
-      for (const variant of getCharacterAnimationVariants()) {
+      for (const variant of getCharacterAnimationVariants(character.id)) {
         const spec = getCharacterAnimationSpec(character.id, sequence, variant);
         if (!spec || !scene.textures.exists(spec.textureKey) || scene.anims.exists(spec.key)) continue;
         scene.anims.create({

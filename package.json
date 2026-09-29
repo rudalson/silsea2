@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "celestial:assets": "node scripts/build-celestial-assets.js",
     "storybook:enemies": "node scripts/build-storybook-enemies.js",
     "storybook:pickups": "node scripts/build-storybook-pickups.js",
     "dev": "vite --host 0.0.0.0",

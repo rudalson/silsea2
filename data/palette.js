@@ -7,6 +7,8 @@ export const PALETTE = {
   shadow: ["#9598A2", "#745767", "#5D4326"],
   // 실비아 전용 다색 팔레트. 실세아의 기존 색상은 유지한다.
   sylvia: ["#D8C5F0", "#A18AC4", "#79639E", "#495077", "#30334F", "#F4ECFF", "#7BDBCF", "#47A9B6", "#80C7F2", "#578BCA", "#AA84DA", "#F2B6D8", "#FFF0A6"],
+  sunlight: ["#FFF3D9", "#F5D5A5", "#FFB94D", "#ED8A3C", "#B96A31", "#704729", "#FFE69A", "#ECA0A0"],
+  moonlight: ["#E9E5FF", "#C2BCEB", "#9991D0", "#737AC8", "#464A8D", "#292C59", "#B5D9FF", "#F7F3FF"],
   highlight: ["#F4FBFD", "#CDE5B9"],
   outline: "#42474E",
   danger: ["#D1333D", "#752B5A"],

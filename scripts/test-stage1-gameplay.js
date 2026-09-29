@@ -130,4 +130,4 @@ assert.ok(firstCloud.triggerX >= firstWind.x + firstWind.width + 160);
 const feverStars = expanded.filter((i) => i.type === "star" && i.x >= 11520 && i.x < 13312).length;
 assert.ok(feverStars >= 24, "fever has sustained collection rewards");
 assert.ok(level.enemies.filter((e) => e.type === "raw_potato" && e.x >= 11808).length >= 3);
-console.log(`Stage 1 gameplay checks passed: ${expanded.filter((i) => i.type === "star").length} stars, ${feverStars} fever stars; 3 characters, both difficulties, progression and respawn.`);
+console.log(`Stage 1 gameplay checks passed: ${expanded.filter((i) => i.type === "star").length} stars, ${feverStars} fever stars; ${CHARACTER_LIST.length} characters, both difficulties, progression and respawn.`);

@@ -1,7 +1,7 @@
 import { CHARACTER_LIST } from "./characters.js";
 
-const createSequenceKeys = (character, unicorn = false) => {
-  const prefix = unicorn ? `${character.id}_unicorn` : character.id;
+const createSequenceKeys = (character, variant = "base") => {
+  const prefix = variant === "base" ? character.id : `${character.id}_${variant}`;
   const keys = {
     idle: `${prefix}_idle`,
     move: `${prefix}_${character.animation.moveSequence}`,
@@ -11,24 +11,28 @@ const createSequenceKeys = (character, unicorn = false) => {
     hurt: `${prefix}_hurt`
   };
   if (character.animation.hasStomp) keys.stomp = `${prefix}_stomp`;
-  if (!unicorn) {
+  if (variant === "base") {
     keys.transform_unicorn = `${prefix}_transform_unicorn`;
     keys.transform_pegasus = `${prefix}_transform_pegasus`;
     keys.transform_alicorn = `${prefix}_transform_alicorn`;
   }
   keys.fly = `${prefix}_fly`;
-  if (!unicorn) keys.wing_guard = `${prefix}_wing_guard`;
+  if (variant === "base") keys.wing_guard = `${prefix}_wing_guard`;
   keys.swim = `${prefix}_swim`;
   keys.victory = `${prefix}_victory`;
   return Object.freeze(keys);
 };
 
-const createCharacterKeyMap = (unicorn = false) => Object.freeze(Object.fromEntries(
-  CHARACTER_LIST.map((character) => [character.id, createSequenceKeys(character, unicorn)])
+const createCharacterKeyMap = (variant = "base") => Object.freeze(Object.fromEntries(
+  CHARACTER_LIST.map((character) => [character.id, createSequenceKeys(character, variant)])
 ));
 
 const CHARACTER_SEQUENCE_KEYS = createCharacterKeyMap();
-const UNICORN_SEQUENCE_KEYS = createCharacterKeyMap(true);
+const UNICORN_SEQUENCE_KEYS = createCharacterKeyMap("unicorn");
+const PEGASUS_SEQUENCE_KEYS = createCharacterKeyMap("pegasus");
+const ALICORN_SEQUENCE_KEYS = createCharacterKeyMap("alicorn");
+const FORM_SEQUENCE_KEYS = { unicorn: UNICORN_SEQUENCE_KEYS, pegasus: PEGASUS_SEQUENCE_KEYS, alicorn: ALICORN_SEQUENCE_KEYS };
+const celestialIds = new Set(["sunlight", "moonlight"]);
 
 const SEQUENCE_TIMINGS = Object.freeze({
   idle: Object.freeze({ durations: [260, 180, 200, 260], repeat: -1 }),
@@ -81,7 +85,10 @@ const SYLVIA_TIMINGS = Object.freeze({
   swim: { durations: [170, 150, 160, 170, 150, 160], repeat: -1 },
   victory: { durations: [180, 160, 160, 180, 220, 700], repeat: -1 }
 });
-const CHARACTER_TIMINGS = { silsea: SILSEA_TIMINGS, potato89: POTATO_TIMINGS, sylvia: SYLVIA_TIMINGS };
+const CHARACTER_TIMINGS = {
+  silsea: SILSEA_TIMINGS, potato89: POTATO_TIMINGS, sylvia: SYLVIA_TIMINGS,
+  sunlight: SILSEA_TIMINGS, moonlight: SYLVIA_TIMINGS
+};
 
 export const getCharacterSequenceKey = (characterId, sequence) =>
   CHARACTER_SEQUENCE_KEYS[characterId]?.[sequence] ?? null;
@@ -92,12 +99,14 @@ export const getCharacterAnimationKey = (characterId, sequence, variant = "base"
     : `character:${characterId}:${variant}:${sequence}`;
 
 export const getCharacterAnimationSpec = (characterId, sequence, variant = "base") => {
-  const variantTextureKey = variant === "unicorn" ? UNICORN_SEQUENCE_KEYS[characterId]?.[sequence] : null;
+  const resolvedVariant = !celestialIds.has(characterId) && variant === "pegasus" ? "base"
+    : !celestialIds.has(characterId) && variant === "alicorn" ? "unicorn" : variant;
+  const variantTextureKey = FORM_SEQUENCE_KEYS[resolvedVariant]?.[characterId]?.[sequence];
   const textureKey = variantTextureKey ?? getCharacterSequenceKey(characterId, sequence);
   const timing = CHARACTER_TIMINGS[characterId]?.[sequence] ?? SEQUENCE_TIMINGS[sequence];
   if (!textureKey || !timing) return null;
   return {
-    key: getCharacterAnimationKey(characterId, sequence, variantTextureKey ? variant : "base"),
+    key: getCharacterAnimationKey(characterId, sequence, variantTextureKey ? resolvedVariant : "base"),
     textureKey,
     durations: timing.durations,
     durationMs: timing.durations.reduce((total, duration) => total + duration, 0),
@@ -108,10 +117,16 @@ export const getCharacterAnimationSpec = (characterId, sequence, variant = "base
 export const getCharacterAssetKeys = (characterId) =>
   [...new Set([
     ...Object.values(CHARACTER_SEQUENCE_KEYS[characterId] ?? {}),
-    ...Object.values(UNICORN_SEQUENCE_KEYS[characterId] ?? {})
+    ...Object.values(UNICORN_SEQUENCE_KEYS[characterId] ?? {}),
+    ...(celestialIds.has(characterId) ? [
+      ...Object.values(PEGASUS_SEQUENCE_KEYS[characterId]),
+      ...Object.values(ALICORN_SEQUENCE_KEYS[characterId])
+    ] : [])
   ])];
 
 export const getCharacterSequenceNames = (characterId) =>
   Object.keys(CHARACTER_SEQUENCE_KEYS[characterId] ?? {});
 
-export const getCharacterAnimationVariants = () => ["base", "unicorn"];
+export const getCharacterAnimationVariants = (characterId) => celestialIds.has(characterId)
+  ? ["base", "unicorn", "pegasus", "alicorn"]
+  : ["base", "unicorn"];

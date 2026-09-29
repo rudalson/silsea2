@@ -468,7 +468,7 @@ try {
     const expectedKeys = new Set(getCharacterAssetKeys(characterId));
     const validatedKeys = new Set();
     for (const sequence of getCharacterSequenceNames(characterId)) {
-      for (const variant of getCharacterAnimationVariants()) {
+      for (const variant of getCharacterAnimationVariants(characterId)) {
         const spec = getCharacterAnimationSpec(characterId, sequence, variant);
         if (!spec || validatedKeys.has(spec.textureKey)) continue;
         validatedKeys.add(spec.textureKey);

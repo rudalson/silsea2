@@ -3,7 +3,7 @@ import sharp from "sharp";
 import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 import { getCharacter } from "../src/data/characters.js";
-import { getCharacterAnimationSpec } from "../src/data/characterAnimations.js";
+import { getCharacterAnimationSpec, getCharacterAnimationVariants, getCharacterSequenceNames } from "../src/data/characterAnimations.js";
 import { CharacterAnimationManager } from "../src/systems/CharacterAnimationManager.js";
 import { PlayerStateMachine } from "../src/systems/PlayerStateMachine.js";
 
@@ -59,7 +59,7 @@ for (const { characterId, eye } of idleCases) for (const prefix of [characterId,
   }
   assert.ok(changedEyePixels > 0, `${prefix} 눈 깜빡임이 있어야 함`);
 }
-for (const id of ["silsea", "potato89", "sylvia"]) {
+for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
   assert.equal(getCharacter(id).animation.stableBody, true, `${id} 점프/착지에서 몸체 크기 보존 필요`);
   assert.equal(getCharacterAnimationSpec(id, "fall").repeat, 0);
   assert.ok(getCharacterAnimationSpec(id, "idle").durationMs >= 3000);
@@ -99,4 +99,35 @@ for (const [characterId, expectedCount] of [["potato89", 66], ["sylvia", 62]]) {
     }
   }
 }
-console.log("캐릭터 애니메이션 회귀 테스트 통과: 대기 픽셀 안정성·눈 깜빡임·점프 접촉·단발 자세 유지·변신 전환");
+for (const id of ["sunlight", "moonlight"]) {
+  const visualForms = [];
+  for (const variant of getCharacterAnimationVariants(id)) {
+    visualForms.push(await sharp(fileURLToPath(new URL(`../assets/characters/${id}/${id}${variant === "base" ? "" : `_${variant}`}_idle.png`, import.meta.url)))
+      .extract({ left: 0, top: 0, width: 128, height: 128 }).raw().toBuffer());
+    for (const sequence of getCharacterSequenceNames(id)) {
+    const spec = getCharacterAnimationSpec(id, sequence, variant);
+    if (!spec || (variant !== "base" && !spec.textureKey.startsWith(`${id}_${variant}_`))) continue;
+    const path = fileURLToPath(new URL(`../assets/characters/${id}/${spec.textureKey}.png`, import.meta.url));
+    const frames = [];
+    for (let i = 0; i < spec.durations.length; i++) {
+      const raw = await sharp(path).extract({ left: i * 128, top: 0, width: 128, height: 128 }).ensureAlpha().raw().toBuffer();
+      frames.push(raw);
+      let opaque = 0, bottom = 0;
+      for (let p = 0; p < raw.length; p += 4) {
+        if (raw[p + 3] < 16) continue;
+        const x = p / 4 % 128, y = Math.floor(p / 4 / 128);
+        assert.ok(x >= 8 && x <= 119 && y >= 2 && y <= 113, `${id}/${sequence}/${i}: 날개·뿔·발 여백`);
+        opaque++;
+        bottom = Math.max(bottom, y);
+      }
+      assert.ok(opaque > 1000, `${id}/${sequence}/${i}: 비어 있는 프레임`);
+      assert.ok(Math.abs(bottom - 111) <= 2, `${id}/${sequence}/${i}: 발 기준선`);
+    }
+    if (sequence === "move" || sequence === "fly") {
+      assert.ok(new Set(frames.map(frame => frame.toString("base64"))).size >= 3, `${id}/${sequence}: 서로 다른 관절 포즈 필요`);
+    }
+    }
+  }
+  assert.equal(new Set(visualForms.map(frame => frame.toString("base64"))).size, 4, `${id}: 기본·뿔·날개·뿔+날개 원화가 각각 달라야 함`);
+}
+console.log("캐릭터 애니메이션 회귀 테스트 통과: 5인 동작·새 캐릭터 투명 여백·날갯짓·대기 픽셀 안정성·변신 전환");
