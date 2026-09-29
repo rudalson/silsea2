@@ -6,6 +6,7 @@ import { PALETTE } from "../data/palette.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = join(root, "assets/_source/celestial-animation");
+const characterIds = process.argv.slice(2).length ? process.argv.slice(2) : ["sunlight", "moonlight"];
 const size = 128;
 const transparent = { r: 0, g: 0, b: 0, alpha: 0 };
 const canvas = (width = size, height = size) => sharp({ create: { width, height, channels: 4, background: transparent } });
@@ -98,7 +99,7 @@ const mappingPath = join(root, "references/mapping.json");
 const mapping = JSON.parse(await readFile(mappingPath, "utf8"));
 const review = [];
 const formReview = [];
-for (const [row, id] of ["sunlight", "moonlight"].entries()) {
+for (const [row, id] of characterIds.entries()) {
   const forms = ["base", "unicorn", "pegasus", "alicorn"];
   const measurements = Object.fromEntries(await Promise.all(forms.map(async form => [form, await readPoses(id, form)])));
   const scale = Math.min(...Object.values(measurements).map(value => value.scale)) * 0.97;
@@ -128,7 +129,7 @@ for (const [row, id] of ["sunlight", "moonlight"].entries()) {
   mapping.$delivery.manifestGroups[`${id}_motion`] = keys;
   mapping[`${id}_motion`] = {
     styleRefs: [`${id}-reference.jpg`],
-    note: `${id === "sunlight" ? "선라이트의 해" : "문라이트의 초승달"} 날개와 뿔을 사용자 손그림에서 반영한 imagegen 원화. 기본·유니콘·페가수스·알리콘 네 형태의 동작 시트.`
+    note: `${({ sunlight: "선라이트의 해", moonlight: "문라이트의 초승달", alora: "알로라의 오로라", oceandream: "오션드림의 바다" })[id]} 색과 분위기를 사용자 손그림에서 반영한 원화. 기본형에는 뿔과 날개가 없고 아이템 형태에만 추가된다. 네 형태의 동작 시트.`
   };
   for (let i = 0; i < 16; i++) review.push({ input: posesByForm.base.poses[i], left: (i % 8) * size, top: (row * 2 + Math.floor(i / 8)) * size });
   for (const [column, form] of forms.entries()) formReview.push({
@@ -141,7 +142,7 @@ if (additions.length) await writeFile(manifestPath, originalManifest.replace(/\s
 // Preserve the compact formatting of the existing mapping; append only new groups.
 const originalMapping = await readFile(mappingPath, "utf8");
 let updatedMapping = originalMapping;
-for (const id of ["sunlight", "moonlight"]) {
+for (const id of characterIds) {
   const key = `${id}_motion`;
   if (!JSON.parse(originalMapping)[key]) {
     updatedMapping = updatedMapping.replace('"manifestGroups": {', `"manifestGroups": {\n      "${key}": ${JSON.stringify(mapping.$delivery.manifestGroups[key])},`);
@@ -153,8 +154,9 @@ for (const id of ["sunlight", "moonlight"]) {
   }
 }
 await writeFile(mappingPath, updatedMapping);
-await sharp({ create: { width: 1024, height: 512, channels: 4, background: "#eeeaf4" } })
-  .composite(review).png().toFile(join(root, "references/celestial-character-poses.png"));
-await sharp({ create: { width: 1024, height: 512, channels: 4, background: "#eeeaf4" } })
-  .composite(formReview).png().toFile(join(root, "references/celestial-character-forms.png"));
-console.log("선라이트·문라이트: 4개 형태별 원화, 80개 런타임 시트 생성 완료");
+const reviewName = characterIds.join("-") === "sunlight-moonlight" ? "celestial-character" : characterIds.join("-");
+await sharp({ create: { width: 1024, height: characterIds.length * 256, channels: 4, background: "#eeeaf4" } })
+  .composite(review).png().toFile(join(root, `references/${reviewName}-poses.png`));
+await sharp({ create: { width: 1024, height: characterIds.length * 256, channels: 4, background: "#eeeaf4" } })
+  .composite(formReview).png().toFile(join(root, `references/${reviewName}-forms.png`));
+console.log(`${characterIds.join("·")}: 4개 형태별 원화, ${characterIds.length * 40}개 런타임 시트 생성 완료`);

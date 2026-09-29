@@ -1,11 +1,12 @@
 export const CHARACTER_SELECT_COLUMNS = 3;
+export const getCharacterSelectColumns = (count) => count > 6 ? 4 : CHARACTER_SELECT_COLUMNS;
 
 export const getCharacterCardLayout = (count, {
   gameWidth = 1280,
   firstRowY = 283,
   rowGap = 224,
   columnGap = 266,
-  columns = CHARACTER_SELECT_COLUMNS
+  columns = getCharacterSelectColumns(count)
 } = {}) => Array.from({ length: count }, (_, index) => {
   const row = Math.floor(index / columns);
   const rowStart = row * columns;
@@ -27,7 +28,7 @@ export const moveCharacterSelection = (
   moveX,
   moveY,
   count,
-  columns = CHARACTER_SELECT_COLUMNS
+  columns = getCharacterSelectColumns(count)
 ) => {
   if (count <= 0) return 0;
   const index = wrap(current, count);

@@ -59,7 +59,7 @@ for (const { characterId, eye } of idleCases) for (const prefix of [characterId,
   }
   assert.ok(changedEyePixels > 0, `${prefix} 눈 깜빡임이 있어야 함`);
 }
-for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
+for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight", "alora", "oceandream"]) {
   assert.equal(getCharacter(id).animation.stableBody, true, `${id} 점프/착지에서 몸체 크기 보존 필요`);
   assert.equal(getCharacterAnimationSpec(id, "fall").repeat, 0);
   assert.ok(getCharacterAnimationSpec(id, "idle").durationMs >= 3000);
@@ -99,13 +99,13 @@ for (const [characterId, expectedCount] of [["potato89", 66], ["sylvia", 62]]) {
     }
   }
 }
-for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
+for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight", "alora", "oceandream"]) {
   assert.equal(getCharacter(id).render.integratedWings, true, `${id}: 날개는 동작 프레임에 통합되어야 함`);
   const visualForms = [];
   for (const variant of getCharacterAnimationVariants(id)) {
     visualForms.push(await sharp(fileURLToPath(new URL(`../assets/characters/${id}/${id}${variant === "base" ? "" : `_${variant}`}_idle.png`, import.meta.url)))
       .extract({ left: 0, top: 0, width: 128, height: 128 }).raw().toBuffer());
-    if (!["sunlight", "moonlight"].includes(id) && (variant === "base" || variant === "unicorn")) continue;
+    if (!["sunlight", "moonlight", "alora", "oceandream"].includes(id) && (variant === "base" || variant === "unicorn")) continue;
     for (const sequence of getCharacterSequenceNames(id)) {
     const spec = getCharacterAnimationSpec(id, sequence, variant);
     if (!spec || (variant !== "base" && !spec.textureKey.startsWith(`${id}_${variant}_`))) continue;
@@ -132,4 +132,4 @@ for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
   }
   assert.equal(new Set(visualForms.map(frame => frame.toString("base64"))).size, 4, `${id}: 기본·뿔·날개·뿔+날개 원화가 각각 달라야 함`);
 }
-console.log("캐릭터 애니메이션 회귀 테스트 통과: 5인 동작·전원 4형태 전용 시트·날갯짓·대기 픽셀 안정성·변신 전환");
+console.log("캐릭터 애니메이션 회귀 테스트 통과: 7인 동작·전원 4형태 전용 시트·날갯짓·대기 픽셀 안정성·변신 전환");

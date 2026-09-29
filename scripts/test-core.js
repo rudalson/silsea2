@@ -321,7 +321,9 @@ assert.deepEqual(CHARACTER_LIST.map(({ id }) => id), [
   "potato89",
   "sylvia",
   "sunlight",
-  "moonlight"
+  "moonlight",
+  "alora",
+  "oceandream"
 ]);
 assert.equal(getCharacter("silsea").englishName, "Sylsea");
 assert.equal(getCharacter("sylvia").englishName, "Sylvia");
@@ -352,7 +354,14 @@ assert.equal(moveCharacterSelection(1, 0, 1, 5), 4);
 assert.equal(moveCharacterSelection(2, 0, 1, 5), 4);
 assert.equal(moveCharacterSelection(4, 0, -1, 5), 1);
 assert.equal(moveCharacterSelection(4, 1, 0, 5), 0);
-for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
+const sevenCharacterLayout = getCharacterCardLayout(7);
+assert.deepEqual(sevenCharacterLayout.map(({ row }) => row), [0, 0, 0, 0, 1, 1, 1]);
+assert.ok(sevenCharacterLayout.every(({ y }) => y < 610), "7명 선택 카드가 화면 안에 있어야 함");
+assert.equal(sevenCharacterLayout[0].x + sevenCharacterLayout[3].x, 1280);
+assert.equal(sevenCharacterLayout[4].x + sevenCharacterLayout[6].x, 1280);
+assert.equal(moveCharacterSelection(3, 0, 1, 7), 6);
+assert.equal(moveCharacterSelection(6, 0, -1, 7), 2);
+for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight", "alora", "oceandream"]) {
   assert.equal(getCharacterAssetKeys(id).length, id === "potato89" ? 44 : 40, "네 형태의 전용 시트가 필요함");
   for (const [form, prefix] of [[FORMS.BASE, id], [FORMS.UNICORN, `${id}_unicorn`], [FORMS.PEGASUS, `${id}_pegasus`], [FORMS.ALICORN, `${id}_alicorn`]]) {
     assert.equal(getCharacterAnimationSpec(id, "idle", form).textureKey, `${prefix}_idle`);

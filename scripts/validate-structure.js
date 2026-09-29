@@ -395,7 +395,7 @@ if (debugTuningPresets.includes("localStorage") || debugPanel.includes("registry
 if (!characterSelectScene.includes("createBackButton") || !characterSelectScene.includes("goBack") || !characterSelectScene.includes("input.pausePressed")) {
   fail("캐릭터 선택 화면의 직접 이전 메뉴 버튼 또는 Esc 복귀가 없음");
 }
-for (const characterId of ["sylvia", "sunlight", "moonlight"]) {
+for (const characterId of ["sylvia", "sunlight", "moonlight", "alora", "oceandream"]) {
   if (!characters.includes(`${characterId}: createCharacter({`)) fail(`C4 캐릭터 데이터 누락: ${characterId}`);
 }
 if (!characters.includes('englishName: "Sylsea"') || !characters.includes('englishName: "Sylvia"')) {

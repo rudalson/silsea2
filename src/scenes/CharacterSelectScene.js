@@ -77,7 +77,9 @@ export class CharacterSelectScene extends Phaser.Scene {
         ? "♥"
         : character.selectionSymbol === "star" ? "★"
           : character.selectionSymbol === "sun" ? "☀"
-            : character.selectionSymbol === "moon" ? "☾" : "•";
+            : character.selectionSymbol === "moon" ? "☾"
+              : character.selectionSymbol === "aurora" ? "✦"
+                : character.selectionSymbol === "wave" ? "≈" : "•";
       const badge = this.add.text(x, y + 88, `${symbol} ${character.description}`, {
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "12px",

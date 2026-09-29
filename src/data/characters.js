@@ -136,6 +136,31 @@ export const CHARACTERS = Object.freeze({
     render: integratedWingRender,
     stableBody: true,
     artReady: true
+  }),
+  alora: createCharacter({
+    id: "alora",
+    name: "알로라",
+    englishName: "Alora",
+    description: "오로라빛을 품은 다정한 친구",
+    color: PALETTE.alora[0],
+    accent: PALETTE.alora[3],
+    selectionSymbol: "aurora",
+    render: integratedWingRender,
+    stableBody: true,
+    artReady: true
+  }),
+  oceandream: createCharacter({
+    id: "oceandream",
+    name: "오션드림",
+    englishName: "Ocean Dream",
+    description: "물놀이를 좋아하는 장난꾸러기",
+    sex: "female",
+    color: PALETTE.oceandream[0],
+    accent: PALETTE.oceandream[4],
+    selectionSymbol: "wave",
+    render: integratedWingRender,
+    stableBody: true,
+    artReady: true
   })
 });
 

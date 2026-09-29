@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "celestial:assets": "node scripts/build-celestial-assets.js",
+    "ocean-aurora:assets": "node scripts/build-celestial-assets.js alora oceandream",
     "storybook:enemies": "node scripts/build-storybook-enemies.js",
     "storybook:pickups": "node scripts/build-storybook-pickups.js",
     "dev": "vite --host 0.0.0.0",

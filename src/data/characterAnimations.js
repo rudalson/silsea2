@@ -32,7 +32,7 @@ const UNICORN_SEQUENCE_KEYS = createCharacterKeyMap("unicorn");
 const PEGASUS_SEQUENCE_KEYS = createCharacterKeyMap("pegasus");
 const ALICORN_SEQUENCE_KEYS = createCharacterKeyMap("alicorn");
 const FORM_SEQUENCE_KEYS = { unicorn: UNICORN_SEQUENCE_KEYS, pegasus: PEGASUS_SEQUENCE_KEYS, alicorn: ALICORN_SEQUENCE_KEYS };
-const integratedFormIds = new Set(["silsea", "potato89", "sylvia", "sunlight", "moonlight"]);
+const integratedFormIds = new Set(["silsea", "potato89", "sylvia", "sunlight", "moonlight", "alora", "oceandream"]);
 
 const SEQUENCE_TIMINGS = Object.freeze({
   idle: Object.freeze({ durations: [260, 180, 200, 260], repeat: -1 }),
@@ -87,7 +87,8 @@ const SYLVIA_TIMINGS = Object.freeze({
 });
 const CHARACTER_TIMINGS = {
   silsea: SILSEA_TIMINGS, potato89: POTATO_TIMINGS, sylvia: SYLVIA_TIMINGS,
-  sunlight: SILSEA_TIMINGS, moonlight: SYLVIA_TIMINGS
+  sunlight: SILSEA_TIMINGS, moonlight: SYLVIA_TIMINGS,
+  alora: SYLVIA_TIMINGS, oceandream: SYLVIA_TIMINGS
 };
 
 export const getCharacterSequenceKey = (characterId, sequence) =>

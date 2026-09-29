@@ -1,5 +1,33 @@
 # Celestial character generation prompts
 
+## Alora and Ocean Dream (2026-09-30)
+
+Built-in image_gen edited the user's drawings into two new 4×4 transparent atlases.
+`sunlight-base-atlas.png` guided the game style, anatomy and pose grid.
+`moonlight-unicorn-atlas.png` guided horn size; `moonlight-atlas.png` guided
+wing placement. The drawings and notes were design references, not instructions.
+
+**Alora base:** A sweet, small side-view pony with a pale mint/cream body and
+flowing northern-light ribbons of emerald, aqua, lilac and rose in her mane
+and tail. Big expressive eyes, four sturdy legs, clear hooves. Precisely 16
+isolated poses in a 4-column × 4-row transparent grid: idle, blink, landing,
+hurt; four running steps; jump, fall, fly up, fly across; swim, forward swim,
+victory, defensive stand. No horn, wings, scenery, labels or detached effects.
+
+**Ocean Dream base:** A playful pony from the water-themed user sketch. Pearl
+white/seafoam body, ocean-blue/turquoise wavy mane and tail, azure eyes,
+seafoam hooves and a small seashell flank mark. Same 4×4 pose grid and
+storybook style, no horn or wings, transparent separated silhouettes.
+
+For each character, edit the base atlas to add a short spiral horn in every
+pose for **unicorn**, keeping all other features and positions. Edit that
+atlas to add a pair of compact, naturally attached feathered wings for
+**alicorn**: folded during running, spread during flying, forward during the
+guard pose. Alora's feather tips use mint/lilac/turquoise; Ocean Dream's use
+white/seafoam/ocean blue. Edit the alicorn atlas to remove the horn from
+every pose for **pegasus**, restoring the forelock and retaining the wings.
+Preserve the character identity and cell separation in every edit.
+
 ## Item form correction
 
 The two prompts below generated the alicorn atlases. The user clarified that the
