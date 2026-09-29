@@ -38,8 +38,7 @@ const createRenderMetadata = ({ wingsX = -6, wingsY = -49, integratedHorn = fals
 });
 
 const silseaLikeRender = createRenderMetadata();
-const potatoRender = createRenderMetadata({ wingsX: -5, wingsY: -46 });
-const celestialRender = createRenderMetadata({ integratedWings: true });
+const integratedWingRender = createRenderMetadata({ integratedWings: true });
 
 const createCharacter = ({
   id,
@@ -84,6 +83,7 @@ export const CHARACTERS = Object.freeze({
     description: "빠르고 용감한 친구",
     color: PALETTE.base[0],
     accent: PALETTE.base[2],
+    render: integratedWingRender,
     stableBody: true,
     artReady: true
   }),
@@ -95,7 +95,7 @@ export const CHARACTERS = Object.freeze({
     color: PALETTE.base[3],
     accent: PALETTE.highlight[1],
     shape: "round",
-    render: potatoRender,
+    render: integratedWingRender,
     artReady: true,
     moveSequence: "roll",
     stableBody: true,
@@ -109,6 +109,7 @@ export const CHARACTERS = Object.freeze({
     sex: "female",
     color: PALETTE.sylvia[0],
     accent: PALETTE.sylvia[6],
+    render: integratedWingRender,
     stableBody: true,
     artReady: true
   }),
@@ -120,7 +121,7 @@ export const CHARACTERS = Object.freeze({
     color: PALETTE.sunlight[0],
     accent: PALETTE.sunlight[2],
     selectionSymbol: "sun",
-    render: celestialRender,
+    render: integratedWingRender,
     stableBody: true,
     artReady: true
   }),
@@ -132,7 +133,7 @@ export const CHARACTERS = Object.freeze({
     color: PALETTE.moonlight[0],
     accent: PALETTE.moonlight[3],
     selectionSymbol: "moon",
-    render: celestialRender,
+    render: integratedWingRender,
     stableBody: true,
     artReady: true
   })

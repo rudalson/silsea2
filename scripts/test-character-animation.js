@@ -37,7 +37,7 @@ assert.ok(getCharacterAnimationSpec("silsea", "idle").durationMs >= 3000);
 // The reported defect is visual: assert pixel stability, not just equal PNG
 // dimensions. Only the authored eye patch may change, in both visual forms.
 const idleCases = [
-  { characterId: "silsea", eye: { left: 93, top: 37, right: 110, bottom: 53 } },
+  { characterId: "silsea", eye: { left: 93, top: 35, right: 110, bottom: 51 } },
   { characterId: "potato89", eye: { left: 76, top: 40, right: 97, bottom: 68 } },
   { characterId: "sylvia", eye: { left: 92, top: 32, right: 105, bottom: 47 } }
 ];
@@ -99,11 +99,13 @@ for (const [characterId, expectedCount] of [["potato89", 66], ["sylvia", 62]]) {
     }
   }
 }
-for (const id of ["sunlight", "moonlight"]) {
+for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
+  assert.equal(getCharacter(id).render.integratedWings, true, `${id}: 날개는 동작 프레임에 통합되어야 함`);
   const visualForms = [];
   for (const variant of getCharacterAnimationVariants(id)) {
     visualForms.push(await sharp(fileURLToPath(new URL(`../assets/characters/${id}/${id}${variant === "base" ? "" : `_${variant}`}_idle.png`, import.meta.url)))
       .extract({ left: 0, top: 0, width: 128, height: 128 }).raw().toBuffer());
+    if (!["sunlight", "moonlight"].includes(id) && (variant === "base" || variant === "unicorn")) continue;
     for (const sequence of getCharacterSequenceNames(id)) {
     const spec = getCharacterAnimationSpec(id, sequence, variant);
     if (!spec || (variant !== "base" && !spec.textureKey.startsWith(`${id}_${variant}_`))) continue;
@@ -121,7 +123,7 @@ for (const id of ["sunlight", "moonlight"]) {
         bottom = Math.max(bottom, y);
       }
       assert.ok(opaque > 1000, `${id}/${sequence}/${i}: 비어 있는 프레임`);
-      assert.ok(Math.abs(bottom - 111) <= 2, `${id}/${sequence}/${i}: 발 기준선`);
+      assert.ok(Math.abs(bottom - 111) <= 2, `${id}/${variant}/${sequence}/${i}: 발 기준선`);
     }
     if (sequence === "move" || sequence === "fly") {
       assert.ok(new Set(frames.map(frame => frame.toString("base64"))).size >= 3, `${id}/${sequence}: 서로 다른 관절 포즈 필요`);
@@ -130,4 +132,4 @@ for (const id of ["sunlight", "moonlight"]) {
   }
   assert.equal(new Set(visualForms.map(frame => frame.toString("base64"))).size, 4, `${id}: 기본·뿔·날개·뿔+날개 원화가 각각 달라야 함`);
 }
-console.log("캐릭터 애니메이션 회귀 테스트 통과: 5인 동작·새 캐릭터 투명 여백·날갯짓·대기 픽셀 안정성·변신 전환");
+console.log("캐릭터 애니메이션 회귀 테스트 통과: 5인 동작·전원 4형태 전용 시트·날갯짓·대기 픽셀 안정성·변신 전환");

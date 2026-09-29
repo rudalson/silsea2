@@ -3,15 +3,16 @@
 실세아의 흰 몸체·분홍 갈기·청록색 눈을 유지하면서 대기, 이동, 점프,
 낙하, 착지, 피격, 방어, 비행, 수영, 승리 및 변신 3종을 갱신한 원본입니다.
 
-- `atlas-green.png`: 이미지 생성 도구로 정리한 8×8 동작 시트. 초록 배경은 빌드에서 제거합니다.
-- `flight.png`: 몸체 위치를 유지하고 날개 관절을 움직이는 별도의 3×2 투명 비행 시트.
+- `atlas-green.png`, `flight.png`: 초기 동작 시트 원본.
+- `atlas-proportions.png`, `flight-proportions.png`: 다리와 몸통 비율을 조정한 기본 동작 원본. 초록 배경은 빌드에서 제거합니다.
+- `pegasus-atlas.png`, `alicorn-atlas.png`: 접힌 날개와 비행 날개를 몸에 통합한 4×4 형태별 원본. 알리콘에는 뿔도 포함합니다.
 - `horn.png`: 기존 실세아 원화에서 보존한 뿔. 기본 동작에 부착해 유니콘 파생 시트를 만듭니다.
 - `frames.json`: 빌드가 기록하는 동작별 프레임 수(13종, 62프레임).
 
 ## 재생성
 
 저장소 루트에서 `npm run silsea:assets`를 실행합니다. 기본 프레임과 시트,
-유니콘 파생 시트, 수영 시트 및 검토용 접촉 시트를 갱신합니다.
+유니콘 파생 시트, 수영 시트, 페가수스·알리콘 전용 시트 및 검토용 접촉 시트를 갱신합니다.
 `npm run spritesheets`는 이미 정리된 개별 프레임을 다시 묶을 때 사용합니다.
 
 전체 포즈를 같은 폭·높이로 각각 늘이지 않습니다. 날개가 펴지거나 다리가
@@ -27,4 +28,4 @@
 - `npm run validate:assets`: 팔레트, 투명도, 안전 여백, 지상 발 기준선, 시트 규격, 뿔 연결 검사.
 - `npm run build`: 프로덕션 빌드.
 
-검토 이미지: `references/silsea-animation-refined.png`.
+검토 이미지: `references/silsea-animation-refined.png`, `references/silsea-winged-forms.png`.

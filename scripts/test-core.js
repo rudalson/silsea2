@@ -310,8 +310,12 @@ assert.notEqual(
   getCharacterAnimationSpec("silsea", "jump", "unicorn").key,
   getCharacterAnimationSpec("silsea", "jump").key
 );
-assert.equal(getCharacterAssetKeys("silsea").length, 22);
-assert.equal(getCharacterAssetKeys("potato89").length, 24);
+assert.equal(getCharacterAnimationSpec("silsea", "idle", "pegasus").textureKey, "silsea_pegasus_idle");
+assert.equal(getCharacterAnimationSpec("silsea", "idle", "alicorn").textureKey, "silsea_alicorn_idle");
+assert.equal(getCharacterAssetKeys("silsea").length, 40);
+assert.equal(getCharacterAssetKeys("potato89").length, 44);
+assert.equal(getCharacterAnimationSpec("potato89", "stomp", "pegasus").textureKey, "potato89_pegasus_stomp");
+assert.equal(getCharacterAnimationSpec("potato89", "stomp", "alicorn").textureKey, "potato89_alicorn_stomp");
 assert.deepEqual(CHARACTER_LIST.map(({ id }) => id), [
   "silsea",
   "potato89",
@@ -348,24 +352,24 @@ assert.equal(moveCharacterSelection(1, 0, 1, 5), 4);
 assert.equal(moveCharacterSelection(2, 0, 1, 5), 4);
 assert.equal(moveCharacterSelection(4, 0, -1, 5), 1);
 assert.equal(moveCharacterSelection(4, 1, 0, 5), 0);
-for (const id of ["sunlight", "moonlight"]) {
-  assert.equal(getCharacterAssetKeys(id).length, 40, "네 형태의 전용 시트가 필요함");
+for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight"]) {
+  assert.equal(getCharacterAssetKeys(id).length, id === "potato89" ? 44 : 40, "네 형태의 전용 시트가 필요함");
   for (const [form, prefix] of [[FORMS.BASE, id], [FORMS.UNICORN, `${id}_unicorn`], [FORMS.PEGASUS, `${id}_pegasus`], [FORMS.ALICORN, `${id}_alicorn`]]) {
     assert.equal(getCharacterAnimationSpec(id, "idle", form).textureKey, `${prefix}_idle`);
     assert.equal(getCharacterAnimationSpec(id, "jump", form).textureKey, `${prefix}_jump_up`);
     assert.equal(getCharacterAnimationSpec(id, "fly", form).textureKey, `${prefix}_fly`);
   }
-  const celestialTransform = Object.create(TransformationManager.prototype);
+  const integratedTransform = Object.create(TransformationManager.prototype);
   let visible = null;
-  celestialTransform.player = { character: getCharacter(id), usesCharacterArt: true, setVisualForm() {} };
-  celestialTransform.wings = { setVisible(value) { visible = value; } };
+  integratedTransform.player = { character: getCharacter(id), usesCharacterArt: true, setVisualForm() {} };
+  integratedTransform.wings = { setVisible(value) { visible = value; } };
   for (const form of [FORMS.BASE, FORMS.UNICORN, FORMS.PEGASUS, FORMS.ALICORN]) {
-    celestialTransform.form = form;
-    celestialTransform.syncFormVisuals();
+    integratedTransform.form = form;
+    integratedTransform.syncFormVisuals();
     assert.equal(visible, false, `${id}: 원화 날개 위에 공용 날개를 겹치면 안 됨`);
   }
-  celestialTransform.player.usesCharacterArt = false;
-  celestialTransform.syncFormVisuals();
+  integratedTransform.player.usesCharacterArt = false;
+  integratedTransform.syncFormVisuals();
   assert.equal(visible, true, "fallback일 때는 변신 날개를 표시해야 함");
 }
 assert.match(getCharacterSelectionAnnouncement(getCharacter("sylvia"), 2, 3), /실비아, Sylvia.*3\/3/);

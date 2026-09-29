@@ -9,7 +9,7 @@ const source = join(root, "assets/_source/silsea-animation");
 const output = join(root, "assets/characters/silsea");
 const size = 128;
 const transparent = { r: 0, g: 0, b: 0, alpha: 0 };
-const { data, info } = await sharp(join(source, "atlas-green.png")).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const { data, info } = await sharp(join(source, "atlas-proportions.png")).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 // Remove the generated chroma background before resizing, preserving white fur
 // and the dark outline. Premultiplied alpha prevents green filtering fringes.
 for (let i = 0; i < data.length; i += 4) {
@@ -40,7 +40,7 @@ for (let row = 0; row < 8; row++) {
 
 // The dedicated flight atlas locks the horse's body while articulating wings.
 // Register each drawing to the eye, not the feather or hoof bounding box.
-const flightSource = join(source, "flight.png");
+const flightSource = join(source, "flight-proportions.png");
 const flightEyes = [[342, 299], [757, 299], [1174, 299], [342, 873], [757, 873], [1174, 873]];
 const flightFrames = [];
 for (let i = 0; i < flightEyes.length; i++) {

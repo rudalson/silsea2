@@ -6,12 +6,14 @@
 - `atlas-green.png`: 이미지 생성 도구로 다듬은 8×8 원본 동작 시트.
 - `flight-green.png`: 몸체를 고정하고 날개 관절을 움직이는 전용 3×2 비행 시트.
 - `horn.png`: 기존 구운 감자 원화에서 보존한 뿔. 유니콘 파생 시트에 사용합니다.
+- `pegasus-atlas.png`, `alicorn-atlas.png`: 작은 크림색 날개를 몸에 통합한 4×4 형태별 원화. 알리콘에는 뿔도 포함합니다.
 - `frames.json`: 14개 동작의 프레임 수(총 66개), 눈 주변 영역 및 원본 추출 좌표.
 
 ## 재생성
 
 저장소 루트에서 `npm run potato:assets`를 실행합니다. 개별 프레임과 기본
-시트, 유니콘 파생 시트 및 전용 수영 시트를 갱신합니다.
+시트, 유니콘 파생 시트, 전용 수영 시트 및 페가수스·알리콘 전용 시트를 갱신합니다.
+발구르기까지 포함해 런타임은 기본·유니콘·페가수스·알리콘 44개 동작 시트입니다.
 `npm run spritesheets`로 공용 접촉 시트도 다시 만들 수 있습니다.
 
 원본의 초록 배경과 고립된 효과선을 제거한 뒤 연결된 실루엣을 추출합니다.
@@ -31,4 +33,4 @@
 - `npm run validate:assets`: 팔레트, 실루엣, 방향, 뿔 연결 및 시트 규격.
 - `npm run build` 및 `npm run validate:runtime`: 프로덕션 빌드와 로컬 에셋 연결.
 
-검토 이미지: `references/potato89-animation-refined.png`.
+검토 이미지: `references/potato89-animation-refined.png`, `references/potato89-winged-forms.png`.

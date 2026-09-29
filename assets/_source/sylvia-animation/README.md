@@ -9,13 +9,14 @@
 - `flight-green.png`: 같은 디자인으로 별도 제작한 3×2 날갯짓 원화.
   몸의 자세를 유지하며 위·옆·아래로 날개가 펼쳐집니다.
 - `horn.png`: 기존 실비아 변신 원화에서 보존한 뿔.
+- `pegasus-atlas.png`, `alicorn-atlas.png`: 접힌 날개와 비행 날개를 몸에 통합한 4×4 형태별 원화. 알리콘에는 뿔도 포함합니다.
 - `frames.json`: 13종·62개 기본 프레임 수, 추출 좌표 및 눈 영역.
 
 ## 재생성
 
 `npm run sylvia:assets`로 개별 프레임, 기본 시트, 유니콘 파생 시트,
-수영 시트, 전체 검토 이미지를 생성합니다. 유니콘 38개 프레임을 포함하면
-런타임 전체는 22개 시트·100개 프레임입니다. 이전 `c4:sylvia-assets`와
+수영 시트, 페가수스·알리콘 전용 시트, 전체 검토 이미지를 생성합니다. 기본·유니콘·페가수스·알리콘
+런타임 전체는 40개 동작 시트입니다. 이전 `c4:sylvia-assets`와
 `build-sylvia-refresh.js`도 새 제작 경로를 사용합니다.
 
 원화별 고정 배율을 사용하고, 프레임의 실루엣 크기에 맞춰 몸을 늘이지
@@ -32,4 +33,4 @@
 - `npm run validate:assets`: 팔레트, 실루엣, 뿔 연결, 시트 규격.
 - `npm run build`, `npm run validate:runtime`, `npm run validate:integration`.
 
-검토 이미지: `references/could4-sylvia-animation-overview.png`.
+검토 이미지: `references/could4-sylvia-animation-overview.png`, `references/sylvia-winged-forms.png`.

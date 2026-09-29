@@ -32,7 +32,7 @@ const UNICORN_SEQUENCE_KEYS = createCharacterKeyMap("unicorn");
 const PEGASUS_SEQUENCE_KEYS = createCharacterKeyMap("pegasus");
 const ALICORN_SEQUENCE_KEYS = createCharacterKeyMap("alicorn");
 const FORM_SEQUENCE_KEYS = { unicorn: UNICORN_SEQUENCE_KEYS, pegasus: PEGASUS_SEQUENCE_KEYS, alicorn: ALICORN_SEQUENCE_KEYS };
-const celestialIds = new Set(["sunlight", "moonlight"]);
+const integratedFormIds = new Set(["silsea", "potato89", "sylvia", "sunlight", "moonlight"]);
 
 const SEQUENCE_TIMINGS = Object.freeze({
   idle: Object.freeze({ durations: [260, 180, 200, 260], repeat: -1 }),
@@ -99,8 +99,8 @@ export const getCharacterAnimationKey = (characterId, sequence, variant = "base"
     : `character:${characterId}:${variant}:${sequence}`;
 
 export const getCharacterAnimationSpec = (characterId, sequence, variant = "base") => {
-  const resolvedVariant = !celestialIds.has(characterId) && variant === "pegasus" ? "base"
-    : !celestialIds.has(characterId) && variant === "alicorn" ? "unicorn" : variant;
+  const resolvedVariant = !integratedFormIds.has(characterId) && variant === "pegasus" ? "base"
+    : !integratedFormIds.has(characterId) && variant === "alicorn" ? "unicorn" : variant;
   const variantTextureKey = FORM_SEQUENCE_KEYS[resolvedVariant]?.[characterId]?.[sequence];
   const textureKey = variantTextureKey ?? getCharacterSequenceKey(characterId, sequence);
   const timing = CHARACTER_TIMINGS[characterId]?.[sequence] ?? SEQUENCE_TIMINGS[sequence];
@@ -118,7 +118,7 @@ export const getCharacterAssetKeys = (characterId) =>
   [...new Set([
     ...Object.values(CHARACTER_SEQUENCE_KEYS[characterId] ?? {}),
     ...Object.values(UNICORN_SEQUENCE_KEYS[characterId] ?? {}),
-    ...(celestialIds.has(characterId) ? [
+    ...(integratedFormIds.has(characterId) ? [
       ...Object.values(PEGASUS_SEQUENCE_KEYS[characterId]),
       ...Object.values(ALICORN_SEQUENCE_KEYS[characterId])
     ] : [])
@@ -127,6 +127,6 @@ export const getCharacterAssetKeys = (characterId) =>
 export const getCharacterSequenceNames = (characterId) =>
   Object.keys(CHARACTER_SEQUENCE_KEYS[characterId] ?? {});
 
-export const getCharacterAnimationVariants = (characterId) => celestialIds.has(characterId)
+export const getCharacterAnimationVariants = (characterId) => integratedFormIds.has(characterId)
   ? ["base", "unicorn", "pegasus", "alicorn"]
   : ["base", "unicorn"];
