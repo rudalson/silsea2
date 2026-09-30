@@ -26,83 +26,132 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.cards = [];
 
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "bg_character_select").setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.outline, 0.1);
-    this.add.rectangle(GAME_WIDTH / 2, 96, 510, 106, COLORS.near, 0.84)
-      .setStrokeStyle(4, COLORS.collect, 0.9)
-      .setDepth(2);
-    this.add.text(GAME_WIDTH / 2, 69, "CHARACTER SELECT", {
+    this.add.text(GAME_WIDTH / 2, 61, "CHARACTER SELECT", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "16px",
       fontStyle: "800",
       letterSpacing: 4,
-      color: CSS_COLORS.collect
-    }).setOrigin(0.5).setDepth(3);
-    this.add.text(GAME_WIDTH / 2, 111, "누구와 달릴까요?", {
-      fontFamily: GAME_FONT_FAMILY,
-      fontSize: "40px",
-      fontStyle: "800",
-      color: CSS_COLORS.white,
+      color: CSS_COLORS.collect,
       stroke: CSS_COLORS.outline,
       strokeThickness: 5
     }).setOrigin(0.5).setDepth(3);
+    this.add.text(GAME_WIDTH / 2, 104, "누구와 달릴까요?", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "38px",
+      fontStyle: "800",
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.outline,
+      strokeThickness: 7
+    }).setOrigin(0.5).setDepth(3);
     this.createBackButton();
 
-    const layout = getCharacterCardLayout(CHARACTER_LIST.length, { gameWidth: GAME_WIDTH });
+    // One large character and a row of small portraits leave the storybook
+    // background visible even as the roster grows.
+    this.add.ellipse(425, 337, 322, 306, COLORS.white, 0.19)
+      .setStrokeStyle(3, COLORS.collect, 0.58).setDepth(1);
+    this.add.ellipse(425, 454, 258, 31, COLORS.outline, 0.27).setDepth(1);
+    this.add.text(725, 247, "CHOOSE YOUR FRIEND", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "17px",
+      fontStyle: "800",
+      letterSpacing: 3,
+      color: CSS_COLORS.collect,
+      stroke: CSS_COLORS.outline,
+      strokeThickness: 5
+    }).setDepth(3);
+    this.add.rectangle(760, 284, 72, 3, COLORS.collect, 0.9).setDepth(3);
+    this.featuredName = this.add.text(725, 296, "", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "50px",
+      fontStyle: "800",
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.outline,
+      strokeThickness: 8
+    }).setDepth(3);
+    this.featuredEnglishName = this.add.text(728, 363, "", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "21px",
+      fontStyle: "800",
+      color: CSS_COLORS.collect,
+      stroke: CSS_COLORS.outline,
+      strokeThickness: 5
+    }).setDepth(3);
+    this.featuredDescription = this.add.text(728, 404, "", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "23px",
+      fontStyle: "700",
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.outline,
+      strokeThickness: 6,
+      wordWrap: { width: 440 }
+    }).setDepth(3);
+    const startButton = this.add.rectangle(849, 466, 244, 56, COLORS.near, 0.84)
+      .setStrokeStyle(3, COLORS.collect).setDepth(3).setInteractive({ useHandCursor: true });
+    this.add.text(849, 466, "이 친구로 달리기  →", {
+      fontFamily: GAME_FONT_FAMILY,
+      fontSize: "23px",
+      fontStyle: "800",
+      color: CSS_COLORS.white
+    }).setOrigin(0.5).setDepth(4);
+    startButton.on("pointerover", () => startButton.setFillStyle(COLORS.near, 1));
+    startButton.on("pointerout", () => startButton.setFillStyle(COLORS.near, 0.84));
+    startButton.on("pointerdown", () => this.confirmSelection());
+
+    for (const [direction, x, arrow] of [[-1, 170, "◀"], [1, 1110, "▶"]]) {
+      const control = this.add.text(x, 345, arrow, {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "48px",
+        color: CSS_COLORS.white,
+        stroke: CSS_COLORS.outline,
+        strokeThickness: 7
+      }).setOrigin(0.5).setDepth(4).setInteractive({ useHandCursor: true });
+      control.on("pointerover", () => control.setColor(CSS_COLORS.collect));
+      control.on("pointerout", () => control.setColor(CSS_COLORS.white));
+      control.on("pointerdown", () => this.changeSelection(direction));
+    }
+
+    const layout = getCharacterCardLayout(CHARACTER_LIST.length, {
+      gameWidth: GAME_WIDTH,
+      firstRowY: 562,
+      columnGap: 132,
+      columns: CHARACTER_LIST.length
+    });
+    this.portraitTextures = new Map();
     CHARACTER_LIST.forEach((character, index) => {
       const { x, y } = layout[index];
-      const card = this.add.rectangle(x, y, 250, 206, COLORS.near, 0.88)
-        .setStrokeStyle(5, COLORS.outline)
-        .setDepth(2)
+      const ring = this.add.ellipse(x, y, 102, 102, COLORS.near, 0.63)
+        .setStrokeStyle(2, COLORS.white, 0.8).setDepth(2)
         .setInteractive({ useHandCursor: true });
       CharacterAnimationManager.register(this, character);
       const idle = CharacterAnimationManager.getSpec(character, "idle");
       const hasArt = Boolean(idle && this.textures.exists(idle.textureKey));
       const texture = hasArt ? idle.textureKey : AssetManager.ensurePlayerTexture(this, character);
-      const portraitScale = hasArt ? 0.72 : 0.82;
-      const portrait = this.add.sprite(x, y - 34, texture).setScale(portraitScale).setOrigin(0.5).setDepth(3);
+      this.portraitTextures.set(character.id, { texture, hasArt });
+      const portrait = this.add.sprite(x, y, texture).setScale(0.76).setOrigin(0.5).setDepth(3);
       if (hasArt) CharacterAnimationManager.play(portrait, character, "idle");
-      const name = this.add.text(x, y + 40, character.name, {
+      const name = this.add.text(x, y + 69, character.name, {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "22px",
+        fontSize: "16px",
         fontStyle: "800",
-        color: CSS_COLORS.white
+        color: CSS_COLORS.white,
+        stroke: CSS_COLORS.outline,
+        strokeThickness: 4
       }).setOrigin(0.5).setDepth(3);
-      const englishName = this.add.text(x, y + 65, character.englishName, {
-        fontFamily: GAME_FONT_FAMILY,
-        fontSize: "13px",
-        fontStyle: "800",
-        color: CSS_COLORS.collect
-      }).setOrigin(0.5).setDepth(3);
-      const symbol = character.selectionSymbol === "heart"
-        ? "♥"
-        : character.selectionSymbol === "star" ? "★"
-          : character.selectionSymbol === "sun" ? "☀"
-            : character.selectionSymbol === "moon" ? "☾"
-              : character.selectionSymbol === "aurora" ? "✦"
-                : character.selectionSymbol === "wave" ? "≈" : "•";
-      const badge = this.add.text(x, y + 88, `${symbol} ${character.description}`, {
-        fontFamily: GAME_FONT_FAMILY,
-        fontSize: "12px",
-        fontStyle: "700",
-        color: CSS_COLORS.soft,
-        align: "center",
-        wordWrap: { width: 226 }
-      }).setOrigin(0.5).setDepth(3);
-      card.on("pointerover", () => {
-        if (this.selected === index) return;
-        this.selected = index;
-        this.audioManager.playSfx("sfx_ui_move");
-        this.renderSelection();
-      });
-      card.on("pointerdown", () => this.confirmSelection());
-      this.cards.push({ card, portrait, portraitScale, name, englishName, badge });
+      ring.on("pointerover", () => this.selectCharacter(index));
+      ring.on("pointerdown", () => this.selectCharacter(index));
+      this.cards.push({ ring, portrait, name, y });
     });
 
-    this.add.text(GAME_WIDTH / 2, 682, "← ↑ ↓ → 선택   ·   Space / Z 결정   ·   Esc 이전 메뉴", {
+    const first = CHARACTER_LIST[this.selected];
+    const firstArt = this.portraitTextures.get(first.id);
+    this.featured = this.add.sprite(425, 336, firstArt.texture).setScale(2.35).setDepth(3);
+    this.add.text(GAME_WIDTH / 2, 686, "← ↑ ↓ → 친구 선택   ·   Space / Z 시작   ·   Esc 이전 메뉴", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "19px",
+      fontSize: "18px",
       fontStyle: "700",
-      color: CSS_COLORS.soft
+      color: CSS_COLORS.white,
+      stroke: CSS_COLORS.outline,
+      strokeThickness: 5
     }).setOrigin(0.5).setDepth(3);
     this.renderSelection();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -115,15 +164,9 @@ export class CharacterSelectScene extends Phaser.Scene {
     const input = this.inputManager.sample();
     const navigating = Math.abs(input.moveX) > 0.5 || Math.abs(input.moveY) > 0.5;
     if (navigating && !this.navigationLocked) {
-      this.selected = moveCharacterSelection(
-        this.selected,
-        input.moveX,
-        input.moveY,
-        CHARACTER_LIST.length
-      );
+      const direction = Math.abs(input.moveX) >= Math.abs(input.moveY) ? input.moveX : input.moveY;
+      this.changeSelection(direction);
       this.navigationLocked = true;
-      this.audioManager.playSfx("sfx_ui_move");
-      this.renderSelection();
     }
     if (Math.abs(input.moveX) < 0.2 && Math.abs(input.moveY) < 0.2) this.navigationLocked = false;
     if (input.confirmPressed) this.confirmSelection();
@@ -144,18 +187,38 @@ export class CharacterSelectScene extends Phaser.Scene {
     button.on("pointerdown", () => this.goBack());
   }
 
+  changeSelection(direction) {
+    const next = moveCharacterSelection(this.selected, direction, 0, CHARACTER_LIST.length);
+    this.selectCharacter(next);
+  }
+
+  selectCharacter(index) {
+    if (index === this.selected || this.starting) return;
+    this.selected = index;
+    this.audioManager.playSfx("sfx_ui_move");
+    this.renderSelection();
+  }
+
   renderSelection() {
     this.cards.forEach((entry, index) => {
       const selected = index === this.selected;
-      entry.card.setStrokeStyle(selected ? 8 : 4, selected ? COLORS.collect : COLORS.outline);
-      entry.card.setFillStyle(selected ? COLORS.near : COLORS.near, selected ? 0.96 : 0.78);
-      entry.portrait.setScale(entry.portraitScale * (selected ? 1.1 : 0.94)).setAlpha(selected ? 1 : 0.68);
+      entry.ring.setStrokeStyle(selected ? 5 : 2, selected ? COLORS.collect : COLORS.white, selected ? 1 : 0.8);
+      entry.ring.setFillStyle(selected ? COLORS.white : COLORS.near, selected ? 0.42 : 0.63);
+      entry.ring.setScale(selected ? 1.15 : 1).setY(entry.y - (selected ? 5 : 0));
+      entry.portrait.setScale(selected ? 0.9 : 0.76).setY(entry.y - (selected ? 5 : 0))
+        .setAlpha(selected ? 1 : 0.86);
       entry.name.setColor(selected ? CSS_COLORS.collect : CSS_COLORS.white);
-      entry.englishName.setAlpha(selected ? 1 : 0.62);
-      entry.badge.setAlpha(selected ? 1 : 0.58);
     });
+    const character = CHARACTER_LIST[this.selected];
+    const art = this.portraitTextures.get(character.id);
+    this.featured.anims.stop();
+    this.featured.setTexture(art.texture);
+    if (art.hasArt) CharacterAnimationManager.play(this.featured, character, "idle");
+    this.featuredName.setText(character.name);
+    this.featuredEnglishName.setText(`${character.englishName}   ·   ${String(this.selected + 1).padStart(2, "0")} / ${String(CHARACTER_LIST.length).padStart(2, "0")}`);
+    this.featuredDescription.setText(character.description);
     const announcement = getCharacterSelectionAnnouncement(
-      CHARACTER_LIST[this.selected],
+      character,
       this.selected,
       CHARACTER_LIST.length
     );
