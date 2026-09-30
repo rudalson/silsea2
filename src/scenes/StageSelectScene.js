@@ -21,24 +21,25 @@ export class StageSelectScene extends Phaser.Scene {
     this.cards = [];
 
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, "bg_stage_select_calm").setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
-    this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.outline, 0.08);
-    this.add.rectangle(GAME_WIDTH / 2, 90, 484, 106, COLORS.near, 0.85)
-      .setStrokeStyle(4, COLORS.collect, 0.9)
-      .setDepth(2);
-    this.add.text(GAME_WIDTH / 2, 63, "WORLD MAP", {
+    const heading = this.add.graphics().setDepth(2);
+    heading.fillStyle(COLORS.outline, 0.16);
+    heading.fillRoundedRect(410, 31, 460, 106, 30);
+    heading.fillStyle(COLORS.storybookButtonInner, 0.92);
+    heading.fillRoundedRect(410, 25, 460, 106, 30);
+    heading.lineStyle(2, COLORS.white, 0.95);
+    heading.strokeRoundedRect(410, 25, 460, 106, 30);
+    this.add.text(GAME_WIDTH / 2, 54, "✦  WORLD MAP  ✦", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "16px",
+      fontSize: "15px",
       fontStyle: "800",
-      letterSpacing: 4,
-      color: CSS_COLORS.collect
+      letterSpacing: 3,
+      color: CSS_COLORS.near
     }).setOrigin(0.5).setDepth(3);
-    this.add.text(GAME_WIDTH / 2, 105, "스테이지 선택", {
+    this.add.text(GAME_WIDTH / 2, 95, "스테이지 선택", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "42px",
+      fontSize: "39px",
       fontStyle: "800",
-      color: CSS_COLORS.white,
-      stroke: CSS_COLORS.outline,
-      strokeThickness: 6
+      color: CSS_COLORS.near
     }).setOrigin(0.5).setDepth(3);
     this.createBackButton();
 
@@ -51,16 +52,15 @@ export class StageSelectScene extends Phaser.Scene {
         children.push(object);
         return object;
       };
-      const card = add(this.add.rectangle(0, 370, 350, 390, COLORS.near, 0.9))
-        .setStrokeStyle(5, COLORS.outline)
-        .setInteractive({ useHandCursor: true });
-      const previewFrame = add(this.add.rectangle(0, 314, 312, 176, COLORS.outline, 0.95))
-        .setStrokeStyle(3, COLORS.collect, 0.95);
+      const card = add(this.add.graphics());
+      const previewFrame = add(this.add.rectangle(0, 291, 322, 182, COLORS.white, 0.96))
+        .setStrokeStyle(2, COLORS.white, 0.96);
       const previewKey = level.assets.preview;
       const hasPreview = Boolean(previewKey && this.textures.exists(previewKey));
       const preview = hasPreview
-        ? add(this.add.image(0, 314, previewKey)).setDisplaySize(304, 168)
-        : add(this.add.rectangle(0, 314, 304, 168, COLORS.nightVeil, 0.98));
+        ? add(this.add.image(0, 291, previewKey)).setDisplaySize(310, 170)
+        : add(this.add.rectangle(0, 291, 310, 170, COLORS.nightVeil, 0.98));
+      const fallbackStart = children.length;
       if (level.visualTheme === "starlit-forest" && !hasPreview) {
         add(this.add.circle(96, 260, 26, COLORS.white, 0.92));
         add(this.add.ellipse(-92, 334, 116, 112, COLORS.nightCanopy, 0.98));
@@ -123,8 +123,10 @@ export class StageSelectScene extends Phaser.Scene {
           gate.lineBetween(110 + radius, 320, 110 + radius, 350);
         });
       }
-      const lockedOverlay = add(this.add.rectangle(0, 314, 304, 168, COLORS.outline, 0.62)).setVisible(!unlocked);
-      const lockedLabel = add(this.add.text(0, 314, "잠김\n이전 스테이지를 먼저 클리어하세요", {
+      const fallbackArt = this.add.container(0, -23, children.splice(fallbackStart));
+      add(fallbackArt);
+      const lockedOverlay = add(this.add.rectangle(0, 291, 310, 170, COLORS.outline, 0.64)).setVisible(!unlocked);
+      const lockedLabel = add(this.add.text(0, 291, "잠김\n이전 스테이지를 먼저 클리어하세요", {
         align: "center",
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "17px",
@@ -133,49 +135,82 @@ export class StageSelectScene extends Phaser.Scene {
         backgroundColor: CSS_COLORS.panelSoft,
         padding: { x: 10, y: 7 }
       })).setOrigin(0.5).setVisible(!unlocked);
-      const order = add(this.add.text(-128, 220, String(level.order).padStart(2, "0"), {
+      const order = add(this.add.text(-126, 187, String(level.order).padStart(2, "0"), {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "31px",
+        fontSize: "21px",
         fontStyle: "900",
-        color: CSS_COLORS.collect,
-        backgroundColor: CSS_COLORS.panelSoft,
-        padding: { x: 10, y: 5 }
+        color: CSS_COLORS.near
       })).setOrigin(0.5);
-      const title = add(this.add.text(0, 433, level.name, {
+      const progressLabel = add(this.add.text(107, 187,
+        unlocked ? progress.cleared ? "클리어" : "도전 가능" : "잠김", {
+          fontFamily: GAME_FONT_FAMILY,
+          fontSize: "14px",
+          fontStyle: "800",
+          color: CSS_COLORS.near
+        })).setOrigin(0.5);
+      const title = add(this.add.text(0, 412, level.name, {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "27px",
+        fontSize: "28px",
         fontStyle: "800",
-        color: CSS_COLORS.white
+        color: CSS_COLORS.near
       })).setOrigin(0.5);
-      const description = add(this.add.text(0, 470, level.description ?? (index === 0 ? "무지개 길을 따라 첫 모험!" : "새로운 모험이 기다리고 있어요"), {
+      const description = add(this.add.text(0, 448, level.description ?? (index === 0 ? "무지개 길을 따라 첫 모험!" : "새로운 모험이 기다리고 있어요"), {
+        fontFamily: GAME_FONT_FAMILY,
+        fontSize: "16px",
+        fontStyle: "700",
+        color: CSS_COLORS.near,
+        wordWrap: { width: 308 }
+      })).setOrigin(0.5);
+      const status = add(this.add.text(0, 481, unlocked
+        ? progress.cleared ? `최고 점수  ${progress.bestScore.toLocaleString()}` : "새로운 모험이 기다려요"
+        : "이전 스테이지 클리어 필요", {
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "15px",
         fontStyle: "700",
-        color: CSS_COLORS.soft
+        color: CSS_COLORS.near
       })).setOrigin(0.5);
-      const status = add(this.add.text(0, 516, unlocked
-        ? progress.cleared ? `✓ 클리어 · BEST ${progress.bestScore}` : "새 스테이지"
-        : "잠김 · 이전 스테이지 클리어 필요", {
+      const action = add(this.add.graphics());
+      const actionLabel = add(this.add.text(0, 527, "", {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: unlocked ? "17px" : "15px",
-        fontStyle: "700",
-        color: progress.cleared ? CSS_COLORS.collect : CSS_COLORS.soft
+        fontSize: "19px",
+        fontStyle: "800",
+        color: CSS_COLORS.white
       })).setOrigin(0.5);
+      const cardHit = add(this.add.zone(0, 366, 348, 408).setInteractive({ useHandCursor: true }));
       container.add(children);
-      card.on("pointerover", () => {
-        if (index === this.selected) {
-          card.setScale(1.07);
-        } else {
-          card.setStrokeStyle(5, COLORS.collect);
-          card.setScale(1.02);
-        }
-      });
-      card.on("pointerout", () => {
-        const isSelected = index === this.selected;
-        card.setStrokeStyle(isSelected ? 8 : 4, isSelected ? COLORS.collect : COLORS.outline);
-        card.setScale(isSelected ? 1.05 : 1);
-      });
-      card.on("pointerdown", () => {
+      const drawCard = (selected, hovered = false) => {
+        const canStart = selected && unlocked;
+        card.clear();
+        card.fillStyle(COLORS.outline, 0.2);
+        card.fillRoundedRect(-174, 168, 348, 408, 22);
+        card.fillStyle(COLORS.storybookButtonInner, selected ? 0.98 : 0.93);
+        card.fillRoundedRect(-174, 162, 348, 408, 22);
+        card.lineStyle(selected ? 4 : 2, selected ? COLORS.collect : COLORS.white, 1);
+        card.strokeRoundedRect(-174, 162, 348, 408, 22);
+        card.fillStyle(COLORS.white, 0.62);
+        card.fillRoundedRect(-165, 389, 330, 171, 15);
+        card.fillStyle(selected ? COLORS.collect : COLORS.white, selected ? 0.96 : 0.88);
+        card.fillRoundedRect(-151, 172, 52, 30, 12);
+        card.fillStyle(unlocked ? COLORS.white : COLORS.soft, 0.9);
+        card.fillRoundedRect(53, 172, 107, 30, 12);
+        action.clear();
+        action.fillStyle(COLORS.outline, selected ? 0.28 : 0.12);
+        action.fillRoundedRect(-136, 505, 272, 52, 22);
+        action.fillStyle(canStart
+          ? hovered ? COLORS.nightCanopy : COLORS.near
+          : COLORS.white, canStart ? 1 : 0.58);
+        action.fillRoundedRect(-136, 501, 272, 52, 22);
+        action.lineStyle(2, canStart ? COLORS.collect : COLORS.near, canStart ? 1 : 0.24);
+        action.strokeRoundedRect(-136, 501, 272, 52, 22);
+        actionLabel.setText(selected
+          ? unlocked ? "이 스테이지 시작  →" : "잠긴 스테이지"
+          : "선택해서 보기");
+        actionLabel.setColor(canStart ? CSS_COLORS.white : CSS_COLORS.near);
+        actionLabel.setAlpha(canStart ? 1 : selected ? 0.58 : 0.7);
+      };
+      cardHit.on("pointerover", () => drawCard(index === this.selected, true));
+      cardHit.on("pointerout", () => drawCard(index === this.selected));
+      cardHit.on("pointerdown", () => {
         if (this.selected === index) {
           this.confirmStage();
         } else {
@@ -185,12 +220,16 @@ export class StageSelectScene extends Phaser.Scene {
       this.cards.push({
         container,
         card,
+        cardHit,
+        drawCard,
         previewFrame,
         preview,
         order,
+        progressLabel,
         title,
         description,
         status,
+        actionLabel,
         lockedOverlay,
         lockedLabel,
         unlocked
@@ -199,26 +238,27 @@ export class StageSelectScene extends Phaser.Scene {
 
     this.createNavButtons();
 
-    this.pageIndicator = this.add.text(GAME_WIDTH / 2, 594, "", {
+    this.pageIndicator = this.add.text(GAME_WIDTH / 2, 628, "", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "22px",
+      fontSize: "15px",
       fontStyle: "800",
-      color: CSS_COLORS.collect,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 13, y: 5 }
+      color: CSS_COLORS.near
     }).setOrigin(0.5).setDepth(4);
 
     this.createDotIndicators();
     this.setupWheelControl();
 
-    this.add.text(GAME_WIDTH / 2, 650, "← → / 클릭 선택   ·   Space / Z / 카드 클릭 시작   ·   Esc 캐릭터 선택", {
+    const hintBar = this.add.graphics().setDepth(3);
+    hintBar.fillStyle(COLORS.storybookButtonInner, 0.88);
+    hintBar.fillRoundedRect(338, 653, 604, 46, 22);
+    hintBar.lineStyle(2, COLORS.white, 0.92);
+    hintBar.strokeRoundedRect(338, 653, 604, 46, 22);
+    this.add.text(GAME_WIDTH / 2, 676, "← → 이동    ·    Space / Z 시작    ·    Esc 돌아가기", {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "18px",
+      fontSize: "17px",
       fontStyle: "700",
-      color: CSS_COLORS.white,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 15, y: 8 }
-    }).setOrigin(0.5);
+      color: CSS_COLORS.near
+    }).setOrigin(0.5).setDepth(4);
     this.renderSelection();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.inputManager.destroy();
@@ -229,24 +269,25 @@ export class StageSelectScene extends Phaser.Scene {
   createNavButtons() {
     const createButton = (x, symbol, direction) => {
       const buttonContainer = this.add.container(x, 370).setDepth(5);
-      const bg = this.add.circle(0, 0, 26, COLORS.near, 0.92)
-        .setStrokeStyle(3, COLORS.collect, 0.95);
-      const label = this.add.text(symbol === "◀" ? -2 : 2, 0, symbol, {
+      const shadow = this.add.circle(0, 5, 29, COLORS.outline, 0.2);
+      const bg = this.add.circle(0, 0, 29, COLORS.storybookButtonInner, 0.96)
+        .setStrokeStyle(3, COLORS.white, 0.96);
+      const label = this.add.text(symbol === "←" ? -1 : 1, -2, symbol, {
         fontFamily: GAME_FONT_FAMILY,
-        fontSize: "24px",
+        fontSize: "31px",
         fontStyle: "900",
-        color: CSS_COLORS.collect
+        color: CSS_COLORS.near
       }).setOrigin(0.5);
-      buttonContainer.add([bg, label]);
+      buttonContainer.add([shadow, bg, label]);
 
       bg.setInteractive({ useHandCursor: true });
       bg.on("pointerover", () => {
-        bg.setScale(1.15).setStrokeStyle(4, COLORS.white);
-        label.setScale(1.15).setColor(CSS_COLORS.white);
+        bg.setScale(1.08).setFillStyle(COLORS.white).setStrokeStyle(3, COLORS.collect);
+        label.setScale(1.08);
       });
       bg.on("pointerout", () => {
-        bg.setScale(1).setStrokeStyle(3, COLORS.collect);
-        label.setScale(1).setColor(CSS_COLORS.collect);
+        bg.setScale(1).setFillStyle(COLORS.storybookButtonInner, 0.96).setStrokeStyle(3, COLORS.white, 0.96);
+        label.setScale(1);
       });
       bg.on("pointerdown", () => {
         this.navigate(direction);
@@ -254,30 +295,29 @@ export class StageSelectScene extends Phaser.Scene {
       return buttonContainer;
     };
 
-    this.leftNavButton = createButton(44, "◀", -1);
-    this.rightNavButton = createButton(GAME_WIDTH - 44, "▶", 1);
+    this.leftNavButton = createButton(43, "←", -1);
+    this.rightNavButton = createButton(GAME_WIDTH - 43, "→", 1);
   }
 
   createDotIndicators() {
     const count = LEVELS.length;
-    const dotSpacing = 28;
+    const dotSpacing = 26;
     const startX = GAME_WIDTH / 2 - ((count - 1) * dotSpacing) / 2;
+    this.dots = [];
     for (let i = 0; i < count; i += 1) {
       const dotX = startX + i * dotSpacing;
-      const hitArea = this.add.circle(dotX, 594, 15, COLORS.outline, 0.001)
+      const hitArea = this.add.circle(dotX, 606, 9, COLORS.storybookButtonInner, 0.94)
+        .setStrokeStyle(2, COLORS.near, 0.48)
         .setDepth(5)
         .setInteractive({ useHandCursor: true });
       hitArea.on("pointerover", () => {
-        if (i !== this.selected) {
-          hitArea.setFillStyle(COLORS.collect, 0.25);
-        }
+        if (i !== this.selected) hitArea.setScale(1.3);
       });
-      hitArea.on("pointerout", () => {
-        hitArea.setFillStyle(COLORS.outline, 0.001);
-      });
+      hitArea.on("pointerout", () => hitArea.setScale(i === this.selected ? 1.18 : 1));
       hitArea.on("pointerdown", () => {
         this.selectStage(i);
       });
+      this.dots.push(hitArea);
     }
   }
 
@@ -319,17 +359,27 @@ export class StageSelectScene extends Phaser.Scene {
   }
 
   createBackButton() {
-    const button = this.add.text(34, 36, "← 캐릭터 선택", {
+    const face = this.add.graphics().setDepth(4);
+    const draw = (hovered) => {
+      face.clear();
+      face.fillStyle(COLORS.outline, 0.2);
+      face.fillRoundedRect(32, 20, 204, 46, 23);
+      face.fillStyle(hovered ? COLORS.nightCanopy : COLORS.near, 0.96);
+      face.fillRoundedRect(32, 15, 204, 46, 23);
+      face.lineStyle(2, COLORS.white, 0.88);
+      face.strokeRoundedRect(32, 15, 204, 46, 23);
+    };
+    draw(false);
+    this.add.text(134, 38, "←  캐릭터 선택", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       fontStyle: "800",
-      color: CSS_COLORS.white,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 14, y: 9 }
-    }).setOrigin(0, 0.5).setDepth(4).setInteractive({ useHandCursor: true });
-    button.on("pointerover", () => button.setScale(1.06).setColor(CSS_COLORS.collect));
-    button.on("pointerout", () => button.setScale(1).setColor(CSS_COLORS.white));
-    button.on("pointerdown", () => this.goBack());
+      color: CSS_COLORS.white
+    }).setOrigin(0.5).setDepth(5);
+    this.add.zone(134, 38, 204, 46).setDepth(6).setInteractive({ useHandCursor: true })
+      .on("pointerover", () => draw(true))
+      .on("pointerout", () => draw(false))
+      .on("pointerdown", () => this.goBack());
   }
 
   renderSelection() {
@@ -340,25 +390,30 @@ export class StageSelectScene extends Phaser.Scene {
       entry.container
         .setX(GAME_WIDTH / 2 + relative * 390)
         .setVisible(visible)
-        .setAlpha(selected ? 1 : 0.94);
-      if (entry.card.input) entry.card.input.enabled = visible;
-      entry.card.setStrokeStyle(selected ? 8 : 4, selected ? COLORS.collect : COLORS.outline);
-      entry.card.setScale(selected ? 1.05 : 1);
-      entry.previewFrame.setStrokeStyle(selected ? 5 : 3, selected ? COLORS.collect : COLORS.outline).setAlpha(selected ? 1 : 0.72);
+        .setAlpha(selected ? 1 : 0.86);
+      if (entry.cardHit.input) entry.cardHit.input.enabled = visible;
+      entry.drawCard(selected);
+      entry.previewFrame.setStrokeStyle(selected ? 3 : 2, selected ? COLORS.collect : COLORS.white);
       entry.preview
-        .setDisplaySize(selected ? 310 : 292, selected ? 171 : 161)
+        .setDisplaySize(310, 170)
         .setAlpha(1);
-      entry.order.setAlpha(selected ? 1 : 0.7);
-      entry.title.setColor(selected ? CSS_COLORS.collect : CSS_COLORS.white);
-      entry.description.setAlpha(selected ? 1 : 0.85);
+      entry.title.setColor(CSS_COLORS.near);
     });
-    this.pageIndicator?.setText(LEVELS.map((_, index) => index === this.selected ? "●" : "○").join("  "));
+    this.dots?.forEach((dot, index) => {
+      const selected = index === this.selected;
+      dot.setFillStyle(selected ? COLORS.collect : COLORS.storybookButtonInner, 1)
+        .setStrokeStyle(selected ? 3 : 2, COLORS.near, selected ? 0.9 : 0.65)
+        .setScale(selected ? 1.18 : 1);
+    });
+    this.pageIndicator?.setText(`${String(this.selected + 1).padStart(2, "0")} / ${String(LEVELS.length).padStart(2, "0")}`);
+    const level = LEVELS[this.selected];
+    this.game.canvas?.setAttribute("aria-label", `스테이지 선택: ${level.name}. ${this.cards[this.selected].unlocked ? "시작 가능" : "잠김"}. ${this.selected + 1}/${LEVELS.length}`);
   }
 
   confirmStage() {
     if (this.starting) return;
     const level = LEVELS[this.selected];
-    if (!progressManager.isUnlocked(level, LEVELS)) {
+    if (this.registry.get("stageSelectReviewUnlockAll") !== true && !progressManager.isUnlocked(level, LEVELS)) {
       this.audioManager.playSfx("sfx_ui_move", { randomizeRate: false });
       const status = document.querySelector("#game-status");
       if (status) status.textContent = `${level.name}은 아직 잠겨 있습니다. 이전 스테이지를 먼저 클리어하세요.`;
