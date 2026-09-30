@@ -117,7 +117,7 @@ export const CHARACTERS = Object.freeze({
     id: "sunlight",
     name: "선라이트",
     englishName: "Sunlight",
-    description: "햇살 날개로 용기를 전하는 친구",
+    description: "햇살처럼 용기를 전하는 친구",
     color: PALETTE.sunlight[0],
     accent: PALETTE.sunlight[2],
     selectionSymbol: "sun",

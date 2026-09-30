@@ -85,17 +85,12 @@ export class CharacterSelectScene extends Phaser.Scene {
       strokeThickness: 6,
       wordWrap: { width: 440 }
     }).setDepth(3);
-    const startButton = this.add.rectangle(849, 466, 244, 56, COLORS.near, 0.84)
-      .setStrokeStyle(3, COLORS.collect).setDepth(3).setInteractive({ useHandCursor: true });
-    this.add.text(849, 466, "이 친구로 달리기  →", {
-      fontFamily: GAME_FONT_FAMILY,
-      fontSize: "23px",
-      fontStyle: "800",
-      color: CSS_COLORS.white
-    }).setOrigin(0.5).setDepth(4);
-    startButton.on("pointerover", () => startButton.setFillStyle(COLORS.near, 1));
-    startButton.on("pointerout", () => startButton.setFillStyle(COLORS.near, 0.84));
-    startButton.on("pointerdown", () => this.confirmSelection());
+    this.createPillButton({
+      x: 849, y: 466, width: 278, height: 60,
+      label: "✦  이 친구로 달리기  →",
+      kind: "start",
+      onClick: () => this.confirmSelection()
+    });
 
     for (const [direction, x, arrow] of [[-1, 170, "◀"], [1, 1110, "▶"]]) {
       const control = this.add.text(x, 345, arrow, {
@@ -126,7 +121,10 @@ export class CharacterSelectScene extends Phaser.Scene {
       const idle = CharacterAnimationManager.getSpec(character, "idle");
       const hasArt = Boolean(idle && this.textures.exists(idle.textureKey));
       const texture = hasArt ? idle.textureKey : AssetManager.ensurePlayerTexture(this, character);
-      this.portraitTextures.set(character.id, { texture, hasArt });
+      const heroKey = `character_select_hero_${character.id}`;
+      const heroTexture = this.textures.exists(heroKey) ? heroKey : texture;
+      if (heroTexture === heroKey) this.textures.get(heroKey).setFilter(Phaser.Textures.FilterMode.LINEAR);
+      this.portraitTextures.set(character.id, { texture, hasArt, heroTexture });
       const portrait = this.add.sprite(x, y, texture).setScale(0.76).setOrigin(0.5).setDepth(3);
       if (hasArt) CharacterAnimationManager.play(portrait, character, "idle");
       const name = this.add.text(x, y + 69, character.name, {
@@ -144,7 +142,8 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     const first = CHARACTER_LIST[this.selected];
     const firstArt = this.portraitTextures.get(first.id);
-    this.featured = this.add.sprite(425, 336, firstArt.texture).setScale(2.35).setDepth(3);
+    this.featured = this.add.image(425, 326, firstArt.heroTexture)
+      .setDisplaySize(350, 350).setDepth(3);
     this.add.text(GAME_WIDTH / 2, 686, "← ↑ ↓ → 친구 선택   ·   Space / Z 시작   ·   Esc 이전 메뉴", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
@@ -174,17 +173,43 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
 
   createBackButton() {
-    const button = this.add.text(34, 36, "← 처음으로", {
+    this.createPillButton({
+      x: 121, y: 38, width: 182, height: 48,
+      label: "←  처음으로",
+      kind: "back",
+      onClick: () => this.goBack()
+    });
+  }
+
+  createPillButton({ x, y, width, height, label, kind, onClick }) {
+    const radius = height / 2;
+    const left = x - width / 2, top = y - height / 2;
+    const shadow = this.add.graphics().setDepth(3);
+    shadow.fillStyle(COLORS.outline, 0.34);
+    shadow.fillRoundedRect(left + 2, top + 5, width, height, radius);
+    const face = this.add.graphics().setDepth(4);
+    const isStart = kind === "start";
+    const draw = (hovered) => {
+      face.clear();
+      face.fillStyle(isStart ? (hovered ? COLORS.white : COLORS.storybookButtonInner) : COLORS.near, isStart ? 1 : (hovered ? 0.98 : 0.86));
+      face.fillRoundedRect(left, top, width, height, radius);
+      face.lineStyle(isStart ? 3 : 2, isStart ? COLORS.collect : COLORS.white, isStart ? 1 : 0.9);
+      face.strokeRoundedRect(left, top, width, height, radius);
+      face.fillStyle(COLORS.white, isStart ? 0.45 : 0.16);
+      face.fillRoundedRect(left + 12, top + 6, width - 24, 8, 4);
+    };
+    draw(false);
+    const text = this.add.text(x, y, label, {
       fontFamily: GAME_FONT_FAMILY,
-      fontSize: "18px",
+      fontSize: isStart ? "22px" : "18px",
       fontStyle: "800",
-      color: CSS_COLORS.white,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 14, y: 9 }
-    }).setOrigin(0, 0.5).setDepth(4).setInteractive({ useHandCursor: true });
-    button.on("pointerover", () => button.setScale(1.06).setColor(CSS_COLORS.collect));
-    button.on("pointerout", () => button.setScale(1).setColor(CSS_COLORS.white));
-    button.on("pointerdown", () => this.goBack());
+      color: isStart ? CSS_COLORS.near : CSS_COLORS.white
+    }).setOrigin(0.5).setDepth(5);
+    const hit = this.add.zone(x, y, width, height).setDepth(6).setInteractive({ useHandCursor: true });
+    hit.on("pointerover", () => { draw(true); text.setScale(1.04); });
+    hit.on("pointerout", () => { draw(false); text.setScale(1); });
+    hit.on("pointerdown", onClick);
+    return hit;
   }
 
   changeSelection(direction) {
@@ -211,9 +236,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
     const character = CHARACTER_LIST[this.selected];
     const art = this.portraitTextures.get(character.id);
-    this.featured.anims.stop();
-    this.featured.setTexture(art.texture);
-    if (art.hasArt) CharacterAnimationManager.play(this.featured, character, "idle");
+    this.featured.setTexture(art.heroTexture).setDisplaySize(350, 350);
     this.featuredName.setText(character.name);
     this.featuredEnglishName.setText(`${character.englishName}   ·   ${String(this.selected + 1).padStart(2, "0")} / ${String(CHARACTER_LIST.length).padStart(2, "0")}`);
     this.featuredDescription.setText(character.description);

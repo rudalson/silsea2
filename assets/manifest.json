@@ -1084,6 +1084,13 @@
     {"key":"oceandream_alicorn_hurt","type":"spritesheet","url":"/assets/characters/oceandream/oceandream_alicorn_hurt.png","frameWidth":128,"frameHeight":128,"frames":2},
     {"key":"oceandream_alicorn_fly","type":"spritesheet","url":"/assets/characters/oceandream/oceandream_alicorn_fly.png","frameWidth":128,"frameHeight":128,"frames":6},
     {"key":"oceandream_alicorn_swim","type":"spritesheet","url":"/assets/characters/oceandream/oceandream_alicorn_swim.png","frameWidth":128,"frameHeight":128,"frames":6},
-    {"key":"oceandream_alicorn_victory","type":"spritesheet","url":"/assets/characters/oceandream/oceandream_alicorn_victory.png","frameWidth":128,"frameHeight":128,"frames":6}
+    {"key":"oceandream_alicorn_victory","type":"spritesheet","url":"/assets/characters/oceandream/oceandream_alicorn_victory.png","frameWidth":128,"frameHeight":128,"frames":6},
+    {"key":"character_select_hero_silsea","type":"image","url":"/assets/ui/character_select_hero_silsea.png","width":512,"height":512},
+    {"key":"character_select_hero_potato89","type":"image","url":"/assets/ui/character_select_hero_potato89.png","width":512,"height":512},
+    {"key":"character_select_hero_sylvia","type":"image","url":"/assets/ui/character_select_hero_sylvia.png","width":512,"height":512},
+    {"key":"character_select_hero_sunlight","type":"image","url":"/assets/ui/character_select_hero_sunlight.png","width":512,"height":512},
+    {"key":"character_select_hero_moonlight","type":"image","url":"/assets/ui/character_select_hero_moonlight.png","width":512,"height":512},
+    {"key":"character_select_hero_alora","type":"image","url":"/assets/ui/character_select_hero_alora.png","width":512,"height":512},
+    {"key":"character_select_hero_oceandream","type":"image","url":"/assets/ui/character_select_hero_oceandream.png","width":512,"height":512}
   ]
 }

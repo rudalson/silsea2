@@ -46,6 +46,7 @@ export class AssetManager {
   static queueCharacterPortraits(scene) {
     for (const character of CHARACTER_LIST) {
       AssetManager.queueManifestAsset(scene, getCharacterSequenceKey(character.id, "idle"));
+      AssetManager.queueManifestAsset(scene, `character_select_hero_${character.id}`);
     }
   }
 
