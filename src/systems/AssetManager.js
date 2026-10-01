@@ -24,6 +24,8 @@ export class AssetManager {
       "ui_hud_heart",
       "ui_hud_wings",
       "ui_hud_percent",
+      "ui_stage_nav",
+      "ui_stage_nav_hover",
       "ui_result_sticker_clear",
       "ui_result_sticker_collect",
       "ui_result_sticker_secret",

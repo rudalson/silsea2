@@ -668,6 +668,8 @@
     { "key": "ui_hud_heart", "type": "image", "url": "/assets/ui/ui_hud_heart.png" },
     { "key": "ui_hud_wings", "type": "image", "url": "/assets/ui/ui_hud_wings.png" },
     { "key": "ui_hud_percent", "type": "image", "url": "/assets/ui/ui_hud_percent.png" },
+    { "key": "ui_stage_nav", "type": "image", "url": "/assets/ui/ui_stage_nav.png", "width": 72, "height": 72 },
+    { "key": "ui_stage_nav_hover", "type": "image", "url": "/assets/ui/ui_stage_nav_hover.png", "width": 72, "height": 72 },
     { "key": "ui_result_sticker_clear", "type": "image", "url": "/assets/ui/ui_result_sticker_clear.png", "width": 128, "height": 128 },
     { "key": "ui_result_sticker_collect", "type": "image", "url": "/assets/ui/ui_result_sticker_collect.png", "width": 128, "height": 128 },
     { "key": "ui_result_sticker_secret", "type": "image", "url": "/assets/ui/ui_result_sticker_secret.png", "width": 128, "height": 128 },

@@ -419,7 +419,7 @@ if (transformationManager.includes("ATTACHMENT_LAYOUT")
 if (!stageSelectScene.includes("createBackButton") || !stageSelectScene.includes("goBack") || !stageSelectScene.includes("input.pausePressed")) {
   fail("스테이지 선택 화면의 직접 캐릭터 선택 버튼 또는 Esc 복귀가 없음");
 }
-if (!stageSelectScene.includes("pageIndicator") || !stageSelectScene.includes("relative * 390")) {
+if (!stageSelectScene.includes("pageIndicator") || !stageSelectScene.includes("relative * CARD_SPACING")) {
   fail("다섯 번째 스테이지를 위한 좌우 캐러셀·페이지 표시가 없음");
 }
 if (!stageSelectScene.includes('level.visualTheme === "submerged-graybox"')) fail("물에 잠긴 마을 선택 카드 실루엣이 없음");
