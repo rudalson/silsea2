@@ -304,8 +304,36 @@ const requiredAudioKeys = [
   "sfx_invisible_warning", "sfx_invisible_reveal", "sfx_invisible_hide", "sfx_invisible_attack", "sfx_invisible_defeat",
   "sfx_water_warning", "sfx_water_emerge", "sfx_water_attack", "sfx_water_dizzy", "sfx_water_submerge", "sfx_water_defeat",
   "sfx_random_draw", "sfx_random_result", "sfx_random_teleport", "sfx_random_throw", "sfx_random_tongue", "sfx_random_weakness", "sfx_random_defeat",
-  "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_alicorn_layer"
+  "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_clear_loop", "bgm_alicorn_layer"
 ];
+const readOggVorbis = (buffer) => {
+  let offset = 0;
+  let lastGranule = 0n;
+  let rate = 0;
+  let channels = 0;
+  while (offset + 27 <= buffer.length) {
+    if (buffer.toString("ascii", offset, offset + 4) !== "OggS") throw new Error("OggS 페이지가 아님");
+    const segments = buffer[offset + 26];
+    const tableEnd = offset + 27 + segments;
+    if (tableEnd > buffer.length) throw new Error("잘린 OGG 세그먼트 표");
+    let payloadBytes = 0;
+    for (let i = offset + 27; i < tableEnd; i += 1) payloadBytes += buffer[i];
+    const pageEnd = tableEnd + payloadBytes;
+    if (pageEnd > buffer.length) throw new Error("잘린 OGG 페이지");
+    if (!rate) {
+      if (buffer[tableEnd] !== 1 || buffer.toString("ascii", tableEnd + 1, tableEnd + 7) !== "vorbis") {
+        throw new Error("Vorbis 식별 헤더가 없음");
+      }
+      channels = buffer[tableEnd + 11];
+      rate = buffer.readUInt32LE(tableEnd + 12);
+    }
+    const granule = buffer.readBigUInt64LE(offset + 6);
+    if (granule !== 0xffffffffffffffffn) lastGranule = granule;
+    offset = pageEnd;
+  }
+  if (offset !== buffer.length || !rate || !lastGranule) throw new Error("OGG 길이 또는 페이지가 올바르지 않음");
+  return { channels, rate, duration: Number(lastGranule) / rate };
+};
 let validatedAudioCount = 0;
 let validatedCharacterSheetCount = 0;
 let validatedEnemySheetCount = 0;
@@ -868,20 +896,25 @@ try {
     }
     try {
       const buffer = await readFile(join(root, entry.url.slice(1)));
-      if (buffer.length < 45 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WAVE") {
-        errors.push(`${key}: 유효한 WAV 파일이 아님`);
-        continue;
+      if (key.startsWith("bgm_")) {
+        if (!entry.url.endsWith(".ogg")) errors.push(`${key}: BGM 배포본이 OGG가 아님`);
+        const { channels, rate, duration } = readOggVorbis(buffer);
+        if (channels !== 1 || rate !== 22050) errors.push(`${key}: 22050Hz mono Vorbis가 아님`);
+        const minimum = ["bgm_clear", "bgm_alicorn_layer"].includes(key) ? 3 : key === "bgm_clear_loop" ? 15 : 28;
+        if (duration < minimum) errors.push(`${key}: BGM 길이 ${duration.toFixed(2)}초 (${minimum}초 미만)`);
+      } else {
+        if (buffer.length < 45 || buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WAVE") {
+          errors.push(`${key}: 유효한 WAV 파일이 아님`);
+          continue;
+        }
+        const channels = buffer.readUInt16LE(22);
+        const rate = buffer.readUInt32LE(24);
+        const bits = buffer.readUInt16LE(34);
+        const dataBytes = buffer.readUInt32LE(40);
+        const duration = dataBytes / (rate * channels * (bits / 8));
+        if (channels !== 1 || rate !== 22050 || bits !== 16) errors.push(`${key}: 22050Hz mono 16-bit PCM이 아님`);
+        if (duration < 0.05) errors.push(`${key}: SFX 길이 ${duration.toFixed(2)}초 (50ms 미만)`);
       }
-      const channels = buffer.readUInt16LE(22);
-      const rate = buffer.readUInt32LE(24);
-      const bits = buffer.readUInt16LE(34);
-      const dataBytes = buffer.readUInt32LE(40);
-      const duration = dataBytes / (rate * channels * (bits / 8));
-      if (channels !== 1 || rate !== 22050 || bits !== 16) {
-        errors.push(`${key}: 22050Hz mono 16-bit PCM이 아님`);
-      }
-      if (key.startsWith("bgm_") && duration < 3) errors.push(`${key}: BGM 길이 ${duration.toFixed(2)}초 (3초 미만)`);
-      if (key.startsWith("sfx_") && duration < 0.05) errors.push(`${key}: SFX 길이 ${duration.toFixed(2)}초 (50ms 미만)`);
       validatedAudioCount += 1;
     } catch (error) {
       errors.push(`${key}: 오디오 파일을 읽을 수 없음 (${error.message})`);
@@ -907,6 +940,6 @@ const maximumOutsidePalette = qualityMeasurements.outsidePalette.reduce(
   (maximum, measurement) => measurement.value > maximum.value ? measurement : maximum,
   qualityMeasurements.outsidePalette[0]
 );
-console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 ${tilesetKeys.length}개·배경 ${backgroundAssets.length}개·별빛 장식 ${starlightDecorationAssets.length}개·환경 효과 ${mistEffectAssets.length + waterEffectAssets.length + hulaEffectAssets.length + invisibleEffectAssets.length + waterKingEffectAssets.length + randomKingEffectAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV 잠금`);
+console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 ${tilesetKeys.length}개·배경 ${backgroundAssets.length}개·별빛 장식 ${starlightDecorationAssets.length}개·환경 효과 ${mistEffectAssets.length + waterEffectAssets.length + hulaEffectAssets.length + invisibleEffectAssets.length + waterKingEffectAssets.length + randomKingEffectAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV/OGG 잠금`);
 console.log(`형태/팔레트 임계값 통과: 기준선 ${qualityMeasurements.baseline.length}개 ${baselineRange.minimum}~${baselineRange.maximum}px (16±2px) · 캐릭터 높이 ${qualityMeasurements.characterHeight.length}개 ${heightRange.minimum}~${heightRange.maximum}px (96px±5%) · 팔레트 ${qualityMeasurements.outsidePalette.length}개 최대 ${(maximumOutsidePalette.value * 100).toFixed(2)}% (${maximumOutsidePalette.name}, 허용 5% 이하)`);
 console.log(`HTML 에셋 보고서 생성: ${assetReport.outputPath} (시각 에셋 ${assetReport.assetCount}개·역할 실루엣 ${assetReport.roleCount}개)`);

@@ -40,7 +40,7 @@
 
 ## 자체 생성 오디오
 
-- `assets/audio/`의 현재 WAV는 외부 음원이나 녹음을 사용하지 않고 프로젝트의 `scripts/generate-audio.js`가 결정적으로 합성했다.
+- `assets/audio/`의 효과음 WAV와 BGM OGG는 외부 음원이나 녹음을 사용하지 않고 프로젝트의 `scripts/generate-audio.js`와 `scripts/generate-bgm.js`가 결정적으로 합성했다. BGM OGG 인코딩에는 FFmpeg를 사용한다.
 - S5 잔디·흙·돌·나무·얕은 물 발소리 5종도 같은 생성 절차를 사용했으며 별도의 제3자 오디오 크레딧은 없다.
 
 ## 클리어 화면 표시안

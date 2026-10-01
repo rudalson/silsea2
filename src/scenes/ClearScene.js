@@ -38,7 +38,7 @@ export class ClearScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(COLORS.near);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
-    this.audioManager.playBgm(level.assets.bgm.clear, { loop: false });
+    this.audioManager.playBgmThenLoop(level.assets.bgm.clear, "bgm_clear_loop");
 
     const celebrationDotCount = this.reducedEffects ? 12 : 34;
     for (let index = 0; index < celebrationDotCount; index += 1) {

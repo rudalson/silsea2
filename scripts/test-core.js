@@ -1758,11 +1758,19 @@ const audioEvents = {
     for (const handler of audioListeners.get(event) ?? []) handler(payload);
   }
 };
+const scheduledAudioCalls = [];
 const audioScene = {
   cache: { audio: { exists: (key) => key !== "missing" } },
   events: audioEvents,
   game: { loop: { frame: 12 } },
-  time: { now: 1200 },
+  time: {
+    now: 1200,
+    delayedCall(duration, callback) {
+      const timer = { duration, callback, remove() { this.removed = true; } };
+      scheduledAudioCalls.push(timer);
+      return timer;
+    }
+  },
   registry: {
     get: (key) => registryValues.get(key),
     set: (key, value) => registryValues.set(key, value)
@@ -1785,7 +1793,9 @@ const audioScene = {
         },
         stop() { this.isPlaying = false; },
         destroy() { this.destroyed = true; },
-        setVolume(value) { this.volume = value; }
+        setVolume(value) { this.volume = value; },
+        once(event, handler) { this.completeHandler = event === "complete" ? handler : null; },
+        complete() { this.isPlaying = false; this.completeHandler?.(); }
       };
       audioAdds.push(sound);
       return sound;
@@ -1806,6 +1816,10 @@ assert.equal(BGM_CROSSFADE_MS, 480);
 assert.equal(audio.getSnapshot().currentBgmKey, "bgm_boss");
 assert.equal(bgm.destroyed, true, "크로스페이드가 끝나면 이전 BGM을 해제해야 함");
 assert.equal(bossBgm.volume, 0.46);
+audio.playSfx("sfx_boss_warning", { randomizeRate: false });
+assert.equal(bossBgm.volume, 0.46 * 0.72, "위험 예고 동안 BGM이 부드럽게 낮아져야 함");
+scheduledAudioCalls.at(-1).callback();
+assert.equal(bossBgm.volume, 0.46, "위험 예고 뒤 BGM 볼륨이 복원되어야 함");
 audioEvents.emit("player:form-changed", { form: "alicorn", emphasize: true });
 assert.deepEqual(audio.getSnapshot().activeBgmLayers, [ALICORN_LAYER_KEY]);
 const alicornLayer = audioAdds.find((sound) => sound.key === ALICORN_LAYER_KEY);
@@ -1840,6 +1854,10 @@ assert.equal(audioScene.sound.mute, false);
 assert.deepEqual(audio.getSnapshot().activeBgmLayers, [ALICORN_LAYER_KEY], "음소거 해제 시 필요한 레이어를 복원해야 함");
 audioEvents.emit("player:form-changed", { form: "base", emphasize: false });
 assert.deepEqual(audio.getSnapshot().activeBgmLayers, []);
+const fanfare = audio.playBgmThenLoop("bgm_clear", "bgm_clear_loop");
+assert.equal(fanfare.config.loop, false, "클리어 팡파르는 한 번만 재생해야 함");
+fanfare.complete();
+assert.equal(audio.getSnapshot().currentBgmKey, "bgm_clear_loop", "팡파르 완료 후 결과 루프로 전환해야 함");
 audio.destroy();
 
 for (const profile of Object.values(CAMERA_SHAKE_PROFILES)) {

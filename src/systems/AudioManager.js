@@ -22,6 +22,11 @@ export const ALICORN_LAYER_KEY = "bgm_alicorn_layer";
 
 const ALICORN_LAYER_VOLUME = 0.52;
 const ALICORN_LAYER_EXIT_FADE_MS = 180;
+const BGM_DUCK_CUES = new Set([
+  "sfx_boss_warning", "sfx_cloud_charge", "sfx_tsunami_warning",
+  "sfx_breath_low", "sfx_laser_warning", "sfx_alicorn_warning",
+  "sfx_water_warning", "sfx_invisible_warning"
+]);
 
 const clamp01 = (value) => Math.max(0, Math.min(1, Number(value)));
 
@@ -114,11 +119,13 @@ export class AudioManager {
     } = config;
     const playbackRate = rate ?? (randomizeRate ? 0.95 + this.random() * 0.1 : 1);
     try {
-      return this.scene.sound?.play?.(key, {
+      const played = this.scene.sound?.play?.(key, {
         ...soundConfig,
         volume: clamp01(volume) * this.settings.sfxVolume,
         rate: playbackRate
       }) ?? null;
+      if (played && BGM_DUCK_CUES.has(key)) this.duckBgm();
+      return played;
     } catch {
       return null;
     }
@@ -207,6 +214,18 @@ export class AudioManager {
     return this.playBgm(key, { ...config, fadeMs: config.fadeMs ?? BGM_CROSSFADE_MS });
   }
 
+  playBgmThenLoop(introKey, loopKey, { fadeMs = 320 } = {}) {
+    const intro = this.playBgm(introKey, { loop: false });
+    if (intro?.once) {
+      intro.once("complete", () => {
+        if (this.scene) this.transitionBgm(loopKey, { fadeMs });
+      });
+    } else {
+      this.playBgm(loopKey);
+    }
+    return intro;
+  }
+
   playBgmLayer(key, { volume = 1, fadeInMs = 0 } = {}) {
     if (!this.has(key)) return null;
     const config = { key, volume: clamp01(volume), fadeInMs };
@@ -293,6 +312,20 @@ export class AudioManager {
     }
   }
 
+  duckBgm() {
+    if (!this.currentBgm || !this.scene.time?.delayedCall) return;
+    this.bgmDuckTimer?.remove?.();
+    const target = clamp01(this.desiredBgm?.volume ?? 1) * this.settings.bgmVolume;
+    this.fadeSound(this.currentBgm, target * 0.72, 90);
+    this.bgmDuckTimer = this.scene.time.delayedCall(460, () => {
+      this.bgmDuckTimer = null;
+      if (this.currentBgm) {
+        const restored = clamp01(this.desiredBgm?.volume ?? 1) * this.settings.bgmVolume;
+        this.fadeSound(this.currentBgm, restored, 240);
+      }
+    });
+  }
+
   applyMute() {
     if (this.scene.sound) this.scene.sound.mute = this.settings.muted;
     if (this.settings.muted) {
@@ -323,6 +356,7 @@ export class AudioManager {
   }
 
   destroy() {
+    this.bgmDuckTimer?.remove?.();
     for (const [event, handler] of this.handlers ?? []) this.scene.events?.off?.(event, handler);
     for (const key of [...this.loops.keys()]) this.stopLoop(key);
     this.stopAllBgmLayers();

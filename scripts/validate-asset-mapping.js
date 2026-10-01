@@ -122,7 +122,7 @@ const expectedExtensions = Object.freeze({
   image: ".png",
   spritesheet: ".png",
   atlas: ".png",
-  audio: ".wav"
+  audio: [".wav", ".ogg"]
 });
 
 for (const entry of manifestEntries) {
@@ -133,7 +133,7 @@ for (const entry of manifestEntries) {
   if (!hasOwn(expectedExtensions, entry.type)) fail(`manifest.json: ${entry.key}의 알 수 없는 type ${entry.type}`);
   const primaryUrl = entry.url ?? entry.file;
   if (entry.url && entry.file) fail(`manifest.json: ${entry.key}에 url과 file이 동시에 있음`);
-  if (extname(primaryUrl ?? "").toLowerCase() !== expectedExtensions[entry.type]) {
+  if (![].concat(expectedExtensions[entry.type] ?? []).includes(extname(primaryUrl ?? "").toLowerCase())) {
     fail(`manifest.json: ${entry.key} type ${entry.type}과 확장자 불일치 (${primaryUrl ?? "없음"})`);
   }
   const extension = extname(primaryUrl ?? "");

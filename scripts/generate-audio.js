@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { generateBgm } from "./generate-bgm.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const sampleRate = 22050;
@@ -134,97 +135,6 @@ const renderSfx = (recipe, seed) => {
   return samples;
 };
 
-const midi = (note) => 440 * (2 ** ((note - 69) / 12));
-
-const tracks = {
-  bgm_field: {
-    bpm: 120,
-    lead: [72, 76, 79, 76, 74, 77, 81, 77, 72, 76, 79, 84, 81, 79, 76, 74],
-    bass: [48, 48, 53, 53, 45, 45, 55, 55],
-    wave: "triangle",
-    percussion: 0.055
-  },
-  bgm_boss: {
-    bpm: 108,
-    lead: [48, null, 51, 53, 48, null, 55, 54, 46, null, 50, 53, 46, 55, 54, 50],
-    bass: [36, 36, 34, 34, 31, 31, 34, 35],
-    wave: "square",
-    percussion: 0.11
-  },
-  bgm_clear: {
-    bpm: 112,
-    lead: [72, 76, 79, 84, 83, 79, 81, 84, 88, 86, 84, 79, 81, 84, 88, 91],
-    bass: [48, 53, 55, 48, 53, 57, 55, 60],
-    wave: "triangle",
-    percussion: 0.04
-  },
-  bgm_alicorn_layer: {
-    bpm: 120,
-    lead: [84, 88, 91, 88, 86, 89, 93, 89, 84, 88, 91, 96, 93, 91, 88, 86],
-    bass: [72, 76, 77, 79, 72, 76, 77, 79],
-    wave: "sine",
-    percussion: 0.025
-  },
-  bgm_starlight: {
-    bpm: 96,
-    lead: [69, 72, 76, 79, 76, 72, 69, null, 67, 71, 74, 79, 76, 74, 71, null],
-    bass: [45, 52, 48, 55, 45, 52, 50, 55],
-    wave: "sine",
-    percussion: 0.022
-  },
-  bgm_mist: {
-    bpm: 88,
-    lead: [67, 71, 74, null, 69, 72, 76, null, 67, 74, 71, null, 64, 69, 72, null],
-    bass: [43, 50, 45, 52, 43, 50, 47, 52],
-    wave: "sine",
-    percussion: 0.012
-  },
-  bgm_tsunami: {
-    bpm: 112,
-    lead: [62, null, 65, 69, 67, null, 65, null, 62, null, 67, 70, 69, null, 65, null],
-    bass: [38, 45, 41, 48, 38, 45, 43, 48],
-    wave: "triangle",
-    percussion: 0.045
-  },
-  bgm_submerged: {
-    bpm: 84,
-    lead: [64, 67, 71, null, 69, 72, 76, null, 64, 71, 74, null, 62, 67, 71, null],
-    bass: [40, 47, 43, 50, 40, 47, 45, 50],
-    wave: "sine",
-    percussion: 0.008
-  }
-};
-
-const renderTrack = (track, seed) => {
-  const beatSeconds = 60 / track.bpm / 2;
-  const duration = track.lead.length * beatSeconds;
-  const length = Math.ceil(duration * sampleRate);
-  const samples = new Float32Array(length);
-  let noiseState = seed | 0;
-  for (let index = 0; index < length; index += 1) {
-    const time = index / sampleRate;
-    const beat = Math.min(track.lead.length - 1, Math.floor(time / beatSeconds));
-    const local = time - beat * beatSeconds;
-    const leadNote = track.lead[beat];
-    const bassNote = track.bass[Math.floor(beat / 2) % track.bass.length];
-    const beatEnvelope = envelope(local, beatSeconds, 0.018, 0.06);
-    let value = leadNote === null ? 0 : waveAt(track.wave, time * midi(leadNote) * Math.PI * 2) * 0.18 * beatEnvelope;
-    value += Math.sin(time * midi(bassNote) * Math.PI * 2) * 0.17 * beatEnvelope;
-    value += Math.sin(time * midi(bassNote + 7) * Math.PI * 2) * 0.06 * beatEnvelope;
-
-    noiseState ^= noiseState << 13;
-    noiseState ^= noiseState >>> 17;
-    noiseState ^= noiseState << 5;
-    const noise = ((noiseState >>> 0) / 0xffffffff) * 2 - 1;
-    const percussionEnvelope = Math.exp(-local * 34);
-    value += noise * track.percussion * percussionEnvelope;
-
-    const edge = Math.min(1, time / 0.018, (duration - time) / 0.018);
-    samples[index] = Math.tanh(value * 1.4) * masterGain * Math.max(0, edge);
-  }
-  return samples;
-};
-
 const wavBuffer = (samples) => {
   const dataBytes = samples.length * 2;
   const buffer = Buffer.alloc(44 + dataBytes);
@@ -258,8 +168,6 @@ Object.entries(sfx).forEach(([key, recipe], index) => {
   writeAudio(`assets/audio/sfx/${key}.wav`, renderSfx(recipe, 8901 + index * 97));
 });
 
-Object.entries(tracks).forEach(([key, track], index) => {
-  writeAudio(`assets/audio/bgm/${key}.wav`, renderTrack(track, 1989 + index * 131));
-});
+const bgmCount = generateBgm();
 
-console.log(`오디오 생성 완료: SFX ${Object.keys(sfx).length}개, BGM ${Object.keys(tracks).length}개, ${sampleRate}Hz mono PCM WAV`);
+console.log(`오디오 생성 완료: SFX ${Object.keys(sfx).length}개 WAV, BGM ${bgmCount}개 OGG`);
