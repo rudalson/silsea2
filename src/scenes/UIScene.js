@@ -21,47 +21,54 @@ export class UIScene extends Phaser.Scene {
     this.gameScene = this.scene.get(this.gameSceneKey);
     this.inputManager = new InputManager(this);
 
-    const hasUiArt = this.textures.exists("ui_hud_frame");
-    if (hasUiArt) {
-      this.add.image(208, 76, "ui_hud_frame").setScale(0.3).setScrollFactor(0);
+    const hasHudArt = ["ui_game_hud_left", "ui_game_hud_center", "ui_game_hud_button", "ui_game_hud_button_hover"]
+      .every((key) => this.textures.exists(key));
+    if (hasHudArt) {
+      for (const key of ["ui_game_hud_left", "ui_game_hud_center", "ui_game_hud_button", "ui_game_hud_button_hover"]) {
+        this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+      }
+      this.add.image(214, 70, "ui_game_hud_left").setScrollFactor(0);
+      this.add.image(GAME_WIDTH / 2, 60, "ui_game_hud_center").setScrollFactor(0);
     } else {
-      this.add.rectangle(208, 76, 382, 132, COLORS.near, 0.92).setStrokeStyle(3, COLORS.mid).setScrollFactor(0);
+      this.add.rectangle(214, 70, 388, 103, COLORS.near, 0.94).setStrokeStyle(2, COLORS.white, 0.7).setScrollFactor(0);
+      this.add.rectangle(GAME_WIDTH / 2, 60, 380, 88, COLORS.near, 0.94).setStrokeStyle(2, COLORS.white, 0.7).setScrollFactor(0);
     }
-    this.characterText = this.createLabel(42, 25, "", {
-      fontSize: "20px",
+    this.characterText = this.createLabel(44, 27, "", {
+      fontSize: "19px",
       fontStyle: "800",
       color: CSS_COLORS.white,
       stroke: CSS_COLORS.panel,
-      strokeThickness: 4
+      strokeThickness: 2
     }).setScrollFactor(0);
-    this.hpLabel = this.createLabel(43, 57, "HP 3 / 3", {
-      fontSize: "13px",
+    this.hpLabel = this.createLabel(45, 70, "HP 3 / 3", {
+      fontSize: "14px",
       fontStyle: "800",
-      color: CSS_COLORS.collectPink,
+      color: CSS_COLORS.white,
       stroke: CSS_COLORS.panel,
       strokeThickness: 2
     }).setScrollFactor(0);
     this.heartIcons = [];
     for (let index = 0; index < 3; index += 1) {
-      const heart = hasUiArt
-        ? this.add.image(94 + index * 35, 76, "ui_hud_heart").setScale(0.09)
-        : this.add.text(89 + index * 30, 64, "♥", { fontSize: "24px", color: CSS_COLORS.collect });
-      heart.setScrollFactor(0);
+      const heart = this.createLabel(122 + index * 31, 82, "♥", {
+        fontSize: "25px", fontStyle: "900", color: CSS_COLORS.collectPink,
+        stroke: CSS_COLORS.nightVeil, strokeThickness: 2
+      }).setOrigin(0.5).setScrollFactor(0);
       this.heartIcons.push(heart);
     }
-    this.formText = this.createLabel(226, 55, "기본형", {
-      fontSize: "15px",
+    this.formText = this.createLabel(380, 37, "기본형", {
+      fontSize: "14px",
       fontStyle: "700",
-      color: CSS_COLORS.collectBlue,
+      color: CSS_COLORS.collect,
       stroke: CSS_COLORS.panel,
-      strokeThickness: 3
-    }).setScrollFactor(0);
-    this.flightIcon = hasUiArt
-      ? this.add.image(244, 75, "ui_hud_wings").setScale(0.075).setScrollFactor(0)
-      : this.add.text(235, 64, "✦", { fontSize: "20px", color: CSS_COLORS.collectBlue }).setScrollFactor(0);
-    this.flightTrack = this.add.rectangle(268, 76, 128, 12, COLORS.panel, 0.84).setOrigin(0, 0.5).setScrollFactor(0)
-      .setStrokeStyle(2, COLORS.mid);
-    this.flightBar = this.add.rectangle(270, 76, 124, 6, COLORS.collectBlue, 1).setOrigin(0, 0.5).setScrollFactor(0);
+      strokeThickness: 2
+    }).setOrigin(1, 0).setScrollFactor(0);
+    this.flightIcon = this.createLabel(251, 77, "✦", {
+      fontSize: "18px", fontStyle: "900", color: CSS_COLORS.collectBlue
+    }).setOrigin(0.5).setScrollFactor(0);
+    this.flightTrack = this.add.rectangle(273, 81, 108, 9, COLORS.nightVeil, 0.7)
+      .setOrigin(0, 0.5).setScrollFactor(0);
+    this.flightBar = this.add.rectangle(276, 81, 102, 5, COLORS.collectBlue, 1)
+      .setOrigin(0, 0.5).setScrollFactor(0);
     this.breathPanel = this.add.rectangle(208, 164, 382, 40, COLORS.near, 0.9)
       .setStrokeStyle(3, COLORS.collectBlue)
       .setScrollFactor(0)
@@ -89,24 +96,21 @@ export class UIScene extends Phaser.Scene {
       padding: { x: 14, y: 9 }
     }).setOrigin(1, 0).setScrollFactor(0).setVisible(false);
 
-    this.add.rectangle(GAME_WIDTH / 2, 48, 360, 78, COLORS.near, 0.94).setStrokeStyle(3, COLORS.collect).setScrollFactor(0);
-    this.createScoreBadge(GAME_WIDTH / 2 - 142, 48, "%");
-    this.createScoreBadge(GAME_WIDTH / 2 + 142, 48, "★");
-    this.scoreText = this.createLabel(GAME_WIDTH / 2, 18, "진행도 0%", {
-      fontSize: "25px",
+    this.scoreText = this.createLabel(GAME_WIDTH / 2, 35, "진행도 0%", {
+      fontSize: "24px",
       fontStyle: "900",
       color: CSS_COLORS.collect,
       stroke: CSS_COLORS.panel,
-      strokeThickness: 5
-    }).setOrigin(0.5).setScrollFactor(0).setFixedSize(260, 32).setAlign("center");
-    this.objectiveText = this.createLabel(GAME_WIDTH / 2, 56, "별 목표 0/0", {
+      strokeThickness: 2
+    }).setOrigin(0.5).setScrollFactor(0).setFixedSize(320, 34).setAlign("center");
+    this.objectiveText = this.createLabel(GAME_WIDTH / 2, 73, "✦  별 목표 0/0  ✦", {
       fontSize: "15px",
       fontStyle: "700",
       color: CSS_COLORS.white,
       stroke: CSS_COLORS.panel,
-      strokeThickness: 3
+      strokeThickness: 1
     }).setOrigin(0.5).setScrollFactor(0);
-    this.comboText = this.createLabel(GAME_WIDTH / 2 + 185, 31, "", {
+    this.comboText = this.createLabel(GAME_WIDTH / 2 + 202, 34, "", {
       fontSize: "17px",
       fontStyle: "900",
       color: CSS_COLORS.collectPink,
@@ -122,24 +126,28 @@ export class UIScene extends Phaser.Scene {
       padding: { x: 10, y: 7 }
     }).setOrigin(1, 0).setScrollFactor(0).setVisible(this.registry.get("debugEnabled"));
 
-    this.pauseButton = this.createLabel(GAME_WIDTH - 24, 26, "일시정지 · Esc", {
-      align: "right",
-      fontSize: "15px",
-      fontStyle: "700",
-      color: CSS_COLORS.white,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 10, y: 7 }
-    }).setOrigin(1, 0).setScrollFactor(0).setInteractive({ useHandCursor: true });
+    const createHudButton = (y) => {
+      const button = hasHudArt
+        ? this.add.image(GAME_WIDTH - 130, y, "ui_game_hud_button")
+        : this.add.rectangle(GAME_WIDTH - 130, y, 206, 40, COLORS.near, 0.94)
+          .setStrokeStyle(2, COLORS.white, 0.7);
+      button.setScrollFactor(0).setInteractive({ useHandCursor: true });
+      if (hasHudArt) {
+        button.on("pointerover", () => button.setTexture("ui_game_hud_button_hover"));
+        button.on("pointerout", () => button.setTexture("ui_game_hud_button"));
+      }
+      return button;
+    };
+    this.pauseButton = createHudButton(40);
+    this.pauseLabel = this.createLabel(GAME_WIDTH - 130, 37, "Ⅱ  일시정지  ·  Esc", {
+      fontSize: "15px", fontStyle: "800", color: CSS_COLORS.white
+    }).setOrigin(0.5).setScrollFactor(0);
     this.pauseButton.on("pointerdown", () => this.togglePause());
 
-    this.shakeButton = this.createLabel(GAME_WIDTH - 24, 88, "", {
-      align: "right",
-      fontSize: "14px",
-      fontStyle: "700",
-      color: CSS_COLORS.collectBlue,
-      backgroundColor: CSS_COLORS.panelSoft,
-      padding: { x: 10, y: 7 }
-    }).setOrigin(1, 0).setScrollFactor(0).setInteractive({ useHandCursor: true });
+    this.shakeButton = createHudButton(92);
+    this.shakeLabel = this.createLabel(GAME_WIDTH - 130, 89, "", {
+      fontSize: "14px", fontStyle: "800", color: CSS_COLORS.collectBlue
+    }).setOrigin(0.5).setScrollFactor(0);
     this.shakeButton.on("pointerdown", () => this.toggleScreenShake());
     this.renderShakeSetting();
 
@@ -261,7 +269,7 @@ export class UIScene extends Phaser.Scene {
         : "");
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
-    this.objectiveText.setText(`별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}`);
+    this.objectiveText.setText(`✦  별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}  ✦`);
     if (this.registry.get("debugEnabled")) {
       this.fpsText.setText(`FPS ${Math.round(this.game.loop.actualFps)}\nEsc 일시정지 · \` 디버그`);
     }
@@ -494,8 +502,8 @@ export class UIScene extends Phaser.Scene {
 
   renderShakeSetting() {
     const enabled = this.gameScene.cameraEffects?.enabled ?? false;
-    this.shakeButton
-      .setText(`화면 흔들림 ${enabled ? "ON" : "OFF"} · V`)
+    this.shakeLabel
+      .setText(`✦  화면 흔들림 ${enabled ? "ON" : "OFF"}  ·  V`)
       .setColor(enabled ? CSS_COLORS.collectBlue : CSS_COLORS.soft);
   }
 
@@ -513,20 +521,6 @@ export class UIScene extends Phaser.Scene {
         heart.setTint(COLORS.outline).setAlpha(0.5);
       }
     });
-  }
-
-  createScoreBadge(x, y, glyph) {
-    const badge = this.add.circle(x, y, 17, COLORS.collect, 1)
-      .setStrokeStyle(3, COLORS.outline)
-      .setScrollFactor(0);
-    const label = this.createLabel(x, y - 1, glyph, {
-      fontSize: glyph === "%" ? "17px" : "21px",
-      fontStyle: "900",
-      color: CSS_COLORS.white,
-      stroke: CSS_COLORS.panel,
-      strokeThickness: 3
-    }).setOrigin(0.5).setScrollFactor(0);
-    return { badge, label };
   }
 
   showToast(message, holdMs = 750) {
