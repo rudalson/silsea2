@@ -644,6 +644,7 @@
     { "key": "rainbow_gate", "type": "image", "url": "/assets/items/rainbow_gate.png" },
     { "key": "fx_lightning", "type": "image", "url": "/assets/effects/fx_lightning.png" },
     { "key": "fx_updraft_wind", "type": "image", "url": "/assets/effects/fx_updraft_wind.png", "width": 1024, "height": 1536 },
+    { "key": "fx_updraft_curl", "type": "image", "url": "/assets/effects/fx_updraft_curl.png", "width": 256, "height": 256 },
     { "key": "fx_hula_spin", "type": "image", "url": "/assets/effects/fx_hula_spin.png", "width": 256, "height": 112 },
     { "key": "projectile_hula_hoop_low", "type": "image", "url": "/assets/projectiles/projectile_hula_hoop_low.png", "width": 112, "height": 64 },
     { "key": "projectile_hula_hoop_jump", "type": "image", "url": "/assets/projectiles/projectile_hula_hoop_jump.png", "width": 80, "height": 112 },

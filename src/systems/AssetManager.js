@@ -102,6 +102,7 @@ export class AssetManager {
     }
     if ((level.terrainMechanics?.updrafts?.length ?? 0) > 0) {
       AssetManager.queueManifestAsset(scene, "fx_updraft_wind");
+      AssetManager.queueManifestAsset(scene, "fx_updraft_curl");
     }
   }
 

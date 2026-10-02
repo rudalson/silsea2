@@ -3,6 +3,7 @@ import { COLORS } from "../config/constants.js";
 const MOVING_PLATFORM_DEPTH = 2;
 const UPDRAFT_DEPTH = 1;
 const CRUMBLE_PLATFORM_DEPTH = 2;
+const UPDRAFT_CURL_COUNT = 5;
 
 const isInside = (body, area) => (
   body.right >= area.x
@@ -127,29 +128,29 @@ export class TerrainMechanicsManager {
     const centerX = config.x + config.width / 2;
     const centerY = config.y + config.height / 2;
     const container = this.track(this.scene.add.container(centerX, centerY).setDepth(UPDRAFT_DEPTH));
-    const glow = this.scene.add.ellipse(0, 0, config.width * 0.84, config.height * 0.92, COLORS.collectBlue, 0.1);
-    const gustHeight = Math.min(config.height - 46, 286);
-    const gustWidth = gustHeight * (2 / 3);
-    const gustCount = Math.max(1, Math.round(config.width / 200));
-    const gusts = Array.from({ length: gustCount }, (_, index) => {
-      const spread = gustCount === 1 ? 0 : ((index / (gustCount - 1)) - 0.5) * config.width * 0.42;
-      const image = this.scene.add.image(spread, 6, "fx_updraft_wind").setOrigin(0.5);
-      image.setDisplaySize(gustWidth, gustHeight).setAlpha(0.84);
+    const wind = this.scene.add.image(0, 24, "fx_updraft_wind").setOrigin(0.5);
+    wind.setDisplaySize(Math.min(config.width * 1.2, 232), Math.min(config.height - 4, 348));
+    const curls = Array.from({ length: UPDRAFT_CURL_COUNT }, (_, index) => {
+      const image = this.scene.add.image(0, 0, "fx_updraft_curl").setOrigin(0.5);
+      const size = 48 + index % 3 * 8;
+      image.setDisplaySize(size, size).setFlipX(index % 2 === 1);
       return {
         image,
-        baseX: spread,
-        baseY: 6,
         baseScaleX: image.scaleX,
-        baseScaleY: image.scaleY
+        baseScaleY: image.scaleY,
+        offset: index / UPDRAFT_CURL_COUNT * config.height
       };
     });
-    container.add([glow, ...gusts.map(({ image }) => image)]);
+    container.add([...curls.slice(0, 2).map(({ image }) => image), wind, ...curls.slice(2).map(({ image }) => image)]);
 
     this.updrafts.push({
       ...config,
       container,
-      glow,
-      gusts,
+      wind,
+      windScaleX: wind.scaleX,
+      windScaleY: wind.scaleY,
+      curls,
+      flowDistance: 0,
       liftSpeed: Number(config.liftSpeed),
       liftAcceleration: Number(config.liftAcceleration ?? 980)
     });
@@ -252,15 +253,29 @@ export class TerrainMechanicsManager {
         );
         this.player.setVelocityY(nextVelocity);
       }
-      updraft.container.setAlpha(active ? 1 : 0.76);
-      updraft.glow.setAlpha(active ? 0.18 : 0.1);
-      updraft.gusts.forEach((gust, index) => {
-        const phase = time * 0.0022 + index * 1.9;
-        const pulse = 1 + Math.sin(phase) * 0.035;
-        gust.image.x = gust.baseX + Math.sin(phase * 1.3) * 7;
-        gust.image.y = gust.baseY - Math.cos(phase) * 5;
-        gust.image.setScale(gust.baseScaleX * pulse, gust.baseScaleY * (1 + Math.cos(phase) * 0.025));
-        gust.image.setAlpha((active ? 0.94 : 0.72) + Math.sin(phase * 1.6) * 0.06);
+      updraft.container.setAlpha(active ? 1 : 0.94);
+      const phase = time * 0.002;
+      updraft.wind.setPosition(Math.sin(phase) * 4, 24 - Math.sin(phase * 1.3) * 3);
+      updraft.wind.setAngle(Math.sin(phase * 0.8) * 1.8);
+      updraft.wind.setScale(
+        updraft.windScaleX * (1 + Math.sin(phase * 1.2) * 0.018),
+        updraft.windScaleY * (1 + Math.cos(phase) * 0.024)
+      );
+      const top = -updraft.height / 2 + 20;
+      const bottom = updraft.height / 2 - 8;
+      const span = bottom - top;
+      updraft.flowDistance = (updraft.flowDistance + Math.min(delta, 50) * (active ? 0.22 : 0.16)) % span;
+      updraft.curls.forEach((curl, index) => {
+        const distance = (updraft.flowDistance + curl.offset) % span;
+        const progress = distance / span;
+        const y = bottom - distance;
+        const edgeFade = Math.min(1, distance / 44, (span - distance) / 44);
+        const orbit = progress * Math.PI * 2.4 + index * 0.65;
+        curl.image.setPosition(Math.sin(orbit) * updraft.width * 0.29, y);
+        curl.image.setAngle(Math.cos(orbit) * 19);
+        const scale = 0.78 + Math.sin(orbit) * 0.12;
+        curl.image.setScale(curl.baseScaleX * scale, curl.baseScaleY * scale);
+        curl.image.setAlpha(edgeFade * (active ? 0.82 : 0.68));
       });
     }
   }
