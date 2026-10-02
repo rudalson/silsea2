@@ -304,7 +304,7 @@ const requiredAudioKeys = [
   "sfx_invisible_warning", "sfx_invisible_reveal", "sfx_invisible_hide", "sfx_invisible_attack", "sfx_invisible_defeat",
   "sfx_water_warning", "sfx_water_emerge", "sfx_water_attack", "sfx_water_dizzy", "sfx_water_submerge", "sfx_water_defeat",
   "sfx_random_draw", "sfx_random_result", "sfx_random_teleport", "sfx_random_throw", "sfx_random_tongue", "sfx_random_weakness", "sfx_random_defeat",
-  "bgm_field", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_clear_loop", "bgm_alicorn_layer"
+  "bgm_field", "bgm_rainbow_hill", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_clear_loop", "bgm_alicorn_layer"
 ];
 const readOggVorbis = (buffer) => {
   let offset = 0;

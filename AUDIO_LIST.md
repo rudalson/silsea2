@@ -63,6 +63,7 @@
 | 키 | 용도 | 구조 | 루프 규칙 | 우선 |
 |---|---|---|---|---|
 | `bgm_field` | 일반 구간 | 밝고 경쾌한 주제, 긴장 1~4를 가리지 않는 중간 밀도 | 도입 뒤 마디 경계 A~B seamless loop | M |
+| `bgm_rainbow_hill` | 스테이지 1 필드 | 사용자 제공 `High_Score_Afternoon.mp3` | 파일 전체 반복 | M |
 | `bgm_boss` | 보스룸 | 같은 악기군의 낮고 단단한 리듬, 경고음 대역을 비움 | 전투 진입 크로스페이드, 3단계에서 레이어 추가 | M |
 | `bgm_clear` | 클리어 | 짧은 승리 팡파르 뒤 편안한 결과 화면 | 팡파르 후 결과 루프 | M |
 | `bgm_clear_loop` | 결과 화면 | 팡파르 뒤의 편안한 반복 주제 | 결과 화면을 떠날 때까지 전체 루프 | M |
@@ -70,9 +71,11 @@
 
 현재 배포본은 각 파일 전체를 반복한다. BPM과 길이는 아래 구현 기록을 기준으로 한다.
 
+스테이지 1 필드에는 사용자 제공 약 181초 음원을 사용한다. 원본은 `assets/_source/audio/High_Score_Afternoon.mp3`, 배포본은 `assets/audio/bgm/bgm_rainbow_hill.ogg`이다. 기존 필드곡과 평균 음량을 맞추기 위해 7dB 낮춘 뒤 FFmpeg로 22,050Hz mono OGG Vorbis로 변환했다. 보스전과 클리어 음악은 기존 전환 규칙을 따른다. 재생성 명령: `ffmpeg -i assets/_source/audio/High_Score_Afternoon.mp3 -map 0:a:0 -vn -af volume=-7dB -ac 1 -ar 22050 -c:a libvorbis -q:a 5 assets/audio/bgm/bgm_rainbow_hill.ogg`.
+
 ### 현재 로컬 음원 구현 (2026-10-01)
 
-- `scripts/generate-audio.js`는 효과음 71종을 22,050Hz mono 16-bit PCM WAV로 생성한다. `scripts/generate-bgm.js`는 BGM 9종을 합성한 뒤 FFmpeg로 22,050Hz mono OGG Vorbis 배포본을 만든다. `npm run audio` 재생성에는 FFmpeg가 필요하다.
+- `scripts/generate-audio.js`는 효과음 71종을 22,050Hz mono 16-bit PCM WAV로 생성한다. `scripts/generate-bgm.js`는 기존 BGM 9종을 합성한 뒤 FFmpeg로 22,050Hz mono OGG Vorbis 배포본을 만든다. 사용자 제공 스테이지 1 전용곡은 별도로 변환한다. `npm run audio` 재생성에는 FFmpeg가 필요하다.
 - 필드 5곡과 보스 1곡은 각각 16마디 A/A′/B/A″ 구성이다. 무지개 언덕 주제의 상승 윤곽을 각 장소의 선법, 악기, 리듬으로 변주한다. 파일 전체를 반복한다.
 - `bgm_field` 120 BPM·32초, `bgm_starlight` 96 BPM·40초, `bgm_mist` 88 BPM·약 43.6초, `bgm_tsunami` 112 BPM·약 34.3초, `bgm_submerged` 84 BPM·약 45.7초, `bgm_boss` 108 BPM·약 35.6초다.
 - `bgm_clear`는 112 BPM의 짧은 팡파르를 한 번 재생하고, 완료 이벤트에서 `bgm_clear_loop`(8마디, 약 17.1초)로 전환한다.

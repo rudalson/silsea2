@@ -32,7 +32,7 @@ export default {
       checkpoint: "checkpoint_flag",
       gate: "rainbow_gate"
     },
-    bgm: { field: "bgm_field", boss: "bgm_boss", clear: "bgm_clear" }
+    bgm: { field: "bgm_rainbow_hill", boss: "bgm_boss", clear: "bgm_clear" }
   },
   world: { width: 16384, height: 768, tileSize: 64 },
   parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },

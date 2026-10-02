@@ -868,6 +868,7 @@
     { "key": "sfx_random_weakness", "type": "audio", "url": "/assets/audio/sfx/sfx_random_weakness.wav", "category": "sfx" },
     { "key": "sfx_random_defeat", "type": "audio", "url": "/assets/audio/sfx/sfx_random_defeat.wav", "category": "sfx" },
     { "key": "bgm_field", "type": "audio", "url": "/assets/audio/bgm/bgm_field.ogg", "category": "bgm" },
+    { "key": "bgm_rainbow_hill", "type": "audio", "url": "/assets/audio/bgm/bgm_rainbow_hill.ogg", "category": "bgm" },
     { "key": "bgm_starlight", "type": "audio", "url": "/assets/audio/bgm/bgm_starlight.ogg", "category": "bgm" },
     { "key": "bgm_mist", "type": "audio", "url": "/assets/audio/bgm/bgm_mist.ogg", "category": "bgm" },
     { "key": "bgm_tsunami", "type": "audio", "url": "/assets/audio/bgm/bgm_tsunami.ogg", "category": "bgm" },

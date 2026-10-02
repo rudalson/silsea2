@@ -681,6 +681,8 @@ assert.deepEqual(level03.assets.effects, {
   mistBreeze: "fx_mist_breeze"
 });
 assert.equal(level03.assets.bgm.field, "bgm_mist");
+assert.equal(level01.assets.bgm.field, "bgm_rainbow_hill");
+assert.equal(level06.assets.bgm.field, "bgm_field");
 assert.equal(level03.assets.bgm.boss, "bgm_boss");
 assert.equal(getMistZoneAt(639, mistZones), null);
 assert.equal(getMistZoneAt(640, mistZones).id, "mist_intro");
