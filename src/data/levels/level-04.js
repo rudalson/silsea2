@@ -83,7 +83,7 @@ export default expandCampaignLevel({
     { id: "cue_high_shelter", xStart: shifted(1024), xEnd: shifted(2816), lookAhead: 165, targetX: shifted(896) }
   ],
   decorations: [
-    { id: "tsunami_intro_sign", asset: "sign", x: shifted(7872), y: 578, width: 112, height: 144, depth: -4, alpha: 0.9, flipX: true }
+    { id: "tsunami_intro_sign", asset: "sign", x: shifted(7872), y: 578, width: 112, height: 144, depth: -4, flipX: true }
   ],
   checkpoints: [
     { id: "cp_tsunami_intro", x: shifted(6912), y: 576, restoresHealth: true },

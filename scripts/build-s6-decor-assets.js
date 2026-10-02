@@ -2,60 +2,47 @@ import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { PALETTE } from "../data/palette.js";
-import { colorDistance, hexToRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const sourceRoot = join(root, "assets", "_source", "s6");
 const outputRoot = join(root, "assets", "decorations");
 const referenceRoot = join(root, "references");
-const ALPHA_CUTOFF = 96;
+const ALPHA_CUTOFF = 32;
 
 const specs = Object.freeze([
   {
     key: "decor_grass",
-    source: "decor_grass_generated_v1.png",
+    source: "decor_grass_generated_v2.png",
     width: 192,
     height: 128,
     maxWidth: 184,
-    maxHeight: 104,
-    palette: [PALETTE.environmentNear[0], PALETTE.environmentMid[0], PALETTE.environmentNear[1], PALETTE.outline]
+    maxHeight: 104
   },
   {
     key: "decor_flower",
-    source: "decor_flower_generated_v1.png",
+    source: "decor_flower_generated_v2.png",
     width: 128,
     height: 128,
     maxWidth: 120,
-    maxHeight: 120,
-    palette: [PALETTE.base[1], PALETTE.base[2], PALETTE.environmentNeutral[2], PALETTE.environmentNear[0], PALETTE.environmentNear[1], PALETTE.outline]
+    maxHeight: 120
   },
   {
     key: "decor_rock",
-    source: "decor_rock_generated_v1.png",
+    source: "decor_rock_generated_v2.png",
     width: 160,
     height: 128,
     maxWidth: 152,
-    maxHeight: 104,
-    palette: [PALETTE.environmentNeutral[1], PALETTE.shadow[0], PALETTE.environmentNeutral[0], PALETTE.outline]
+    maxHeight: 104
   },
   {
     key: "decor_sign",
-    source: "decor_sign_generated_v1.png",
+    source: "decor_sign_generated_v2.png",
     width: 160,
     height: 192,
     maxWidth: 124,
-    maxHeight: 180,
-    palette: [PALETTE.environmentNeutral[2], PALETTE.environmentNear[2], PALETTE.shadow[2], PALETTE.outline]
+    maxHeight: 180
   }
 ]);
-
-const compilePalette = (hexes) => [...new Set(hexes)].map((hex) => ({ hex, rgb: hexToRgb(hex) }));
-
-const nearest = (rgb, palette) => palette.reduce((best, candidate) => {
-  const distance = colorDistance(rgb, candidate.rgb);
-  return distance < best.distance ? { ...candidate, distance } : best;
-}, { ...palette[0], distance: Infinity }).rgb;
 
 const findOpaqueBounds = (data, info) => {
   let minX = info.width;
@@ -76,28 +63,21 @@ const findOpaqueBounds = (data, info) => {
   return { left: minX, top: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
 };
 
-const quantizeAndHardenAlpha = (data, palette) => {
+const removeGenerationHalo = (data) => {
   for (let index = 0; index < data.length; index += 4) {
     if (data[index + 3] < ALPHA_CUTOFF) {
       data[index] = 0;
       data[index + 1] = 0;
       data[index + 2] = 0;
       data[index + 3] = 0;
-      continue;
     }
-    const rgb = nearest([data[index], data[index + 1], data[index + 2]], palette);
-    data[index] = rgb[0];
-    data[index + 1] = rgb[1];
-    data[index + 2] = rgb[2];
-    data[index + 3] = 255;
   }
 };
 
 const buildAsset = async (spec) => {
   const input = join(sourceRoot, spec.source);
-  const palette = compilePalette(spec.palette);
   const source = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  quantizeAndHardenAlpha(source.data, palette);
+  removeGenerationHalo(source.data);
   const bounds = findOpaqueBounds(source.data, source.info);
   const trimmed = await sharp(source.data, { raw: source.info })
     .extract(bounds)
@@ -115,7 +95,6 @@ const buildAsset = async (spec) => {
     }])
     .raw()
     .toBuffer({ resolveWithObject: true });
-  quantizeAndHardenAlpha(canvas.data, palette);
   const finalBounds = findOpaqueBounds(canvas.data, canvas.info);
   const output = join(outputRoot, `${spec.key}.png`);
   await mkdir(dirname(output), { recursive: true });

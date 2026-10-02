@@ -68,8 +68,8 @@ export default {
     { id: "cue_storm_combo", xStart: 10496, xEnd: 11456, lookAhead: 180, targetX: 11520 }
   ],
   decorations: [
-    { id: "tutorial_grass", asset: "grass", x: 640, y: 578, width: 144, height: 72, depth: -5, alpha: 0.86 },
-    { id: "unicorn_garden_flower", asset: "flower", x: 3200, y: 578, width: 88, height: 88, depth: -4, alpha: 0.88 }
+    { id: "tutorial_grass", asset: "grass", x: 640, y: 578, width: 144, height: 72, depth: -5 },
+    { id: "unicorn_garden_flower", asset: "flower", x: 3200, y: 578, width: 88, height: 88, depth: -4 }
   ],
   checkpoints: [
     { id: "cp_intro", x: 2336, y: 576, activationTop: 0 },

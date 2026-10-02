@@ -90,7 +90,7 @@ export default expandCampaignLevel({
     { id: "cue_invisible_arena", xStart: 6944, xEnd: 7424, lookAhead: 220, targetX: 7680 }
   ],
   decorations: [
-    { id: "mist_intro_rock", asset: "rock", x: 576, y: 578, width: 112, height: 72, depth: -5, alpha: 0.84 }
+    { id: "mist_intro_rock", asset: "rock", x: 576, y: 578, width: 112, height: 72, depth: -5 }
   ],
   checkpoints: [
     { id: "cp_mist_intro", x: 1536, y: 576 },
