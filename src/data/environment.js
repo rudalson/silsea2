@@ -16,6 +16,19 @@ export function getMistZoneAt(x, zones = []) {
   )) ?? null;
 }
 
+// Blend neighbouring banks over a stretch of the path, including clear air at
+// the entrance/exit. Adjacent zones share the same smooth transition.
+export function getMistDensityAt(x, zones = [], feather = 220) {
+  const position = finiteOr(x, 0);
+  const width = Math.max(1, finiteOr(feather, 220));
+  const edge = (boundary) => {
+    const t = clampRatio((position - boundary + width) / (width * 2));
+    return t * t * (3 - 2 * t);
+  };
+  return clampRatio(zones.reduce((density, zone) => density
+    + clampRatio(zone.density) * (edge(zone.xStart) - edge(zone.xEnd)), 0));
+}
+
 export function resolveMistProfile(zone, {
   reduced = false,
   reducedDensityMultiplier = 0.55,

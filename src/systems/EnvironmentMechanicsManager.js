@@ -4,6 +4,7 @@ import { LASER_PHASES, LASER_RULES, getLaserPhase } from "../data/combatDevices.
 import {
   ENVIRONMENT_SUSPENSION_TYPES,
   WAVE_STATES,
+  getMistDensityAt,
   getMistZoneAt,
   getWaveIntervalMs,
   isInsideShelter,
@@ -11,6 +12,7 @@ import {
 } from "../data/environment.js";
 import { FORMS } from "../data/gameplay.js";
 import { SeededRandom } from "./SeededRandom.js";
+import { MistPresentation } from "./MistPresentation.js";
 
 const WAVE_WIDTH = 196;
 const WAVE_VISUAL_WIDTH = 320;
@@ -320,64 +322,7 @@ export class EnvironmentMechanicsManager {
 
   createMistVisuals() {
     if (!this.mist) return;
-
-    const effectKeys = this.level.assets.effects ?? {};
-    const forceFallback = this.scene.registry.get("forceAssetFallback");
-
-    this.fogOverlay = this.track(
-      this.scene.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, COLORS.skyBottom, 1)
-    );
-    this.fogOverlay.setOrigin(0).setScrollFactor(0).setDepth(18).setAlpha(0);
-    this.mistMaskGraphics = this.track(this.scene.add.graphics().setScrollFactor(0));
-    this.mistMaskGraphics.setAlpha(0);
-    this.mistMask = this.mistMaskGraphics.createGeometryMask();
-    this.mistMask.invertAlpha = true;
-    this.fogOverlay.setMask(this.mistMask);
-
-    this.mistBankVisuals = [];
-    if (!forceFallback && effectKeys.mistBank && this.scene.textures.exists(effectKeys.mistBank)) {
-      for (let index = 0; index < 4; index += 1) {
-        const bank = this.track(this.scene.add.image(index * 420 - 80, GAME_HEIGHT + 8, effectKeys.mistBank));
-        bank
-          .setOrigin(0, 1)
-          .setScrollFactor(0)
-          .setDisplaySize(500, 168)
-          .setDepth(17)
-          .setAlpha(0);
-        this.mistBankVisuals.push(bank);
-        this.mistTweens.push(this.scene.tweens.add({
-          targets: bank,
-          x: bank.x + 38,
-          duration: 3600 + index * 320,
-          yoyo: true,
-          repeat: -1,
-          ease: "Sine.InOut"
-        }));
-      }
-    }
-
-    this.mistClearVisual = null;
-    if (!forceFallback && effectKeys.mistClear && this.scene.textures.exists(effectKeys.mistClear)) {
-      this.mistClearVisual = this.track(this.scene.add.image(0, 0, effectKeys.mistClear));
-      this.mistClearVisual.setScrollFactor(0).setDepth(19).setBlendMode("ADD").setAlpha(0);
-    }
-
-    for (const zone of this.mist.zones ?? []) {
-      const boundary = this.track(
-        this.scene.add.rectangle(zone.xStart + 2, GAME_HEIGHT / 2, 4, GAME_HEIGHT, COLORS.white, 0.28)
-      );
-      boundary.setDepth(17);
-      const label = this.track(this.scene.add.text(zone.xStart + 18, 128, zone.label ?? zone.id, {
-        fontFamily: GAME_FONT_FAMILY,
-        fontSize: "16px",
-        fontStyle: "700",
-        color: CSS_COLORS.white,
-        backgroundColor: CSS_COLORS.panelSoft,
-        padding: { x: 8, y: 5 }
-      }));
-      label.setDepth(20);
-    }
-
+    this.mistPresentation = new MistPresentation(this.scene, this.mist.zones ?? []);
     for (const guide of this.mist.guides ?? []) this.createMistGuide(guide);
   }
 
@@ -636,12 +581,12 @@ export class EnvironmentMechanicsManager {
   }
 
   updateMist(delta, forceClear = false) {
-    if (!this.mist || !this.fogOverlay || !this.mistMaskGraphics) return;
+    if (!this.mist || !this.mistPresentation) return;
     const zone = forceClear ? null : getMistZoneAt(this.player.x, this.mist.zones);
     const reduced = this.scene.registry.get("screenEffectStrength") === "reduced";
-    const profile = resolveMistProfile(zone ?? {
-      density: 0,
-      visibilityRadius: this.mist.defaultVisibilityRadius
+    const profile = resolveMistProfile({
+      density: forceClear ? 0 : getMistDensityAt(this.player.x, this.mist.zones),
+      visibilityRadius: zone?.visibilityRadius ?? this.mist.defaultVisibilityRadius
     }, {
       reduced,
       reducedDensityMultiplier: this.mist.reducedDensityMultiplier,
@@ -650,27 +595,14 @@ export class EnvironmentMechanicsManager {
     const blend = Math.min(1, Math.max(0, delta) / Math.max(1, this.mist.fadeMs ?? 240));
     this.currentMistDensity += (profile.density - this.currentMistDensity) * blend;
     this.currentVisibilityRadius += (profile.visibilityRadius - this.currentVisibilityRadius) * blend;
-    this.fogOverlay.setAlpha(this.currentMistDensity);
-
-    const view = this.scene.cameras.main.worldView;
-    const screenX = this.player.x - view.x;
-    const screenY = this.player.y - view.y - 20;
-    this.mistMaskGraphics
-      .clear()
-      .fillStyle(COLORS.white, 1)
-      .fillEllipse(
-        screenX,
-        screenY,
-        this.currentVisibilityRadius * 2,
-        this.currentVisibilityRadius * 1.18
-      );
-    for (const bank of this.mistBankVisuals ?? []) bank.setAlpha(this.currentMistDensity * 0.46);
-    if (this.mistClearVisual) {
-      this.mistClearVisual
-        .setPosition(screenX, screenY)
-        .setDisplaySize(this.currentVisibilityRadius * 1.9, this.currentVisibilityRadius * 1.2)
-        .setAlpha(this.currentMistDensity * 0.24);
-    }
+    this.mistPresentation.update(delta, {
+      view: this.scene.cameras.main.worldView,
+      player: this.player,
+      radius: this.currentVisibilityRadius,
+      reduced,
+      densityMultiplier: this.mist.reducedDensityMultiplier ?? 0.55,
+      forceClear
+    });
 
     const zoneId = zone?.id ?? null;
     if (zoneId === this.activeMistZoneId) return;
@@ -894,16 +826,11 @@ export class EnvironmentMechanicsManager {
     this.interactions.length = 0;
     for (const tween of this.mistTweens) tween?.stop?.();
     this.mistTweens.length = 0;
-    this.fogOverlay?.clearMask?.();
-    this.mistMask?.destroy?.();
+    this.mistPresentation?.destroy();
     for (const object of this.created) object?.destroy?.();
     this.created.length = 0;
     this.waveVisual = null;
-    this.fogOverlay = null;
-    this.mistMaskGraphics = null;
-    this.mistMask = null;
-    this.mistBankVisuals = null;
-    this.mistClearVisual = null;
+    this.mistPresentation = null;
     this.waveWarningTween?.stop?.();
     this.waveWarningVisuals = null;
     this.waveWarningTween = null;
