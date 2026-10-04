@@ -597,8 +597,6 @@ export class EnvironmentMechanicsManager {
     this.currentVisibilityRadius += (profile.visibilityRadius - this.currentVisibilityRadius) * blend;
     this.mistPresentation.update(delta, {
       view: this.scene.cameras.main.worldView,
-      player: this.player,
-      radius: this.currentVisibilityRadius,
       reduced,
       densityMultiplier: this.mist.reducedDensityMultiplier ?? 0.55,
       forceClear
@@ -611,7 +609,7 @@ export class EnvironmentMechanicsManager {
     this.scene.updateAccessibleStatus?.(
       zone
         ? `${zone.label ?? "안개 구간"}입니다. 빛 기둥과 움직이는 바람 화살표를 따라가세요.`
-        : "안개가 걷혔습니다."
+        : forceClear ? "안개가 걷혔습니다." : "마을에 옅은 안개가 깔려 있습니다."
     );
   }
 
