@@ -6,7 +6,7 @@ import {
   resolveBossPhase,
   resolveBossSpawnX
 } from "../data/bossDefinitions.js";
-import { ENEMY_DEFINITIONS } from "../data/enemies.js";
+import { ENEMY_DEFINITIONS, isGroundPatrolEnemy, isMistEnemy } from "../data/enemies.js";
 import { GATE_ARRIVAL_STAGES, getGateArrivalTiming } from "../data/gateArrival.js";
 import {
   GATE_KINDS,
@@ -540,10 +540,12 @@ export class LevelLoader {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
         const isRawPotato = enemy.type === "raw_potato";
         const isPotatoArcher = enemy.type === "potato_archer";
-        const bodyWidth = isRawPotato ? 38 : isPotatoArcher ? 52 : 50;
-        const bodyHeight = isRawPotato ? 36 : isPotatoArcher ? 52 : 46;
+        const mistEnemy = isMistEnemy(enemy.type);
+        const bodyWidth = isRawPotato ? 38 : isPotatoArcher ? 52 : mistEnemy ? 58 : 50;
+        const bodyHeight = isRawPotato ? 36 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : 46;
         if (isRawPotato) marker.setScale(0.72);
         if (isPotatoArcher) marker.setScale(0.82);
+        if (mistEnemy) marker.setScale(0.82);
         marker.body.setSize(bodyWidth, bodyHeight, false);
         marker.body.setOffset((128 - bodyWidth) / 2, 112 - bodyHeight);
       } else {
@@ -551,7 +553,7 @@ export class LevelLoader {
         this.scene.physics.add.existing(marker);
         marker.body.setSize(50, 46, true);
       }
-      marker.body.setAllowGravity(enemy.type === "raw_potato");
+      marker.body.setAllowGravity(isGroundPatrolEnemy(enemy.type));
       marker.setDataEnabled();
       marker.setData({
         ...enemy,
@@ -563,7 +565,7 @@ export class LevelLoader {
         usesArt,
         fallbackColor: definition?.color ?? COLORS.danger
       });
-      if (usesArt) EnemyAnimationManager.play(marker, enemy.type === "raw_potato" ? "move" : "idle");
+      if (usesArt) EnemyAnimationManager.play(marker, isGroundPatrolEnemy(enemy.type) ? "move" : "idle");
       const label = this.track(
         this.scene.add.text(enemy.x, enemy.y - 70, enemy.type, {
           align: "center",

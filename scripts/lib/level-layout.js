@@ -1,5 +1,6 @@
 import { expandLevelItems } from "../../src/data/levelInteractions.js";
 import { CHARACTER_LIST } from "../../src/data/characters.js";
+import { isGroundPatrolEnemy } from "../../src/data/enemies.js";
 
 const overlaps = (a, b) => a.x < b.x + b.width - 0.01 && a.x + a.width > b.x + 0.01
   && a.y < b.y + b.height - 0.01 && a.y + a.height > b.y + 0.01;
@@ -17,7 +18,7 @@ export function findLayoutIssues(level, terrain) {
       if (overlaps(box, t)) issues.push(`item ${item.id} overlaps ${t.name}`);
     }
   }
-  for (const enemy of level.enemies.filter(({ type }) => type === "raw_potato")) {
+  for (const enemy of level.enemies.filter(({ type }) => isGroundPatrolEnemy(type))) {
     const patrol = enemy.patrol ?? 160;
     const route = { x: enemy.x - patrol - width / 2 - 2, y: enemy.y - height,
       width: patrol * 2 + width + 4, height };

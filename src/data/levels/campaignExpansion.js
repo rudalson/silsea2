@@ -39,7 +39,11 @@ export function buildCampaignExtension(id) {
     const checkpoint = (suffix, distance, y, health = false) => result.checkpoints.push({
       id: `${name}_${suffix}`, x: point(distance), y, activationTop: 0, ...(health ? { restoresHealth: true } : {}), ...(water ? { restoresBreath: true } : {})
     });
-    const raw = (suffix, distance, y = 576) => result.enemies.push({ id: `${name}_${suffix}`, type: "raw_potato", x: point(distance), y, patrol: 48 });
+    const raw = (suffix, distance, y = 576) => result.enemies.push({
+      id: `${name}_${suffix}`,
+      type: id === "level-03" ? (suffix === "landing_walker" ? "dew_snail" : "lantern_goblin") : "raw_potato",
+      x: point(distance), y, patrol: 48
+    });
     const archer = (distance) => {
       const enemyId = `${name}_archer`;
       result.enemies.push({ id: enemyId, type: "potato_archer", x: point(distance), y: 576,

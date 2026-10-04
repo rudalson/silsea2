@@ -1,5 +1,6 @@
 {
   "$schemaVersion": 2,
+  "mist_village_enemies": {"styleRefs":["maple_story_1.png"],"note":"안개마을 전용 등불 도깨비와 이슬달팽이. imagegen으로 만든 투명 원화를 일정한 체적과 16px 발 기준선으로 정리했으며 이동·공격 예고·공격·회복·패배 동작을 연결했다."},
   "game_hud_refresh": {"styleRefs":["maple_story_1.png"],"note":"게임 상단 HUD의 캐릭터 상태판·진행도·조작 버튼을 같은 팔레트와 부드러운 둥근 윤곽으로 구성했다. 작은 무지개 선으로 게임의 색감을 유지한다."},
   "stage_select_nav_buttons": {"styleRefs":["maple_story_1.png"],"note":"스테이지 선택 화면의 둥근 좌우 이동 버튼. 고해상도 SVG를 축소해 가장자리와 화살표를 부드럽게 처리했다."},
   "character_select_heroes": {"styleRefs":["silsea_sprite-Photoroom.png","sunlight-reference.jpg","moonlight-reference.jpg","alora-reference.jpg","oceandream-reference.jpg"],"note":"7명 기본형의 캐릭터 선택용 고해상도 대표 원화. 게임 스프라이트의 색·갈기·체형을 참고해 독립적으로 다시 그렸고 뿔과 날개는 없다."},
@@ -12,6 +13,7 @@
   "potato89_winged_forms": {"styleRefs":["silsea_sprite-Photoroom.png","silsea_run.png"],"note":"구운 감자의 둥근 갈색 체형을 유지하고 크림색 접힌 날개·비행 날개를 몸에 통합한 페가수스·알리콘 전용 동작 시트."},
   "$delivery": {
     "manifestGroups": {
+      "mist_village_enemies": ["lantern_goblin_idle","lantern_goblin_move","lantern_goblin_warning","lantern_goblin_attack","lantern_goblin_recover","lantern_goblin_defeated","dew_snail_idle","dew_snail_move","dew_snail_warning","dew_snail_attack","dew_snail_recover","dew_snail_defeated"],
       "game_hud_refresh": ["ui_game_hud_left","ui_game_hud_center","ui_game_hud_button","ui_game_hud_button_hover"],
       "stage_select_nav_buttons": ["ui_stage_nav","ui_stage_nav_hover"],
       "character_select_heroes": ["character_select_hero_silsea","character_select_hero_potato89","character_select_hero_sylvia","character_select_hero_sunlight","character_select_hero_moonlight","character_select_hero_alora","character_select_hero_oceandream"],

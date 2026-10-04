@@ -1,4 +1,12 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  lantern_goblin: Object.freeze({
+    idle: "lantern_goblin_idle", move: "lantern_goblin_move", warning: "lantern_goblin_warning",
+    attack: "lantern_goblin_attack", recover: "lantern_goblin_recover", defeated: "lantern_goblin_defeated"
+  }),
+  dew_snail: Object.freeze({
+    idle: "dew_snail_idle", move: "dew_snail_move", warning: "dew_snail_warning",
+    attack: "dew_snail_attack", recover: "dew_snail_recover", defeated: "dew_snail_defeated"
+  }),
   raw_potato: Object.freeze({
     idle: "raw_potato_idle",
     move: "raw_potato_roll",
@@ -76,6 +84,22 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  lantern_goblin: Object.freeze({
+    idle: Object.freeze({ durations: [420, 420], repeat: -1 }),
+    move: Object.freeze({ durations: [180, 180, 180, 180], repeat: -1 }),
+    warning: Object.freeze({ durations: [275, 275, 275, 275], repeat: 0 }),
+    attack: Object.freeze({ durations: [110, 110, 110, 110], repeat: -1 }),
+    recover: Object.freeze({ durations: [170, 170, 170, 170], repeat: 0 }),
+    defeated: Object.freeze({ durations: [140, 180, 220, 400], repeat: 0 })
+  }),
+  dew_snail: Object.freeze({
+    idle: Object.freeze({ durations: [480, 480], repeat: -1 }),
+    move: Object.freeze({ durations: [260, 240, 260, 240], repeat: -1 }),
+    warning: Object.freeze({ durations: [240, 240, 240, 480], repeat: 0 }),
+    attack: Object.freeze({ durations: [100, 100, 100, 100], repeat: -1 }),
+    recover: Object.freeze({ durations: [170, 170, 170, 170], repeat: 0 }),
+    defeated: Object.freeze({ durations: [150, 180, 220, 400], repeat: 0 })
+  }),
   raw_potato: Object.freeze({
     idle: Object.freeze({ durations: [300, 300], repeat: -1 }),
     move: Object.freeze({ durations: [90, 85, 90, 85, 90, 100], repeat: -1 }),

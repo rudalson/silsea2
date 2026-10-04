@@ -100,9 +100,11 @@ export default expandCampaignLevel({
     { id: "cp_invisible_ready", x: 7040, y: 576, restoresHealth: true }
   ],
   enemies: [
-    { id: "e_mist_practice", type: "raw_potato", x: 2784, y: 576, patrol: 144 },
-    { id: "e_mist_application", type: "raw_potato", x: 4800, y: 576, patrol: 128 },
-    { id: "e_mist_recovery", type: "raw_potato", x: 6656, y: 576, patrol: 112 }
+    { id: "e_mist_practice", type: "lantern_goblin", x: 2784, y: 576, patrol: 96 },
+    { id: "e_mist_snail_practice", type: "dew_snail", x: 2912, y: 576, patrol: 32 },
+    { id: "e_mist_application", type: "dew_snail", x: 4800, y: 576, patrol: 80 },
+    { id: "e_mist_recovery", type: "lantern_goblin", x: 6656, y: 576, patrol: 48 },
+    { id: "e_mist_snail_recovery", type: "dew_snail", x: 6752, y: 576, patrol: 24 }
   ],
   items: [
     { id: "mist_horn", type: "horn", x: 576, y: 576, activationTop: 0 },
@@ -147,9 +149,7 @@ export default expandCampaignLevel({
   hazards: [
     { id: "mist_practice_gap", type: "pit", xStart: 1664, xEnd: 2176, respawnX: 1536 },
     { id: "mist_application_gap", type: "pit", xStart: 3456, xEnd: 4544, respawnX: 3328 },
-    { id: "mist_combination_gap", type: "pit", xStart: 5248, xEnd: 6272, respawnX: 5056 },
-    { id: "mist_thorn_practice", type: "spike_pumpkin", x: 2912, y: 576 },
-    { id: "mist_thorn_recovery", type: "spike_pumpkin", x: 6752, y: 576 }
+    { id: "mist_combination_gap", type: "pit", xStart: 5248, xEnd: 6272, respawnX: 5056 }
   ],
   environment: {
     mist: {

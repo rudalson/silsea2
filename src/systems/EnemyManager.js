@@ -2,9 +2,11 @@ import Phaser from "phaser";
 import { COLORS } from "../config/constants.js";
 import { ARCHER_RULES } from "../data/combatDevices.js";
 import { SCORE_VALUES } from "../data/gameplay.js";
+import { isGroundPatrolEnemy, isMistEnemy } from "../data/enemies.js";
 import { getProgressionSign, hasReachedProgressTrigger } from "../data/schema/levelSchema.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
+import { MistEnemyController } from "./MistEnemyController.js";
 
 export class EnemyManager {
   constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
@@ -19,6 +21,7 @@ export class EnemyManager {
     this.progressionSign = getProgressionSign(this.level);
     this.paused = false;
     this.pausedAt = 0;
+    this.mistEnemyController = new MistEnemyController(scene, player, levelLoader, difficulty.enabled);
     this.interactions = [];
     this.lightningPool = this.createLightningPool();
     this.recoveryPool = this.createRecoveryPool();
@@ -28,9 +31,10 @@ export class EnemyManager {
 
   bindInteractions() {
     for (const enemy of this.levelLoader.enemies) {
-      if (enemy.getData("type") === "raw_potato") {
+      if (isGroundPatrolEnemy(enemy.getData("type"))) {
         this.interactions.push(this.scene.physics.add.collider(enemy, this.levelLoader.terrainBodies));
-        enemy.body.setVelocityX(-70);
+        if (isMistEnemy(enemy.getData("type"))) enemy.body.setGravityY(900);
+        else enemy.body.setVelocityX(-70);
       }
       this.interactions.push(
         this.scene.physics.add.overlap(this.player, enemy, () => this.handleEnemyContact(enemy))
@@ -197,6 +201,7 @@ export class EnemyManager {
       if (!enemy.active || !enemy.body?.enable) continue;
       const type = enemy.getData("type");
       if (type === "raw_potato") this.updateRawPotato(enemy);
+      if (isMistEnemy(type)) this.mistEnemyController.update(enemy, now, delta);
       if (type === "dark_cloud") this.updateDarkCloud(enemy, now);
       if (type === "magpie") this.updateMagpie(enemy, now, delta);
       if (type === "potato_archer") this.updatePotatoArcher(enemy, now);
@@ -472,7 +477,7 @@ export class EnemyManager {
       return;
     }
 
-    if (type === "raw_potato" || type === "potato_archer") this.healthManager.takeDamage(enemy.x);
+    if (type === "raw_potato" || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
   }
 
   handleHazardContact(hazard) {
@@ -594,6 +599,8 @@ export class EnemyManager {
       if (velocity && enemy.body?.enable) enemy.body.setVelocity(velocity.x, velocity.y);
       const stateUntil = enemy.getData("stateUntil");
       if (Number.isFinite(stateUntil) && stateUntil > 0) enemy.setData("stateUntil", stateUntil + pausedDuration);
+      const attackReadyAt = enemy.getData("attackReadyAt");
+      if (Number.isFinite(attackReadyAt) && attackReadyAt > 0) enemy.setData("attackReadyAt", attackReadyAt + pausedDuration);
       enemy.setData("environmentPausedVelocity", null);
     }
     this.lightningPool.forEachActive((beam) => {

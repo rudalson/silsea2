@@ -1100,6 +1100,18 @@
     {"key":"character_select_hero_sunlight","type":"image","url":"/assets/ui/character_select_hero_sunlight.png","width":512,"height":512},
     {"key":"character_select_hero_moonlight","type":"image","url":"/assets/ui/character_select_hero_moonlight.png","width":512,"height":512},
     {"key":"character_select_hero_alora","type":"image","url":"/assets/ui/character_select_hero_alora.png","width":512,"height":512},
-    {"key":"character_select_hero_oceandream","type":"image","url":"/assets/ui/character_select_hero_oceandream.png","width":512,"height":512}
+    {"key":"character_select_hero_oceandream","type":"image","url":"/assets/ui/character_select_hero_oceandream.png","width":512,"height":512},
+    {"key":"lantern_goblin_idle","type":"spritesheet","url":"/assets/enemies/lantern_goblin/lantern_goblin_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"lantern_goblin_move","type":"spritesheet","url":"/assets/enemies/lantern_goblin/lantern_goblin_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"lantern_goblin_warning","type":"spritesheet","url":"/assets/enemies/lantern_goblin/lantern_goblin_warning.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"lantern_goblin_attack","type":"spritesheet","url":"/assets/enemies/lantern_goblin/lantern_goblin_attack.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"lantern_goblin_recover","type":"spritesheet","url":"/assets/enemies/lantern_goblin/lantern_goblin_recover.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"lantern_goblin_defeated","type":"spritesheet","url":"/assets/enemies/lantern_goblin/lantern_goblin_defeated.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"dew_snail_idle","type":"spritesheet","url":"/assets/enemies/dew_snail/dew_snail_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"dew_snail_move","type":"spritesheet","url":"/assets/enemies/dew_snail/dew_snail_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"dew_snail_warning","type":"spritesheet","url":"/assets/enemies/dew_snail/dew_snail_warning.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"dew_snail_attack","type":"spritesheet","url":"/assets/enemies/dew_snail/dew_snail_attack.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"dew_snail_recover","type":"spritesheet","url":"/assets/enemies/dew_snail/dew_snail_recover.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"dew_snail_defeated","type":"spritesheet","url":"/assets/enemies/dew_snail/dew_snail_defeated.png","frameWidth":128,"frameHeight":128,"frames":4}
   ]
 }
