@@ -55,6 +55,7 @@
     "playtest:analyze": "node scripts/analyze-playtests.js",
     "sylvia:assets": "node scripts/build-sylvia-animation.js && node scripts/build-unicorn-sheets.js && node scripts/build-swim-assets.js && node scripts/build-winged-forms.js sylvia && node scripts/build-c4-sylvia-review.js",
     "boss:assets": "node scripts/build-boss-refresh.js && node scripts/build-boss-review.js",
+    "invisible:assets": "node scripts/build-invisible-king.js && node scripts/build-boss-review.js",
     "pegasus:wing": "node scripts/build-pegasus-wing.js"
   },
   "dependencies": {

@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato", "dark_cloud", "magpie", "lantern_goblin", "dew_snail"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -277,7 +277,7 @@ const lanternEffectAssets = [
 ];
 const invisibleEffectAssets = [
   { name: "fx_invisible_reveal", directory: "effects", width: 1152, height: 256 },
-  { name: "fx_invisible_afterimage", directory: "effects", width: 768, height: 192 },
+  { name: "fx_invisible_afterimage", directory: "effects", width: 768, height: 192, fullColor: true },
   { name: "fx_invisible_miss", directory: "effects", width: 1536, height: 192 },
   { name: "fx_invisible_crown_impact", directory: "effects", width: 160, height: 112 }
 ];

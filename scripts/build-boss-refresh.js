@@ -1,8 +1,9 @@
-import { mkdir, writeFile as writeOnce, copyFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile as writeOnce, copyFile } from "node:fs/promises";
 import { setTimeout } from "node:timers/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { buildInvisibleKing } from "./build-invisible-king.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = join(root, "assets/_source/boss-refresh");
@@ -83,6 +84,11 @@ const palettes = {};
 const selected = process.argv.slice(2);
 for (const [key, spec] of Object.entries(specs)) {
   if (selected.length && !selected.includes(key)) continue;
+  if (key === "invisible_king") {
+    metadata[key] = await buildInvisibleKing();
+    palettes[key] = JSON.parse(await readFile(join(source, "palette.json"), "utf8"))[key];
+    continue;
+  }
   const atlas = await readAtlas(`${key}.png`);
   // Learn one non-dithered palette for the entire boss, rather than forcing
   // pastel gradients through unrelated terrain colors or re-quantizing poses.
@@ -180,22 +186,6 @@ for (const [key, spec] of Object.entries(specs)) {
     await writeFile(join(output,`${key}_${sequence}.png`),sheet);
   }
   if(key==='potato_king') await copyFile(join(output,'idle',`${key}_idle_00.png`),join(root,'assets/_anchor/potato_king_anchor.png'));
-  if(key==='invisible_king') {
-    // Reuse the new silhouette for the memory hint, at the same displayed size.
-    const packed=Buffer.alloc(768*192*4);
-    const pixels=await sharp(framesBySequence.idle[0]).ensureAlpha().raw().toBuffer();
-    for(const [frame,opacity] of [.7,.5,.3,.12].entries()) {
-      for(let y=0;y<171;y++) for(let x=0;x<171;x++) {
-        // Sample straight RGBA so low-alpha edges retain their palette color.
-        const from=(Math.floor(y*128/171)*128+Math.floor(x*128/171))*4;
-        const to=((y+3)*768+frame*192+x+10)*4;
-        pixels.copy(packed,to,from,from+3);
-        packed[to+3]=Math.round(pixels[from+3]*opacity);
-      }
-    }
-    const strip=await sharp(packed,{raw:{width:768,height:192,channels:4}}).png().toBuffer();
-    await writeFile(join(root,'assets/effects/fx_invisible_afterimage.png'),strip);
-  }
   metadata[key]={sequences:spec.sequences,idleEyeRegion:eye,scale,idleHeight:84,measurements};
   await sharp({create:{width:1024,height:Object.keys(spec.sequences).length*144,channels:4,background:'#f8f0e6'}})
     .composite(Object.keys(spec.sequences).map((sequence,row)=>({input:join(output,`${key}_${sequence}.png`),left:0,top:row*144})))

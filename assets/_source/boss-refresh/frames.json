@@ -777,376 +777,411 @@
       "defeated": 8
     },
     "idleEyeRegion": {
-      "left": 39,
+      "left": 40,
       "top": 60,
       "width": 48,
       "height": 23
     },
-    "scale": 0.5874125874125874,
+    "scale": 0.3054545454545455,
     "idleHeight": 84,
+    "source": "../invisible-king-storybook/key-poses.png",
+    "fullColor": true,
     "measurements": [
       {
         "sequence": "idle",
         "index": 0,
-        "sourceBounds": [
-          11,
-          35,
-          157,
-          177
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "idle",
         "index": 1,
-        "sourceBounds": [
-          176,
-          35,
-          317,
-          176
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "idle",
         "index": 2,
-        "sourceBounds": [
-          334,
-          34,
-          474,
-          176
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 1,
+        "sourceBounds": {
+          "left": 352,
+          "top": 44,
+          "width": 268,
+          "height": 273
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "idle",
         "index": 3,
-        "sourceBounds": [
-          492,
-          34,
-          635,
-          176
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "reveal",
         "index": 0,
-        "sourceBounds": [
-          25,
-          201,
-          142,
-          338
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 2,
+        "sourceBounds": {
+          "left": 648,
+          "top": 48,
+          "width": 285,
+          "height": 277
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "reveal",
         "index": 1,
-        "sourceBounds": [
-          185,
-          199,
-          304,
-          338
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 2,
+        "sourceBounds": {
+          "left": 648,
+          "top": 48,
+          "width": 285,
+          "height": 277
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "reveal",
         "index": 2,
-        "sourceBounds": [
-          346,
-          198,
-          465,
-          338
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 3,
+        "sourceBounds": {
+          "left": 968,
+          "top": 47,
+          "width": 270,
+          "height": 271
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "reveal",
         "index": 3,
-        "sourceBounds": [
-          486,
-          197,
-          630,
-          339
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 3,
+        "sourceBounds": {
+          "left": 968,
+          "top": 47,
+          "width": 270,
+          "height": 271
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "reveal",
         "index": 4,
-        "sourceBounds": [
-          640,
-          193,
-          798,
-          338
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "reveal",
         "index": 5,
-        "sourceBounds": [
-          803,
-          195,
-          952,
-          338
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hide",
         "index": 0,
-        "sourceBounds": [
-          12,
-          361,
-          157,
-          503
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 4,
+        "sourceBounds": {
+          "left": 59,
+          "top": 358,
+          "width": 228,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hide",
         "index": 1,
-        "sourceBounds": [
-          168,
-          361,
-          320,
-          502
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 4,
+        "sourceBounds": {
+          "left": 59,
+          "top": 358,
+          "width": 228,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hide",
         "index": 2,
-        "sourceBounds": [
-          332,
-          362,
-          473,
-          503
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 5,
+        "sourceBounds": {
+          "left": 376,
+          "top": 362,
+          "width": 227,
+          "height": 272
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hide",
         "index": 3,
-        "sourceBounds": [
-          504,
-          361,
-          621,
-          503
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 5,
+        "sourceBounds": {
+          "left": 376,
+          "top": 362,
+          "width": 227,
+          "height": 272
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hide",
         "index": 4,
-        "sourceBounds": [
-          653,
-          362,
-          776,
-          502
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 4,
+        "sourceBounds": {
+          "left": 59,
+          "top": 358,
+          "width": 228,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hide",
         "index": 5,
-        "sourceBounds": [
-          818,
-          361,
-          935,
-          502
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 4,
+        "sourceBounds": {
+          "left": 59,
+          "top": 358,
+          "width": 228,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "attack",
         "index": 0,
-        "sourceBounds": [
-          10,
-          526,
-          146,
-          668
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 6,
+        "sourceBounds": {
+          "left": 652,
+          "top": 387,
+          "width": 259,
+          "height": 247
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "attack",
         "index": 1,
-        "sourceBounds": [
-          184,
-          527,
-          305,
-          668
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 7,
+        "sourceBounds": {
+          "left": 956,
+          "top": 373,
+          "width": 275,
+          "height": 262
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "attack",
         "index": 2,
-        "sourceBounds": [
-          339,
-          528,
-          463,
-          667
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 8,
+        "sourceBounds": {
+          "left": 30,
+          "top": 672,
+          "width": 280,
+          "height": 262
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "attack",
         "index": 3,
-        "sourceBounds": [
-          478,
-          527,
-          632,
-          669
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 9,
+        "sourceBounds": {
+          "left": 347,
+          "top": 673,
+          "width": 252,
+          "height": 259
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "attack",
         "index": 4,
-        "sourceBounds": [
-          639,
-          526,
-          786,
-          669
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 9,
+        "sourceBounds": {
+          "left": 347,
+          "top": 673,
+          "width": 252,
+          "height": 259
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "attack",
         "index": 5,
-        "sourceBounds": [
-          806,
-          527,
-          938,
-          669
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hurt",
         "index": 0,
-        "sourceBounds": [
-          11,
-          690,
-          157,
-          833
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 10,
+        "sourceBounds": {
+          "left": 667,
+          "top": 710,
+          "width": 241,
+          "height": 227
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hurt",
         "index": 1,
-        "sourceBounds": [
-          171,
-          693,
-          303,
-          832
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 11,
+        "sourceBounds": {
+          "left": 968,
+          "top": 690,
+          "width": 243,
+          "height": 253
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "hurt",
         "index": 2,
-        "sourceBounds": [
-          335,
-          691,
-          473,
-          831
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 0,
+        "sourceBounds": {
+          "left": 34,
+          "top": 42,
+          "width": 271,
+          "height": 275
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 0,
-        "sourceBounds": [
-          13,
-          853,
-          153,
-          994
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 12,
+        "sourceBounds": {
+          "left": 58,
+          "top": 982,
+          "width": 248,
+          "height": 237
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 1,
-        "sourceBounds": [
-          175,
-          855,
-          304,
-          994
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 12,
+        "sourceBounds": {
+          "left": 58,
+          "top": 982,
+          "width": 248,
+          "height": 237
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 2,
-        "sourceBounds": [
-          336,
-          855,
-          463,
-          994
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 13,
+        "sourceBounds": {
+          "left": 364,
+          "top": 1014,
+          "width": 241,
+          "height": 197
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 3,
-        "sourceBounds": [
-          488,
-          855,
-          627,
-          994
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 13,
+        "sourceBounds": {
+          "left": 364,
+          "top": 1014,
+          "width": 241,
+          "height": 197
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 4,
-        "sourceBounds": [
-          646,
-          852,
-          782,
-          993
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 14,
+        "sourceBounds": {
+          "left": 652,
+          "top": 1047,
+          "width": 275,
+          "height": 164
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 5,
-        "sourceBounds": [
-          795,
-          853,
-          926,
-          994
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 14,
+        "sourceBounds": {
+          "left": 652,
+          "top": 1047,
+          "width": 275,
+          "height": 164
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 6,
-        "sourceBounds": [
-          939,
-          850,
-          1086,
-          991
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 15,
+        "sourceBounds": {
+          "left": 960,
+          "top": 1063,
+          "width": 276,
+          "height": 150
+        },
+        "scale": 0.3054545454545455
       },
       {
         "sequence": "defeated",
         "index": 7,
-        "sourceBounds": [
-          1099,
-          851,
-          1238,
-          994
-        ],
-        "scale": 0.5874125874125874
+        "poseIndex": 15,
+        "sourceBounds": {
+          "left": 960,
+          "top": 1063,
+          "width": 276,
+          "height": 150
+        },
+        "scale": 0.3054545454545455
       }
     ]
   },
