@@ -129,7 +129,7 @@ for (const [row, id] of characterIds.entries()) {
   mapping.$delivery.manifestGroups[`${id}_motion`] = keys;
   mapping[`${id}_motion`] = {
     styleRefs: [`${id}-reference.jpg`],
-    note: `${({ sunlight: "선라이트의 해", moonlight: "문라이트의 초승달", alora: "알로라의 오로라", oceandream: "오션드림의 바다" })[id]} 색과 분위기를 사용자 손그림에서 반영한 원화. 기본형에는 뿔과 날개가 없고 아이템 형태에만 추가된다. 네 형태의 동작 시트.`
+    note: `${({ sunlight: "선라이트의 해", moonlight: "문라이트의 초승달", alora: "알로라의 오로라", oceandream: "오션드림의 바다", aurora: "알로라의 언니 오로라의 오로라" })[id]} 색과 분위기를 사용자 손그림에서 반영한 원화. 기본형에는 뿔과 날개가 없고 아이템 형태에만 추가된다. 네 형태의 동작 시트.`
   };
   for (let i = 0; i < 16; i++) review.push({ input: posesByForm.base.poses[i], left: (i % 8) * size, top: (row * 2 + Math.floor(i / 8)) * size });
   for (const [column, form] of forms.entries()) formReview.push({

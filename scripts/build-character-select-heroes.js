@@ -2,11 +2,12 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { CHARACTER_LIST } from "../src/data/characters.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = join(root, "assets/_source/character-select-heroes");
 const output = join(root, "assets/ui");
-const ids = ["silsea", "potato89", "sylvia", "sunlight", "moonlight", "alora", "oceandream"];
+const ids = CHARACTER_LIST.map(({ id }) => id);
 const size = 512;
 const artSize = 420;
 const transparent = { r: 0, g: 0, b: 0, alpha: 0 };

@@ -137,6 +137,19 @@ export const CHARACTERS = Object.freeze({
     stableBody: true,
     artReady: true
   }),
+  aurora: createCharacter({
+    id: "aurora",
+    name: "오로라",
+    englishName: "Aurora",
+    description: "알로라의 든든하고 다정한 언니",
+    sex: "female",
+    color: PALETTE.aurora[0],
+    accent: PALETTE.aurora[3],
+    selectionSymbol: "aurora",
+    render: integratedWingRender,
+    stableBody: true,
+    artReady: true
+  }),
   alora: createCharacter({
     id: "alora",
     name: "알로라",

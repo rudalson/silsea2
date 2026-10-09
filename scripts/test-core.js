@@ -322,11 +322,14 @@ assert.deepEqual(CHARACTER_LIST.map(({ id }) => id), [
   "sylvia",
   "sunlight",
   "moonlight",
+  "aurora",
   "alora",
   "oceandream"
 ]);
 assert.equal(getCharacter("silsea").englishName, "Sylsea");
 assert.equal(getCharacter("sylvia").englishName, "Sylvia");
+assert.equal(getCharacter("aurora").sex, "female");
+assert.match(getCharacter("aurora").description, /알로라.*언니/);
 assert.equal(getCharacter("missing-character").id, "silsea");
 assert.ok(CHARACTER_LIST.every(({ physics }) => physics === CHARACTER_LIST[0].physics));
 assert.ok(CHARACTER_LIST.filter(({ artReady }) => !artReady).every(({ id }) => !["silsea", "potato89"].includes(id)));
@@ -361,7 +364,16 @@ assert.equal(sevenCharacterLayout[0].x + sevenCharacterLayout[3].x, 1280);
 assert.equal(sevenCharacterLayout[4].x + sevenCharacterLayout[6].x, 1280);
 assert.equal(moveCharacterSelection(3, 0, 1, 7), 6);
 assert.equal(moveCharacterSelection(6, 0, -1, 7), 2);
-for (const id of ["silsea", "potato89", "sylvia", "sunlight", "moonlight", "alora", "oceandream"]) {
+const eightCharacterLayout = getCharacterCardLayout(CHARACTER_LIST.length, {
+  gameWidth: 1280, firstRowY: 562, columnGap: 132, columns: CHARACTER_LIST.length
+});
+assert.equal(eightCharacterLayout.length, 8);
+assert.ok(eightCharacterLayout.every(({ x, y, row }) => x >= 51 && x <= 1229 && y + 51 < 720 && row === 0), "오로라를 포함한 선택 카드 8개가 한 줄에 표시되어야 함");
+assert.equal(new Set(eightCharacterLayout.map(({ x }) => x)).size, 8);
+assert.equal(moveCharacterSelection(6, 1, 0, 8), 7);
+assert.equal(moveCharacterSelection(7, 1, 0, 8), 0);
+assert.match(getCharacterSelectionAnnouncement(getCharacter("aurora"), CHARACTER_LIST.findIndex(({ id }) => id === "aurora"), 8), /오로라, Aurora.*6\/8/);
+for (const { id } of CHARACTER_LIST) {
   assert.equal(getCharacterAssetKeys(id).length, id === "potato89" ? 44 : 40, "네 형태의 전용 시트가 필요함");
   for (const [form, prefix] of [[FORMS.BASE, id], [FORMS.UNICORN, `${id}_unicorn`], [FORMS.PEGASUS, `${id}_pegasus`], [FORMS.ALICORN, `${id}_alicorn`]]) {
     assert.equal(getCharacterAnimationSpec(id, "idle", form).textureKey, `${prefix}_idle`);

@@ -7,6 +7,7 @@
     "celestial:assets": "node scripts/build-celestial-assets.js",
     "selection:heroes": "node scripts/build-character-select-heroes.js",
     "ocean-aurora:assets": "node scripts/build-celestial-assets.js alora oceandream",
+    "aurora:assets": "node scripts/build-celestial-assets.js aurora && node scripts/build-character-select-heroes.js",
     "storybook:enemies": "node scripts/build-storybook-enemies.js",
     "mist:enemies": "node scripts/build-mist-enemies.js",
     "storybook:pickups": "node scripts/build-storybook-pickups.js",

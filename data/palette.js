@@ -10,6 +10,7 @@ export const PALETTE = {
   sunlight: ["#FFF3D9", "#F5D5A5", "#FFB94D", "#ED8A3C", "#B96A31", "#704729", "#FFE69A", "#ECA0A0"],
   moonlight: ["#E9E5FF", "#C2BCEB", "#9991D0", "#737AC8", "#464A8D", "#292C59", "#B5D9FF", "#F7F3FF"],
   alora: ["#F7F9E8", "#DCE9D4", "#92CCB5", "#27C8AE", "#087D72", "#83E7E3", "#AD83D6", "#EBA9D5", "#555078", "#FBE4D4"],
+  aurora: ["#EFE6FA", "#D4C2E7", "#B092CB", "#209F87", "#086B60", "#6EDDCB", "#AA7DCB", "#E6A2CD", "#49445F", "#FCF5FF", "#96D7C0"],
   oceandream: ["#F9FAEF", "#D6EEE7", "#9ADDCB", "#36D4D7", "#068CC9", "#0759A4", "#233B76", "#8BE9EA", "#BCDDF5", "#F6DCCD"],
   highlight: ["#F4FBFD", "#CDE5B9"],
   outline: "#42474E",
