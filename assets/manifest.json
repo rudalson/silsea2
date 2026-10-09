@@ -783,6 +783,7 @@
     { "key": "fx_mist_clear", "type": "image", "url": "/assets/effects/fx_mist_clear.png", "width": 256, "height": 256 },
     { "key": "fx_mist_beacon", "type": "image", "url": "/assets/effects/fx_mist_beacon.png", "width": 96, "height": 192 },
     { "key": "fx_mist_breeze", "type": "image", "url": "/assets/effects/fx_mist_breeze.png", "width": 192, "height": 96 },
+    { "key": "fx_mist_cloud_platform", "type": "image", "url": "/assets/effects/fx_mist_cloud_platform.png", "width": 256, "height": 80 },
     { "key": "shelter_house_open", "type": "image", "url": "/assets/environment/shelter_house_open.png", "width": 448, "height": 336 },
     { "key": "shelter_house_weathered", "type": "image", "url": "/assets/environment/shelter_house_weathered.png", "width": 448, "height": 336 },
     { "key": "shelter_hill", "type": "image", "url": "/assets/environment/shelter_hill.png", "width": 512, "height": 256 },

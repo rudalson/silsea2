@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { buildStorybookStagePreview } from "./build-storybook-stage-previews.js";
 import { PALETTE } from "../data/palette.js";
 import { colorDistance, hexToRgb } from "./image-utils.js";
+import { buildMistProps } from "./build-mist-props.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const sourceRoot = join(root, "assets", "_source", "mist", "storybook");
@@ -164,30 +165,17 @@ const mistClearSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height
   <path d="M42 128C62 111 77 112 94 121M162 116C181 105 202 108 218 124" fill="none" stroke="${PALETTE.environmentSky[1]}" stroke-width="8" stroke-linecap="round"/>
 </svg>`;
 
-const mistBeaconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="192" viewBox="0 0 96 192">
-  <path d="M26 174L34 65H62L70 174Z" fill="${PALETTE.shadow[0]}" stroke="${PALETTE.outline}" stroke-width="6" stroke-linejoin="round"/>
-  <path d="M20 174H76L82 188H14Z" fill="${PALETTE.environmentNeutral[0]}" stroke="${PALETTE.outline}" stroke-width="6" stroke-linejoin="round"/>
-  <path d="M28 64H68L73 76H23Z" fill="${PALETTE.environmentNeutral[1]}" stroke="${PALETTE.outline}" stroke-width="5"/>
-  <circle cx="48" cy="37" r="27" fill="${PALETTE.environmentFar[0]}" stroke="${PALETTE.collect[0]}" stroke-width="5"/>
-  <path d="M49 48C31 43 34 22 49 21C63 20 67 39 53 41C43 42 42 31 49 29" fill="none" stroke="${PALETTE.outline}" stroke-width="5" stroke-linecap="round"/>
-</svg>`;
-
-const mistBreezeSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="192" height="96" viewBox="0 0 192 96">
-  <path d="M12 33C54 7 96 55 180 25M20 61C70 38 112 84 174 55" fill="none" stroke="${PALETTE.highlight[0]}" stroke-width="13" stroke-linecap="round"/>
-  <path d="M12 33C54 7 96 55 180 25M20 61C70 38 112 84 174 55" fill="none" stroke="${PALETTE.collect[1]}" stroke-width="5" stroke-linecap="round"/>
-  <path d="M70 20C83 7 94 8 101 22C88 28 78 27 70 20ZM120 63C133 50 145 52 151 66C138 72 128 70 120 63Z" fill="${PALETTE.environmentFar[1]}" stroke="${PALETTE.outline}" stroke-width="3"/>
-</svg>`;
-
 await mkdir(referenceRoot, { recursive: true });
 const far = await buildBackgroundLayer("bg_mist_far", "far", false);
 const mid = await buildBackgroundLayer("bg_mist_mid", "mid", true);
 const near = await buildBackgroundLayer("bg_mist_near", "near", true);
-const [bank, clear, beacon, breeze] = await Promise.all([
+await buildMistProps();
+const [bank, clear] = await Promise.all([
   renderEffect("fx_mist_bank", 384, 128, mistBankSvg),
-  renderEffect("fx_mist_clear", 256, 256, mistClearSvg),
-  renderEffect("fx_mist_beacon", 96, 192, mistBeaconSvg),
-  renderEffect("fx_mist_breeze", 192, 96, mistBreezeSvg)
+  renderEffect("fx_mist_clear", 256, 256, mistClearSvg)
 ]);
+const beacon = join(effectRoot, "fx_mist_beacon.png");
+const breeze = join(effectRoot, "fx_mist_breeze.png");
 
 const composite = await sharp(far).composite([{ input: mid }, { input: near }]).png().toBuffer();
 await sharp(composite).resize(1024, 360).png({ compressionLevel: 9 }).toFile(join(referenceRoot, "background-mist-preview.png"));

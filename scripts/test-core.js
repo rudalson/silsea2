@@ -690,7 +690,8 @@ assert.deepEqual(level03.assets.effects, {
   mistBank: "fx_mist_bank",
   mistClear: "fx_mist_clear",
   mistBeacon: "fx_mist_beacon",
-  mistBreeze: "fx_mist_breeze"
+  mistBreeze: "fx_mist_breeze",
+  mistCloudPlatform: "fx_mist_cloud_platform"
 });
 assert.equal(level03.assets.bgm.field, "bgm_mist");
 assert.equal(level01.assets.bgm.field, "bgm_rainbow_hill");

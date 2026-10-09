@@ -91,6 +91,14 @@ export class TerrainMechanicsManager {
 
   createCloudVisual(x, y, width, height) {
     const container = this.scene.add.container(x, y).setDepth(MOVING_PLATFORM_DEPTH);
+    if (this.visualTheme === "mist-valley"
+      && !this.scene.registry.get("forceAssetFallback")
+      && this.scene.textures.exists("fx_mist_cloud_platform")) {
+      const cloud = this.scene.add.image(0, -height / 2, "fx_mist_cloud_platform")
+        .setOrigin(0.5, 0.28).setDisplaySize(width + 8, (width + 8) * 80 / 256);
+      container.add(cloud);
+      return container;
+    }
     const base = this.scene.add.ellipse(0, 2, width, height, COLORS.white, 0.96);
     base.setStrokeStyle(3, COLORS.collectBlue, 0.72);
     const puffWidth = Math.max(28, width * 0.27);

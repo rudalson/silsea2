@@ -337,10 +337,8 @@ export class EnvironmentMechanicsManager {
         art.setOrigin(0.5, 1).setDisplaySize(72, 144).setDepth(20);
         this.mistTweens.push(this.scene.tweens.add({
           targets: art,
-          alpha: { from: 0.66, to: 1 },
-          scaleX: { from: 0.72, to: 0.77 },
-          scaleY: { from: 0.72, to: 0.77 },
-          duration: 760,
+          alpha: { from: 0.88, to: 1 },
+          duration: 1600,
           yoyo: true,
           repeat: -1,
           delay: guide.delay ?? 0
@@ -349,9 +347,9 @@ export class EnvironmentMechanicsManager {
         art.setOrigin(0.5).setDisplaySize(150, 75).setDepth(20);
         this.mistTweens.push(this.scene.tweens.add({
           targets: art,
-          x: guide.x + 24,
-          alpha: { from: 0.7, to: 1 },
-          duration: 640,
+          x: guide.x + 18,
+          alpha: { from: 0.65, to: 0.95 },
+          duration: 1400,
           yoyo: true,
           repeat: -1,
           delay: guide.delay ?? 0

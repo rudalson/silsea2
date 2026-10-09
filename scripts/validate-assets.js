@@ -258,8 +258,9 @@ const resultStickerAssets = [
 const mistEffectAssets = [
   { name: "fx_mist_bank", width: 384, height: 128 },
   { name: "fx_mist_clear", width: 256, height: 256 },
-  { name: "fx_mist_beacon", width: 96, height: 192 },
-  { name: "fx_mist_breeze", width: 192, height: 96 }
+  { name: "fx_mist_beacon", width: 96, height: 192, fullColor: true },
+  { name: "fx_mist_breeze", width: 192, height: 96, fullColor: true },
+  { name: "fx_mist_cloud_platform", width: 256, height: 80, fullColor: true }
 ];
 const waterEffectAssets = [
   { name: "fx_water_surface", width: 1536, height: 64 },
@@ -851,7 +852,7 @@ for (const asset of [...mistEffectAssets, ...waterEffectAssets]) {
       data[(info.width * info.height - 1) * 4 + 3]
     ];
     if (!visible) errors.push(`${asset.name}.png: 불투명 픽셀이 없음`);
-    if (outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (!asset.fullColor && outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
     if (cornerAlpha.some((alpha) => alpha > 8)) errors.push(`${asset.name}.png: 모서리 투명 여백 없음`);
   } catch (error) {
     errors.push(`${asset.name}.png: 환경 효과 파일을 읽을 수 없음 (${error.message})`);

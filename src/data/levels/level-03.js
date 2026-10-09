@@ -35,7 +35,8 @@ export default expandCampaignLevel({
       mistBank: "fx_mist_bank",
       mistClear: "fx_mist_clear",
       mistBeacon: "fx_mist_beacon",
-      mistBreeze: "fx_mist_breeze"
+      mistBreeze: "fx_mist_breeze",
+      mistCloudPlatform: "fx_mist_cloud_platform"
     },
     objects: {
       items: {
