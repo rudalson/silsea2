@@ -6,7 +6,7 @@ import { isGroundPatrolEnemy, isMistEnemy } from "../data/enemies.js";
 import { getProgressionSign, hasReachedProgressTrigger } from "../data/schema/levelSchema.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
-import { MistEnemyController } from "./MistEnemyController.js";
+import { LANTERN_SHOT_RULES, MistEnemyController } from "./MistEnemyController.js";
 
 export class EnemyManager {
   constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
@@ -21,11 +21,13 @@ export class EnemyManager {
     this.progressionSign = getProgressionSign(this.level);
     this.paused = false;
     this.pausedAt = 0;
-    this.mistEnemyController = new MistEnemyController(scene, player, levelLoader, difficulty.enabled);
+    this.mistEnemyController = new MistEnemyController(scene, player, levelLoader, difficulty.enabled,
+      (shot, enemy) => this.fireLanternShot(shot, enemy));
     this.interactions = [];
     this.lightningPool = this.createLightningPool();
     this.recoveryPool = this.createRecoveryPool();
     this.arrowPool = this.createArrowPool();
+    this.lanternShotPool = this.createLanternShotPool();
     this.bindInteractions();
   }
 
@@ -195,6 +197,59 @@ export class EnemyManager {
     });
   }
 
+  createLanternShotPool() {
+    return new ObjectPool({
+      maxSize: LANTERN_SHOT_RULES.maxActive,
+      create: () => {
+        const usesArt = !this.scene.registry.get("forceAssetFallback")
+          && this.scene.textures.exists("projectile_lantern_light");
+        const shot = usesArt
+          ? this.scene.add.image(0, 0, "projectile_lantern_light").setDisplaySize(42, 26)
+          : this.scene.add.circle(0, 0, 10, COLORS.collect).setStrokeStyle(2, COLORS.white);
+        shot.setDepth(11).setVisible(false).setDataEnabled();
+        shot.setData({ guardable: true, projectileType: "lantern_light", usesArt });
+        this.scene.physics.add.existing(shot);
+        shot.body.setAllowGravity(false);
+        shot.body.setSize(usesArt ? 34 : 14, usesArt ? 24 : 14, true);
+        shot.body.enable = false;
+        this.interactions.push(this.scene.physics.add.overlap(this.player, shot, () => {
+          if (!shot.poolActive || this.paused || !this.isOnScreen(shot)) return;
+          if (this.transformationManager.canGuardProjectile(shot.x, shot.y)) {
+            this.transformationManager.registerGuardImpact(shot.x, shot.y);
+          } else {
+            this.healthManager.takeDamage(shot.x);
+          }
+          this.lanternShotPool.release(shot);
+        }));
+        this.interactions.push(this.scene.physics.add.collider(shot, this.levelLoader.terrainBodies,
+          () => this.lanternShotPool.release(shot)));
+        return shot;
+      },
+      activate: (shot, data) => {
+        shot.expiresAt = data.expiresAt;
+        shot.owner = data.owner;
+        shot.setPosition(data.x, data.y).setVisible(true).setActive(true);
+        shot.setFlipX?.(data.direction > 0);
+        shot.body.enable = true;
+        shot.body.reset(data.x, data.y);
+        shot.body.setVelocity(data.velocityX, 0);
+      },
+      deactivate: (shot) => {
+        shot.setVisible(false).setActive(false);
+        shot.body.enable = false;
+        shot.body.stop();
+        shot.owner = null;
+      },
+      destroy: (shot) => shot.destroy()
+    });
+  }
+
+  fireLanternShot(shot, enemy) {
+    if (this.lanternShotPool.acquire({ ...shot, owner: enemy })) {
+      this.scene.audioManager?.playSfx("sfx_cloud_charge", { volume: 0.35, rate: 1.3 });
+    }
+  }
+
   update(now, delta) {
     if (this.paused) return;
     for (const enemy of this.levelLoader.enemies) {
@@ -222,6 +277,9 @@ export class EnemyManager {
     });
     this.arrowPool.forEachActive((arrow) => {
       if (now >= arrow.expiresAt || !this.isOnScreen(arrow, 96)) this.arrowPool.release(arrow);
+    });
+    this.lanternShotPool.forEachActive((shot) => {
+      if (now >= shot.expiresAt || !this.isOnScreen(shot)) this.lanternShotPool.release(shot);
     });
   }
 
@@ -495,6 +553,9 @@ export class EnemyManager {
   }
 
   defeatEnemy(enemy, type) {
+    this.lanternShotPool.forEachActive((shot) => {
+      if (shot.owner === enemy) this.lanternShotPool.release(shot);
+    });
     enemy.getData("aimLine")?.clear();
     enemy.getData("targetMarker")?.setVisible(false);
     enemy.getData("label")?.setVisible(false);
@@ -572,7 +633,8 @@ export class EnemyManager {
     return {
       lightning: this.lightningPool.getSnapshot(),
       recovery: this.recoveryPool.getSnapshot(),
-      arrows: this.arrowPool.getSnapshot()
+      arrows: this.arrowPool.getSnapshot(),
+      lanternShots: this.lanternShotPool.getSnapshot()
     };
   }
 
@@ -586,7 +648,7 @@ export class EnemyManager {
         enemy.setData("environmentPausedVelocity", { x: enemy.body?.velocity.x ?? 0, y: enemy.body?.velocity.y ?? 0 });
         enemy.body?.setVelocity(0, 0);
       }
-      this.arrowPool.forEachActive((arrow) => {
+      for (const pool of [this.arrowPool, this.lanternShotPool]) pool.forEachActive((arrow) => {
         arrow.setData("environmentPausedVelocity", { x: arrow.body.velocity.x, y: arrow.body.velocity.y });
         arrow.body.stop();
       });
@@ -610,7 +672,7 @@ export class EnemyManager {
     this.recoveryPool.forEachActive((entry) => {
       entry.expiresAt += pausedDuration;
     });
-    this.arrowPool.forEachActive((arrow) => {
+    for (const pool of [this.arrowPool, this.lanternShotPool]) pool.forEachActive((arrow) => {
       const velocity = arrow.getData("environmentPausedVelocity");
       if (velocity) arrow.body.setVelocity(velocity.x, velocity.y);
       arrow.expiresAt += pausedDuration;
@@ -629,5 +691,6 @@ export class EnemyManager {
     this.lightningPool.destroy();
     this.recoveryPool.destroy();
     this.arrowPool.destroy();
+    this.lanternShotPool.destroy();
   }
 }

@@ -72,6 +72,7 @@ export class AssetManager {
       for (const key of getEnemyAssetKeys(type)) AssetManager.queueManifestAsset(scene, key);
     }
     if (types.has("dark_cloud")) AssetManager.queueManifestAsset(scene, "fx_lightning");
+    if (types.has("lantern_goblin")) AssetManager.queueManifestAsset(scene, "projectile_lantern_light");
     if (types.has("potato_archer")) AssetManager.queueManifestAsset(scene, "projectile_arrow");
     if (types.has("hula_king")) {
       AssetManager.queueManifestAsset(scene, "fx_hula_spin");

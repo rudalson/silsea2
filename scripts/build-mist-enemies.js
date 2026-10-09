@@ -2,6 +2,7 @@ import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { buildLanternLight } from "./build-lantern-light.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const clear = { r: 0, g: 0, b: 0, alpha: 0 };
@@ -105,4 +106,5 @@ const reviewWidth = 768, rowHeight = 156;
 const labels = review.map(({ label }, i) => `<text x="20" y="${i * rowHeight + 24}" fill="#24465a" font-family="sans-serif" font-size="18">${label}</text>`).join("");
 const background = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${reviewWidth}" height="${review.length * rowHeight}"><rect width="100%" height="100%" fill="#c4edf0"/>${labels}</svg>`);
 await sharp(background).composite(review.map(({ strip }, i) => ({ input: strip, left: 128, top: i * rowHeight + 28 }))).png().toFile(join(root, "references/mist-enemy-animation.png"));
+await buildLanternLight();
 console.log("Built lantern goblin and dew snail: 44 RGBA frames, 12 animation sheets, stable scale and 16px baseline.");

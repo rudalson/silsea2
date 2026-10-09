@@ -793,6 +793,7 @@
     { "key": "fx_water_caustics", "type": "spritesheet", "url": "/assets/effects/fx_water_caustics.png", "frameWidth": 256, "frameHeight": 128, "frames": 4 },
     { "key": "fx_bubble", "type": "spritesheet", "url": "/assets/effects/fx_bubble.png", "frameWidth": 64, "frameHeight": 64, "frames": 6 },
     { "key": "projectile_arrow", "type": "image", "url": "/assets/projectiles/projectile_arrow.png", "width": 64, "height": 32 },
+    { "key": "projectile_lantern_light", "type": "image", "url": "/assets/projectiles/projectile_lantern_light.png", "width": 80, "height": 48 },
     { "key": "laser_emitter", "type": "image", "url": "/assets/effects/laser_emitter.png", "width": 128, "height": 128 },
     { "key": "laser_switch_on", "type": "image", "url": "/assets/effects/laser_switch_on.png", "width": 128, "height": 96 },
     { "key": "laser_switch_off", "type": "image", "url": "/assets/effects/laser_switch_off.png", "width": 128, "height": 96 },

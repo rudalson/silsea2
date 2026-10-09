@@ -272,6 +272,9 @@ const hulaEffectAssets = [
   { name: "projectile_hula_hoop_low", directory: "projectiles", width: 112, height: 64 },
   { name: "projectile_hula_hoop_jump", directory: "projectiles", width: 80, height: 112 }
 ];
+const lanternEffectAssets = [
+  { name: "projectile_lantern_light", directory: "projectiles", width: 80, height: 48, fullColor: true }
+];
 const invisibleEffectAssets = [
   { name: "fx_invisible_reveal", directory: "effects", width: 1152, height: 256 },
   { name: "fx_invisible_afterimage", directory: "effects", width: 768, height: 192 },
@@ -859,7 +862,7 @@ for (const asset of [...mistEffectAssets, ...waterEffectAssets]) {
   }
 }
 
-for (const asset of [...hulaEffectAssets, ...invisibleEffectAssets, ...waterKingEffectAssets, ...randomKingEffectAssets]) {
+for (const asset of [...hulaEffectAssets, ...lanternEffectAssets, ...invisibleEffectAssets, ...waterKingEffectAssets, ...randomKingEffectAssets]) {
   const path = join(root, "assets", asset.directory, `${asset.name}.png`);
   try {
     const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -882,7 +885,7 @@ for (const asset of [...hulaEffectAssets, ...invisibleEffectAssets, ...waterKing
       data[(info.width * info.height - 1) * 4 + 3]
     ];
     if (!visible) errors.push(`${asset.name}.png: 불투명 픽셀이 없음`);
-    if (outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+    if (!asset.fullColor && outsidePalette > 0) errors.push(`${asset.name}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
     if (cornerAlpha.some((alpha) => alpha > 8)) errors.push(`${asset.name}.png: 모서리 투명 여백 없음`);
   } catch (error) {
     errors.push(`${asset.name}.png: 보스 효과 파일을 읽을 수 없음 (${error.message})`);
@@ -950,6 +953,6 @@ const maximumOutsidePalette = qualityMeasurements.outsidePalette.reduce(
   (maximum, measurement) => measurement.value > maximum.value ? measurement : maximum,
   qualityMeasurements.outsidePalette[0]
 );
-console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 ${tilesetKeys.length}개·배경 ${backgroundAssets.length}개·별빛 장식 ${starlightDecorationAssets.length}개·환경 효과 ${mistEffectAssets.length + waterEffectAssets.length + hulaEffectAssets.length + invisibleEffectAssets.length + waterKingEffectAssets.length + randomKingEffectAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV/OGG 잠금`);
+console.log(`캐릭터 ${characterAssets.length}프레임·시트 ${validatedCharacterSheetCount}개·적 ${enemyAssets.length}프레임·시트 ${validatedEnemySheetCount}개·아이템/진행 오브젝트 ${itemAssets.length}개·타일셋 ${tilesetKeys.length}개·배경 ${backgroundAssets.length}개·별빛 장식 ${starlightDecorationAssets.length}개·환경 효과 ${mistEffectAssets.length + waterEffectAssets.length + hulaEffectAssets.length + lanternEffectAssets.length + invisibleEffectAssets.length + waterKingEffectAssets.length + randomKingEffectAssets.length}개·오디오 ${validatedAudioCount}개 검증 통과: 규격, 실루엣, 방향, duration 매핑, 투명 여백, 팔레트, 2px extrude, 명도, seam, 로컬 WAV/OGG 잠금`);
 console.log(`형태/팔레트 임계값 통과: 기준선 ${qualityMeasurements.baseline.length}개 ${baselineRange.minimum}~${baselineRange.maximum}px (16±2px) · 캐릭터 높이 ${qualityMeasurements.characterHeight.length}개 ${heightRange.minimum}~${heightRange.maximum}px (96px±5%) · 팔레트 ${qualityMeasurements.outsidePalette.length}개 최대 ${(maximumOutsidePalette.value * 100).toFixed(2)}% (${maximumOutsidePalette.name}, 허용 5% 이하)`);
 console.log(`HTML 에셋 보고서 생성: ${assetReport.outputPath} (시각 에셋 ${assetReport.assetCount}개·역할 실루엣 ${assetReport.roleCount}개)`);

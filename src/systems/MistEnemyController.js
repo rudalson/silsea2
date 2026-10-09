@@ -2,16 +2,31 @@ import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { COLORS } from "../config/constants.js";
 
 const RULES = Object.freeze({
-  lantern_goblin: { name: "등불 도깨비", walkSpeed: 34, rushSpeed: 145, warningMs: 1100, rushMs: 620, distance: 90, cooldownMs: 2200 },
+  lantern_goblin: { name: "등불 도깨비", walkSpeed: 34, warningMs: 1200, attackRange: 300, cooldownMs: 2600 },
   dew_snail: { name: "이슬달팽이", walkSpeed: 20, rushSpeed: 110, warningMs: 1200, rushMs: 760, distance: 84, cooldownMs: 2600 }
 });
 
+export const LANTERN_SHOT_RULES = Object.freeze({ speed: 180, range: 320, maxActive: 4 });
+
+export function getLanternShot(enemy, now, easy = false) {
+  const direction = enemy.getData("rushDirection");
+  const speed = LANTERN_SHOT_RULES.speed * (easy ? 0.75 : 1);
+  return {
+    x: enemy.x + direction * 22,
+    y: enemy.body.bottom - 34,
+    direction,
+    velocityX: direction * speed,
+    expiresAt: now + LANTERN_SHOT_RULES.range / speed * 1000
+  };
+}
+
 export class MistEnemyController {
-  constructor(scene, player, levelLoader, easy = false) {
+  constructor(scene, player, levelLoader, easy = false, fireLanternShot = () => {}) {
     this.scene = scene;
     this.player = player;
     this.levelLoader = levelLoader;
     this.easy = easy;
+    this.fireLanternShot = fireLanternShot;
   }
 
   hasGroundAhead(enemy, direction, distance = 10) {
@@ -45,14 +60,23 @@ export class MistEnemyController {
     const patrol = Math.max(0, enemy.getData("patrol") ?? 80);
     const left = enemy.getData("spawnX") - patrol;
     const right = enemy.getData("spawnX") + patrol;
-    const lookAhead = Math.max(10, rules.rushSpeed * Math.max(0, delta) / 1000 + 6);
+    const lookAhead = Math.max(10, (rules.rushSpeed ?? rules.walkSpeed) * Math.max(0, delta) / 1000 + 6);
 
     if (state === "telegraph") {
       // Leaving the screen cancels anticipation: no unseen charged attack.
       if (!visible) { this.recover(enemy, now, rules); return; }
       if (now < enemy.getData("stateUntil")) return;
+      if (enemy.getData("type") === "lantern_goblin") {
+        this.setPhase(enemy, "firing", now, 380, "attack");
+        this.fireLanternShot(getLanternShot(enemy, now, this.easy), enemy);
+        return;
+      }
       enemy.setData("rushStartX", enemy.x);
       this.setPhase(enemy, "rush", now, rules.rushMs, "attack");
+    }
+    if (state === "firing") {
+      if (now >= enemy.getData("stateUntil")) this.recover(enemy, now, rules);
+      return;
     }
     if (enemy.getData("state") === "rush") {
       const direction = enemy.getData("rushDirection");
@@ -74,15 +98,15 @@ export class MistEnemyController {
 
     const distance = this.player.x - enemy.x;
     if (visible && now >= (enemy.getData("attackReadyAt") ?? 0)
-      && Math.abs(distance) >= 80 && Math.abs(distance) <= 230
+      && Math.abs(distance) >= 80 && Math.abs(distance) <= (rules.attackRange ?? 230)
       && Math.abs(this.player.y - enemy.y) <= 90) {
       const direction = distance < 0 ? -1 : 1;
-      if (this.hasGroundAhead(enemy, direction, lookAhead)) {
+      if (enemy.getData("type") === "lantern_goblin" || this.hasGroundAhead(enemy, direction, lookAhead)) {
         enemy.setData("rushDirection", direction);
         enemy.setFlipX?.(direction > 0); // Source art faces left.
         this.setPhase(enemy, "telegraph", now, rules.warningMs * (this.easy ? 1.3 : 1), "warning");
         this.scene.updateAccessibleStatus?.(rules.name === "등불 도깨비"
-          ? "등불 도깨비의 등불이 깜빡입니다. 잠시 뒤 앞으로 달려오니 점프로 피하세요."
+          ? "등불 도깨비의 등불이 밝아집니다. 잠시 뒤 불빛을 쏘니 점프로 피하거나 날개로 막으세요."
           : "이슬달팽이가 껍질 속으로 숨습니다. 잠시 뒤 굴러오니 점프로 피하세요.");
         return;
       }

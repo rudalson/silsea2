@@ -207,6 +207,7 @@
   "fx_mist_beacon": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "원화풍 이끼 돌기둥과 따뜻한 등불로 고정 착지점을 표시. 생성 원본과 프롬프트: assets/_source/mist-props." },
   "fx_mist_breeze": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "크림·민트 붓결과 작은 잎의 원화풍 바람 안내. full color와 soft alpha 유지." },
   "fx_mist_cloud_platform": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "안개마을 이동 발판용 비대칭 원화 구름. 배경과 주인공을 참고해 생성, 기존 충돌 영역 유지." },
+  "projectile_lantern_light": { "styleRefs": ["maple_story_1.png"], "note": "등불 도깨비의 원화풍 황금빛 탄환. 왼쪽 원화·오른쪽 반전, 예고 후 수평 발사. 원본과 프롬프트: assets/_source/mist-enemies." },
   "shelter_house_open": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "입구 전체가 열려 내부 안전 영역이 즉시 읽히는 청록 지붕 해안 마을 집." },
   "shelter_house_weathered": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "같은 구조를 유지하면서 지붕 보수 흔적과 석축 균열을 더한 두 번째 피난처." },
   "shelter_hill": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "오른쪽 파도 바람에 식생이 왼쪽으로 눕고 돌기반이 드러난 낮고 넓은 자연 피난처." },

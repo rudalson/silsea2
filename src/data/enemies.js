@@ -4,7 +4,7 @@ const toNumber = (hex) => Number.parseInt(hex.slice(1), 16);
 
 export const ENEMY_DEFINITIONS = Object.freeze({
   raw_potato: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.base[3]) },
-  lantern_goblin: { behavior: "telegraph_rush", params: ["patrol"], color: toNumber(PALETTE.alora[4]) },
+  lantern_goblin: { behavior: "telegraph_lantern_shot", params: ["patrol"], color: toNumber(PALETTE.alora[4]) },
   dew_snail: { behavior: "telegraph_roll", params: ["patrol"], color: toNumber(PALETTE.sylvia[10]) },
   spike_pumpkin: { behavior: "stationary", params: [], color: toNumber(PALETTE.danger[0]) },
   dark_cloud: {

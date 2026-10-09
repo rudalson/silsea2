@@ -10,6 +10,7 @@
     "aurora:assets": "node scripts/build-celestial-assets.js aurora && node scripts/build-character-select-heroes.js",
     "storybook:enemies": "node scripts/build-storybook-enemies.js",
     "mist:enemies": "node scripts/build-mist-enemies.js",
+    "mist:projectile": "node scripts/build-lantern-light.js",
     "mist:props": "node scripts/build-mist-props.js",
     "storybook:pickups": "node scripts/build-storybook-pickups.js",
     "dev": "vite --host 0.0.0.0",

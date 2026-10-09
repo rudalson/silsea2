@@ -80,7 +80,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    for (const key of ["fx_mist_beacon", "fx_mist_breeze", "fx_mist_cloud_platform"]) {
+    for (const key of ["fx_mist_beacon", "fx_mist_breeze", "fx_mist_cloud_platform", "projectile_lantern_light"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     // Painted pickups and enemies retain smooth edges at fractional scales.
