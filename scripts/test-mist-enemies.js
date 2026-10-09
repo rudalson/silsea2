@@ -31,7 +31,7 @@ for (const type of ["lantern_goblin", "dew_snail"]) {
   assert.equal(enemy.getData("state"), "telegraph");
   assert.equal(enemy.body.velocity.x, 0, "warning must stop the enemy");
   const warningUntil = enemy.getData("stateUntil");
-  assert.ok(warningUntil >= 1100, "children have at least 1.1 seconds to read the cue");
+  assert.equal(warningUntil, type === "lantern_goblin" ? 600 : 1200, "each enemy uses its own warning duration");
   player.x = 750;
   controller.update(enemy, warningUntil - 1, 16);
   assert.equal(enemy.getData("state"), "telegraph");

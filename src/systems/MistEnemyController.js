@@ -2,7 +2,7 @@ import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { COLORS } from "../config/constants.js";
 
 const RULES = Object.freeze({
-  lantern_goblin: { name: "등불 도깨비", walkSpeed: 34, warningMs: 1200, attackRange: 300, cooldownMs: 2600 },
+  lantern_goblin: { name: "등불 도깨비", walkSpeed: 34, warningMs: 600, attackRange: 300, cooldownMs: 1000 },
   dew_snail: { name: "이슬달팽이", walkSpeed: 20, rushSpeed: 110, warningMs: 1200, rushMs: 760, distance: 84, cooldownMs: 2600 }
 });
 
