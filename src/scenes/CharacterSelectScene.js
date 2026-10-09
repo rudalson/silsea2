@@ -12,6 +12,9 @@ import { AudioManager } from "../systems/AudioManager.js";
 import { CharacterAnimationManager } from "../systems/CharacterAnimationManager.js";
 import { InputManager } from "../systems/InputManager.js";
 
+// Mature, slimmer silhouettes occupy less of their animation frame.
+const PORTRAIT_SCALE_FACTORS = Object.freeze({ sunlight: 1.14, aurora: 1.18 });
+
 export class CharacterSelectScene extends Phaser.Scene {
   constructor() {
     super(SCENE_KEYS.CHARACTER_SELECT);
@@ -125,7 +128,8 @@ export class CharacterSelectScene extends Phaser.Scene {
       const heroTexture = this.textures.exists(heroKey) ? heroKey : texture;
       if (heroTexture === heroKey) this.textures.get(heroKey).setFilter(Phaser.Textures.FilterMode.LINEAR);
       this.portraitTextures.set(character.id, { texture, hasArt, heroTexture });
-      const portrait = this.add.sprite(x, y, texture).setScale(0.76).setOrigin(0.5).setDepth(3);
+      const portraitScaleFactor = PORTRAIT_SCALE_FACTORS[character.id] ?? 1;
+      const portrait = this.add.sprite(x, y, texture).setScale(0.76 * portraitScaleFactor).setOrigin(0.5).setDepth(3);
       if (hasArt) CharacterAnimationManager.play(portrait, character, "idle");
       const name = this.add.text(x, y + 69, character.name, {
         fontFamily: GAME_FONT_FAMILY,
@@ -137,7 +141,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       }).setOrigin(0.5).setDepth(3);
       ring.on("pointerover", () => this.selectCharacter(index));
       ring.on("pointerdown", () => this.selectCharacter(index));
-      this.cards.push({ ring, portrait, name, y });
+      this.cards.push({ ring, portrait, portraitScaleFactor, name, y });
     });
 
     const first = CHARACTER_LIST[this.selected];
@@ -230,7 +234,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       entry.ring.setStrokeStyle(selected ? 5 : 2, selected ? COLORS.collect : COLORS.white, selected ? 1 : 0.8);
       entry.ring.setFillStyle(selected ? COLORS.white : COLORS.near, selected ? 0.42 : 0.63);
       entry.ring.setScale(selected ? 1.15 : 1).setY(entry.y - (selected ? 5 : 0));
-      entry.portrait.setScale(selected ? 0.9 : 0.76).setY(entry.y - (selected ? 5 : 0))
+      entry.portrait.setScale((selected ? 0.9 : 0.76) * entry.portraitScaleFactor).setY(entry.y - (selected ? 5 : 0))
         .setAlpha(selected ? 1 : 0.86);
       entry.name.setColor(selected ? CSS_COLORS.collect : CSS_COLORS.white);
     });
