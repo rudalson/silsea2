@@ -84,7 +84,8 @@ export class PreloadScene extends Phaser.Scene {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     for (const key of ["invisible_king_idle", "invisible_king_reveal", "invisible_king_hide",
-      "invisible_king_attack", "invisible_king_hurt", "invisible_king_defeated", "fx_invisible_afterimage"]) {
+      "invisible_king_attack", "invisible_king_hurt", "invisible_king_defeated", "fx_invisible_afterimage",
+      "fx_invisible_reveal", "fx_invisible_miss", "fx_invisible_crown_impact", "fx_invisible_anchor"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     // Painted pickups and enemies retain smooth edges at fractional scales.

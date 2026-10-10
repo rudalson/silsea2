@@ -419,3 +419,5 @@ console.log(`P11 최종 에셋 생성: 보스 ${4 + 6 + 6 + 6 + 3 + 8}프레임�
 // Preserve the current storybook boss when rebuilding the legacy phase effects.
 const { execFileSync } = await import("node:child_process");
 execFileSync(process.execPath, [join(root, "scripts/build-boss-refresh.js"), "invisible_king"], { stdio: "inherit" });
+const { buildInvisibleEffects } = await import("./build-invisible-effects.js");
+await buildInvisibleEffects();

@@ -84,6 +84,7 @@ export class AssetManager {
       AssetManager.queueManifestAsset(scene, "fx_invisible_afterimage");
       AssetManager.queueManifestAsset(scene, "fx_invisible_miss");
       AssetManager.queueManifestAsset(scene, "fx_invisible_crown_impact");
+      AssetManager.queueManifestAsset(scene, "fx_invisible_anchor");
     }
     if (types.has("water_king")) {
       AssetManager.queueManifestAsset(scene, "fx_water_king_ripple");

@@ -652,6 +652,7 @@
     { "key": "fx_invisible_afterimage", "type": "spritesheet", "url": "/assets/effects/fx_invisible_afterimage.png", "frameWidth": 192, "frameHeight": 192, "frames": 4 },
     { "key": "fx_invisible_miss", "type": "spritesheet", "url": "/assets/effects/fx_invisible_miss.png", "frameWidth": 256, "frameHeight": 192, "frames": 6 },
     { "key": "fx_invisible_crown_impact", "type": "image", "url": "/assets/effects/fx_invisible_crown_impact.png", "width": 160, "height": 112 },
+    { "key": "fx_invisible_anchor", "type": "image", "url": "/assets/effects/fx_invisible_anchor.png", "width": 160, "height": 56 },
     { "key": "fx_water_king_ripple", "type": "spritesheet", "url": "/assets/effects/fx_water_king_ripple.png", "frameWidth": 256, "frameHeight": 128, "frames": 6 },
     { "key": "fx_water_king_projectile", "type": "spritesheet", "url": "/assets/effects/fx_water_king_projectile.png", "frameWidth": 64, "frameHeight": 64, "frames": 4 },
     { "key": "fx_water_king_splash", "type": "spritesheet", "url": "/assets/effects/fx_water_king_splash.png", "frameWidth": 192, "frameHeight": 160, "frames": 6 },

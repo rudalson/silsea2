@@ -14,6 +14,7 @@ const BOSS_CENTER_OFFSET_Y = 59;
 const HIDE_TRANSITION_MS = 420;
 const EFFECTS = Object.freeze({
   reveal: { texture: "fx_invisible_reveal", frames: 6, duration: 900, repeat: -1 },
+  hide: { texture: "fx_invisible_reveal", frames: 6, duration: HIDE_TRANSITION_MS, repeat: 0, order: [3, 4, 5, 1, 0, 0] },
   afterimage: { texture: "fx_invisible_afterimage", frames: 4, duration: 360, repeat: 0 },
   miss: { texture: "fx_invisible_miss", frames: 6, duration: 900, repeat: 0 }
 });
@@ -45,7 +46,13 @@ export class InvisibleKingBehavior {
     this.usesArt = Boolean(this.boss.getData("usesArt"));
     this.boss.getData("label")?.setVisible(false);
     this.boss.setAlpha(0);
+    this.usesPaintedMarkers = this.usesArt && this.scene.textures.exists("fx_invisible_anchor");
     this.anchorMarkers = this.anchors.map((anchor, index) => {
+      if (this.usesPaintedMarkers) {
+        const marker = this.scene.add.image(anchor.x, anchor.y + 8, "fx_invisible_anchor")
+          .setOrigin(0.5, 1).setDisplaySize(156, 48).setDepth(3);
+        return { anchor, marker };
+      }
       const marker = this.scene.add.ellipse(anchor.x, anchor.y - BOSS_CENTER_OFFSET_Y, 148, 148, COLORS.collectBlue, 0.035)
         .setStrokeStyle(3, COLORS.white, 0.34).setDepth(3);
       const notch = this.scene.add.rectangle(anchor.x, anchor.y - 8, 22 + index * 5, 7, COLORS.collectBlue, 0.75)
@@ -95,16 +102,16 @@ export class InvisibleKingBehavior {
       if (!this.scene.anims.exists(key)) {
         this.scene.anims.create({
           key,
-          frames: this.scene.anims.generateFrameNumbers(spec.texture, { start: 0, end: spec.frames - 1 }),
+          frames: this.scene.anims.generateFrameNumbers(spec.texture, spec.order ? { frames: spec.order } : { start: 0, end: spec.frames - 1 }),
           duration: spec.duration,
           repeat: spec.repeat
         });
       }
     }
-    this.revealEffectArt = this.scene.add.sprite(0, 0, EFFECTS.reveal.texture).setDepth(7).setVisible(false);
+    this.revealEffectArt = this.scene.add.sprite(0, 0, EFFECTS.reveal.texture).setOrigin(0.5, 1).setDepth(7).setVisible(false);
     this.afterimageArt = this.scene.add.sprite(0, 0, EFFECTS.afterimage.texture).setDepth(8).setVisible(false);
     this.missEffectArt = this.scene.add.sprite(0, 0, EFFECTS.miss.texture).setDepth(7).setVisible(false);
-    this.crownImpactArt = this.scene.add.image(0, 0, "fx_invisible_crown_impact").setDepth(10).setVisible(false);
+    this.crownImpactArt = this.scene.add.image(0, 0, "fx_invisible_crown_impact").setDisplaySize(160, 112).setDepth(10).setVisible(false);
   }
 
   playAnimation(sequence, ignoreIfPlaying = true) {
@@ -113,7 +120,7 @@ export class InvisibleKingBehavior {
   }
 
   playEffect(sprite, name) {
-    if (sprite) sprite.setVisible(true).play(`fx:invisible:${name}`, true);
+    if (sprite) sprite.setAlpha(1).setVisible(true).play(`fx:invisible:${name}`, true);
   }
 
   hideArtEffects() {
@@ -125,6 +132,8 @@ export class InvisibleKingBehavior {
     const states = new Set(["relocate", "warning", "revealed", "hide", "memory", "miss", "hit", "defeated"]);
     if (!states.has(requestedState)) return;
     this.stateUntil = Number.POSITIVE_INFINITY;
+    this.hideStarted = requestedState === "hide";
+    this.hideStartedAt = this.scene.time.now;
     this.hideArtEffects();
     this.lightBeam.setVisible(!this.usesArt && ["warning", "revealed", "defeated"].includes(requestedState));
     this.lightTarget.setVisible(!this.usesArt && ["warning", "revealed", "defeated"].includes(requestedState));
@@ -138,7 +147,10 @@ export class InvisibleKingBehavior {
       this.playAnimation("reveal", false);
       this.playEffect(this.revealEffectArt, "reveal");
     }
-    if (requestedState === "hide") this.playAnimation("hide", false);
+    if (requestedState === "hide") {
+      this.playAnimation("hide", false);
+      this.playEffect(this.revealEffectArt, "hide");
+    }
     if (requestedState === "memory") this.playEffect(this.afterimageArt, "afterimage");
     if (requestedState === "miss") {
       this.playAnimation("attack", false);
@@ -192,17 +204,23 @@ export class InvisibleKingBehavior {
     const centerY = this.boss.y - BOSS_CENTER_OFFSET_Y;
     this.silhouette.setPosition(this.boss.x, this.boss.y);
     this.missWarning.setPosition(this.boss.x, this.boss.y);
-    this.revealEffectArt?.setPosition(this.boss.x, centerY).setDisplaySize(216, 288);
+    this.revealEffectArt?.setPosition(this.boss.x, this.boss.y + 12).setDisplaySize(216, 240);
+    if (this.hideStarted) this.revealEffectArt?.setAlpha(Phaser.Math.Clamp(1 - (now - this.hideStartedAt) / HIDE_TRANSITION_MS, 0, 1));
     this.afterimageArt?.setPosition(this.boss.x, centerY).setDisplaySize(216, 216);
     this.missEffectArt?.setPosition(this.boss.x, centerY).setDisplaySize(390, 293);
-    this.crownImpactArt?.setPosition(this.boss.x, this.boss.y - 132).setDisplaySize(160, 112);
+    this.crownImpactArt?.setPosition(this.boss.x, this.boss.y - 132);
 
     const selected = ["light_warning", "revealed"].includes(this.state);
     for (const entry of this.anchorMarkers) {
       const active = selected && entry.anchor.id === this.currentAnchor.id;
-      entry.marker.setAlpha(active ? 0.34 + Math.sin(now / 75) * 0.12 : 0.2);
-      entry.marker.setScale(active ? 1 + Math.sin(now / 90) * 0.05 : 1);
-      entry.notch.setAlpha(active ? 1 : 0.58);
+      if (this.usesPaintedMarkers) {
+        entry.marker.setAlpha(active ? 0.55 + Math.sin(now / 450) * 0.08 : 0.18);
+        entry.marker.setDisplaySize(156 + (active ? Math.sin(now / 500) * 6 : 0), 48);
+      } else {
+        entry.marker.setAlpha(active ? 0.34 + Math.sin(now / 75) * 0.12 : 0.2);
+        entry.marker.setScale(active ? 1 + Math.sin(now / 90) * 0.05 : 1);
+        entry.notch?.setAlpha(active ? 1 : 0.58);
+      }
     }
 
     if (selected && !this.usesArt) {
@@ -239,6 +257,7 @@ export class InvisibleKingBehavior {
     this.setBodyEnabled(false);
     this.state = "hidden_relocate";
     this.stateUntil = now + this.getPattern().relocateMs;
+    this.hideStarted = false;
     this.boss.setData({ vulnerable: false, bossState: this.state, anchorId: this.currentAnchor.id, arenaId: section.id });
     this.silhouette.setVisible(false).setAlpha(1);
     this.lightBeam.setVisible(false);
@@ -258,7 +277,7 @@ export class InvisibleKingBehavior {
       this.lightTarget.setVisible(true);
     }
     this.scene.audioManager?.playSfx("sfx_invisible_warning", { randomizeRate: false });
-    this.scene.updateAccessibleStatus?.("빛기둥 방향을 확인하세요. 곧 투명 대왕의 위치가 드러납니다.");
+    this.scene.updateAccessibleStatus?.("반짝이는 안개를 확인하세요. 곧 투명 대왕의 위치가 드러납니다.");
   }
 
   beginReveal(now) {
@@ -277,8 +296,11 @@ export class InvisibleKingBehavior {
 
   beginHideTransition() {
     this.hideStarted = true;
-    this.revealEffectArt?.setVisible(false);
-    if (this.usesArt) this.playAnimation("hide", false);
+    this.hideStartedAt = this.scene.time.now;
+    if (this.usesArt) {
+      this.playAnimation("hide", false);
+      this.playEffect(this.revealEffectArt, "hide");
+    }
     else this.silhouette.setAlpha(0.45);
     this.scene.audioManager?.playSfx("sfx_invisible_hide", { randomizeRate: false });
   }
@@ -314,7 +336,7 @@ export class InvisibleKingBehavior {
       this.playEffect(this.missEffectArt, "miss");
     } else this.missWarning.setVisible(true).setScale(0.35).setAlpha(0.45);
     this.scene.audioManager?.playSfx("sfx_invisible_attack", { randomizeRate: false });
-    this.scene.updateAccessibleStatus?.("기억 시간이 끝났습니다. 십자 빛 공격 범위에서 벗어나세요.");
+    this.scene.updateAccessibleStatus?.("기억 시간이 끝났습니다. 금빛 안개 공격 범위에서 벗어나세요.");
   }
 
   resolveMissAttack(now) {
@@ -350,11 +372,13 @@ export class InvisibleKingBehavior {
 
   showCrownImpact() {
     if (!this.crownImpactArt) return;
-    this.crownImpactArt.setVisible(true).setAlpha(1).setScale(0.75);
+    this.scene.tweens.killTweensOf(this.crownImpactArt);
+    this.crownImpactArt.setVisible(true).setAlpha(1).setDisplaySize(112, 78);
     this.scene.tweens.add({
       targets: this.crownImpactArt,
-      scale: 1,
-      alpha: 0.2,
+      displayWidth: 160,
+      displayHeight: 112,
+      alpha: 0,
       duration: 360,
       onComplete: () => this.crownImpactArt?.setVisible(false)
     });
@@ -411,7 +435,7 @@ export class InvisibleKingBehavior {
     this.boss?.getData("label")?.setVisible(false);
     this.anchorMarkers?.forEach(({ marker, notch }) => {
       marker.destroy();
-      notch.destroy();
+      notch?.destroy();
     });
     if (this.crownImpactArt) this.scene.tweens.killTweensOf(this.crownImpactArt);
     this.lightBeam?.destroy();

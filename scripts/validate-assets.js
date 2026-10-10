@@ -276,10 +276,11 @@ const lanternEffectAssets = [
   { name: "projectile_lantern_light", directory: "projectiles", width: 80, height: 48, fullColor: true }
 ];
 const invisibleEffectAssets = [
-  { name: "fx_invisible_reveal", directory: "effects", width: 1152, height: 256 },
+  { name: "fx_invisible_reveal", directory: "effects", width: 1152, height: 256, fullColor: true },
   { name: "fx_invisible_afterimage", directory: "effects", width: 768, height: 192, fullColor: true },
-  { name: "fx_invisible_miss", directory: "effects", width: 1536, height: 192 },
-  { name: "fx_invisible_crown_impact", directory: "effects", width: 160, height: 112 }
+  { name: "fx_invisible_miss", directory: "effects", width: 1536, height: 192, fullColor: true },
+  { name: "fx_invisible_crown_impact", directory: "effects", width: 160, height: 112, fullColor: true },
+  { name: "fx_invisible_anchor", directory: "effects", width: 160, height: 56, fullColor: true }
 ];
 const waterKingEffectAssets = [
   { name: "fx_water_king_ripple", directory: "effects", width: 1536, height: 128 },
