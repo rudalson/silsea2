@@ -140,15 +140,19 @@ export class CharacterSelectScene extends Phaser.Scene {
         strokeThickness: 4
       }).setOrigin(0.5).setDepth(3);
       ring.on("pointerover", () => this.selectCharacter(index));
-      ring.on("pointerdown", () => this.selectCharacter(index));
+      ring.on("pointerdown", () => {
+        this.selectCharacter(index);
+        this.confirmSelection();
+      });
       this.cards.push({ ring, portrait, portraitScaleFactor, name, y });
     });
 
     const first = CHARACTER_LIST[this.selected];
     const firstArt = this.portraitTextures.get(first.id);
     this.featured = this.add.image(425, 326, firstArt.heroTexture)
-      .setDisplaySize(350, 350).setDepth(3);
-    this.add.text(GAME_WIDTH / 2, 686, "← ↑ ↓ → 친구 선택   ·   Space / Z 시작   ·   Esc 이전 메뉴", {
+      .setDisplaySize(350, 350).setDepth(3).setInteractive({ useHandCursor: true });
+    this.featured.on("pointerdown", () => this.confirmSelection());
+    this.add.text(GAME_WIDTH / 2, 686, "마우스 / 방향키 친구 선택   ·   클릭 / Space / Z 시작   ·   Esc 이전 메뉴", {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       fontStyle: "700",
