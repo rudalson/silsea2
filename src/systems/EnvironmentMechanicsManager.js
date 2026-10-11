@@ -238,8 +238,11 @@ export class EnvironmentMechanicsManager {
           hill.setStrokeStyle(5, COLORS.outline, 0.82).setDepth(5);
         }
       } else if (shelter.type === "high") {
-        const highPlatform = this.track(this.scene.add.rectangle(centerX, shelter.yBottom, width, 24, COLORS.ground, 0.9));
-        highPlatform.setStrokeStyle(5, COLORS.collect, 0.92).setDepth(5);
+        // The authored terrain already marks this refuge; reserve the box for debugging.
+        if (showDebug) {
+          const highPlatform = this.track(this.scene.add.rectangle(centerX, shelter.yBottom, width, 24, COLORS.ground, 0.9));
+          highPlatform.setStrokeStyle(5, COLORS.collect, 0.92).setDepth(5);
+        }
         for (let index = -1; showDebug && index <= 1; index += 1) {
           const chevron = this.track(this.scene.add.triangle(
             centerX + index * 46,

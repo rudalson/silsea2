@@ -75,6 +75,12 @@ const removeGenerationHalo = (data) => {
 };
 
 const buildAsset = async (spec) => {
+  if (spec.key === "decor_sign") {
+    const { buildTsunamiSign } = await import("./build-tsunami-props.js");
+    const output = await buildTsunamiSign();
+    const { data, info } = await sharp(output).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    return { ...spec, output, bounds: findOpaqueBounds(data, info) };
+  }
   const input = join(sourceRoot, spec.source);
   const source = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   removeGenerationHalo(source.data);
