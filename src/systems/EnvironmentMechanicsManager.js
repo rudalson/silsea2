@@ -231,7 +231,9 @@ export class EnvironmentMechanicsManager {
       } else if (shelter.type === "hill") {
         const hillKey = shelter.asset ? effectKeys[shelter.asset] : null;
         if (finalArt && hillKey && this.scene.textures?.exists?.(hillKey)) {
-          const hill = this.track(this.scene.add.image(centerX, shelter.yBottom + 3, hillKey));
+          // The painted hill has 8px of transparent padding at its base.
+          // Sink its visible edge slightly into the ground to avoid a gap.
+          const hill = this.track(this.scene.add.image(centerX, shelter.yBottom + 12, hillKey));
           hill.setOrigin(0.5, 1).setDisplaySize(width * 1.28, height * 1.05).setDepth(5);
         } else {
           const hill = this.track(this.scene.add.ellipse(centerX, shelter.yBottom - height * 0.28, width * 1.08, height * 1.05, COLORS.grass, 0.72));
