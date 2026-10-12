@@ -4,6 +4,7 @@
 import { game } from "../src/main.js";
 import { CAMPAIGN_PLAN } from "../src/data/levels/campaignExpansion.js";
 import { EVENTS } from "../src/config/constants.js";
+import { isContactHazard } from "../src/data/items.js";
 const button = document.querySelector("#run");
 const output = document.querySelector("#results");
 const neutral = { moveX: 0, moveY: 0, jumpDown: false, jumpPressed: false, jumpReleased: false, specialDown: false };
@@ -55,7 +56,7 @@ async function run(scene) {
           const manager = scene.transformationManager;
           const wall = allTerrain.some((t) => (sign > 0 ? t.x - body.right : body.left - t.x - t.width) >= -4
             && (sign > 0 ? t.x - body.right : body.left - t.x - t.width) < 100 && t.y < p.y && t.y + t.height > body.top);
-          const hazard = scene.level.hazards.some((h) => h.type === "spike_pumpkin" && (h.x - p.x) * sign > 0 && (h.x - p.x) * sign < 150);
+          const hazard = scene.level.hazards.some((h) => isContactHazard(h.type) && (h.x - p.x) * sign > 0 && (h.x - p.x) * sign < 150);
           jump = grounded ? wall || hazard : p.y > 400;
           // Recharge on solid ground, without bypassing damage or the actual gauge.
           if (grounded && manager.flightMs < 6500) { moveX = 0; jump = false; }

@@ -130,8 +130,8 @@ export default expandCampaignLevel({
     crumblePlatforms: []
   },
   hazards: [
-    { id: "tsunami_thorn_hill", type: "spike_pumpkin", x: shifted(5632), y: 576 },
-    { id: "tsunami_thorn_high", type: "spike_pumpkin", x: shifted(3008), y: 576 }
+    { id: "tsunami_thorn_hill", type: "coral_urchin", x: shifted(5632), y: 576 },
+    { id: "tsunami_thorn_high", type: "coral_urchin", x: shifted(3008), y: 576 }
   ],
   environment: {
     tsunami: {
@@ -186,7 +186,8 @@ export default expandCampaignLevel({
           durationMultiplier: 1.2,
           shelterGraceMultiplier: 1.6,
           respawnGraceMultiplier: 1.5
-        }
+        },
+        projectiles: { speedMultiplier: 0.8, telegraphMultiplier: 1.3, cooldownMultiplier: 1.3, maxActive: 3 }
       },
       pitScoreLoss: 0
     }

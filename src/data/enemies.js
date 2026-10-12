@@ -8,6 +8,7 @@ export const ENEMY_DEFINITIONS = Object.freeze({
   lantern_goblin: { behavior: "telegraph_lantern_shot", params: ["patrol"], color: toNumber(PALETTE.alora[4]) },
   dew_snail: { behavior: "telegraph_roll", params: ["patrol"], color: toNumber(PALETTE.sylvia[10]) },
   spike_pumpkin: { behavior: "stationary", params: [], color: toNumber(PALETTE.danger[0]) },
+  coral_urchin: { behavior: "stationary", params: [], color: toNumber(PALETTE.collect[1]) },
   dark_cloud: {
     behavior: "telegraph_lightning",
     params: ["triggerX", "activationDelayMs", "telegraphMs", "cooldownMs"],

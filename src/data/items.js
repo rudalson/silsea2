@@ -13,4 +13,6 @@ export const ITEM_DEFINITIONS = Object.freeze({
 });
 
 export const ITEM_TYPES = Object.freeze(Object.keys(ITEM_DEFINITIONS));
-export const HAZARD_TYPES = Object.freeze(["spike_pumpkin", "pit"]);
+export const CONTACT_HAZARD_TYPES = Object.freeze(["spike_pumpkin", "coral_urchin"]);
+export const isContactHazard = (type) => CONTACT_HAZARD_TYPES.includes(type);
+export const HAZARD_TYPES = Object.freeze([...CONTACT_HAZARD_TYPES, "pit"]);

@@ -16,7 +16,7 @@ import {
   normalizeGatePresentation,
   resolveGateY
 } from "../data/gatePresentation.js";
-import { ITEM_DEFINITIONS } from "../data/items.js";
+import { ITEM_DEFINITIONS, isContactHazard } from "../data/items.js";
 import { expandLevelItems, getCheckpointTrigger, getItemTrigger } from "../data/levelInteractions.js";
 import {
   PRANK_GATE_ENCOUNTER_STAGES,
@@ -585,7 +585,7 @@ export class LevelLoader {
   }
 
   createHazards() {
-    for (const hazard of this.level.hazards.filter((candidate) => candidate.type === "spike_pumpkin")) {
+    for (const hazard of this.level.hazards.filter((candidate) => isContactHazard(candidate.type))) {
       EnemyAnimationManager.register(this.scene, hazard.type);
       const idle = EnemyAnimationManager.getSpec(hazard.type, "idle");
       const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
@@ -595,7 +595,7 @@ export class LevelLoader {
       if (usesArt) marker.setOrigin(0.5, 112 / 128).setDepth(3);
       else marker.setOrigin(0.5, 1).setStrokeStyle(4, COLORS.outline).setDepth(3);
       this.scene.physics.add.existing(marker, true);
-      // 가시 전체가 위험 영역임을 보이도록, 호박 몸통과 양옆 가시까지 포함한다.
+      // 고정 장애물의 몸통과 양옆 가시를 모두 접촉 위험 영역에 포함한다.
       marker.body.setSize(84, 58, false);
       if (usesArt) marker.body.setOffset((128 - 84) / 2, 112 - 58);
       marker.setDataEnabled();

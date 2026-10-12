@@ -142,7 +142,7 @@ export function buildCampaignExtension(id) {
         result.shelters.push({ id: `${name}_shelter_${n}`, type: "house", asset: "shelterHouseOpen",
           xStart: span(d - width / 2, width), xEnd: span(d - width / 2, width) + width, yTop: 352, yBottom: 576 });
       }
-      if (index < 3) result.hazards.push({ id: `${name}_thorn`, type: "spike_pumpkin", x: point(2480), y: 576 });
+      if (index < 3) result.hazards.push({ id: `${name}_thorn`, type: "coral_urchin", x: point(2480), y: 576 });
       terrain("roof_step", 1456, 512, 160, 64, "ground");
       terrain("roof_bonus", 1648, 416, 176, 32);
       arc("roof_stars", 1736, 344, 7, 80);
