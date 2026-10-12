@@ -13,6 +13,7 @@
     "mist:projectile": "node scripts/build-lantern-light.js",
     "mist:props": "node scripts/build-mist-props.js",
     "storybook:pickups": "node scripts/build-storybook-pickups.js",
+    "storybook:gate": "node scripts/build-storybook-gate.js",
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
