@@ -2,6 +2,7 @@
   "$schemaVersion": 2,
   "aurora_motion": {"styleRefs":["aurora-reference.jpg"],"note":"알로라의 언니 오로라의 오로라 색과 분위기를 사용자 손그림에서 반영한 원화. 기본형에는 뿔과 날개가 없고 아이템 형태에만 추가된다. 네 형태의 동작 시트."},
   "mist_village_enemies": {"styleRefs":["maple_story_1.png"],"note":"안개마을 전용 등불 도깨비와 이슬달팽이. imagegen으로 만든 투명 원화를 일정한 체적과 16px 발 기준선으로 정리했으며 이동·공격 예고·공격·회복·패배 동작을 연결했다."},
+  "wave_crab": {"styleRefs":["maple_story_1.png"],"note":"쓰나미 마을 전용 파도 집게게. 산호색·청록색 동화풍 투명 원화의 순찰·집게 경고 포즈를 16px 접지선의 대기·이동·경고·돌진·회복·패배 시트로 구성했다."},
   "game_hud_refresh": {"styleRefs":["maple_story_1.png"],"note":"게임 상단 HUD의 캐릭터 상태판·진행도·조작 버튼을 같은 팔레트와 부드러운 둥근 윤곽으로 구성했다. 작은 무지개 선으로 게임의 색감을 유지한다."},
   "stage_select_nav_buttons": {"styleRefs":["maple_story_1.png"],"note":"스테이지 선택 화면의 둥근 좌우 이동 버튼. 고해상도 SVG를 축소해 가장자리와 화살표를 부드럽게 처리했다."},
   "character_select_heroes": {"styleRefs":["silsea_sprite-Photoroom.png","sunlight-reference.jpg","moonlight-reference.jpg","alora-reference.jpg","oceandream-reference.jpg","aurora-reference.jpg"],"note":"8명 기본형의 캐릭터 선택용 고해상도 대표 원화. 게임 스프라이트의 색·갈기·체형을 참고해 독립적으로 다시 그렸고 뿔과 날개는 없다. 오로라는 알로라의 언니이며 사용자 손그림과 알로라·성숙한 선라이트를 참고했다."},
@@ -16,6 +17,7 @@
     "manifestGroups": {
       "aurora_motion": ["aurora_idle","aurora_run","aurora_jump_up","aurora_fall","aurora_land","aurora_hurt","aurora_fly","aurora_wing_guard","aurora_swim","aurora_victory","aurora_transform_unicorn","aurora_transform_pegasus","aurora_transform_alicorn","aurora_unicorn_idle","aurora_unicorn_run","aurora_unicorn_jump_up","aurora_unicorn_fall","aurora_unicorn_land","aurora_unicorn_hurt","aurora_unicorn_fly","aurora_unicorn_swim","aurora_unicorn_victory","aurora_pegasus_idle","aurora_pegasus_run","aurora_pegasus_jump_up","aurora_pegasus_fall","aurora_pegasus_land","aurora_pegasus_hurt","aurora_pegasus_fly","aurora_pegasus_swim","aurora_pegasus_victory","aurora_alicorn_idle","aurora_alicorn_run","aurora_alicorn_jump_up","aurora_alicorn_fall","aurora_alicorn_land","aurora_alicorn_hurt","aurora_alicorn_fly","aurora_alicorn_swim","aurora_alicorn_victory"],
       "mist_village_enemies": ["lantern_goblin_idle","lantern_goblin_move","lantern_goblin_warning","lantern_goblin_attack","lantern_goblin_recover","lantern_goblin_defeated","dew_snail_idle","dew_snail_move","dew_snail_warning","dew_snail_attack","dew_snail_recover","dew_snail_defeated"],
+      "wave_crab": ["wave_crab_idle","wave_crab_move","wave_crab_warning","wave_crab_attack","wave_crab_recover","wave_crab_defeated"],
       "game_hud_refresh": ["ui_game_hud_left","ui_game_hud_center","ui_game_hud_button","ui_game_hud_button_hover"],
       "stage_select_nav_buttons": ["ui_stage_nav","ui_stage_nav_hover"],
       "character_select_heroes": ["character_select_hero_silsea","character_select_hero_potato89","character_select_hero_sylvia","character_select_hero_sunlight","character_select_hero_moonlight","character_select_hero_alora","character_select_hero_oceandream","character_select_hero_aurora"],

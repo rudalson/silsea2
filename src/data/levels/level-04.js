@@ -92,9 +92,9 @@ export default expandCampaignLevel({
     { id: "cp_tsunami_exit", x: shifted(1024), y: 576, restoresHealth: true }
   ],
   enemies: [
-    { id: "e_tsunami_hill", type: "raw_potato", x: shifted(6480), y: 576, patrol: 112 },
-    { id: "e_tsunami_house", type: "raw_potato", x: shifted(3904), y: 576, patrol: 120 },
-    { id: "e_tsunami_exit", type: "raw_potato", x: shifted(768), y: 576, patrol: 96 }
+    { id: "e_tsunami_hill", type: "wave_crab", x: shifted(6480), y: 576, patrol: 112, canRush: false },
+    { id: "e_tsunami_house", type: "wave_crab", x: shifted(3904), y: 576, patrol: 120 },
+    { id: "e_tsunami_exit", type: "wave_crab", x: shifted(768), y: 576, patrol: 96 }
   ],
   items: [
     { id: "tsunami_horn", type: "horn", x: shifted(7808), y: 576, activationTop: 0 },

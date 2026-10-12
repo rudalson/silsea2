@@ -1,4 +1,8 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  wave_crab: Object.freeze({
+    idle: "wave_crab_idle", move: "wave_crab_move", warning: "wave_crab_warning",
+    attack: "wave_crab_attack", recover: "wave_crab_recover", defeated: "wave_crab_defeated"
+  }),
   lantern_goblin: Object.freeze({
     idle: "lantern_goblin_idle", move: "lantern_goblin_move", warning: "lantern_goblin_warning",
     attack: "lantern_goblin_attack", recover: "lantern_goblin_recover", defeated: "lantern_goblin_defeated"
@@ -84,6 +88,14 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  wave_crab: Object.freeze({
+    idle: Object.freeze({ durations: [420, 420], repeat: -1 }),
+    move: Object.freeze({ durations: [170, 170, 170, 170], repeat: -1 }),
+    warning: Object.freeze({ durations: [160, 160, 160, 170], repeat: -1 }),
+    attack: Object.freeze({ durations: [100, 100, 100, 100], repeat: -1 }),
+    recover: Object.freeze({ durations: [125, 125, 125, 125], repeat: 0 }),
+    defeated: Object.freeze({ durations: [110, 110, 130, 280], repeat: 0 })
+  }),
   lantern_goblin: Object.freeze({
     idle: Object.freeze({ durations: [420, 420], repeat: -1 }),
     move: Object.freeze({ durations: [180, 180, 180, 180], repeat: -1 }),

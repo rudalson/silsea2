@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato", "wave_crab", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -123,6 +123,9 @@ const characterAssets = [
   ...sequenceAssets("sylvia", "victory", 6)
 ];
 const enemyAssets = [
+  { name: "wave_crab_anchor.png", path: join(root, "assets", "_anchor", "wave_crab_anchor.png"), kind: "wave_crab", fullColor: true },
+  ...enemySequenceAssets("wave_crab", "idle", 2),
+  ...["move", "warning", "attack", "recover", "defeated"].flatMap(sequence => enemySequenceAssets("wave_crab", sequence, 4)),
   ...["lantern_goblin", "dew_snail"].flatMap(enemy => [
     { name: `${enemy}_anchor.png`, path: join(root, "assets", "_anchor", `${enemy}_anchor.png`), kind: enemy, fullColor: true },
     ...enemySequenceAssets(enemy, "idle", 2),
@@ -445,6 +448,9 @@ for (const asset of assets) {
       && (subjectWidth < 48 || subjectWidth > 108 || subjectHeight < 40 || subjectHeight > 100)) {
       errors.push(`${name}: 안개마을 적 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);
     }
+    if (asset.kind === "wave_crab" && (subjectWidth < 72 || subjectWidth > 112 || subjectHeight < 20 || subjectHeight > 90)) {
+      errors.push(`${name}: 집게게 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);
+    }
     if (asset.kind === "spike_pumpkin" && (subjectWidth < 96 || subjectWidth > 112 || subjectHeight < 35 || subjectHeight > 80)) {
       errors.push(`${name}: 가시 호박 실루엣 ${subjectWidth}x${subjectHeight}px (너비 96~112px, 높이 35~80px 아님)`);
     }
@@ -566,7 +572,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king"]) {
+  for (const enemyType of ["raw_potato", "wave_crab", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

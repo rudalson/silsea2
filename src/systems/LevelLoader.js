@@ -539,11 +539,13 @@ export class LevelLoader {
       if (usesArt) {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
         const isRawPotato = enemy.type === "raw_potato";
+        const isWaveCrab = enemy.type === "wave_crab";
         const isPotatoArcher = enemy.type === "potato_archer";
         const mistEnemy = isMistEnemy(enemy.type);
-        const bodyWidth = isRawPotato ? 38 : isPotatoArcher ? 52 : mistEnemy ? 58 : 50;
-        const bodyHeight = isRawPotato ? 36 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : 46;
+        const bodyWidth = isRawPotato ? 38 : isWaveCrab ? 72 : isPotatoArcher ? 52 : mistEnemy ? 58 : 50;
+        const bodyHeight = isRawPotato ? 36 : isWaveCrab ? 42 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : 46;
         if (isRawPotato) marker.setScale(0.72);
+        if (isWaveCrab) marker.setScale(0.92);
         if (isPotatoArcher) marker.setScale(0.82);
         if (mistEnemy) marker.setScale(0.82);
         marker.body.setSize(bodyWidth, bodyHeight, false);

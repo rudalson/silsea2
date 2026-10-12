@@ -41,8 +41,9 @@ export function buildCampaignExtension(id) {
     });
     const raw = (suffix, distance, y = 576) => result.enemies.push({
       id: `${name}_${suffix}`,
-      type: id === "level-03" ? (suffix === "landing_walker" ? "dew_snail" : "lantern_goblin") : "raw_potato",
-      x: point(distance), y, patrol: 48
+      type: id === "level-03" ? (suffix === "landing_walker" ? "dew_snail" : "lantern_goblin")
+        : id === "level-04" ? "wave_crab" : "raw_potato",
+      x: point(distance), y, patrol: id === "level-04" ? 96 : 48
     });
     const archer = (distance) => {
       const enemyId = `${name}_archer`;
@@ -131,7 +132,10 @@ export function buildCampaignExtension(id) {
       if (index === 1) result.movingPlatforms.push({ id: `${name}_wind`, x: point(1344), y: 352, width: 176, height: 32, axis: "y", distance: 64, speed: 48 });
     }
     if (reverse) {
-      if (index > 0) archer(2632);
+      if (index > 0) {
+        raw("claw_guard", 2632);
+        result.easyEnemies.push(`${name}_claw_guard`);
+      }
       // Shelters never require flight. Ground shelter gaps stay below 900px.
       for (const [n, d] of [256, 1120, 2080, 2816].entries()) {
         const width = 288;

@@ -7,6 +7,7 @@ import { getProgressionSign, hasReachedProgressTrigger } from "../data/schema/le
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
 import { LANTERN_SHOT_RULES, MistEnemyController } from "./MistEnemyController.js";
+import { WaveCrabController } from "./WaveCrabController.js";
 
 export class EnemyManager {
   constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
@@ -23,6 +24,7 @@ export class EnemyManager {
     this.pausedAt = 0;
     this.mistEnemyController = new MistEnemyController(scene, player, levelLoader, difficulty.enabled,
       (shot, enemy) => this.fireLanternShot(shot, enemy));
+    this.waveCrabController = new WaveCrabController(scene, player, levelLoader, difficulty.enabled);
     this.interactions = [];
     this.lightningPool = this.createLightningPool();
     this.recoveryPool = this.createRecoveryPool();
@@ -35,7 +37,7 @@ export class EnemyManager {
     for (const enemy of this.levelLoader.enemies) {
       if (isGroundPatrolEnemy(enemy.getData("type"))) {
         this.interactions.push(this.scene.physics.add.collider(enemy, this.levelLoader.terrainBodies));
-        if (isMistEnemy(enemy.getData("type"))) enemy.body.setGravityY(900);
+        if (isMistEnemy(enemy.getData("type")) || enemy.getData("type") === "wave_crab") enemy.body.setGravityY(900);
         else enemy.body.setVelocityX(-70);
       }
       this.interactions.push(
@@ -256,6 +258,7 @@ export class EnemyManager {
       if (!enemy.active || !enemy.body?.enable) continue;
       const type = enemy.getData("type");
       if (type === "raw_potato") this.updateRawPotato(enemy);
+      if (type === "wave_crab") this.waveCrabController.update(enemy, now, delta);
       if (isMistEnemy(type)) this.mistEnemyController.update(enemy, now, delta);
       if (type === "dark_cloud") this.updateDarkCloud(enemy, now);
       if (type === "magpie") this.updateMagpie(enemy, now, delta);
@@ -535,7 +538,7 @@ export class EnemyManager {
       return;
     }
 
-    if (type === "raw_potato" || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
+    if (type === "raw_potato" || type === "wave_crab" || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
   }
 
   handleHazardContact(hazard) {
