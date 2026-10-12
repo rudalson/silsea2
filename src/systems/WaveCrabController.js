@@ -2,13 +2,18 @@ import { COLORS } from "../config/constants.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
 export const WAVE_CRAB_RULES = Object.freeze({
-  walkSpeed: 38,
+  walkSpeed: 44,
   rushSpeed: 145,
   warningMs: 650,
-  rushMs: 620,
-  rushDistance: 80,
+  rushMs: 500,
+  rushDistance: 56,
+  followupWarningMs: 360,
+  followupRushSpeed: 180,
+  followupRushMs: 420,
+  followupDistance: 52,
+  followupRange: 170,
   recoverMs: 500,
-  cooldownMs: 2200,
+  cooldownMs: 2500,
   detectionRange: 220
 });
 
@@ -32,13 +37,28 @@ export class WaveCrabController {
     enemy.body.setVelocityX(0);
     EnemyAnimationManager.play(enemy, sequence, false);
     if (!enemy.getData("usesArt")) {
-      enemy.setFillStyle?.(state === "telegraph" ? COLORS.collect : enemy.getData("fallbackColor"));
+      enemy.setFillStyle?.(["telegraph", "reaim"].includes(state) ? COLORS.collect : enemy.getData("fallbackColor"));
     }
   }
 
   recover(enemy, now) {
     this.setPhase(enemy, "recover", now, WAVE_CRAB_RULES.recoverMs, "recover");
-    enemy.setData("attackReadyAt", now + WAVE_CRAB_RULES.recoverMs + WAVE_CRAB_RULES.cooldownMs);
+    enemy.setData({ rushLeg: 0, attackReadyAt: now + WAVE_CRAB_RULES.recoverMs + WAVE_CRAB_RULES.cooldownMs });
+  }
+
+  beginFollowup(enemy, now, left, right, lookAhead) {
+    if (this.easy) return false;
+    const distance = this.player.x - enemy.x;
+    if (Math.abs(distance) < 55 || Math.abs(distance) > WAVE_CRAB_RULES.followupRange
+      || Math.abs(this.player.y - enemy.y) > 90) return false;
+    const direction = distance < 0 ? -1 : 1;
+    const room = direction < 0 ? enemy.x - left : right - enemy.x;
+    if (room < 32 || !this.hasGroundAhead(enemy, direction, lookAhead)) return false;
+    enemy.setData({ rushDirection: direction, rushLeg: 2 });
+    enemy.setFlipX?.(direction > 0);
+    this.setPhase(enemy, "reaim", now, WAVE_CRAB_RULES.followupWarningMs, "warning");
+    this.scene.updateAccessibleStatus?.("파도 집게게가 방향을 바꿔 집게를 다시 듭니다. 짧은 두 번째 돌진을 피하세요.");
+    return true;
   }
 
   update(enemy, now, delta) {
@@ -49,26 +69,39 @@ export class WaveCrabController {
     const patrol = Math.max(0, enemy.getData("patrol") ?? 96);
     const left = enemy.getData("spawnX") - patrol;
     const right = enemy.getData("spawnX") + patrol;
-    const lookAhead = Math.max(10, WAVE_CRAB_RULES.rushSpeed * Math.max(0, delta) / 1000 + 6);
+    const lookAhead = Math.max(10, WAVE_CRAB_RULES.followupRushSpeed * Math.max(0, delta) / 1000 + 6);
     const state = enemy.getData("state");
 
-    if (state === "telegraph") {
+    if (state === "telegraph" || state === "reaim") {
       if (!visible) { this.recover(enemy, now); return; }
       if (now < enemy.getData("stateUntil")) return;
-      enemy.setData("rushStartX", enemy.x);
-      this.setPhase(enemy, "rush", now, WAVE_CRAB_RULES.rushMs, "attack");
-    }
-    if (enemy.getData("state") === "rush") {
       const direction = enemy.getData("rushDirection");
-      const blocked = direction < 0 ? enemy.body.blocked.left : enemy.body.blocked.right;
-      const atEdge = direction < 0 ? enemy.x <= left + 2 : enemy.x >= right - 2;
-      if (!visible || blocked || atEdge || !this.hasGroundAhead(enemy, direction, lookAhead)
-        || now >= enemy.getData("stateUntil")
-        || Math.abs(enemy.x - enemy.getData("rushStartX")) >= WAVE_CRAB_RULES.rushDistance) {
+      const room = direction < 0 ? enemy.x - left : right - enemy.x;
+      if (room < 32 || !this.hasGroundAhead(enemy, direction, lookAhead)) {
         this.recover(enemy, now);
         return;
       }
-      enemy.body.setVelocityX(direction * WAVE_CRAB_RULES.rushSpeed * (this.easy ? 0.75 : 1));
+      const leg = state === "reaim" ? 2 : 1;
+      enemy.setData({ rushStartX: enemy.x, rushLeg: leg });
+      this.setPhase(enemy, "rush", now, leg === 2 ? WAVE_CRAB_RULES.followupRushMs : WAVE_CRAB_RULES.rushMs, "attack");
+    }
+    if (enemy.getData("state") === "rush") {
+      const direction = enemy.getData("rushDirection");
+      const leg = enemy.getData("rushLeg") ?? 1;
+      const blocked = direction < 0 ? enemy.body.blocked.left : enemy.body.blocked.right;
+      const atEdge = direction < 0 ? enemy.x <= left + 2 : enemy.x >= right - 2;
+      const groundAhead = this.hasGroundAhead(enemy, direction, lookAhead);
+      const distanceLimit = leg === 2 ? WAVE_CRAB_RULES.followupDistance : WAVE_CRAB_RULES.rushDistance;
+      if (!visible || blocked || atEdge || !groundAhead
+        || now >= enemy.getData("stateUntil")
+        || Math.abs(enemy.x - enemy.getData("rushStartX")) >= distanceLimit) {
+        if (leg === 1 && visible && !blocked && !atEdge && groundAhead
+          && this.beginFollowup(enemy, now, left, right, lookAhead)) return;
+        this.recover(enemy, now);
+        return;
+      }
+      const speed = leg === 2 ? WAVE_CRAB_RULES.followupRushSpeed : WAVE_CRAB_RULES.rushSpeed;
+      enemy.body.setVelocityX(direction * speed * (this.easy ? 0.75 : 1));
       return;
     }
     if (state === "recover") {

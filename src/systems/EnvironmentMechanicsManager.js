@@ -60,7 +60,10 @@ export class EnvironmentMechanicsManager {
       : Number.POSITIVE_INFINITY;
     this.random = new SeededRandom(level.order * 7919 + 17);
     this.lastHitWaveId = 0;
+    this.lastBlockedWaveId = 0;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+    this.activeShelter = null;
+    this.houseShelterLabels = new Map();
     this.createWaterVisuals();
     this.createShelterVisuals();
     this.createMistVisuals();
@@ -207,7 +210,9 @@ export class EnvironmentMechanicsManager {
       if (shelter.type === "house") {
         const houseKey = shelter.asset ? effectKeys[shelter.asset] : null;
         if (finalArt && houseKey && this.scene.textures?.exists?.(houseKey)) {
-          const house = this.track(this.scene.add.image(centerX, shelter.yBottom + 4, houseKey));
+          // The house art has 8px of transparent padding below its foundation.
+          // Tuck the visible foundation into the ground so it sits on the tile.
+          const house = this.track(this.scene.add.image(centerX, shelter.yBottom + 14, houseKey));
           house.setOrigin(0.5, 1).setDisplaySize(width * 1.22, height + 104).setDepth(5);
         } else {
           const roof = this.track(this.scene.add.triangle(
@@ -227,6 +232,18 @@ export class EnvironmentMechanicsManager {
           const rightPillar = this.track(this.scene.add.rectangle(shelter.xEnd - 14, shelter.yTop + height / 2, 28, height, COLORS.outline, 0.72));
           leftPillar.setDepth(5);
           rightPillar.setDepth(5);
+        }
+        if (finalArt) {
+          const label = this.track(this.scene.add.text(centerX, shelter.yTop + 70, "파도 대피소", {
+            fontFamily: GAME_FONT_FAMILY,
+            fontSize: "17px",
+            fontStyle: "800",
+            color: CSS_COLORS.near,
+            backgroundColor: CSS_COLORS.soft,
+            padding: { x: 11, y: 6 }
+          }));
+          label.setOrigin(0.5).setDepth(8);
+          this.houseShelterLabels.set(shelter.id, label);
         }
       } else if (shelter.type === "hill") {
         const hillKey = shelter.asset ? effectKeys[shelter.asset] : null;
@@ -700,11 +717,28 @@ export class EnvironmentMechanicsManager {
     this.waveVisual.setAlpha(this.getEffectAlpha(0.72));
     const playerHalfWidth = (this.player.body?.width ?? 44) / 2;
     const overlaps = Math.abs(this.player.x - this.waveVisual.x) <= WAVE_WIDTH / 2 + playerHalfWidth;
-    if (overlaps && this.lastHitWaveId !== this.waveId && !this.isPlayerSafe(now)) {
-      this.lastHitWaveId = this.waveId;
-      if (this.healthManager.takeDamage(this.waveVisual.x, { type: "tsunami" })) {
-        this.scene.audioManager?.playSfx("sfx_tsunami_hit", { randomizeRate: false });
-        this.scene.updateAccessibleStatus?.("파도에 맞아 체력이 1 줄었습니다.");
+    if (overlaps) {
+      if (this.activeShelter && this.lastBlockedWaveId !== this.waveId) {
+        this.lastBlockedWaveId = this.waveId;
+        const shield = this.scene.add.ellipse(this.player.x, this.player.y - 28, 94, 110, COLORS.collect, this.getEffectAlpha(0.24));
+        shield.setStrokeStyle(5, COLORS.white, this.getEffectAlpha(0.92)).setDepth(23);
+        this.scene.tweens.add({
+          targets: shield,
+          scaleX: 1.7,
+          scaleY: 1.45,
+          alpha: 0,
+          duration: 520,
+          onComplete: () => shield.destroy()
+        });
+        this.scene.events.emit(EVENTS.SHELTER_BLOCKED_WAVE, { shelter: this.activeShelter });
+        this.scene.updateAccessibleStatus?.("대피소가 파도를 막았습니다. 체력이 줄지 않았습니다.");
+      }
+      if (this.lastHitWaveId !== this.waveId && !this.isPlayerSafe(now)) {
+        this.lastHitWaveId = this.waveId;
+        if (this.healthManager.takeDamage(this.waveVisual.x, { type: "tsunami" })) {
+          this.scene.audioManager?.playSfx("sfx_tsunami_hit", { randomizeRate: false });
+          this.scene.updateAccessibleStatus?.("파도에 맞아 체력이 1 줄었습니다.");
+        }
       }
     }
     if (now >= this.waveEndsAt) this.finishWave();
@@ -712,8 +746,19 @@ export class EnvironmentMechanicsManager {
 
   updateShelterState(now) {
     const bodyCenterY = this.player.body?.center?.y ?? this.player.y - 29;
-    if (isInsideShelter({ x: this.player.x, y: bodyCenterY }, this.tsunami.shelters ?? [])) {
-      this.lastShelteredAt = now;
+    const position = { x: this.player.x, y: bodyCenterY };
+    const shelter = (this.tsunami.shelters ?? []).find((candidate) => isInsideShelter(position, [candidate])) ?? null;
+    if (shelter) this.lastShelteredAt = now;
+    if (shelter?.id !== this.activeShelter?.id) {
+      const previousLabel = this.houseShelterLabels.get(this.activeShelter?.id);
+      previousLabel?.setText("파도 대피소").setBackgroundColor(CSS_COLORS.soft);
+      const nextLabel = this.houseShelterLabels.get(shelter?.id);
+      nextLabel?.setText("파도 보호 중").setBackgroundColor(CSS_COLORS.collectSoft);
+      this.activeShelter = shelter;
+      if (shelter) {
+        this.scene.events.emit(EVENTS.SHELTER_ENTERED, { shelter });
+        this.scene.updateAccessibleStatus?.(`${shelter.label ?? "대피소"}에 들어왔습니다. 여기서는 파도를 피할 수 있습니다.`);
+      }
     }
   }
 
@@ -768,6 +813,10 @@ export class EnvironmentMechanicsManager {
     this.waveStartsAt = 0;
     this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+    this.activeShelter = null;
+    for (const label of this.houseShelterLabels.values()) {
+      label.setText("파도 대피소").setBackgroundColor(CSS_COLORS.soft);
+    }
     for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(false);
     this.waveWarningTween?.pause?.();
   }
@@ -800,6 +849,7 @@ export class EnvironmentMechanicsManager {
       direction: this.level.progression?.direction ?? "right",
       waveState: this.waveState,
       waveId: this.waveId,
+      activeShelterId: this.activeShelter?.id ?? null,
       secondsUntilWave,
       waterZoneCount: this.waterZones.length,
       breathPointCount: this.breathPoints.length,

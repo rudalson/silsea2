@@ -209,6 +209,8 @@ export class UIScene extends Phaser.Scene {
       };
       this.showToast(messages[result] ?? "랜덤 결과!");
     };
+    this.onShelterEntered = () => this.showToast("파도 대피소! 안에서 파도를 피하세요", 1700);
+    this.onShelterBlockedWave = () => this.showToast("대피소가 파도를 막았어요!", 1700);
     this.gameScene.events.on(EVENTS.CHECKPOINT, this.onCheckpoint);
     this.gameScene.events.on(EVENTS.BOSS_HIT, this.onBossHit);
     this.gameScene.events.on(EVENTS.BOSS_DEFEATED, this.onBossDefeated);
@@ -217,6 +219,8 @@ export class UIScene extends Phaser.Scene {
     this.gameScene.events.on(EVENTS.ITEM_COLLECTED, this.onItemCollected);
     this.gameScene.events.on(EVENTS.SECRET_FOUND, this.onSecretFound);
     this.gameScene.events.on(EVENTS.RANDOM_BOSS_RESULT, this.onRandomBossResult);
+    this.gameScene.events.on(EVENTS.SHELTER_ENTERED, this.onShelterEntered);
+    this.gameScene.events.on(EVENTS.SHELTER_BLOCKED_WAVE, this.onShelterBlockedWave);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.shutdown());
   }
 
@@ -261,12 +265,18 @@ export class UIScene extends Phaser.Scene {
       .setFillStyle(breath?.warning ? COLORS.danger : COLORS.collectBlue);
     const environment = this.gameScene.environmentMechanics?.getSnapshot();
     const showWave = environment?.waveState === "warning" || environment?.waveState === "active";
+    const sheltered = Boolean(environment?.activeShelterId);
     const waveArrow = environment?.direction === "left" ? "←" : "→";
+    const waveStatus = environment?.waveState === "active"
+      ? "파도 통과 중"
+      : `파도 ${environment?.secondsUntilWave?.toFixed(1) ?? "?"}초`;
     this.waveWarning
-      .setVisible(showWave)
-      .setText(showWave
-        ? `${waveArrow} ${environment.waveState === "active" ? "파도 통과 중" : `파도 ${environment.secondsUntilWave.toFixed(1)}초`}`
-        : "");
+      .setVisible(showWave || sheltered)
+      .setBackgroundColor(sheltered ? CSS_COLORS.collectSoft : CSS_COLORS.dangerSoft)
+      .setColor(sheltered ? CSS_COLORS.near : CSS_COLORS.white)
+      .setText(sheltered
+        ? `✓ 대피소 보호 중${showWave ? ` · ${waveStatus}` : ""}`
+        : showWave ? `${waveArrow} ${waveStatus}` : "");
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
     this.objectiveText.setText(`✦  별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}  ✦`);
@@ -547,5 +557,7 @@ export class UIScene extends Phaser.Scene {
     this.gameScene?.events.off(EVENTS.ITEM_COLLECTED, this.onItemCollected);
     this.gameScene?.events.off(EVENTS.SECRET_FOUND, this.onSecretFound);
     this.gameScene?.events.off(EVENTS.RANDOM_BOSS_RESULT, this.onRandomBossResult);
+    this.gameScene?.events.off(EVENTS.SHELTER_ENTERED, this.onShelterEntered);
+    this.gameScene?.events.off(EVENTS.SHELTER_BLOCKED_WAVE, this.onShelterBlockedWave);
   }
 }

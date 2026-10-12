@@ -50,17 +50,61 @@ normal.controller.update(normal.enemy, normal.enemy.getData("stateUntil"), 16);
 assert.equal(normal.enemy.getData("state"), "idle");
 assert.ok(readyAt > normal.enemy.getData("stateUntil"), "recovery has a cooldown");
 
+const twoStep = fixture();
+twoStep.controller.update(twoStep.enemy, 0, 16);
+twoStep.controller.update(twoStep.enemy, WAVE_CRAB_RULES.warningMs, 16);
+twoStep.enemy.x = 544;
+twoStep.controller.update(twoStep.enemy, WAVE_CRAB_RULES.warningMs + 200, 16);
+assert.equal(twoStep.enemy.getData("state"), "reaim", "a short first dash leaves room for a second strike");
+assert.equal(twoStep.enemy.getData("rushDirection"), -1);
+
+const agile = fixture();
+agile.controller.update(agile.enemy, 0, 16);
+agile.controller.update(agile.enemy, WAVE_CRAB_RULES.warningMs, 16);
+agile.enemy.x = 515;
+agile.player.x = 650; // The player evades behind the first dash.
+agile.controller.update(agile.enemy, WAVE_CRAB_RULES.warningMs + 250, 16);
+assert.equal(agile.enemy.getData("state"), "reaim", "a nearby dodge can trigger a second, warned strike");
+assert.equal(agile.enemy.body.velocity.x, 0, "the crab brakes before changing direction");
+assert.equal(agile.enemy.getData("rushDirection"), 1);
+assert.equal(agile.enemy.flipX, true, "raised claws show the second direction");
+assert.equal(agile.enemy.animation, "enemy:wave_crab:warning");
+agile.player.x = 440;
+agile.controller.update(agile.enemy, agile.enemy.getData("stateUntil") - 1, 16);
+assert.equal(agile.enemy.getData("state"), "reaim", "the player can react during the second warning");
+const followupAt = agile.enemy.getData("stateUntil");
+agile.controller.update(agile.enemy, followupAt, 16);
+assert.equal(agile.enemy.getData("state"), "rush");
+assert.ok(agile.enemy.body.velocity.x > 0, "second rush keeps its warned direction");
+assert.ok(agile.enemy.body.velocity.x > WAVE_CRAB_RULES.rushSpeed, "second rush is quicker and shorter");
+agile.enemy.x = 570;
+agile.controller.update(agile.enemy, followupAt + 150, 16);
+assert.equal(agile.enemy.getData("state"), "recover", "the two-step attack does not chain indefinitely");
+
 const easy = fixture({ easy: true });
 easy.controller.update(easy.enemy, 0, 16);
 assert.ok(easy.enemy.getData("stateUntil") > WAVE_CRAB_RULES.warningMs);
 easy.controller.update(easy.enemy, easy.enemy.getData("stateUntil"), 16);
 assert.ok(Math.abs(easy.enemy.body.velocity.x) < WAVE_CRAB_RULES.rushSpeed);
+easy.enemy.x = 515;
+easy.player.x = 650;
+easy.controller.update(easy.enemy, easy.enemy.getData("stateUntil") - WAVE_CRAB_RULES.rushMs + 250, 16);
+assert.equal(easy.enemy.getData("state"), "recover", "easy mode keeps one dash");
 
 const offscreen = fixture();
 offscreen.controller.update(offscreen.enemy, 0, 16);
 offscreen.scene.cameras.main.worldView.left = 1000;
 offscreen.controller.update(offscreen.enemy, WAVE_CRAB_RULES.warningMs, 16);
 assert.equal(offscreen.enemy.getData("state"), "recover", "off-screen warning never becomes an attack");
+
+const offscreenFollowup = fixture();
+offscreenFollowup.controller.update(offscreenFollowup.enemy, 0, 16);
+offscreenFollowup.controller.update(offscreenFollowup.enemy, WAVE_CRAB_RULES.warningMs, 16);
+offscreenFollowup.enemy.x = 544;
+offscreenFollowup.controller.update(offscreenFollowup.enemy, WAVE_CRAB_RULES.warningMs + 200, 16);
+offscreenFollowup.scene.cameras.main.worldView.left = 1000;
+offscreenFollowup.controller.update(offscreenFollowup.enemy, offscreenFollowup.enemy.getData("stateUntil"), 16);
+assert.equal(offscreenFollowup.enemy.getData("state"), "recover", "off-screen second warning cannot dash");
 
 const edge = fixture({ terrain: [{ x: 500, y: 576, width: 780 }] });
 edge.controller.update(edge.enemy, 0, 16);
@@ -82,4 +126,4 @@ for (const sequence of getEnemySequenceNames("wave_crab")) {
   assert.equal(metadata.height, 128);
   assert.equal(metadata.hasAlpha, true);
 }
-console.log("Wave crab passed: first patrol, telegraphed locked rush, cooldown, easy mode, ground edge, off-screen cancellation and RGBA sheets.");
+console.log("Wave crab passed: first patrol, warned two-step reversal, locked direction, cooldown, easy mode, ground edge, off-screen cancellation and RGBA sheets.");
