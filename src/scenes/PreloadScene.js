@@ -80,7 +80,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    for (const key of ["shelter_house_open", "shelter_house_weathered", "shelter_hill", "fx_tsunami_wave", "fx_tsunami_warning", "decor_sign"]) {
+    for (const key of ["shelter_house_open", "shelter_house_weathered", "shelter_hill", "fx_shelter_shield", "fx_tsunami_wave", "fx_tsunami_warning", "decor_sign"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     for (const key of ["fx_mist_beacon", "fx_mist_breeze", "fx_mist_cloud_platform", "projectile_lantern_light", "projectile_coral_water"]) {

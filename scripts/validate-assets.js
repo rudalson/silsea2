@@ -284,6 +284,7 @@ const tsunamiPropAssets = [
   { name: "shelter_hill", directory: "environment", width: 512, height: 256, fullColor: true },
   { name: "fx_tsunami_wave", directory: "effects", width: 3072, height: 512, fullColor: true },
   { name: "fx_tsunami_warning", directory: "effects", width: 128, height: 128, fullColor: true },
+  { name: "fx_shelter_shield", directory: "effects", width: 192, height: 208, fullColor: true },
   { name: "projectile_coral_water", directory: "projectiles", width: 80, height: 48, fullColor: true },
   { name: "decor_sign", directory: "decorations", width: 160, height: 192, fullColor: true }
 ];

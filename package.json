@@ -32,6 +32,7 @@
     "mist:assets": "node scripts/build-mist-assets.js && node scripts/generate-mist-tiles.js",
     "tsunami:assets": "node scripts/build-tsunami-assets.js && node scripts/generate-tsunami-tiles.js",
     "tsunami:props": "node scripts/build-tsunami-props.js",
+    "tsunami:shield": "node scripts/build-shelter-shield.js",
     "submerged:assets": "node scripts/build-submerged-assets.js && node scripts/generate-submerged-tiles.js && node scripts/build-swim-assets.js",
     "p6:assets": "node scripts/build-p6-assets.js",
     "archer:assets": "node scripts/build-potato-archer-assets.js",

@@ -219,6 +219,7 @@
   "shelter_hill": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "밝은 초록 관목·크림색 둥근 바위·작은 꽃의 원화풍 언덕 피난처. 오른쪽 해풍에 왼쪽으로 눕는 식생, 팔레트 축소 없이 붓결 유지." },
   "fx_tsunami_wave": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "청록색 물 붓결·아이보리 거품의 원화풍 쓰나미. 왼쪽으로 말리는 파도 8프레임, 기존 크기·방향·주기 유지, full color·soft alpha." },
   "fx_tsunami_warning": { "styleRefs": ["mario_2.webp", "silsea_sprite-Photoroom.png"], "note": "불규칙한 꿀빛 나무 배지와 크림색 왼쪽 화살표·청록 파도 문양의 원화풍 예고 아이콘. 기존 배치·방향·시간 유지." },
+  "fx_shelter_shield": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "쓰나미 마을 대피소의 비원형 만화풍 보호막. 청록 물결 리본과 금빛 별 장식, 캐릭터를 가리지 않는 넓은 투명 중앙. 원본과 프롬프트: assets/_source/tsunami/shelter-shield." },
   "fx_water_surface": { "styleRefs": ["maple_story_1.png", "silsea_sprite-Photoroom.png"], "note": "4프레임의 흰색·청록 물결선을 겹쳐 색 없이도 수면 경계를 판독." },
   "fx_water_caustics": { "styleRefs": ["maple_story_1.png", "maple_2.jpg"], "note": "수영 통로를 가리지 않는 낮은 불투명도의 4프레임 수중 빛결." },
   "fx_bubble": { "styleRefs": ["silsea_sprite-Photoroom.png", "maple_story_1.png"], "note": "호흡 지점과 수영 동작에 쓰는 단순 원형 기포 6프레임." },

@@ -334,8 +334,30 @@ export class EnvironmentMechanicsManager {
 
   createShelterProtectionVisuals() {
     if (!this.tsunami) return;
-    this.shelterDoorwayVisual = this.track(this.scene.add.graphics().setDepth(8).setVisible(false));
-    this.shelterShieldVisual = this.track(this.scene.add.graphics().setDepth(25).setVisible(false));
+    const key = this.level.assets.effects?.shelterShield;
+    this.shelterShieldUsesArt = Boolean(key && !this.scene.registry.get("forceAssetFallback")
+      && this.scene.textures?.exists?.(key));
+    this.shelterShieldKey = key;
+    this.shelterShieldVisual = this.track((this.shelterShieldUsesArt
+      ? this.scene.add.image(0, 0, key)
+      : this.scene.add.graphics()).setDepth(25).setVisible(false));
+  }
+
+  drawFallbackShelterShield(graphics, alpha) {
+    const outline = [[-42, 44], [-55, 12], [-51, -34], [-28, -58], [0, -76],
+      [28, -58], [51, -34], [55, 12], [42, 44], [0, 64], [-42, 44]];
+    for (const [width, color, opacity] of [
+      [9, COLORS.collectBlue, alpha * 0.58],
+      [3, COLORS.white, alpha * 0.92]
+    ]) {
+      graphics.lineStyle(width, color, opacity);
+      for (let index = 1; index < outline.length; index++) {
+        graphics.lineBetween(...outline[index - 1], ...outline[index]);
+      }
+    }
+    graphics.lineStyle(3, COLORS.white, alpha);
+    graphics.lineBetween(-12, -76, 12, -76);
+    graphics.lineBetween(0, -88, 0, -64);
   }
 
   renderShelterProtection(now, delta) {
@@ -344,66 +366,57 @@ export class EnvironmentMechanicsManager {
     const step = Math.min(1, Math.max(0, delta) / 180);
     this.shelterEffectStrength += (target - this.shelterEffectStrength) * step;
     if (this.shelterEffectStrength < 0.02) {
-      this.shelterDoorwayVisual.setVisible(false);
       this.shelterShieldVisual.setVisible(false);
       return;
     }
 
     const strength = this.shelterEffectStrength;
     const pulse = 0.5 + 0.5 * Math.sin(now / 390);
-    const alpha = (value) => this.getEffectAlpha(value * strength);
     const shield = this.shelterShieldVisual;
-    shield.setVisible(true).setPosition(this.player.x, this.player.y - 47).clear();
-    shield.fillStyle(COLORS.collectBlue, alpha(0.08)).fillEllipse(0, 0, 110, 124);
-    shield.lineStyle(8, COLORS.collectBlue, alpha(0.13 + pulse * 0.06)).strokeEllipse(0, 0, 112, 126);
-    shield.lineStyle(3, COLORS.white, alpha(0.58 + pulse * 0.15)).strokeEllipse(0, 0, 106, 120);
-    for (const [x, y, phase] of [[-49, -25, 0], [46, -37, 1.8], [43, 30, 3.5]]) {
-      const sparkle = 2 + 1.4 * (0.5 + 0.5 * Math.sin(now / 280 + phase));
-      shield.lineStyle(2, COLORS.white, alpha(0.42 + pulse * 0.3));
-      shield.lineBetween(x - sparkle, y, x + sparkle, y);
-      shield.lineBetween(x, y - sparkle, x, y + sparkle);
-    }
-
-    const doorway = this.shelterDoorwayVisual;
-    doorway.clear().setVisible(Boolean(this.activeShelter));
-    if (!this.activeShelter) return;
-    const shelter = this.activeShelter;
-    const centerX = (shelter.xStart + shelter.xEnd) / 2;
-    doorway.setPosition(centerX, shelter.yBottom);
-    if (shelter.type === "house") {
-      const width = shelter.xEnd - shelter.xStart;
-      const height = shelter.yBottom - shelter.yTop;
-      doorway.fillStyle(COLORS.collectBlue, alpha(0.1 + pulse * 0.035))
-        .fillEllipse(0, -height * 0.34, Math.min(width * 0.72, 250), Math.min(height * 0.66, 150));
-      doorway.fillStyle(COLORS.white, alpha(0.2)).fillEllipse(0, -12, Math.min(width * 0.62, 220), 24);
+    shield.setVisible(true).setPosition(this.player.x, this.player.y - 70);
+    if (this.shelterShieldUsesArt) {
+      shield.setDisplaySize(146 + pulse * 4, 158 + pulse * 4)
+        .setAlpha(this.getEffectAlpha((0.86 + pulse * 0.12) * strength));
     } else {
-      doorway.fillStyle(COLORS.collectBlue, alpha(0.2)).fillEllipse(this.player.x - centerX, -12, 112, 20);
+      shield.clear();
+      this.drawFallbackShelterShield(shield, this.getEffectAlpha((0.74 + pulse * 0.2) * strength));
     }
   }
 
   clearShelterProtection() {
     this.activeShelter = null;
     this.shelterEffectStrength = 0;
-    this.shelterDoorwayVisual?.clear().setVisible(false);
-    this.shelterShieldVisual?.clear().setVisible(false);
+    if (!this.shelterShieldUsesArt) this.shelterShieldVisual?.clear();
+    this.shelterShieldVisual?.setVisible(false);
     this.player.setDepth(this.playerBaseDepth);
   }
 
   playShelterWaveBlockEffect() {
-    const impact = this.scene.add.graphics({ x: this.player.x, y: this.player.y - 47 }).setDepth(26);
+    const impact = (this.shelterShieldUsesArt
+      ? this.scene.add.image(this.player.x, this.player.y - 70, this.shelterShieldKey).setDisplaySize(152, 164)
+      : this.scene.add.graphics({ x: this.player.x, y: this.player.y - 70 })).setDepth(26);
+    if (!this.shelterShieldUsesArt) this.drawFallbackShelterShield(impact, this.getEffectAlpha(1));
     const side = this.tsunami.direction === "left" ? 1 : -1;
-    impact.fillStyle(COLORS.collectBlue, this.getEffectAlpha(0.18)).fillEllipse(0, 0, 110, 124);
-    impact.lineStyle(6, COLORS.white, this.getEffectAlpha(0.95)).strokeEllipse(0, 0, 110, 124);
-    for (const [x, y, radius] of [[52, -30, 5], [61, 1, 7], [49, 34, 4]]) {
-      impact.fillStyle(COLORS.white, this.getEffectAlpha(0.88)).fillCircle(side * x, y, radius);
+    const sparks = this.scene.add.graphics({ x: this.player.x, y: this.player.y - 70 }).setDepth(27);
+    sparks.lineStyle(3, COLORS.white, this.getEffectAlpha(0.95));
+    for (const [x, y, size] of [[66, -32, 7], [72, 2, 10], [63, 34, 6]]) {
+      sparks.lineBetween(side * (x - size), y, side * (x + size), y);
+      sparks.lineBetween(side * x, y - size, side * x, y + size);
     }
     this.scene.tweens.add({
       targets: impact,
-      scaleX: 1.55,
-      scaleY: 1.35,
+      scaleX: (impact.scaleX ?? 1) * 1.28,
+      scaleY: (impact.scaleY ?? 1) * 1.28,
       alpha: 0,
       duration: 520,
       onComplete: () => impact.destroy()
+    });
+    this.scene.tweens.add({
+      targets: sparks,
+      x: sparks.x + side * 18,
+      alpha: 0,
+      duration: 450,
+      onComplete: () => sparks.destroy()
     });
     this.scene.audioManager?.playSfx("sfx_projectile_guard", { volume: 0.42, randomizeRate: false });
   }

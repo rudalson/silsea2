@@ -34,6 +34,7 @@ export default expandCampaignLevel({
     effects: {
       tsunamiWave: "fx_tsunami_wave",
       tsunamiWarning: "fx_tsunami_warning",
+      shelterShield: "fx_shelter_shield",
       shelterHouseOpen: "shelter_house_open",
       shelterHouseWeathered: "shelter_house_weathered",
       shelterHill: "shelter_hill"
