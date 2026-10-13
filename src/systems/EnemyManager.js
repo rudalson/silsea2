@@ -261,8 +261,12 @@ export class EnemyManager {
       maxSize: Math.min(CORAL_URCHIN_RULES.maxActiveShots,
         this.projectileDifficulty.maxActive ?? CORAL_URCHIN_RULES.maxActiveShots),
       create: () => {
-        const shot = this.scene.add.ellipse(0, 0, 34, 18, COLORS.collectBlue, 0.94)
-          .setStrokeStyle(3, COLORS.white, 0.96).setDepth(11).setVisible(false).setDataEnabled();
+        const usesArt = this.scene.textures.exists("projectile_coral_water");
+        const shot = usesArt
+          ? this.scene.add.image(0, 0, "projectile_coral_water").setDisplaySize(44, 27)
+          : this.scene.add.ellipse(0, 0, 34, 18, COLORS.collectBlue, 0.94)
+            .setStrokeStyle(3, COLORS.white, 0.96);
+        shot.setDepth(11).setVisible(false).setDataEnabled();
         shot.setData({ guardable: true, projectileType: "coral_water" });
         this.scene.physics.add.existing(shot);
         shot.body.setAllowGravity(false);

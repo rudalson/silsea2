@@ -16,6 +16,7 @@
     "storybook:gate": "node scripts/build-storybook-gate.js",
     "wave-crab:assets": "node scripts/build-wave-crab.js",
     "coral-urchin:assets": "node scripts/build-coral-urchin.js",
+    "coral-urchin:projectile": "node scripts/build-coral-water-projectile.js",
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",

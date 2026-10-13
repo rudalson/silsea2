@@ -83,7 +83,7 @@ export class PreloadScene extends Phaser.Scene {
     for (const key of ["shelter_house_open", "shelter_house_weathered", "shelter_hill", "fx_tsunami_wave", "fx_tsunami_warning", "decor_sign"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
-    for (const key of ["fx_mist_beacon", "fx_mist_breeze", "fx_mist_cloud_platform", "projectile_lantern_light"]) {
+    for (const key of ["fx_mist_beacon", "fx_mist_breeze", "fx_mist_cloud_platform", "projectile_lantern_light", "projectile_coral_water"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     for (const key of ["invisible_king_idle", "invisible_king_reveal", "invisible_king_hide",

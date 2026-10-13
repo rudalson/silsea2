@@ -74,6 +74,7 @@ export class AssetManager {
     }
     if (types.has("dark_cloud")) AssetManager.queueManifestAsset(scene, "fx_lightning");
     if (types.has("lantern_goblin")) AssetManager.queueManifestAsset(scene, "projectile_lantern_light");
+    if (types.has("coral_urchin")) AssetManager.queueManifestAsset(scene, "projectile_coral_water");
     if (types.has("potato_archer")) AssetManager.queueManifestAsset(scene, "projectile_arrow");
     if (types.has("hula_king")) {
       AssetManager.queueManifestAsset(scene, "fx_hula_spin");

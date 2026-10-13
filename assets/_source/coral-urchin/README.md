@@ -5,3 +5,5 @@
 `coral_urchin.png`는 built-in `image_gen`으로 생성한 투명 원화입니다. 프롬프트 요약: *A single compact coastal coral urchin hazard, wide scalloped coral-pink body, short turquoise and seafoam quills, mischievous eyes, plum-brown outline, polished fairytale 2D game sprite, genuine transparency; no pumpkin, crab claws, scene or text.*
 
 `npm run coral-urchin:assets`로 128×128px 대기·접촉 반응 시트를 재생성합니다. 프레임은 y=112 접지선을 공유하며, 원화의 알파와 풀컬러 채색을 유지합니다.
+
+`coral_water_projectile.png`는 built-in `image_gen`으로 새로 그린 투명 물총 원화입니다. 프롬프트 요약: *A single hand-painted turquoise water droplet fired horizontally, rounded front, short tapered splash tail, small white highlight, restrained dark teal outline, matching the coral urchin's fairytale cartoon style; no scene or text, genuine transparency.* `npm run coral-urchin:projectile`로 게임용 80×48px 탄환을 생성합니다.
