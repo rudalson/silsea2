@@ -63,9 +63,11 @@ export class EnvironmentMechanicsManager {
     this.lastBlockedWaveId = 0;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
     this.activeShelter = null;
-    this.houseShelterLabels = new Map();
+    this.shelterEffectStrength = 0;
+    this.playerBaseDepth = player.depth;
     this.createWaterVisuals();
     this.createShelterVisuals();
+    this.createShelterProtectionVisuals();
     this.createMistVisuals();
     this.createLaserVisuals();
     this.onRespawn = () => this.resetAfterRespawn();
@@ -233,18 +235,6 @@ export class EnvironmentMechanicsManager {
           leftPillar.setDepth(5);
           rightPillar.setDepth(5);
         }
-        if (finalArt) {
-          const label = this.track(this.scene.add.text(centerX, shelter.yTop + 70, "파도 대피소", {
-            fontFamily: GAME_FONT_FAMILY,
-            fontSize: "17px",
-            fontStyle: "800",
-            color: CSS_COLORS.near,
-            backgroundColor: CSS_COLORS.soft,
-            padding: { x: 11, y: 6 }
-          }));
-          label.setOrigin(0.5).setDepth(8);
-          this.houseShelterLabels.set(shelter.id, label);
-        }
       } else if (shelter.type === "hill") {
         const hillKey = shelter.asset ? effectKeys[shelter.asset] : null;
         if (finalArt && hillKey && this.scene.textures?.exists?.(hillKey)) {
@@ -340,6 +330,82 @@ export class EnvironmentMechanicsManager {
       repeat: -1,
       paused: true
     });
+  }
+
+  createShelterProtectionVisuals() {
+    if (!this.tsunami) return;
+    this.shelterDoorwayVisual = this.track(this.scene.add.graphics().setDepth(8).setVisible(false));
+    this.shelterShieldVisual = this.track(this.scene.add.graphics().setDepth(25).setVisible(false));
+  }
+
+  renderShelterProtection(now, delta) {
+    if (!this.shelterShieldVisual) return;
+    const target = this.activeShelter ? 1 : 0;
+    const step = Math.min(1, Math.max(0, delta) / 180);
+    this.shelterEffectStrength += (target - this.shelterEffectStrength) * step;
+    if (this.shelterEffectStrength < 0.02) {
+      this.shelterDoorwayVisual.setVisible(false);
+      this.shelterShieldVisual.setVisible(false);
+      return;
+    }
+
+    const strength = this.shelterEffectStrength;
+    const pulse = 0.5 + 0.5 * Math.sin(now / 390);
+    const alpha = (value) => this.getEffectAlpha(value * strength);
+    const shield = this.shelterShieldVisual;
+    shield.setVisible(true).setPosition(this.player.x, this.player.y - 47).clear();
+    shield.fillStyle(COLORS.collectBlue, alpha(0.08)).fillEllipse(0, 0, 110, 124);
+    shield.lineStyle(8, COLORS.collectBlue, alpha(0.13 + pulse * 0.06)).strokeEllipse(0, 0, 112, 126);
+    shield.lineStyle(3, COLORS.white, alpha(0.58 + pulse * 0.15)).strokeEllipse(0, 0, 106, 120);
+    for (const [x, y, phase] of [[-49, -25, 0], [46, -37, 1.8], [43, 30, 3.5]]) {
+      const sparkle = 2 + 1.4 * (0.5 + 0.5 * Math.sin(now / 280 + phase));
+      shield.lineStyle(2, COLORS.white, alpha(0.42 + pulse * 0.3));
+      shield.lineBetween(x - sparkle, y, x + sparkle, y);
+      shield.lineBetween(x, y - sparkle, x, y + sparkle);
+    }
+
+    const doorway = this.shelterDoorwayVisual;
+    doorway.clear().setVisible(Boolean(this.activeShelter));
+    if (!this.activeShelter) return;
+    const shelter = this.activeShelter;
+    const centerX = (shelter.xStart + shelter.xEnd) / 2;
+    doorway.setPosition(centerX, shelter.yBottom);
+    if (shelter.type === "house") {
+      const width = shelter.xEnd - shelter.xStart;
+      const height = shelter.yBottom - shelter.yTop;
+      doorway.fillStyle(COLORS.collectBlue, alpha(0.1 + pulse * 0.035))
+        .fillEllipse(0, -height * 0.34, Math.min(width * 0.72, 250), Math.min(height * 0.66, 150));
+      doorway.fillStyle(COLORS.white, alpha(0.2)).fillEllipse(0, -12, Math.min(width * 0.62, 220), 24);
+    } else {
+      doorway.fillStyle(COLORS.collectBlue, alpha(0.2)).fillEllipse(this.player.x - centerX, -12, 112, 20);
+    }
+  }
+
+  clearShelterProtection() {
+    this.activeShelter = null;
+    this.shelterEffectStrength = 0;
+    this.shelterDoorwayVisual?.clear().setVisible(false);
+    this.shelterShieldVisual?.clear().setVisible(false);
+    this.player.setDepth(this.playerBaseDepth);
+  }
+
+  playShelterWaveBlockEffect() {
+    const impact = this.scene.add.graphics({ x: this.player.x, y: this.player.y - 47 }).setDepth(26);
+    const side = this.tsunami.direction === "left" ? 1 : -1;
+    impact.fillStyle(COLORS.collectBlue, this.getEffectAlpha(0.18)).fillEllipse(0, 0, 110, 124);
+    impact.lineStyle(6, COLORS.white, this.getEffectAlpha(0.95)).strokeEllipse(0, 0, 110, 124);
+    for (const [x, y, radius] of [[52, -30, 5], [61, 1, 7], [49, 34, 4]]) {
+      impact.fillStyle(COLORS.white, this.getEffectAlpha(0.88)).fillCircle(side * x, y, radius);
+    }
+    this.scene.tweens.add({
+      targets: impact,
+      scaleX: 1.55,
+      scaleY: 1.35,
+      alpha: 0,
+      duration: 520,
+      onComplete: () => impact.destroy()
+    });
+    this.scene.audioManager?.playSfx("sfx_projectile_guard", { volume: 0.42, randomizeRate: false });
   }
 
   createMistVisuals() {
@@ -589,7 +655,7 @@ export class EnvironmentMechanicsManager {
     this.updateMist(delta, this.suspendedSystems.has("mist"));
     if (!this.suspendedSystems.has("lasers")) this.updateLasers(now);
     if (!this.tsunami || this.suspendedSystems.has("tsunami")) return;
-    this.updateShelterState(now);
+    this.updateShelterState(now, delta);
     if (this.visualReviewWaveMode) {
       this.initializeVisualReviewWave(now);
       if (this.waveState === WAVE_STATES.ACTIVE) this.updateActiveWave(now, 0);
@@ -720,16 +786,7 @@ export class EnvironmentMechanicsManager {
     if (overlaps) {
       if (this.activeShelter && this.lastBlockedWaveId !== this.waveId) {
         this.lastBlockedWaveId = this.waveId;
-        const shield = this.scene.add.ellipse(this.player.x, this.player.y - 28, 94, 110, COLORS.collect, this.getEffectAlpha(0.24));
-        shield.setStrokeStyle(5, COLORS.white, this.getEffectAlpha(0.92)).setDepth(23);
-        this.scene.tweens.add({
-          targets: shield,
-          scaleX: 1.7,
-          scaleY: 1.45,
-          alpha: 0,
-          duration: 520,
-          onComplete: () => shield.destroy()
-        });
+        this.playShelterWaveBlockEffect();
         this.scene.events.emit(EVENTS.SHELTER_BLOCKED_WAVE, { shelter: this.activeShelter });
         this.scene.updateAccessibleStatus?.("대피소가 파도를 막았습니다. 체력이 줄지 않았습니다.");
       }
@@ -744,22 +801,20 @@ export class EnvironmentMechanicsManager {
     if (now >= this.waveEndsAt) this.finishWave();
   }
 
-  updateShelterState(now) {
+  updateShelterState(now, delta) {
     const bodyCenterY = this.player.body?.center?.y ?? this.player.y - 29;
     const position = { x: this.player.x, y: bodyCenterY };
     const shelter = (this.tsunami.shelters ?? []).find((candidate) => isInsideShelter(position, [candidate])) ?? null;
     if (shelter) this.lastShelteredAt = now;
     if (shelter?.id !== this.activeShelter?.id) {
-      const previousLabel = this.houseShelterLabels.get(this.activeShelter?.id);
-      previousLabel?.setText("파도 대피소").setBackgroundColor(CSS_COLORS.soft);
-      const nextLabel = this.houseShelterLabels.get(shelter?.id);
-      nextLabel?.setText("파도 보호 중").setBackgroundColor(CSS_COLORS.collectSoft);
       this.activeShelter = shelter;
+      this.player.setDepth(shelter ? 24 : this.playerBaseDepth);
       if (shelter) {
         this.scene.events.emit(EVENTS.SHELTER_ENTERED, { shelter });
         this.scene.updateAccessibleStatus?.(`${shelter.label ?? "대피소"}에 들어왔습니다. 여기서는 파도를 피할 수 있습니다.`);
       }
     }
+    this.renderShelterProtection(now, delta);
   }
 
   isPlayerSafe(now) {
@@ -797,6 +852,8 @@ export class EnvironmentMechanicsManager {
       this.finishWave();
       this.waveStartsAt = 0;
       this.nextWaveAt = Number.POSITIVE_INFINITY;
+      this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+      this.clearShelterProtection();
     } else if (tsunamiWasSuspended && !next.has("tsunami") && this.tsunami) {
       this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
     }
@@ -813,10 +870,7 @@ export class EnvironmentMechanicsManager {
     this.waveStartsAt = 0;
     this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
-    this.activeShelter = null;
-    for (const label of this.houseShelterLabels.values()) {
-      label.setText("파도 대피소").setBackgroundColor(CSS_COLORS.soft);
-    }
+    this.clearShelterProtection();
     for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(false);
     this.waveWarningTween?.pause?.();
   }
@@ -872,6 +926,7 @@ export class EnvironmentMechanicsManager {
   }
 
   destroy() {
+    this.player.setDepth(this.playerBaseDepth);
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;
