@@ -36,6 +36,7 @@ export const SCORE_VALUES = Object.freeze({
   dew_snail: 60,
   spike_pumpkin: 60,
   coral_urchin: 60,
+  lantern_jellyfish: 70,
   dark_cloud: 80,
   magpie: 100,
   potato_archer: 100,

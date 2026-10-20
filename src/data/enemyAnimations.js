@@ -31,6 +31,7 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     idle: "coral_urchin_idle",
     warning: "coral_urchin_warning"
   }),
+  lantern_jellyfish: Object.freeze({ idle: "lantern_jellyfish_idle" }),
   dark_cloud: Object.freeze({
     idle: "dark_cloud_idle",
     warning: "dark_cloud_charge",
@@ -136,6 +137,7 @@ const ENEMY_TIMINGS = Object.freeze({
     idle: Object.freeze({ durations: [380, 380], repeat: -1 }),
     warning: Object.freeze({ durations: [160, 160], repeat: -1 })
   }),
+  lantern_jellyfish: Object.freeze({ idle: Object.freeze({ durations: [800], repeat: -1 }) }),
   dark_cloud: Object.freeze({
     idle: Object.freeze({ durations: [180, 170, 180, 190], repeat: -1 }),
     warning: Object.freeze({ durations: [180, 170, 160, 190], repeat: -1 }),

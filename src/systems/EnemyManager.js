@@ -9,6 +9,7 @@ import { ObjectPool } from "./ObjectPool.js";
 import { CORAL_URCHIN_RULES, CoralUrchinController } from "./CoralUrchinController.js";
 import { LANTERN_SHOT_RULES, MistEnemyController } from "./MistEnemyController.js";
 import { WaveCrabController } from "./WaveCrabController.js";
+import { LanternJellyfishController } from "./LanternJellyfishController.js";
 
 export class EnemyManager {
   constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
@@ -26,6 +27,7 @@ export class EnemyManager {
     this.mistEnemyController = new MistEnemyController(scene, player, levelLoader, difficulty.enabled,
       (shot, enemy) => this.fireLanternShot(shot, enemy));
     this.waveCrabController = new WaveCrabController(scene, player, levelLoader, difficulty.enabled);
+    this.lanternJellyfishController = new LanternJellyfishController(scene, player, this.level);
     this.coralUrchinController = new CoralUrchinController(scene, player, this.projectileDifficulty,
       (shot) => this.fireCoralUrchinShot(shot));
     this.interactions = [];
@@ -314,6 +316,7 @@ export class EnemyManager {
       const type = enemy.getData("type");
       if (type === "raw_potato") this.updateRawPotato(enemy);
       if (type === "wave_crab") this.waveCrabController.update(enemy, now, delta);
+      if (type === "lantern_jellyfish") this.lanternJellyfishController.update(enemy, now);
       if (isMistEnemy(type)) this.mistEnemyController.update(enemy, now, delta);
       if (type === "dark_cloud") this.updateDarkCloud(enemy, now);
       if (type === "magpie") this.updateMagpie(enemy, now, delta);
@@ -599,7 +602,8 @@ export class EnemyManager {
       return;
     }
 
-    if (type === "raw_potato" || type === "wave_crab" || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
+    if (type === "raw_potato" || type === "wave_crab" || type === "lantern_jellyfish"
+      || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
   }
 
   handleHazardContact(hazard) {

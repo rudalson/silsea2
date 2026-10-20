@@ -69,6 +69,15 @@ export function buildCampaignExtension(id) {
       }
       terrain("exit_step", plan.block - 480, 544, 192, 32);
       result.waterZones.push({ id: `${name}_water`, xStart: point(256), xEnd: point(plan.block - 256), surfaceY: 320, bottomY: 704 });
+      for (const [suffix, distance, y] of [
+        ["entry_jelly", 704, 540],
+        ["middle_jelly", 1824, 568],
+        ["deep_jelly", 2600, 540]
+      ]) {
+        const enemyId = `${name}_${suffix}`;
+        result.enemies.push({ id: enemyId, type: "lantern_jellyfish", x: point(distance), y, waterZoneId: `${name}_water` });
+        if (suffix === "middle_jelly") result.easyEnemies.push(enemyId);
+      }
       checkpoint("start", 128, 288, index === 0 || index === 2);
       result.easyCheckpoints.push({ id: `${name}_easy`, x: point(1408), y: 288, activationTop: 0, restoresBreath: true });
       arc("entry_stars", 144, 208, 5, 80);

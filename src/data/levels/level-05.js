@@ -91,7 +91,14 @@ export default expandCampaignLevel({
     { id: "cp_final_recovery", x: 7424, y: 288, restoresHealth: true },
     { id: "cp_water_ready", x: 8064, y: 288, restoresHealth: true, restoresBreath: true }
   ],
-  enemies: [],
+  enemies: [
+    { id: "jelly_short_roof", type: "lantern_jellyfish", x: 1408, y: 544, waterZoneId: "short_dive_water" },
+    { id: "jelly_short_exit", type: "lantern_jellyfish", x: 2160, y: 560, waterZoneId: "short_dive_water" },
+    { id: "jelly_long_roof", type: "lantern_jellyfish", x: 3552, y: 552, waterZoneId: "long_dive_water" },
+    { id: "jelly_long_exit", type: "lantern_jellyfish", x: 4560, y: 536, waterZoneId: "long_dive_water" },
+    { id: "jelly_combined_a", type: "lantern_jellyfish", x: 5680, y: 544, waterZoneId: "combined_dive_water" },
+    { id: "jelly_combined_b", type: "lantern_jellyfish", x: 6480, y: 560, waterZoneId: "combined_dive_water" }
+  ],
   items: [
     { id: "entry_horn", type: "horn", x: 448, y: 288, activationTop: 0 },
     { id: "entry_stars", type: "star_arc", x: 640, y: 208, count: 7, radius: 104 },

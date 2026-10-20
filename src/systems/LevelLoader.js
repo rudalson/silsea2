@@ -535,21 +535,23 @@ export class LevelLoader {
         ? this.track(this.scene.physics.add.sprite(enemy.x, enemy.y, idle.textureKey))
         : enemy.type === "potato_archer"
           ? this.track(this.scene.add.rectangle(enemy.x, enemy.y - 34, 54, 68, definition?.color ?? COLORS.danger))
-          : this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
+          : this.track(this.scene.add.ellipse(enemy.x, enemy.y - (enemy.type === "lantern_jellyfish" ? 0 : 28), 58, 54, definition?.color ?? COLORS.danger));
       if (usesArt) {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
         const isRawPotato = enemy.type === "raw_potato";
         const isWaveCrab = enemy.type === "wave_crab";
         const isPotatoArcher = enemy.type === "potato_archer";
         const mistEnemy = isMistEnemy(enemy.type);
-        const bodyWidth = isRawPotato ? 38 : isWaveCrab ? 72 : isPotatoArcher ? 52 : mistEnemy ? 58 : 50;
-        const bodyHeight = isRawPotato ? 36 : isWaveCrab ? 42 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : 46;
+        const isJellyfish = enemy.type === "lantern_jellyfish";
+        const bodyWidth = isRawPotato ? 38 : isWaveCrab ? 72 : isPotatoArcher ? 52 : mistEnemy ? 58 : isJellyfish ? 64 : 50;
+        const bodyHeight = isRawPotato ? 36 : isWaveCrab ? 42 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : isJellyfish ? 70 : 46;
         if (isRawPotato) marker.setScale(0.72);
         if (isWaveCrab) marker.setScale(0.92);
         if (isPotatoArcher) marker.setScale(0.82);
         if (mistEnemy) marker.setScale(0.82);
+        if (isJellyfish) marker.setOrigin(0.5).setScale(0.82);
         marker.body.setSize(bodyWidth, bodyHeight, false);
-        marker.body.setOffset((128 - bodyWidth) / 2, 112 - bodyHeight);
+        marker.body.setOffset((128 - bodyWidth) / 2, isJellyfish ? (128 - bodyHeight) / 2 : 112 - bodyHeight);
       } else {
         marker.setStrokeStyle(4, COLORS.outline).setDepth(3);
         this.scene.physics.add.existing(marker);

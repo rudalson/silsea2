@@ -283,6 +283,7 @@
     },
     { "key": "coral_urchin_idle", "type": "spritesheet", "url": "/assets/enemies/coral_urchin/coral_urchin_idle.png", "frameWidth": 128, "frameHeight": 128, "frames": 2 },
     { "key": "coral_urchin_warning", "type": "spritesheet", "url": "/assets/enemies/coral_urchin/coral_urchin_warning.png", "frameWidth": 128, "frameHeight": 128, "frames": 2 },
+    { "key": "lantern_jellyfish_idle", "type": "spritesheet", "url": "/assets/enemies/lantern_jellyfish/lantern_jellyfish_idle.png", "frameWidth": 128, "frameHeight": 128, "frames": 1 },
     {
       "key": "dark_cloud_idle",
       "type": "spritesheet",
