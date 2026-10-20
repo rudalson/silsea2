@@ -5,10 +5,10 @@ import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
 import { LanternJellyfishController } from "../src/systems/LanternJellyfishController.js";
 
 const jellyfish = level05.enemies.filter(({ type }) => type === "lantern_jellyfish");
-assert.equal(jellyfish.length, 18);
+assert.equal(jellyfish.length, 9);
 const counts = level05.environment.waterZones.map((zone) => jellyfish.filter(({ waterZoneId }) => waterZoneId === zone.id).length);
-assert.deepEqual(counts, [2, 2, 2, 3, 3, 3, 3]);
-assert.equal(createRuntimeLevel(level05, true).enemies.filter(({ type }) => type === "lantern_jellyfish").length, 14);
+assert.deepEqual(counts, [1, 1, 1, 1, 2, 1, 2]);
+assert.equal(createRuntimeLevel(level05, true).enemies.filter(({ type }) => type === "lantern_jellyfish").length, 7);
 
 const map = JSON.parse(await readFile(new URL(level05.assets.tilemap), "utf8"));
 const terrain = map.layers.find(({ name }) => name === "terrain").objects;

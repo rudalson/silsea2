@@ -37,6 +37,7 @@ export default expandCampaignLevel({
         star: "item_star",
         percent_small: "item_percent_small",
         percent_large: "item_percent_large",
+        breath_pearl: "item_breath_pearl",
         horn: "item_horn",
         wings: "item_wings",
         alicorn: "item_alicorn"
@@ -93,18 +94,21 @@ export default expandCampaignLevel({
   ],
   enemies: [
     { id: "jelly_short_roof", type: "lantern_jellyfish", x: 1408, y: 544, waterZoneId: "short_dive_water" },
-    { id: "jelly_short_exit", type: "lantern_jellyfish", x: 2160, y: 560, waterZoneId: "short_dive_water" },
     { id: "jelly_long_roof", type: "lantern_jellyfish", x: 3552, y: 552, waterZoneId: "long_dive_water" },
-    { id: "jelly_long_exit", type: "lantern_jellyfish", x: 4560, y: 536, waterZoneId: "long_dive_water" },
-    { id: "jelly_combined_a", type: "lantern_jellyfish", x: 5680, y: 544, waterZoneId: "combined_dive_water" },
-    { id: "jelly_combined_b", type: "lantern_jellyfish", x: 6480, y: 560, waterZoneId: "combined_dive_water" }
+    { id: "jelly_combined_a", type: "lantern_jellyfish", x: 5680, y: 544, waterZoneId: "combined_dive_water" }
   ],
   items: [
     { id: "entry_horn", type: "horn", x: 448, y: 288, activationTop: 0 },
     { id: "entry_stars", type: "star_arc", x: 640, y: 208, count: 7, radius: 104 },
     { id: "short_deep_bonus", type: "percent_large", x: 2016, y: 672 },
+    { id: "short_breath_pearl", type: "breath_pearl", x: 1600, y: 652 },
+    { id: "short_breath_pearl_late", type: "breath_pearl", x: 2240, y: 648 },
     { id: "long_deep_bonus", type: "percent_large", x: 4512, y: 672 },
+    { id: "long_breath_pearl", type: "breath_pearl", x: 3904, y: 648 },
+    { id: "long_breath_pearl_late", type: "breath_pearl", x: 4656, y: 648 },
     { id: "combined_deep_bonus", type: "percent_large", x: 6752, y: 672 },
+    { id: "combined_breath_pearl", type: "breath_pearl", x: 5888, y: 644 },
+    { id: "combined_breath_pearl_late", type: "breath_pearl", x: 6544, y: 648 },
     ...[1800, 4224, 6064, 6944].map((x, index) => ({
       id: `breathing_reward_${index}`, type: "star_arc", x, y: 216, count: 7, radius: 72
     })),

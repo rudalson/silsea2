@@ -92,7 +92,7 @@ export class PreloadScene extends Phaser.Scene {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     // Painted pickups and enemies retain smooth edges at fractional scales.
-    for (const key of ["item_horn", "item_star", "item_percent_small", "item_percent_large", "item_wings", "fx_pegasus_folded_wing", "checkpoint_flag", "rainbow_gate", "raw_potato_idle", "raw_potato_roll", "raw_potato_defeated", "wave_crab_idle", "wave_crab_move", "wave_crab_warning", "wave_crab_attack", "wave_crab_recover", "wave_crab_defeated", "coral_urchin_idle", "coral_urchin_warning", "lantern_jellyfish_idle", "dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated", "magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"]) {
+    for (const key of ["item_horn", "item_star", "item_breath_pearl", "item_percent_small", "item_percent_large", "item_wings", "fx_pegasus_folded_wing", "checkpoint_flag", "rainbow_gate", "raw_potato_idle", "raw_potato_roll", "raw_potato_defeated", "wave_crab_idle", "wave_crab_move", "wave_crab_warning", "wave_crab_attack", "wave_crab_recover", "wave_crab_defeated", "coral_urchin_idle", "coral_urchin_warning", "lantern_jellyfish_idle", "dark_cloud_idle", "dark_cloud_charge", "dark_cloud_attack", "dark_cloud_defeated", "magpie_fly", "magpie_warning", "magpie_dive", "magpie_stunned", "magpie_defeated"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }
     if (this.registry.get("coopReviewEnabled") && this.levelId === "c3-coop-test") {

@@ -253,7 +253,7 @@ export class UIScene extends Phaser.Scene {
     const breath = this.gameScene.breathManager?.getSnapshot();
     const showBreath = Boolean(breath && (breath.underwater || breath.recovering));
     this.breathPanel.setVisible(showBreath);
-    this.breathLabel.setVisible(showBreath).setText(breath?.recovering ? "숨 회복" : "숨");
+    this.breathLabel.setVisible(showBreath).setText(breath?.recovering ? "숨 회복" : breath?.capacityBonusSeconds ? "숨 +4초" : "숨");
     this.breathTrack.setVisible(showBreath);
     this.breathBar
       .setVisible(showBreath)

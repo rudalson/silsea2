@@ -637,6 +637,7 @@
       "frames": 8
     },
     { "key": "item_star", "type": "image", "url": "/assets/items/item_star.png" },
+    { "key": "item_breath_pearl", "type": "image", "url": "/assets/items/item_breath_pearl.png" },
     { "key": "item_percent_small", "type": "image", "url": "/assets/items/item_percent_small.png" },
     { "key": "item_percent_large", "type": "image", "url": "/assets/items/item_percent_large.png" },
     { "key": "item_horn", "type": "image", "url": "/assets/items/item_horn.png" },

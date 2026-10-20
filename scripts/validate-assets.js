@@ -193,6 +193,7 @@ const itemAsset = (key, width, height, fullColor = false) => [
 ];
 const itemAssets = [
   ...itemAsset("item_star", 72, 70, true),
+  ...itemAsset("item_breath_pearl", 72, 72, true),
   ...itemAsset("item_percent_small", 68, 68, true),
   ...itemAsset("item_percent_large", 92, 92, true),
   ...itemAsset("item_horn", 48, 96, true),

@@ -26,6 +26,8 @@ export class BreathManager {
       surfaceMargin: config.surfaceMargin ?? 8,
       underwaterPhysics: { ...DEFAULT_PHYSICS, ...(config.underwaterPhysics ?? {}) }
     };
+    this.baseDepleteSeconds = this.config.depleteSeconds;
+    this.capacityBonusSeconds = 0;
     const reviewMode = this.scene.registry?.get?.("visualReviewBreathMode");
     this.visualReviewMode = reviewMode;
     this.ratio = reviewMode === "zero"
@@ -179,6 +181,26 @@ export class BreathManager {
     this.emitSnapshot();
   }
 
+  collectBreathPearl() {
+    if (this.suspended || this.environmentManager.waterZones.length === 0) return false;
+    this.capacityBonusSeconds = 4;
+    this.config.depleteSeconds = this.baseDepleteSeconds + this.capacityBonusSeconds;
+    this.restoreFull();
+    this.scene.audioManager?.playSfx("sfx_breath_refill", { randomizeRate: false });
+    return true;
+  }
+
+  restoreSnapshot(snapshot) {
+    if (!snapshot) return;
+    this.capacityBonusSeconds = snapshot.capacityBonusSeconds === 4 ? 4 : 0;
+    this.config.depleteSeconds = this.baseDepleteSeconds + this.capacityBonusSeconds;
+    this.ratio = Math.max(0, Math.min(1, Number(snapshot.ratio) || 0));
+    this.lowWarningSent = this.ratio <= this.config.warningRatio;
+    this.zeroStartedAt = null;
+    this.nextDamageAt = Number.POSITIVE_INFINITY;
+    this.emitSnapshot();
+  }
+
   setSuspended(suspended) {
     if (this.suspended === suspended) return;
     this.suspended = suspended;
@@ -201,6 +223,8 @@ export class BreathManager {
   getSnapshot() {
     return {
       ratio: this.ratio,
+      maxSeconds: this.config.depleteSeconds,
+      capacityBonusSeconds: this.capacityBonusSeconds,
       suspended: this.suspended,
       underwater: this.contact.underwater,
       surfaceExitAssist: this.refreshSurfaceExitAssist(),

@@ -69,14 +69,15 @@ export function buildCampaignExtension(id) {
       }
       terrain("exit_step", plan.block - 480, 544, 192, 32);
       result.waterZones.push({ id: `${name}_water`, xStart: point(256), xEnd: point(plan.block - 256), surfaceY: 320, bottomY: 704 });
-      for (const [suffix, distance, y] of [
+      const jellyfishEncounters = [
         ["entry_jelly", 704, 540],
-        ["middle_jelly", 1824, 568],
-        ["deep_jelly", 2600, 540]
-      ]) {
+        ...(index === 1 ? [["middle_jelly", 1824, 568]] : []),
+        ...(index === 3 ? [["deep_jelly", 2600, 540]] : [])
+      ];
+      for (const [suffix, distance, y] of jellyfishEncounters) {
         const enemyId = `${name}_${suffix}`;
         result.enemies.push({ id: enemyId, type: "lantern_jellyfish", x: point(distance), y, waterZoneId: `${name}_water` });
-        if (suffix === "middle_jelly") result.easyEnemies.push(enemyId);
+        if (suffix !== "entry_jelly") result.easyEnemies.push(enemyId);
       }
       checkpoint("start", 128, 288, index === 0 || index === 2);
       result.easyCheckpoints.push({ id: `${name}_easy`, x: point(1408), y: 288, activationTop: 0, restoresBreath: true });
@@ -88,6 +89,8 @@ export function buildCampaignExtension(id) {
       arc("ascent_b", 3008, 488, 7, 80);
       arc("exit_stars", 3440, 208, 5, 80);
       item("deep_bonus_a", "percent_large", 992, 672);
+      item("breath_pearl", "breath_pearl", 1216, 648);
+      item("breath_pearl_late", "breath_pearl", 2208, 664);
       item("deep_bonus_b", "percent_large", 2528, 672);
       item("air_bonus", "percent_small", 3008, 288);
       arc("deep_trail_a", 1664, 640, 7, 112);

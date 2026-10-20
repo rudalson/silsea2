@@ -30,6 +30,7 @@ const ITEM_SCALES = Object.freeze({
   star: 0.75,
   percent_small: 0.75,
   percent_large: 0.75,
+  breath_pearl: 0.75,
   horn: 0.75,
   wings: 0.75,
   alicorn: 0.75
@@ -475,7 +476,7 @@ export class LevelLoader {
 
   createItemMarkers() {
     const createVisuals = (type, x, y, alpha = 1) => {
-      const glow = this.track(this.scene.add.ellipse(x, y + 2, 58, 30, COLORS.collect, 0.18 * alpha));
+      const glow = this.track(this.scene.add.ellipse(x, y + 2, 58, 30, type === "breath_pearl" ? COLORS.collectBlue : COLORS.collect, 0.18 * alpha));
       glow.setStrokeStyle(2, COLORS.white, 0.34 * alpha).setDepth(3);
       const key = this.level.assets.objects?.items?.[type];
       if (key && this.scene.textures.exists(key)) {
