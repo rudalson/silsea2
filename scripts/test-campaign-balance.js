@@ -45,7 +45,13 @@ for (const level of LEVELS.filter(({ id }) => CAMPAIGN_PLAN[id])) {
   }
   if (level.order === 4) {
     const shelters = extension.shelters.slice().sort((a, b) => a.xStart - b.xStart);
-    for (let i = 1; i < shelters.length; i++) assert.ok(shelters[i].xStart - shelters[i - 1].xEnd <= 900);
+    assert.equal(shelters.length, 8, "stage 4 field shelters are reduced from sixteen to eight");
+    assert.equal(shelters.filter(({ type }) => type === "house").length, 4);
+    assert.equal(shelters.filter(({ type }) => type === "hill").length, 4);
+    for (let i = 1; i < shelters.length; i++) {
+      assert.ok(shelters[i].xStart - shelters[i - 1].xEnd <= 1250, "shelter spacing stays even");
+      assert.notEqual(shelters[i].type, shelters[i - 1].type, "shelter silhouettes alternate");
+    }
   }
   previousWidth = level.world.width;
   previousStars = stars.length;

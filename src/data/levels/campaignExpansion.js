@@ -148,11 +148,15 @@ export function buildCampaignExtension(id) {
         raw("claw_guard", 2632);
         result.easyEnemies.push(`${name}_claw_guard`);
       }
-      // Shelters never require flight. Ground shelter gaps stay below 900px.
-      for (const [n, d] of [256, 1120, 2080, 2816].entries()) {
+      // Two visually distinct ground shelters per field section leave room between refuges.
+      for (const [n, d] of [384, 1920].entries()) {
         const width = 288;
-        result.shelters.push({ id: `${name}_shelter_${n}`, type: "house", asset: "shelterHouseOpen",
-          xStart: span(d - width / 2, width), xEnd: span(d - width / 2, width) + width, yTop: 352, yBottom: 576 });
+        const hill = n === 1;
+        result.shelters.push({ id: `${name}_shelter_${n}`, type: hill ? "hill" : "house",
+          asset: hill ? "shelterHill" : "shelterHouseOpen",
+          label: hill ? "꽃 언덕 뒤" : "열린 집 내부",
+          xStart: span(d - width / 2, width), xEnd: span(d - width / 2, width) + width,
+          yTop: hill ? 416 : 352, yBottom: 576 });
       }
       if (index < 3) result.hazards.push({ id: `${name}_thorn`, type: "coral_urchin", x: point(2480), y: 576 });
       terrain("roof_step", 1456, 512, 160, 64, "ground");
