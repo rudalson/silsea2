@@ -118,7 +118,7 @@
   "dark_cloud": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_1.jpg"], "note": "색상선과 지면 공격 표식의 대비 참고." },
   "magpie": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_3.jpg"], "note": "프로젝트 카툰 선 처리와 밝은 무드. 실제 까치 실루엣은 독자 설계." },
   "potato_king": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp", "mario_3.jpg"], "note": "프로젝트 선 처리, 큰 둥근 보스의 크기 대비와 축제감만 참고." },
-  "hula_king": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P10 앵커의 둥근 분홍 보스·왕관·세 겹 훌라후프 정체성을 유지한 7개 상태 애니메이션." },
+  "hula_king": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "스테이지 4의 원화풍 배경에 맞춘 장밋빛 붓질과 따뜻한 명암. 둥근 분홍 보스·왕관·세 겹 훌라후프 정체성을 유지한 7개 상태·37프레임 애니메이션. 원본: assets/_source/boss-refresh/hula_king_storybook_poses.png." },
   "fx_hula_spin": { "styleRefs": ["silsea_sprite-Photoroom.png", "mario_2.webp"], "note": "승인 P10 앵커의 청록·분홍·금색 3중 링을 분리한 회전 방어 효과." },
   "projectile_hula_hoop_low": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "낮은 탄도를 실루엣으로 읽을 수 있는 가로형 분홍·청록 링 투사체." },
   "projectile_hula_hoop_jump": { "styleRefs": ["silsea_sprite-Photoroom.png"], "note": "점프 회피 탄도를 실루엣으로 읽을 수 있는 세로형 금색·청록 링 투사체." },

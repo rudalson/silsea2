@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { buildInvisibleKing } from "./build-invisible-king.js";
+import { buildHulaStorybook } from "./build-hula-storybook.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = join(root, "assets/_source/boss-refresh");
@@ -84,6 +85,12 @@ const palettes = {};
 const selected = process.argv.slice(2);
 for (const [key, spec] of Object.entries(specs)) {
   if (selected.length && !selected.includes(key)) continue;
+  if (key === "hula_king") {
+    const result = await buildHulaStorybook();
+    metadata[key] = result.metadata;
+    palettes[key] = result.palette;
+    continue;
+  }
   if (key === "invisible_king") {
     metadata[key] = await buildInvisibleKing();
     palettes[key] = JSON.parse(await readFile(join(source, "palette.json"), "utf8"))[key];
