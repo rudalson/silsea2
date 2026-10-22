@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -123,6 +123,7 @@ const characterAssets = [
   ...sequenceAssets("sylvia", "victory", 6)
 ];
 const enemyAssets = [
+  ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("music_king", role, 1)),
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("tape_king", role, 1)),
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("merong_king", role, 1)),
   { name: "wave_crab_anchor.png", path: join(root, "assets", "_anchor", "wave_crab_anchor.png"), kind: "wave_crab", fullColor: true },
@@ -231,6 +232,7 @@ const requiredTileFrames = [
   "slope_down"
 ];
 const backgroundAssets = [
+  { name: "bg_music_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_tape_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_merong_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   ...["normal", "pit", "boss"].flatMap((mood) => [
@@ -328,6 +330,7 @@ const requiredAudioKeys = [
   "sfx_enemy_defeat", "sfx_magpie_warning", "sfx_cloud_charge", "sfx_lightning",
   "sfx_boss_appear", "sfx_boss_warning", "sfx_boss_land", "sfx_boss_hit",
   "sfx_boss_defeat", "sfx_checkpoint", "sfx_gate_spawn", "sfx_clear", "sfx_ui_move",
+  "sfx_rhythm_warning", "sfx_rhythm_stop", "sfx_rhythm_go",
   "sfx_ui_select", "sfx_pause", "sfx_tsunami_warning", "sfx_tsunami_pass", "sfx_tsunami_hit",
   "sfx_splash_enter", "sfx_splash_exit", "sfx_breath_low", "sfx_breath_refill",
   "sfx_projectile_guard", "sfx_laser_warning", "sfx_laser_off",
@@ -585,7 +588,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king"]) {
+  for (const enemyType of ["raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

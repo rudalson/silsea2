@@ -725,6 +725,7 @@ export class GameScene extends Phaser.Scene {
       allowGravity: this.player.body?.allowGravity ?? true,
       hp: this.healthManager?.hp ?? 1,
       breath: this.breathManager?.getSnapshot() ?? null,
+      completedRhythms: this.courseMechanics?.getSnapshot().rhythms.filter(({ phase }) => phase === "success").map(({ id }) => id) ?? [],
       form: this.transformationManager?.getSnapshot(this.time.now) ?? null,
       secrets: this.secretManager?.getSnapshot().ids ?? [],
       collectedItemIds: new Set(
@@ -819,6 +820,7 @@ export class GameScene extends Phaser.Scene {
     this.player.body?.setAllowGravity?.(playerState.allowGravity);
     this.player.body?.updateFromGameObject?.();
     this.breathManager?.restoreSnapshot(playerState.breath);
+    this.courseMechanics?.restoreCompletedRhythms(playerState.completedRhythms);
     this.gateBound = Boolean(this.levelLoader.gate);
     this.bindWorldInteractions();
     this.configureCamera();

@@ -898,8 +898,8 @@ for (const [phaseNumber, phase] of Object.entries(POTATO_KING_PHASES)) {
 }
 assert.throws(() => getBossPhasePattern("unknown_boss", 1), /등록되지 않은 보스 패턴/);
 assert.throws(() => getBossPhasePattern("potato_king", 99), /등록되지 않은 보스 페이즈/);
-assert.deepEqual(BOSS_TYPES, ["tape_king", "merong_king", "potato_king", "training_dummy", "hula_king", "invisible_king", "water_king", "random_king"]);
-assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["tape_king", "merong_king", "potato_king", "training_dummy", "hula_king", "invisible_king", "water_king", "random_king"]);
+assert.deepEqual(BOSS_TYPES, ["music_king", "tape_king", "merong_king", "potato_king", "training_dummy", "hula_king", "invisible_king", "water_king", "random_king"]);
+assert.deepEqual(BOSS_BEHAVIOR_TYPES, ["music_king", "tape_king", "merong_king", "potato_king", "training_dummy", "hula_king", "invisible_king", "water_king", "random_king"]);
 assert.equal(getBossDefinition("potato_king")?.displayName, "감자 대왕");
 assert.deepEqual(getBossDefinition("hula_king")?.animationRoles, ["idle", "spin", "warning", "throw", "vulnerable", "hurt", "defeated"]);
 assert.equal(getBossDefinition("invisible_king")?.displayName, "투명 대왕");

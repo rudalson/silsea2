@@ -7,8 +7,10 @@ import { RandomKingBehavior } from "./RandomKingBehavior.js";
 import { BOSS_BEHAVIOR_TYPES } from "../../data/bossBehaviorTypes.js";
 import { MerongKingBehavior } from "./MerongKingBehavior.js";
 import { TapeKingBehavior } from "./TapeKingBehavior.js";
+import { MusicKingBehavior } from "./MusicKingBehavior.js";
 
 const BOSS_BEHAVIORS = Object.freeze({
+  music_king: MusicKingBehavior,
   tape_king: TapeKingBehavior,
   merong_king: MerongKingBehavior,
   potato_king: PotatoKingBehavior,

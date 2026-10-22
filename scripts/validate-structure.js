@@ -98,6 +98,7 @@ if (getNextLevel("level-04")?.id !== "level-05") fail("쓰나미 마을 다음 �
 if (getNextLevel("level-05")?.id !== "level-06") fail("물에 잠긴 마을 다음 레벨이 무지개 이어달리기가 아님");
 if (getNextLevel("level-06")?.id !== "level-07") fail("무지개 이어달리기 다음 레벨이 메롱 왕국이 아님");
 if (getNextLevel("level-07")?.id !== "level-08") fail("메롱 왕국 다음 레벨이 테이프 도시가 아님");
+if (getNextLevel("level-08")?.id !== "level-09") fail("테이프 도시 다음 레벨이 피아노 나라가 아님");
 if (getNextLevel(LEVELS.at(-1).id) !== null) fail("마지막 등록 레벨 뒤에 다음 레벨이 존재함");
 
 const levelIndex = await readFile(join(root, "src", "data", "levels", "index.js"), "utf8");

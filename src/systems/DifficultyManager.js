@@ -187,6 +187,9 @@ export function createRuntimeLevel(level, easyMode = false) {
   const environment = level.environment
     ? {
         ...level.environment,
+        ...(level.environment.rhythmZones ? { rhythmZones: level.environment.rhythmZones.map((zone) => ({
+          ...zone, warningMs: zone.warningMs * (config.environment?.rhythmWarningMultiplier ?? 1)
+        })) } : {}),
         ...(level.environment.tongueTraps ? { tongueTraps: level.environment.tongueTraps.map((trap) => ({
           ...trap, warningMs: trap.warningMs * (config.environment?.tongueWarningMultiplier ?? 1)
         })) } : {}),

@@ -21,6 +21,7 @@ const campaignItemTypes = new Set();
 assert.ok(LEVELS.length >= 7);
 assert.equal(getNextLevel("level-06")?.id, "level-07");
 assert.equal(getNextLevel("level-07")?.id, "level-08");
+assert.equal(getNextLevel("level-08")?.id, "level-09");
 
 for (const [index, sourceLevel] of LEVELS.entries()) {
   const level = normalizeLevelDefinition(sourceLevel);

@@ -23,6 +23,7 @@ export const ALICORN_LAYER_KEY = "bgm_alicorn_layer";
 const ALICORN_LAYER_VOLUME = 0.52;
 const ALICORN_LAYER_EXIT_FADE_MS = 180;
 const BGM_DUCK_CUES = new Set([
+  "sfx_rhythm_warning", "sfx_rhythm_stop",
   "sfx_boss_warning", "sfx_cloud_charge", "sfx_tsunami_warning",
   "sfx_breath_low", "sfx_laser_warning", "sfx_alicorn_warning",
   "sfx_water_warning", "sfx_invisible_warning"

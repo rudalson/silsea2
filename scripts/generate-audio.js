@@ -93,7 +93,10 @@ const sfx = {
   sfx_footstep_dirt: { duration: 0.1, tones: [tone(0, 0.085, 126, 78, "sine", 0.24)], noise: 0.11 },
   sfx_footstep_stone: { duration: 0.08, tones: [tone(0, 0.065, 310, 184, "triangle", 0.2), tone(0, 0.07, 118, 82, "sine", 0.12)], noise: 0.025 },
   sfx_footstep_wood: { duration: 0.09, tones: [tone(0, 0.075, 238, 148, "triangle", 0.2), tone(0.008, 0.06, 476, 304, "sine", 0.08)], noise: 0.02 },
-  sfx_footstep_shallow_water: { duration: 0.11, tones: [tone(0, 0.09, 350, 118, "sine", 0.17)], noise: 0.13 }
+  sfx_footstep_shallow_water: { duration: 0.11, tones: [tone(0, 0.09, 350, 118, "sine", 0.17)], noise: 0.13 },
+  sfx_rhythm_warning: { duration: 0.72, tones: arpeggio([659, 659, 659], 0.22, 0.16, "triangle", 0.24) },
+  sfx_rhythm_stop: { duration: 0.85, tones: [tone(0, 0.85, 1319, 1319, "sine", 0.28), tone(0, 0.5, 2638, 2638, "sine", 0.08)] },
+  sfx_rhythm_go: { duration: 0.56, tones: arpeggio([523, 659, 784, 1047], 0.11, 0.22, "triangle", 0.22) }
 };
 
 const waveAt = (kind, phase) => {
@@ -164,10 +167,13 @@ const writeAudio = (relativePath, samples) => {
   writeFileSync(output, wavBuffer(samples));
 };
 
+const requested = new Set(process.argv.slice(2));
+for (const key of requested) if (!sfx[key]) throw new Error(`알 수 없는 SFX 키: ${key}`);
 Object.entries(sfx).forEach(([key, recipe], index) => {
+  if (requested.size && !requested.has(key)) return;
   writeAudio(`assets/audio/sfx/${key}.wav`, renderSfx(recipe, 8901 + index * 97));
 });
 
-const bgmCount = generateBgm();
+const bgmCount = requested.size ? 0 : generateBgm();
 
-console.log(`오디오 생성 완료: SFX ${Object.keys(sfx).length}개 WAV, BGM ${bgmCount}개 OGG`);
+console.log(`오디오 생성 완료: SFX ${requested.size || Object.keys(sfx).length}개 WAV, BGM ${bgmCount}개 OGG`);

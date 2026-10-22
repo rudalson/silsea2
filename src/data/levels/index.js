@@ -6,6 +6,7 @@ import level05 from "./level-05.js";
 import level06 from "./level-06.js";
 import level07 from "./level-07.js";
 import level08 from "./level-08.js";
+import level09 from "./level-09.js";
 import p1EnvironmentTest from "./p1-environment-test.js";
 import { p9BossTestLeft, p9BossTestRight } from "./p9-boss-test.js";
 import c3CoopTest from "./c3-coop-test.js";
@@ -34,11 +35,12 @@ if (import.meta.hot) {
     "./level-06.js",
     "./level-07.js",
     "./level-08.js",
+    "./level-09.js",
     "./new-course-test.js"
   ], (modules) => modules.forEach(acceptHotLevel));
 }
 
-export const LEVELS = Object.freeze([level01, level02, level03, level04, level05, level06, level07, level08]);
+export const LEVELS = Object.freeze([level01, level02, level03, level04, level05, level06, level07, level08, level09]);
 export const DEVELOPMENT_LEVELS = Object.freeze([p1EnvironmentTest, p9BossTestRight, p9BossTestLeft, c3CoopTest, newCourseTest]);
 export const ALL_LEVELS = Object.freeze([...LEVELS, ...DEVELOPMENT_LEVELS]);
 export const getLevel = (id) => hotLevelOverrides.get(id) ?? ALL_LEVELS.find((level) => level.id === id) ?? null;

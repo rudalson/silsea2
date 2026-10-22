@@ -1,0 +1,17 @@
+{
+  "compressionlevel": -1, "height": 12, "infinite": false,
+  "layers": [{ "draworder": "topdown", "id": 1, "name": "terrain",
+    "properties": [{ "name": "groundSurface", "type": "string", "value": "wood" }, { "name": "platformSurface", "type": "string", "value": "wood" }],
+    "objects": [
+      { "height": 192, "id": 1, "name": "music_ground_start", "rotation": 0, "type": "ground", "visible": true, "width": 3840, "x": 0, "y": 576 },
+      { "height": 192, "id": 2, "name": "music_ground_melody", "rotation": 0, "type": "ground", "visible": true, "width": 4160, "x": 4032, "y": 576 },
+      { "height": 192, "id": 3, "name": "music_ground_concert", "rotation": 0, "type": "ground", "visible": true, "width": 7872, "x": 8512, "y": 576 },
+      { "height": 32, "id": 4, "name": "music_practice_step", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 2432, "y": 480 },
+      { "height": 32, "id": 5, "name": "music_practice_roof", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 2752, "y": 400 },
+      { "height": 32, "id": 6, "name": "music_balcony_step", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 9088, "y": 480 },
+      { "height": 32, "id": 7, "name": "music_harp_balcony", "rotation": 0, "type": "platform", "visible": true, "width": 448, "x": 9408, "y": 400 },
+      { "height": 32, "id": 8, "name": "music_concert_roof", "rotation": 0, "type": "platform", "visible": true, "width": 320, "x": 13760, "y": 400 }
+    ], "opacity": 1, "type": "objectgroup", "visible": true, "x": 0, "y": 0 }],
+  "nextlayerid": 2, "nextobjectid": 9, "orientation": "orthogonal", "renderorder": "right-down",
+  "tiledversion": "1.11.2", "tileheight": 64, "tilesets": [], "tilewidth": 64, "type": "map", "version": "1.10", "width": 256
+}

@@ -1,5 +1,6 @@
 import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
+import { drawPianoKeys, rhythmInputMoving, RhythmSignal } from "./RhythmSignal.js";
 import {
   createRhythmState, getStickySpeedMultiplier, getTimedHolePhase, RHYTHM_PHASES, stepRhythm
 } from "../data/courseMechanics.js";
@@ -19,7 +20,11 @@ export class CourseMechanicsManager {
     this.rhythms = (level.environment?.rhythmZones ?? []).map((config) => this.createRhythm(config));
     this.finished = false;
     for (const zone of this.stickyZones) this.createStickyZone(zone);
-    this.onRespawn = () => this.reset();
+    if (level.environment?.pianoCourse) {
+      const keys = this.track(scene.add.graphics().setDepth(3));
+      for (const terrain of scene.levelLoader?.terrainObjects ?? []) drawPianoKeys(keys, terrain);
+    }
+    this.onRespawn = () => this.reset({ preserveRequiredSuccess: true });
     scene.events.on(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
   }
 
@@ -69,9 +74,17 @@ export class CourseMechanicsManager {
     const width = config.xEnd - config.xStart;
     this.track(this.scene.add.rectangle(config.xStart + width / 2, config.floorY + 6,
       width, 12, COLORS.collectBlue, 1).setDepth(3));
-    const label = this.label(config.xStart + width / 2, config.floorY - 160,
-      "건반 연습\n띵! 신호에 5초 멈춰요");
-    return { config, label, state: createRhythmState(), displayed: "" };
+    const signal = new RhythmSignal(this.scene, config.xStart + width / 2, config.floorY - 160);
+    let gate = null;
+    if (config.requireSuccess) {
+      gate = this.track(this.scene.add.rectangle(config.xEnd - 16, config.floorY / 2, 24, config.floorY,
+        COLORS.collectBlue, 0.18).setStrokeStyle(3, COLORS.collectBlue).setDepth(4));
+      this.scene.physics.add.existing(gate, true);
+      this.interactions.push(this.scene.physics.add.collider(this.player, gate));
+    }
+    const entry = { config, signal, label: signal.label, gate, state: createRhythmState() };
+    signal.show(entry.state, config);
+    return entry;
   }
 
   get horizontalSpeedMultiplier() {
@@ -122,7 +135,7 @@ export class CourseMechanicsManager {
     const previous = entry.state;
     const inside = this.player.x >= config.xStart && this.player.x <= config.xEnd
       && Math.abs(body.bottom - config.floorY) <= 8;
-    const moving = Math.abs(input.moveX ?? 0) > config.movementTolerance || Boolean(input.jumpDown || input.jumpPressed);
+    const moving = rhythmInputMoving(input, config.movementTolerance);
     entry.state = stepRhythm(previous, { deltaMs: delta, inside, grounded: grounded(body), moving }, config);
     const { phase } = entry.state;
     if (phase !== previous.phase) {
@@ -130,29 +143,16 @@ export class CourseMechanicsManager {
       if (phase === RHYTHM_PHASES.RETRY && !config.practice) {
         this.healthManager.takeEnvironmentDamage({ type: "rhythm" });
       }
-      if ([RHYTHM_PHASES.STOP, RHYTHM_PHASES.SUCCESS].includes(phase)) {
-        this.scene.audioManager?.playSfx(phase === RHYTHM_PHASES.STOP ? "sfx_checkpoint" : "sfx_star", { randomizeRate: false });
-      }
+      entry.signal.cue(phase);
     }
-    const remaining = Math.ceil(Math.max(0, config.stopMs - entry.state.elapsedMs) / 1000);
-    const texts = {
-      waiting: "건반 연습\n띵! 신호에 5초 멈춰요",
-      warning: "♪ 곧 정지 신호!\n이동 키와 점프를 놓아요",
-      stop: `■ 멈춰요  ${remaining}\n키에서 손을 떼요`,
-      retry: "다시 연습해요\n다음 신호를 기다려요",
-      success: "▶ 성공!\n이제 이동해요"
-    };
-    const text = texts[phase];
-    if (entry.displayed !== text) {
-      entry.displayed = text;
-      entry.label.setText(text).setColor(phase === RHYTHM_PHASES.STOP ? CSS_COLORS.collect : CSS_COLORS.white);
-      if (phase !== RHYTHM_PHASES.WAITING || previous.phase !== RHYTHM_PHASES.WAITING) {
-        this.scene.updateAccessibleStatus?.(text.replace("\n", ". "));
-      }
+    if (entry.gate) {
+      entry.gate.body.enable = phase !== RHYTHM_PHASES.SUCCESS;
+      entry.gate.setVisible(phase !== RHYTHM_PHASES.SUCCESS);
     }
+    entry.signal.show(entry.state, config);
   }
 
-  reset() {
+  reset({ preserveRequiredSuccess = false } = {}) {
     this.transientStickyZones.clear();
     for (const entry of this.holes) {
       entry.elapsedMs = null;
@@ -163,15 +163,26 @@ export class CourseMechanicsManager {
       entry.label.setText("노란 다리\n다가가면 열려요");
     }
     for (const entry of this.rhythms) {
+      if (preserveRequiredSuccess && entry.config.requireSuccess && entry.state.phase === RHYTHM_PHASES.SUCCESS) continue;
       entry.state = createRhythmState();
-      entry.displayed = "";
-      entry.label.setText("건반 연습\n띵! 신호에 5초 멈춰요").setColor(CSS_COLORS.white);
+      entry.signal.reset(); entry.signal.show(entry.state, entry.config);
+      if (entry.gate) { entry.gate.body.enable = true; entry.gate.setVisible(true); }
+    }
+  }
+
+  restoreCompletedRhythms(ids = []) {
+    for (const entry of this.rhythms) {
+      if (!entry.config.requireSuccess || !ids.includes(entry.config.id)) continue;
+      entry.state = { phase: RHYTHM_PHASES.SUCCESS, elapsedMs: entry.config.stopMs, failures: 0 };
+      if (entry.gate) { entry.gate.body.enable = false; entry.gate.setVisible(false); }
+      entry.signal.show(entry.state, entry.config);
     }
   }
 
   finish() {
     this.reset();
     this.finished = true;
+    for (const entry of this.rhythms) if (entry.gate) { entry.gate.body.enable = false; entry.gate.setVisible(false); }
   }
 
   getSnapshot() {
@@ -179,7 +190,7 @@ export class CourseMechanicsManager {
       speedMultiplier: this.horizontalSpeedMultiplier,
       transientStickyCount: [...this.transientStickyZones.values()].reduce((count, zones) => count + zones.length, 0),
       holes: this.holes.map(({ config, phase, elapsedMs, platform }) => ({ id: config.id, phase, elapsedMs, solid: platform.body.enable })),
-      rhythms: this.rhythms.map(({ config, state }) => ({ id: config.id, ...state }))
+      rhythms: this.rhythms.map(({ config, state, gate }) => ({ id: config.id, ...state, gateClosed: Boolean(gate?.body.enable) }))
     };
   }
 
@@ -187,6 +198,7 @@ export class CourseMechanicsManager {
     this.transientStickyZones.clear();
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
     for (const interaction of this.interactions) interaction.destroy();
+    for (const entry of this.rhythms) entry.signal.destroy();
     for (const object of this.created) object.destroy();
     this.interactions.length = this.created.length = this.holes.length = this.rhythms.length = 0;
   }

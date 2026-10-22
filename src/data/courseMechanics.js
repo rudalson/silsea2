@@ -102,6 +102,9 @@ export function assertCourseMechanicsShape(level) {
     range(zone, "retryMs", 500, 10000);
     range(zone, "movementTolerance", 0.05, 0.3);
     if (typeof zone.practice !== "boolean") fail(`${zone.id} practice는 boolean이어야 합니다.`);
+    if (zone.requireSuccess !== undefined && typeof zone.requireSuccess !== "boolean") fail(`${zone.id} requireSuccess는 boolean이어야 합니다.`);
+    if (zone.requireSuccess && level.sections.some((section) => section.type === "boss"
+      && zone.xStart < section.xEnd && zone.xEnd > section.xStart)) fail(`${zone.id} 정지 문은 보스 구간과 겹칠 수 없습니다.`);
     const dangers = [
       ...(level.hazards ?? []), ...(level.enemies ?? []), ...timedHoles,
       ...(mechanics.movingPlatforms ?? []), ...(mechanics.crumblePlatforms ?? []), ...(mechanics.updrafts ?? []),
@@ -113,6 +116,8 @@ export function assertCourseMechanicsShape(level) {
       return start < zone.xEnd + 64 && end > zone.xStart - 64;
     })) fail(`${zone.id} 정지 연습 구역에는 위험 장치나 이동 지형을 둘 수 없습니다.`);
   }
+  const warningMultiplier = level.difficulty?.easyMode?.environment?.rhythmWarningMultiplier;
+  if (warningMultiplier !== undefined) range({ id: "easyMode", rhythmWarningMultiplier: warningMultiplier }, "rhythmWarningMultiplier", 1, 2);
   const easyTerrain = level.difficulty?.easyMode?.terrainMechanics ?? {};
   for (const [field, min, max] of [["stickySpeedFloor", 0.1, 1], ["holeWarningMultiplier", 1, 2]]) {
     if (easyTerrain[field] !== undefined) range({ id: "easyMode", ...easyTerrain }, field, min, max);

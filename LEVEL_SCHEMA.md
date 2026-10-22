@@ -459,6 +459,14 @@ const handlers = {
 
 ## 레지스트리
 
+### 피아노 정지 문 (N4)
+
+`environment.rhythmZones[]`의 `requireSuccess: true`는 구역 끝에 실제 충돌 문을 만듭니다. 공중 진입은 신호를 시작하지 않으며 지상에서 예고 후 이동·점프 입력을 놓고 `stopMs: 5000` 동안 기다려야 문이 열립니다. 구역 전체에는 고정 바닥이 필요하며 위험 장치와 보스 구역을 겹칠 수 없습니다. 첫 연습은 `practice: true`로 피해 없이 재안내합니다.
+
+완료한 필수 문은 부활·데이터 재로드 시 보존하고 새 레벨 시작에서는 초기화합니다. 보스 처치 시 모든 문 충돌을 해제합니다. `environment.pianoCourse: true`는 실제 충돌 지형 상단에 장식 건반을 그립니다. `easyMode.environment.rhythmWarningMultiplier`는 1~2 범위에서 예고만 늘리며 5초 정지는 바꾸지 않습니다.
+
+`RhythmSignal`은 화면 문구·접근성 알림·서로 다른 `sfx_rhythm_warning/stop/go`를 필드와 음악 대왕에서 공유합니다. 무음에서도 문구와 남은 초를 표시하고, Scene 일시정지와 변신 연출에서는 정지 시간을 소비하지 않습니다.
+
 ```js
 import level01 from "./level-01.js";
 import level02 from "./level-02.js";

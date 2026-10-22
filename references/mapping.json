@@ -18,6 +18,7 @@
   "potato89_winged_forms": {"styleRefs":["silsea_sprite-Photoroom.png","silsea_run.png"],"note":"구운 감자의 둥근 갈색 체형을 유지하고 크림색 접힌 날개·비행 날개를 몸에 통합한 페가수스·알리콘 전용 동작 시트."},
   "$delivery": {
     "manifestGroups": {
+      "music_king": ["music_king_idle","music_king_warning","music_king_attack","music_king_vulnerable","music_king_hurt","music_king_defeated"],
       "tape_king": ["tape_king_idle","tape_king_warning","tape_king_attack","tape_king_vulnerable","tape_king_hurt","tape_king_defeated"],
       "merong_king": ["merong_king_idle","merong_king_warning","merong_king_attack","merong_king_vulnerable","merong_king_hurt","merong_king_defeated"],
       "aurora_motion": ["aurora_idle","aurora_run","aurora_jump_up","aurora_fall","aurora_land","aurora_hurt","aurora_fly","aurora_wing_guard","aurora_swim","aurora_victory","aurora_transform_unicorn","aurora_transform_pegasus","aurora_transform_alicorn","aurora_unicorn_idle","aurora_unicorn_run","aurora_unicorn_jump_up","aurora_unicorn_fall","aurora_unicorn_land","aurora_unicorn_hurt","aurora_unicorn_fly","aurora_unicorn_swim","aurora_unicorn_victory","aurora_pegasus_idle","aurora_pegasus_run","aurora_pegasus_jump_up","aurora_pegasus_fall","aurora_pegasus_land","aurora_pegasus_hurt","aurora_pegasus_fly","aurora_pegasus_swim","aurora_pegasus_victory","aurora_alicorn_idle","aurora_alicorn_run","aurora_alicorn_jump_up","aurora_alicorn_fall","aurora_alicorn_land","aurora_alicorn_hurt","aurora_alicorn_fly","aurora_alicorn_swim","aurora_alicorn_victory"],
@@ -262,5 +263,8 @@
   "stage_preview_merong": {"styleRefs":["maple_story_1.png"],"note":"사용자 메롱 왕국 원안의 입 모양 궁전과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/merong에 보존."},
   "tape_king": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"사용자 테이프 대왕 스케치의 테이프 말이·절단부를 유지한 내장 imagegen 원화. 6개 동작 포즈, 공통 배율·발 기준선으로 조립."},
   "bg_tape_far": {"styleRefs":["maple_story_1.png"],"note":"사용자 테이프 도시 원안의 테이프 작업장과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/tape에 보존."},
-  "stage_preview_tape": {"styleRefs":["maple_story_1.png"],"note":"사용자 테이프 도시 원안의 테이프 작업장과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/tape에 보존."}
+  "stage_preview_tape": {"styleRefs":["maple_story_1.png"],"note":"사용자 테이프 도시 원안의 테이프 작업장과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/tape에 보존."},
+  "music_king": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"사용자 음악 대왕 스케치의 음악 음표·하프·둥근 몸체를 유지한 내장 imagegen 원화. 6개 동작 포즈, 공통 배율·발 기준선으로 조립."},
+  "bg_music_far": {"styleRefs":["maple_story_1.png"],"note":"사용자 음악 나라 원안의 음악 연주 무대과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/music에 보존."},
+  "stage_preview_music": {"styleRefs":["maple_story_1.png"],"note":"사용자 음악 나라 원안의 음악 연주 무대과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/music에 보존."}
 }

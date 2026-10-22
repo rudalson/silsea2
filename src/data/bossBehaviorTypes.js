@@ -1,4 +1,5 @@
 export const BOSS_BEHAVIOR_TYPES = Object.freeze([
+  "music_king",
   "tape_king",
   "merong_king",
   "potato_king",
