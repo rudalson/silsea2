@@ -3,6 +3,10 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     attack: "tape_king_attack", vulnerable: "tape_king_vulnerable", hurt: "tape_king_hurt", defeated: "tape_king_defeated" }),
   merong_king: Object.freeze({ idle: "merong_king_idle", warning: "merong_king_warning",
     attack: "merong_king_attack", vulnerable: "merong_king_vulnerable", hurt: "merong_king_hurt", defeated: "merong_king_defeated" }),
+  wave_crab: Object.freeze({
+    idle: "wave_crab_idle", move: "wave_crab_move", warning: "wave_crab_warning",
+    attack: "wave_crab_attack", recover: "wave_crab_recover", defeated: "wave_crab_defeated"
+  }),
   lantern_goblin: Object.freeze({
     idle: "lantern_goblin_idle", move: "lantern_goblin_move", warning: "lantern_goblin_warning",
     attack: "lantern_goblin_attack", recover: "lantern_goblin_recover", defeated: "lantern_goblin_defeated"
@@ -27,6 +31,11 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
     warning: "spike_pumpkin_warning",
     defeated: "spike_pumpkin_break"
   }),
+  coral_urchin: Object.freeze({
+    idle: "coral_urchin_idle",
+    warning: "coral_urchin_warning"
+  }),
+  lantern_jellyfish: Object.freeze({ idle: "lantern_jellyfish_idle" }),
   dark_cloud: Object.freeze({
     idle: "dark_cloud_idle",
     warning: "dark_cloud_charge",
@@ -101,6 +110,14 @@ const ENEMY_TIMINGS = Object.freeze({
     hurt: Object.freeze({ durations: [900], repeat: 0 }),
     defeated: Object.freeze({ durations: [1400], repeat: 0 })
   }),
+  wave_crab: Object.freeze({
+    idle: Object.freeze({ durations: [420, 420], repeat: -1 }),
+    move: Object.freeze({ durations: [170, 170, 170, 170], repeat: -1 }),
+    warning: Object.freeze({ durations: [160, 160, 160, 170], repeat: -1 }),
+    attack: Object.freeze({ durations: [100, 100, 100, 100], repeat: -1 }),
+    recover: Object.freeze({ durations: [125, 125, 125, 125], repeat: 0 }),
+    defeated: Object.freeze({ durations: [110, 110, 130, 280], repeat: 0 })
+  }),
   lantern_goblin: Object.freeze({
     idle: Object.freeze({ durations: [420, 420], repeat: -1 }),
     move: Object.freeze({ durations: [180, 180, 180, 180], repeat: -1 }),
@@ -133,6 +150,11 @@ const ENEMY_TIMINGS = Object.freeze({
     warning: Object.freeze({ durations: [260, 220], repeat: -1 }),
     defeated: Object.freeze({ durations: [120, 80, 80, 90, 120, 240], repeat: 0 })
   }),
+  coral_urchin: Object.freeze({
+    idle: Object.freeze({ durations: [380, 380], repeat: -1 }),
+    warning: Object.freeze({ durations: [160, 160], repeat: -1 })
+  }),
+  lantern_jellyfish: Object.freeze({ idle: Object.freeze({ durations: [800], repeat: -1 }) }),
   dark_cloud: Object.freeze({
     idle: Object.freeze({ durations: [180, 170, 180, 190], repeat: -1 }),
     warning: Object.freeze({ durations: [180, 170, 160, 190], repeat: -1 }),

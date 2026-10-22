@@ -355,415 +355,394 @@
       "width": 54,
       "height": 28
     },
-    "scale": 0.7058823529411765,
     "idleHeight": 84,
     "measurements": [
       {
         "sequence": "idle",
         "index": 0,
-        "sourceBounds": [
-          16,
-          30,
-          148,
-          148
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "idle",
+        "sourceBounds": {
+          "left": 10,
+          "top": 110,
+          "width": 373,
+          "height": 351
+        }
       },
       {
         "sequence": "idle",
         "index": 1,
-        "sourceBounds": [
-          172,
-          30,
-          304,
-          148
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "idle",
+        "sourceBounds": {
+          "left": 10,
+          "top": 110,
+          "width": 373,
+          "height": 351
+        }
       },
       {
         "sequence": "idle",
         "index": 2,
-        "sourceBounds": [
-          330,
-          30,
-          461,
-          148
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "blink",
+        "sourceBounds": null
       },
       {
         "sequence": "idle",
         "index": 3,
-        "sourceBounds": [
-          485,
-          30,
-          617,
-          148
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "idle",
+        "sourceBounds": {
+          "left": 10,
+          "top": 110,
+          "width": 373,
+          "height": 351
+        }
       },
       {
         "sequence": "spin",
         "index": 0,
-        "sourceBounds": [
-          9,
-          178,
-          152,
-          302
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 1,
-        "sourceBounds": [
-          169,
-          177,
-          310,
-          301
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 2,
-        "sourceBounds": [
-          327,
-          178,
-          467,
-          301
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 3,
-        "sourceBounds": [
-          486,
-          178,
-          624,
-          301
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 4,
-        "sourceBounds": [
-          641,
-          177,
-          777,
-          301
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 5,
-        "sourceBounds": [
-          792,
-          177,
-          934,
-          300
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 6,
-        "sourceBounds": [
-          949,
-          177,
-          1089,
-          301
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "spin",
         "index": 7,
-        "sourceBounds": [
-          1103,
-          177,
-          1243,
-          302
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "spin",
+        "sourceBounds": {
+          "left": 381,
+          "top": 103,
+          "width": 407,
+          "height": 356
+        }
       },
       {
         "sequence": "warning",
         "index": 0,
-        "sourceBounds": [
-          9,
-          337,
-          150,
-          456
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "warning",
+        "sourceBounds": {
+          "left": 792,
+          "top": 98,
+          "width": 409,
+          "height": 368
+        }
       },
       {
         "sequence": "warning",
         "index": 1,
-        "sourceBounds": [
-          171,
-          327,
-          311,
-          456
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "warning",
+        "sourceBounds": {
+          "left": 792,
+          "top": 98,
+          "width": 409,
+          "height": 368
+        }
       },
       {
         "sequence": "warning",
         "index": 2,
-        "sourceBounds": [
-          335,
-          332,
-          486,
-          456
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "warning",
+        "sourceBounds": {
+          "left": 792,
+          "top": 98,
+          "width": 409,
+          "height": 368
+        }
       },
       {
         "sequence": "warning",
         "index": 3,
-        "sourceBounds": [
-          497,
-          340,
-          646,
-          457
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "warning",
+        "sourceBounds": {
+          "left": 792,
+          "top": 98,
+          "width": 409,
+          "height": 368
+        }
       },
       {
         "sequence": "throw",
         "index": 0,
-        "sourceBounds": [
-          16,
-          487,
-          153,
-          607
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "warning",
+        "sourceBounds": {
+          "left": 792,
+          "top": 98,
+          "width": 409,
+          "height": 368
+        }
       },
       {
         "sequence": "throw",
         "index": 1,
-        "sourceBounds": [
-          163,
-          489,
-          320,
-          608
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "warning",
+        "sourceBounds": {
+          "left": 792,
+          "top": 98,
+          "width": 409,
+          "height": 368
+        }
       },
       {
         "sequence": "throw",
         "index": 2,
-        "sourceBounds": [
-          321,
-          490,
-          490,
-          608
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "throw",
+        "sourceBounds": null
       },
       {
         "sequence": "throw",
         "index": 3,
-        "sourceBounds": [
-          501,
-          487,
-          631,
-          608
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "throw",
+        "sourceBounds": null
       },
       {
         "sequence": "throw",
         "index": 4,
-        "sourceBounds": [
-          637,
-          486,
-          774,
-          607
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "throw",
+        "sourceBounds": null
       },
       {
         "sequence": "throw",
         "index": 5,
-        "sourceBounds": [
-          796,
-          485,
-          931,
-          607
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "idle",
+        "sourceBounds": {
+          "left": 10,
+          "top": 110,
+          "width": 373,
+          "height": 351
+        }
       },
       {
         "sequence": "vulnerable",
         "index": 0,
-        "sourceBounds": [
-          16,
-          638,
-          149,
-          757
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "vulnerable",
+        "sourceBounds": {
+          "left": 36,
+          "top": 525,
+          "width": 364,
+          "height": 324
+        }
       },
       {
         "sequence": "vulnerable",
         "index": 1,
-        "sourceBounds": [
-          168,
-          642,
-          304,
-          757
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "vulnerable",
+        "sourceBounds": {
+          "left": 36,
+          "top": 525,
+          "width": 364,
+          "height": 324
+        }
       },
       {
         "sequence": "vulnerable",
         "index": 2,
-        "sourceBounds": [
-          328,
-          639,
-          460,
-          757
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "vulnerable",
+        "sourceBounds": {
+          "left": 36,
+          "top": 525,
+          "width": 364,
+          "height": 324
+        }
       },
       {
         "sequence": "vulnerable",
         "index": 3,
-        "sourceBounds": [
-          486,
-          637,
-          616,
-          760
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "vulnerable",
+        "sourceBounds": {
+          "left": 36,
+          "top": 525,
+          "width": 364,
+          "height": 324
+        }
       },
       {
         "sequence": "hurt",
         "index": 0,
-        "sourceBounds": [
-          16,
-          777,
-          151,
-          903
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "hurt",
+        "sourceBounds": {
+          "left": 442,
+          "top": 501,
+          "width": 366,
+          "height": 340
+        }
       },
       {
         "sequence": "hurt",
         "index": 1,
-        "sourceBounds": [
-          170,
-          785,
-          305,
-          902
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "hurt",
+        "sourceBounds": {
+          "left": 442,
+          "top": 501,
+          "width": 366,
+          "height": 340
+        }
       },
       {
         "sequence": "hurt",
         "index": 2,
-        "sourceBounds": [
-          330,
-          785,
-          464,
-          902
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "hurt",
+        "sourceBounds": {
+          "left": 442,
+          "top": 501,
+          "width": 366,
+          "height": 340
+        }
       },
       {
         "sequence": "defeated",
         "index": 0,
-        "sourceBounds": [
-          16,
-          939,
-          150,
-          1053
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "hurt",
+        "sourceBounds": {
+          "left": 442,
+          "top": 501,
+          "width": 366,
+          "height": 340
+        }
       },
       {
         "sequence": "defeated",
         "index": 1,
-        "sourceBounds": [
-          172,
-          939,
-          305,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "vulnerable",
+        "sourceBounds": {
+          "left": 36,
+          "top": 525,
+          "width": 364,
+          "height": 324
+        }
       },
       {
         "sequence": "defeated",
         "index": 2,
-        "sourceBounds": [
-          328,
-          939,
-          461,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "defeated",
+        "sourceBounds": {
+          "left": 885,
+          "top": 532,
+          "width": 373,
+          "height": 316
+        }
       },
       {
         "sequence": "defeated",
         "index": 3,
-        "sourceBounds": [
-          488,
-          943,
-          616,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "defeated",
+        "sourceBounds": {
+          "left": 885,
+          "top": 532,
+          "width": 373,
+          "height": 316
+        }
       },
       {
         "sequence": "defeated",
         "index": 4,
-        "sourceBounds": [
-          640,
-          942,
-          772,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "defeated",
+        "sourceBounds": {
+          "left": 885,
+          "top": 532,
+          "width": 373,
+          "height": 316
+        }
       },
       {
         "sequence": "defeated",
         "index": 5,
-        "sourceBounds": [
-          801,
-          939,
-          929,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "defeated",
+        "sourceBounds": {
+          "left": 885,
+          "top": 532,
+          "width": 373,
+          "height": 316
+        }
       },
       {
         "sequence": "defeated",
         "index": 6,
-        "sourceBounds": [
-          948,
-          939,
-          1085,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "defeated",
+        "sourceBounds": {
+          "left": 885,
+          "top": 532,
+          "width": 373,
+          "height": 316
+        }
       },
       {
         "sequence": "defeated",
         "index": 7,
-        "sourceBounds": [
-          1101,
-          942,
-          1239,
-          1052
-        ],
-        "scale": 0.7058823529411765
+        "sourcePose": "defeated",
+        "sourceBounds": {
+          "left": 885,
+          "top": 532,
+          "width": 373,
+          "height": 316
+        }
       }
     ]
   },

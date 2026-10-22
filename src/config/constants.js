@@ -25,6 +25,8 @@ export const EVENTS = Object.freeze({
   WATER_STATE_CHANGED: "environment:water-state-changed",
   TSUNAMI_WARNING: "environment:tsunami-warning",
   TSUNAMI_STATE_CHANGED: "environment:tsunami-state-changed",
+  SHELTER_ENTERED: "environment:shelter-entered",
+  SHELTER_BLOCKED_WAVE: "environment:shelter-blocked-wave",
   MIST_ZONE_CHANGED: "environment:mist-zone-changed",
   LASER_STATE_CHANGED: "environment:laser-state-changed",
   LASER_SWITCH_DISABLED: "environment:laser-switch-disabled",

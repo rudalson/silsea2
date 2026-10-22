@@ -544,6 +544,8 @@ export class GameScene extends Phaser.Scene {
       this.scoreManager.collect("star", multiplier);
     } else if (collectible.type === "percent_small" || collectible.type === "percent_large") {
       this.scoreManager.collect(collectible.type, multiplier);
+    } else if (collectible.type === "breath_pearl") {
+      if (this.breathManager?.collectBreathPearl()) this.playBreathPearlPickup();
     } else {
       this.transformationManager.collect(collectible.type, this.time.now);
     }
@@ -560,6 +562,13 @@ export class GameScene extends Phaser.Scene {
         onComplete: () => visual.destroy()
       });
     }
+  }
+
+  playBreathPearlPickup() {
+    const bubble = this.add.circle(this.player.x, this.player.y - 44, 32, COLORS.collectBlue, 0.18)
+      .setStrokeStyle(4, COLORS.white, 0.88)
+      .setDepth(12);
+    this.tweens.add({ targets: bubble, scale: 2, alpha: 0, duration: 420, onComplete: () => bubble.destroy() });
   }
 
   updateMagnet(delta) {
@@ -715,6 +724,7 @@ export class GameScene extends Phaser.Scene {
       velocityY: this.player.body?.velocity?.y ?? 0,
       allowGravity: this.player.body?.allowGravity ?? true,
       hp: this.healthManager?.hp ?? 1,
+      breath: this.breathManager?.getSnapshot() ?? null,
       form: this.transformationManager?.getSnapshot(this.time.now) ?? null,
       secrets: this.secretManager?.getSnapshot().ids ?? [],
       collectedItemIds: new Set(
@@ -808,6 +818,7 @@ export class GameScene extends Phaser.Scene {
     this.player.setPosition(x, y).setVelocity(playerState.velocityX, playerState.velocityY);
     this.player.body?.setAllowGravity?.(playerState.allowGravity);
     this.player.body?.updateFromGameObject?.();
+    this.breathManager?.restoreSnapshot(playerState.breath);
     this.gateBound = Boolean(this.levelLoader.gate);
     this.bindWorldInteractions();
     this.configureCamera();

@@ -17,7 +17,7 @@ import {
   normalizeGatePresentation,
   resolveGateY
 } from "../data/gatePresentation.js";
-import { ITEM_DEFINITIONS } from "../data/items.js";
+import { ITEM_DEFINITIONS, isContactHazard } from "../data/items.js";
 import { expandLevelItems, getCheckpointTrigger, getItemTrigger } from "../data/levelInteractions.js";
 import {
   PRANK_GATE_ENCOUNTER_STAGES,
@@ -31,6 +31,7 @@ const ITEM_SCALES = Object.freeze({
   star: 0.75,
   percent_small: 0.75,
   percent_large: 0.75,
+  breath_pearl: 0.75,
   horn: 0.75,
   wings: 0.75,
   alicorn: 0.75
@@ -478,7 +479,7 @@ export class LevelLoader {
 
   createItemMarkers() {
     const createVisuals = (type, x, y, alpha = 1) => {
-      const glow = this.track(this.scene.add.ellipse(x, y + 2, 58, 30, COLORS.collect, 0.18 * alpha));
+      const glow = this.track(this.scene.add.ellipse(x, y + 2, 58, 30, type === "breath_pearl" ? COLORS.collectBlue : COLORS.collect, 0.18 * alpha));
       glow.setStrokeStyle(2, COLORS.white, 0.34 * alpha).setDepth(3);
       const key = this.level.assets.objects?.items?.[type];
       if (key && this.scene.textures.exists(key)) {
@@ -538,19 +539,23 @@ export class LevelLoader {
         ? this.track(this.scene.physics.add.sprite(enemy.x, enemy.y, idle.textureKey))
         : enemy.type === "potato_archer"
           ? this.track(this.scene.add.rectangle(enemy.x, enemy.y - 34, 54, 68, definition?.color ?? COLORS.danger))
-          : this.track(this.scene.add.ellipse(enemy.x, enemy.y - 28, 58, 54, definition?.color ?? COLORS.danger));
+          : this.track(this.scene.add.ellipse(enemy.x, enemy.y - (enemy.type === "lantern_jellyfish" ? 0 : 28), 58, 54, definition?.color ?? COLORS.danger));
       if (usesArt) {
         marker.setOrigin(0.5, 112 / 128).setDepth(3);
         const isRawPotato = enemy.type === "raw_potato";
+        const isWaveCrab = enemy.type === "wave_crab";
         const isPotatoArcher = enemy.type === "potato_archer";
         const mistEnemy = isMistEnemy(enemy.type);
-        const bodyWidth = isRawPotato ? 38 : isPotatoArcher ? 52 : mistEnemy ? 58 : 50;
-        const bodyHeight = isRawPotato ? 36 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : 46;
+        const isJellyfish = enemy.type === "lantern_jellyfish";
+        const bodyWidth = isRawPotato ? 38 : isWaveCrab ? 72 : isPotatoArcher ? 52 : mistEnemy ? 58 : isJellyfish ? 64 : 50;
+        const bodyHeight = isRawPotato ? 36 : isWaveCrab ? 42 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : isJellyfish ? 70 : 46;
         if (isRawPotato) marker.setScale(0.72);
+        if (isWaveCrab) marker.setScale(0.92);
         if (isPotatoArcher) marker.setScale(0.82);
         if (mistEnemy) marker.setScale(0.82);
+        if (isJellyfish) marker.setOrigin(0.5).setScale(0.82);
         marker.body.setSize(bodyWidth, bodyHeight, false);
-        marker.body.setOffset((128 - bodyWidth) / 2, 112 - bodyHeight);
+        marker.body.setOffset((128 - bodyWidth) / 2, isJellyfish ? (128 - bodyHeight) / 2 : 112 - bodyHeight);
       } else {
         marker.setStrokeStyle(4, COLORS.outline).setDepth(3);
         this.scene.physics.add.existing(marker);
@@ -586,7 +591,7 @@ export class LevelLoader {
   }
 
   createHazards() {
-    for (const hazard of this.level.hazards.filter((candidate) => candidate.type === "spike_pumpkin")) {
+    for (const hazard of this.level.hazards.filter((candidate) => isContactHazard(candidate.type))) {
       EnemyAnimationManager.register(this.scene, hazard.type);
       const idle = EnemyAnimationManager.getSpec(hazard.type, "idle");
       const usesArt = Boolean(idle && this.scene.textures.exists(idle.textureKey));
@@ -596,7 +601,7 @@ export class LevelLoader {
       if (usesArt) marker.setOrigin(0.5, 112 / 128).setDepth(3);
       else marker.setOrigin(0.5, 1).setStrokeStyle(4, COLORS.outline).setDepth(3);
       this.scene.physics.add.existing(marker, true);
-      // 가시 전체가 위험 영역임을 보이도록, 호박 몸통과 양옆 가시까지 포함한다.
+      // 고정 장애물의 몸통과 양옆 가시를 모두 접촉 위험 영역에 포함한다.
       marker.body.setSize(84, 58, false);
       if (usesArt) marker.body.setOffset((128 - 84) / 2, 112 - 58);
       marker.setDataEnabled();

@@ -476,6 +476,9 @@ footstepManager.destroy();
 assert.equal(getEnemyAssetKeys("raw_potato").length, 3);
 assert.equal(getEnemyAssetKeys("potato_archer").length, 4);
 assert.equal(getEnemyAssetKeys("spike_pumpkin").length, 3);
+assert.equal(getEnemyAssetKeys("coral_urchin").length, 2);
+assert.ok(getEnemyAnimationSpec("coral_urchin", "idle"));
+assert.ok(getEnemyAnimationSpec("coral_urchin", "warning"));
 assert.equal(getEnemyAssetKeys("dark_cloud").length, 4);
 assert.equal(getEnemyAssetKeys("magpie").length, 5);
 assert.equal(getEnemyAssetKeys("potato_king").length, 7);
@@ -569,6 +572,8 @@ assert.equal(level04.environment.tsunami.shelterGrace, 0.25);
 assert.equal(level04.environment.tsunami.respawnGrace, 3);
 assert.equal(level04.environment.tsunami.flightClearanceY, 270);
 assert.equal(level04.environment.tsunami.pauseEnemiesDuringWave, true);
+assert.ok(level04.hazards.some(({ type }) => type === "coral_urchin"));
+assert.equal(level04.hazards.some(({ type }) => type === "spike_pumpkin"), false);
 assert.equal(level04.visualTheme, "tsunami-village");
 assert.equal(level04.assets.tileset, "village_tileset");
 assert.equal(level04.assets.preview, "stage_preview_tsunami");
@@ -576,6 +581,7 @@ assert.deepEqual(level04.assets.backgrounds.normal, { far: "bg_tsunami_far", mid
 assert.deepEqual(level04.assets.effects, {
   tsunamiWave: "fx_tsunami_wave",
   tsunamiWarning: "fx_tsunami_warning",
+  shelterShield: "fx_shelter_shield",
   shelterHouseOpen: "shelter_house_open",
   shelterHouseWeathered: "shelter_house_weathered",
   shelterHill: "shelter_hill"
@@ -724,10 +730,18 @@ const createEnvironmentDisplayObject = (type, x = 0, y = 0) => ({
   setStrokeStyle() { return this; },
   setOrigin() { return this; },
   setAlpha() { return this; },
+  setPosition(x, y) { this.x = x; this.y = y; return this; },
   setScrollFactor() { return this; },
   setVisible(value) { this.visible = value; return this; },
   setScale() { return this; },
   setAngle() { return this; },
+  clear() { return this; },
+  fillStyle() { return this; },
+  fillEllipse() { return this; },
+  lineStyle() { return this; },
+  strokeEllipse() { return this; },
+  lineBetween() { return this; },
+  fillCircle() { return this; },
   destroy() { this.active = false; }
 });
 const createEnvironmentScene = () => ({
@@ -737,6 +751,7 @@ const createEnvironmentScene = () => ({
     rectangle: (x, y) => createEnvironmentDisplayObject("Rectangle", x, y),
     ellipse: (x, y) => createEnvironmentDisplayObject("Ellipse", x, y),
     circle: (x, y) => createEnvironmentDisplayObject("Circle", x, y),
+    graphics: (config = {}) => createEnvironmentDisplayObject("Graphics", config.x, config.y),
     triangle: (x, y) => createEnvironmentDisplayObject("Triangle", x, y),
     text: (x, y) => createEnvironmentDisplayObject("Text", x, y)
   },
@@ -752,6 +767,8 @@ const environmentSceneA = createEnvironmentScene();
 const environmentPlayerA = {
   x: 3200,
   y: 520,
+  depth: 10,
+  setDepth(value) { this.depth = value; return this; },
   tuning: { maxSpeed: 360 },
   body: { width: 44, center: { y: 500 }, bottom: 550 }
 };
@@ -784,9 +801,22 @@ assert.equal(waveDamageCount, 1, "같은 파도는 플레이어에게 한 번만
 updateEnvironment(environmentManagerA, environmentSceneA, 10000);
 assert.equal(environmentManagerA.waveState, "idle");
 assert.equal(environmentManagerA.pausesEnemies, false, "파도 종료 뒤에는 적 정지를 해제해야 함");
+environmentPlayerA.x = 3450;
+updateEnvironment(environmentManagerA, environmentSceneA, 10100, 200);
+assert.equal(environmentManagerA.activeShelter?.id, "shelter_house");
+assert.equal(environmentManagerA.shelterShieldVisual.visible, true, "대피소 안에서 보호막이 보여야 함");
+assert.equal(environmentPlayerA.depth, 24, "파도 앞에서도 보호받는 캐릭터가 보여야 함");
 environmentManagerA.beginWaveWarning(11000);
 environmentManagerA.activateWave(11900);
 assert.equal(environmentManagerA.waveState, "active");
+environmentManagerA.waveVisual.x = environmentPlayerA.x;
+updateEnvironment(environmentManagerA, environmentSceneA, 11910, 16);
+assert.equal(environmentManagerA.lastBlockedWaveId, environmentManagerA.waveId, "대피소가 파도를 막아야 함");
+assert.equal(waveDamageCount, 1, "대피소 안에서는 파도 피해가 없어야 함");
+environmentPlayerA.x = 3200;
+updateEnvironment(environmentManagerA, environmentSceneA, 11920, 200);
+assert.equal(environmentManagerA.shelterShieldVisual.visible, false, "대피소를 나가면 보호막이 사라져야 함");
+assert.equal(environmentPlayerA.depth, 10, "대피소를 나가면 캐릭터 깊이가 복구돼야 함");
 environmentManagerA.setSuspendedSystems(["tsunami"]);
 assert.equal(environmentManagerA.waveState, "idle", "보스룸 진입 시 활성 파도를 즉시 정리해야 함");
 assert.equal(environmentManagerA.waveVisual, null);

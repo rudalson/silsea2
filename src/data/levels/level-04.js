@@ -34,6 +34,7 @@ export default expandCampaignLevel({
     effects: {
       tsunamiWave: "fx_tsunami_wave",
       tsunamiWarning: "fx_tsunami_warning",
+      shelterShield: "fx_shelter_shield",
       shelterHouseOpen: "shelter_house_open",
       shelterHouseWeathered: "shelter_house_weathered",
       shelterHill: "shelter_hill"
@@ -92,9 +93,9 @@ export default expandCampaignLevel({
     { id: "cp_tsunami_exit", x: shifted(1024), y: 576, restoresHealth: true }
   ],
   enemies: [
-    { id: "e_tsunami_hill", type: "raw_potato", x: shifted(6480), y: 576, patrol: 112 },
-    { id: "e_tsunami_house", type: "raw_potato", x: shifted(3904), y: 576, patrol: 120 },
-    { id: "e_tsunami_exit", type: "raw_potato", x: shifted(768), y: 576, patrol: 96 }
+    { id: "e_tsunami_hill", type: "wave_crab", x: shifted(6480), y: 576, patrol: 112, canRush: false },
+    { id: "e_tsunami_house", type: "wave_crab", x: shifted(3904), y: 576, patrol: 120 },
+    { id: "e_tsunami_exit", type: "wave_crab", x: shifted(768), y: 576, patrol: 96 }
   ],
   items: [
     { id: "tsunami_horn", type: "horn", x: shifted(7808), y: 576, activationTop: 0 },
@@ -130,8 +131,8 @@ export default expandCampaignLevel({
     crumblePlatforms: []
   },
   hazards: [
-    { id: "tsunami_thorn_hill", type: "spike_pumpkin", x: shifted(5632), y: 576 },
-    { id: "tsunami_thorn_high", type: "spike_pumpkin", x: shifted(3008), y: 576 }
+    { id: "tsunami_thorn_hill", type: "coral_urchin", x: shifted(5632), y: 576 },
+    { id: "tsunami_thorn_high", type: "coral_urchin", x: shifted(3008), y: 576 }
   ],
   environment: {
     tsunami: {
@@ -186,7 +187,8 @@ export default expandCampaignLevel({
           durationMultiplier: 1.2,
           shelterGraceMultiplier: 1.6,
           respawnGraceMultiplier: 1.5
-        }
+        },
+        projectiles: { speedMultiplier: 0.8, telegraphMultiplier: 1.3, cooldownMultiplier: 1.3, maxActive: 3 }
       },
       pitScoreLoss: 0
     }

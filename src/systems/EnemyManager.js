@@ -6,7 +6,10 @@ import { isGroundPatrolEnemy, isMistEnemy } from "../data/enemies.js";
 import { getProgressionSign, hasReachedProgressTrigger } from "../data/schema/levelSchema.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 import { ObjectPool } from "./ObjectPool.js";
+import { CORAL_URCHIN_RULES, CoralUrchinController } from "./CoralUrchinController.js";
 import { LANTERN_SHOT_RULES, MistEnemyController } from "./MistEnemyController.js";
+import { WaveCrabController } from "./WaveCrabController.js";
+import { LanternJellyfishController } from "./LanternJellyfishController.js";
 
 export class EnemyManager {
   constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
@@ -23,11 +26,16 @@ export class EnemyManager {
     this.pausedAt = 0;
     this.mistEnemyController = new MistEnemyController(scene, player, levelLoader, difficulty.enabled,
       (shot, enemy) => this.fireLanternShot(shot, enemy));
+    this.waveCrabController = new WaveCrabController(scene, player, levelLoader, difficulty.enabled);
+    this.lanternJellyfishController = new LanternJellyfishController(scene, player, this.level);
+    this.coralUrchinController = new CoralUrchinController(scene, player, this.projectileDifficulty,
+      (shot) => this.fireCoralUrchinShot(shot));
     this.interactions = [];
     this.lightningPool = this.createLightningPool();
     this.recoveryPool = this.createRecoveryPool();
     this.arrowPool = this.createArrowPool();
     this.lanternShotPool = this.createLanternShotPool();
+    this.waterShotPool = this.createWaterShotPool();
     this.bindInteractions();
   }
 
@@ -35,7 +43,7 @@ export class EnemyManager {
     for (const enemy of this.levelLoader.enemies) {
       if (isGroundPatrolEnemy(enemy.getData("type"))) {
         this.interactions.push(this.scene.physics.add.collider(enemy, this.levelLoader.terrainBodies));
-        if (isMistEnemy(enemy.getData("type"))) enemy.body.setGravityY(900);
+        if (isMistEnemy(enemy.getData("type")) || enemy.getData("type") === "wave_crab") enemy.body.setGravityY(900);
         else enemy.body.setVelocityX(-70);
       }
       this.interactions.push(
@@ -250,18 +258,74 @@ export class EnemyManager {
     }
   }
 
+  createWaterShotPool() {
+    return new ObjectPool({
+      maxSize: Math.min(CORAL_URCHIN_RULES.maxActiveShots,
+        this.projectileDifficulty.maxActive ?? CORAL_URCHIN_RULES.maxActiveShots),
+      create: () => {
+        const usesArt = this.scene.textures.exists("projectile_coral_water");
+        const shot = usesArt
+          ? this.scene.add.image(0, 0, "projectile_coral_water").setDisplaySize(44, 27)
+          : this.scene.add.ellipse(0, 0, 34, 18, COLORS.collectBlue, 0.94)
+            .setStrokeStyle(3, COLORS.white, 0.96);
+        shot.setDepth(11).setVisible(false).setDataEnabled();
+        shot.setData({ guardable: true, projectileType: "coral_water" });
+        this.scene.physics.add.existing(shot);
+        shot.body.setAllowGravity(false);
+        shot.body.setSize(20, 16, true);
+        shot.body.enable = false;
+        this.interactions.push(this.scene.physics.add.overlap(this.player, shot, () => {
+          if (!shot.poolActive || this.paused || !this.isOnScreen(shot, 40)) return;
+          if (this.transformationManager.canGuardProjectile(shot.x, shot.y)) {
+            this.transformationManager.registerGuardImpact(shot.x, shot.y);
+          } else if (this.healthManager.takeDamage(shot.x)) {
+            this.scene.updateAccessibleStatus?.("산호 성게의 물총에 맞았습니다.");
+          }
+          this.waterShotPool.release(shot);
+        }));
+        this.interactions.push(this.scene.physics.add.collider(shot, this.levelLoader.terrainBodies,
+          () => this.waterShotPool.release(shot)));
+        return shot;
+      },
+      activate: (shot, data) => {
+        shot.expiresAt = data.expiresAt;
+        shot.setPosition(data.x, data.y).setRotation(data.angle).setVisible(true).setActive(true);
+        shot.body.enable = true;
+        shot.body.reset(data.x, data.y);
+        shot.body.setVelocity(data.velocityX, data.velocityY);
+      },
+      deactivate: (shot) => {
+        shot.setVisible(false).setActive(false).setRotation(0);
+        shot.body.enable = false;
+        shot.body.stop();
+      },
+      destroy: (shot) => shot.destroy()
+    });
+  }
+
+  fireCoralUrchinShot(shot) {
+    if (this.waterShotPool.acquire(shot)) {
+      this.scene.audioManager?.playSfx("sfx_water_attack", { volume: 0.32, randomizeRate: false });
+    }
+  }
+
   update(now, delta) {
     if (this.paused) return;
     for (const enemy of this.levelLoader.enemies) {
       if (!enemy.active || !enemy.body?.enable) continue;
       const type = enemy.getData("type");
       if (type === "raw_potato") this.updateRawPotato(enemy);
+      if (type === "wave_crab") this.waveCrabController.update(enemy, now, delta);
+      if (type === "lantern_jellyfish") this.lanternJellyfishController.update(enemy, now);
       if (isMistEnemy(type)) this.mistEnemyController.update(enemy, now, delta);
       if (type === "dark_cloud") this.updateDarkCloud(enemy, now);
       if (type === "magpie") this.updateMagpie(enemy, now, delta);
       if (type === "potato_archer") this.updatePotatoArcher(enemy, now);
       const label = enemy.getData("label");
       label?.setPosition(enemy.x, enemy.y - 48);
+    }
+    for (const hazard of this.levelLoader.hazards) {
+      if (hazard.getData("type") === "coral_urchin") this.coralUrchinController.update(hazard, now);
     }
 
     this.lightningPool.forEachActive((beam) => {
@@ -280,6 +344,9 @@ export class EnemyManager {
     });
     this.lanternShotPool.forEachActive((shot) => {
       if (now >= shot.expiresAt || !this.isOnScreen(shot)) this.lanternShotPool.release(shot);
+    });
+    this.waterShotPool.forEachActive((shot) => {
+      if (now >= shot.expiresAt || !this.isOnScreen(shot, 40)) this.waterShotPool.release(shot);
     });
   }
 
@@ -535,18 +602,22 @@ export class EnemyManager {
       return;
     }
 
-    if (type === "raw_potato" || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
+    if (type === "raw_potato" || type === "wave_crab" || type === "lantern_jellyfish"
+      || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
   }
 
   handleHazardContact(hazard) {
     if (!hazard.active || hazard.getData("destroyed")) return;
-    // 가시 호박은 처치용 오브젝트가 아니라, 어떤 변신 상태에서도 접촉 피해를 주는 장애물이다.
+    // 고정 장애물은 처치할 수 없고, 어떤 변신 상태에서도 접촉 피해를 준다.
     const damaged = this.healthManager.takeDamage(hazard.x);
     if (!damaged) return;
-    if (hazard.getData("usesArt")) {
+    if (hazard.getData("usesArt")
+      && !(hazard.getData("type") === "coral_urchin" && hazard.getData("state") === "telegraph")) {
       const warning = EnemyAnimationManager.play(hazard, "warning", false);
       this.scene.time.delayedCall(warning?.durationMs ?? 320, () => {
-        if (hazard.active && !hazard.getData("destroyed")) EnemyAnimationManager.play(hazard, "idle");
+        if (hazard.active && !hazard.getData("destroyed") && hazard.getData("state") !== "telegraph") {
+          EnemyAnimationManager.play(hazard, "idle");
+        }
       });
     }
     this.scene.cameraEffects?.shake("enemyDefeat");
@@ -634,7 +705,8 @@ export class EnemyManager {
       lightning: this.lightningPool.getSnapshot(),
       recovery: this.recoveryPool.getSnapshot(),
       arrows: this.arrowPool.getSnapshot(),
-      lanternShots: this.lanternShotPool.getSnapshot()
+      lanternShots: this.lanternShotPool.getSnapshot(),
+      waterShots: this.waterShotPool.getSnapshot()
     };
   }
 
@@ -648,6 +720,12 @@ export class EnemyManager {
         enemy.setData("environmentPausedVelocity", { x: enemy.body?.velocity.x ?? 0, y: enemy.body?.velocity.y ?? 0 });
         enemy.body?.setVelocity(0, 0);
       }
+      for (const hazard of this.levelLoader.hazards) {
+        if (hazard.getData("type") !== "coral_urchin") continue;
+        this.coralUrchinController.cancel(hazard);
+        hazard.setData("attackReadyAt", Math.max(hazard.getData("attackReadyAt") ?? 0, now + 500));
+      }
+      this.waterShotPool.releaseAll();
       for (const pool of [this.arrowPool, this.lanternShotPool]) pool.forEachActive((arrow) => {
         arrow.setData("environmentPausedVelocity", { x: arrow.body.velocity.x, y: arrow.body.velocity.y });
         arrow.body.stop();
@@ -664,6 +742,13 @@ export class EnemyManager {
       const attackReadyAt = enemy.getData("attackReadyAt");
       if (Number.isFinite(attackReadyAt) && attackReadyAt > 0) enemy.setData("attackReadyAt", attackReadyAt + pausedDuration);
       enemy.setData("environmentPausedVelocity", null);
+    }
+    for (const hazard of this.levelLoader.hazards) {
+      if (hazard.getData("type") !== "coral_urchin") continue;
+      for (const key of ["stateUntil", "attackReadyAt"]) {
+        const value = hazard.getData(key);
+        if (Number.isFinite(value) && value > 0) hazard.setData(key, value + pausedDuration);
+      }
     }
     this.lightningPool.forEachActive((beam) => {
       beam.startedAt += pausedDuration;
@@ -688,9 +773,11 @@ export class EnemyManager {
       enemy.getData("targetMarker")?.destroy();
       enemy.getData("aimLine")?.destroy();
     }
+    for (const hazard of this.levelLoader.hazards) hazard.getData("aimLine")?.destroy();
     this.lightningPool.destroy();
     this.recoveryPool.destroy();
     this.arrowPool.destroy();
     this.lanternShotPool.destroy();
+    this.waterShotPool.destroy();
   }
 }

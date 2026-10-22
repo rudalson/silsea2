@@ -30,36 +30,36 @@ export class UIScene extends Phaser.Scene {
       this.add.image(214, 70, "ui_game_hud_left").setScrollFactor(0);
       this.add.image(GAME_WIDTH / 2, 60, "ui_game_hud_center").setScrollFactor(0);
     } else {
-      this.add.rectangle(214, 70, 388, 103, COLORS.near, 0.94).setStrokeStyle(2, COLORS.white, 0.7).setScrollFactor(0);
-      this.add.rectangle(GAME_WIDTH / 2, 60, 380, 88, COLORS.near, 0.94).setStrokeStyle(2, COLORS.white, 0.7).setScrollFactor(0);
+      this.add.rectangle(214, 70, 388, 103, COLORS.storybookButtonInner, 0.98).setStrokeStyle(3, COLORS.storybookButtonShadow).setScrollFactor(0);
+      this.add.rectangle(GAME_WIDTH / 2, 60, 380, 88, COLORS.storybookButtonInner, 0.98).setStrokeStyle(3, COLORS.storybookButtonShadow).setScrollFactor(0);
     }
     this.characterText = this.createLabel(44, 27, "", {
       fontSize: "19px",
       fontStyle: "800",
-      color: CSS_COLORS.white,
-      stroke: CSS_COLORS.panel,
+      color: CSS_COLORS.storybookCaption,
+      stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 2
     }).setScrollFactor(0);
     this.hpLabel = this.createLabel(45, 70, "HP 3 / 3", {
       fontSize: "14px",
       fontStyle: "800",
-      color: CSS_COLORS.white,
-      stroke: CSS_COLORS.panel,
+      color: CSS_COLORS.storybookLabel,
+      stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 2
     }).setScrollFactor(0);
     this.heartIcons = [];
     for (let index = 0; index < 3; index += 1) {
       const heart = this.createLabel(122 + index * 31, 82, "♥", {
         fontSize: "25px", fontStyle: "900", color: CSS_COLORS.collectPink,
-        stroke: CSS_COLORS.nightVeil, strokeThickness: 2
+        stroke: CSS_COLORS.storybookCaption, strokeThickness: 2
       }).setOrigin(0.5).setScrollFactor(0);
       this.heartIcons.push(heart);
     }
     this.formText = this.createLabel(380, 37, "기본형", {
       fontSize: "14px",
       fontStyle: "700",
-      color: CSS_COLORS.collect,
-      stroke: CSS_COLORS.panel,
+      color: CSS_COLORS.storybookLabel,
+      stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 2
     }).setOrigin(1, 0).setScrollFactor(0);
     this.flightIcon = this.createLabel(251, 77, "✦", {
@@ -99,15 +99,15 @@ export class UIScene extends Phaser.Scene {
     this.scoreText = this.createLabel(GAME_WIDTH / 2, 35, "진행도 0%", {
       fontSize: "24px",
       fontStyle: "900",
-      color: CSS_COLORS.collect,
-      stroke: CSS_COLORS.panel,
+      color: CSS_COLORS.danger,
+      stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 2
     }).setOrigin(0.5).setScrollFactor(0).setFixedSize(320, 34).setAlign("center");
     this.objectiveText = this.createLabel(GAME_WIDTH / 2, 73, "✦  별 목표 0/0  ✦", {
       fontSize: "15px",
       fontStyle: "700",
-      color: CSS_COLORS.white,
-      stroke: CSS_COLORS.panel,
+      color: CSS_COLORS.storybookCaption,
+      stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 1
     }).setOrigin(0.5).setScrollFactor(0);
     this.comboText = this.createLabel(GAME_WIDTH / 2 + 202, 34, "", {
@@ -129,8 +129,8 @@ export class UIScene extends Phaser.Scene {
     const createHudButton = (y) => {
       const button = hasHudArt
         ? this.add.image(GAME_WIDTH - 130, y, "ui_game_hud_button")
-        : this.add.rectangle(GAME_WIDTH - 130, y, 206, 40, COLORS.near, 0.94)
-          .setStrokeStyle(2, COLORS.white, 0.7);
+        : this.add.rectangle(GAME_WIDTH - 130, y, 206, 40, COLORS.storybookButtonInner, 0.98)
+          .setStrokeStyle(2, COLORS.storybookButtonShadow);
       button.setScrollFactor(0).setInteractive({ useHandCursor: true });
       if (hasHudArt) {
         button.on("pointerover", () => button.setTexture("ui_game_hud_button_hover"));
@@ -140,13 +140,13 @@ export class UIScene extends Phaser.Scene {
     };
     this.pauseButton = createHudButton(40);
     this.pauseLabel = this.createLabel(GAME_WIDTH - 130, 37, "Ⅱ  일시정지  ·  Esc", {
-      fontSize: "15px", fontStyle: "800", color: CSS_COLORS.white
+      fontSize: "15px", fontStyle: "800", color: CSS_COLORS.storybookCaption
     }).setOrigin(0.5).setScrollFactor(0);
     this.pauseButton.on("pointerdown", () => this.togglePause());
 
     this.shakeButton = createHudButton(92);
     this.shakeLabel = this.createLabel(GAME_WIDTH - 130, 89, "", {
-      fontSize: "14px", fontStyle: "800", color: CSS_COLORS.collectBlue
+      fontSize: "14px", fontStyle: "800", color: CSS_COLORS.rainbowBlue
     }).setOrigin(0.5).setScrollFactor(0);
     this.shakeButton.on("pointerdown", () => this.toggleScreenShake());
     this.renderShakeSetting();
@@ -239,7 +239,7 @@ export class UIScene extends Phaser.Scene {
     this.renderHeartIcons(hp, maxHp);
     this.hpLabel
       .setText(`HP ${hp} / ${maxHp}`)
-      .setColor(hp <= 1 ? CSS_COLORS.danger : CSS_COLORS.collectPink);
+      .setColor(hp <= 1 ? CSS_COLORS.danger : CSS_COLORS.storybookLabel);
     this.scoreText.setText(`진행도 ${Math.round(this.gameScene.scoreManager?.displayScore ?? 0)}%`);
     const combo = this.gameScene.scoreManager?.combo ?? 0;
     this.comboText.setText(combo >= 2 ? `${combo} COMBO` : "");
@@ -253,7 +253,7 @@ export class UIScene extends Phaser.Scene {
     const breath = this.gameScene.breathManager?.getSnapshot();
     const showBreath = Boolean(breath && (breath.underwater || breath.recovering));
     this.breathPanel.setVisible(showBreath);
-    this.breathLabel.setVisible(showBreath).setText(breath?.recovering ? "숨 회복" : "숨");
+    this.breathLabel.setVisible(showBreath).setText(breath?.recovering ? "숨 회복" : breath?.capacityBonusSeconds ? "숨 +4초" : "숨");
     this.breathTrack.setVisible(showBreath);
     this.breathBar
       .setVisible(showBreath)
@@ -261,12 +261,16 @@ export class UIScene extends Phaser.Scene {
       .setFillStyle(breath?.warning ? COLORS.danger : COLORS.collectBlue);
     const environment = this.gameScene.environmentMechanics?.getSnapshot();
     const showWave = environment?.waveState === "warning" || environment?.waveState === "active";
+    const sheltered = Boolean(environment?.activeShelterId);
     const waveArrow = environment?.direction === "left" ? "←" : "→";
+    const waveStatus = environment?.waveState === "active"
+      ? "파도 통과 중"
+      : `파도 ${environment?.secondsUntilWave?.toFixed(1) ?? "?"}초`;
     this.waveWarning
       .setVisible(showWave)
-      .setText(showWave
-        ? `${waveArrow} ${environment.waveState === "active" ? "파도 통과 중" : `파도 ${environment.secondsUntilWave.toFixed(1)}초`}`
-        : "");
+      .setBackgroundColor(sheltered ? CSS_COLORS.collectSoft : CSS_COLORS.dangerSoft)
+      .setColor(sheltered ? CSS_COLORS.near : CSS_COLORS.white)
+      .setText(showWave ? `${waveArrow} ${waveStatus}` : "");
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
     this.objectiveText.setText(`✦  별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}  ✦`);
@@ -504,7 +508,7 @@ export class UIScene extends Phaser.Scene {
     const enabled = this.gameScene.cameraEffects?.enabled ?? false;
     this.shakeLabel
       .setText(`✦  화면 흔들림 ${enabled ? "ON" : "OFF"}  ·  V`)
-      .setColor(enabled ? CSS_COLORS.collectBlue : CSS_COLORS.soft);
+      .setColor(enabled ? CSS_COLORS.rainbowBlue : CSS_COLORS.storybookLabel);
   }
 
   renderHeartIcons(hp, maxHp) {
@@ -514,7 +518,7 @@ export class UIScene extends Phaser.Scene {
       if (!visible) return;
       const filled = index < hp;
       if (heart.type === "Text") {
-        heart.setText(filled ? "♥" : "♡").setColor(filled ? CSS_COLORS.collectPink : CSS_COLORS.soft);
+        heart.setText(filled ? "♥" : "♡").setColor(filled ? CSS_COLORS.collectPink : CSS_COLORS.storybookLabel);
       } else if (filled) {
         heart.setTint(COLORS.collectPink).setAlpha(1);
       } else {

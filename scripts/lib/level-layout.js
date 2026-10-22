@@ -1,6 +1,7 @@
 import { expandLevelItems } from "../../src/data/levelInteractions.js";
 import { CHARACTER_LIST } from "../../src/data/characters.js";
 import { isGroundPatrolEnemy } from "../../src/data/enemies.js";
+import { isContactHazard } from "../../src/data/items.js";
 
 const overlaps = (a, b) => a.x < b.x + b.width - 0.01 && a.x + a.width > b.x + 0.01
   && a.y < b.y + b.height - 0.01 && a.y + a.height > b.y + 0.01;
@@ -27,7 +28,7 @@ export function findLayoutIssues(level, terrain) {
       if (overlaps(route, t)) issues.push(`enemy ${enemy.id} patrol excludes player at ${t.name}`);
     }
   }
-  for (const hazard of level.hazards.filter(({ type }) => type === "spike_pumpkin")) {
+  for (const hazard of level.hazards.filter(({ type }) => isContactHazard(type))) {
     const approach = { x: hazard.x - 42 - width, y: hazard.y - height - 72,
       width: 84 + width * 2, height: height + 72 };
     if (terrain.some((t) => overlaps(approach, t))) issues.push(`hazard ${hazard.id} has no open jump approach`);

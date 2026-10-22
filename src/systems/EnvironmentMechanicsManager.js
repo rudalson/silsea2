@@ -60,9 +60,14 @@ export class EnvironmentMechanicsManager {
       : Number.POSITIVE_INFINITY;
     this.random = new SeededRandom(level.order * 7919 + 17);
     this.lastHitWaveId = 0;
+    this.lastBlockedWaveId = 0;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+    this.activeShelter = null;
+    this.shelterEffectStrength = 0;
+    this.playerBaseDepth = player.depth;
     this.createWaterVisuals();
     this.createShelterVisuals();
+    this.createShelterProtectionVisuals();
     this.createMistVisuals();
     this.createLaserVisuals();
     this.onRespawn = () => this.resetAfterRespawn();
@@ -207,7 +212,9 @@ export class EnvironmentMechanicsManager {
       if (shelter.type === "house") {
         const houseKey = shelter.asset ? effectKeys[shelter.asset] : null;
         if (finalArt && houseKey && this.scene.textures?.exists?.(houseKey)) {
-          const house = this.track(this.scene.add.image(centerX, shelter.yBottom + 4, houseKey));
+          // The house art has 8px of transparent padding below its foundation.
+          // Tuck the visible foundation into the ground so it sits on the tile.
+          const house = this.track(this.scene.add.image(centerX, shelter.yBottom + 14, houseKey));
           house.setOrigin(0.5, 1).setDisplaySize(width * 1.22, height + 104).setDepth(5);
         } else {
           const roof = this.track(this.scene.add.triangle(
@@ -231,7 +238,9 @@ export class EnvironmentMechanicsManager {
       } else if (shelter.type === "hill") {
         const hillKey = shelter.asset ? effectKeys[shelter.asset] : null;
         if (finalArt && hillKey && this.scene.textures?.exists?.(hillKey)) {
-          const hill = this.track(this.scene.add.image(centerX, shelter.yBottom + 3, hillKey));
+          // The painted hill has 8px of transparent padding at its base.
+          // Sink its visible edge slightly into the ground to avoid a gap.
+          const hill = this.track(this.scene.add.image(centerX, shelter.yBottom + 12, hillKey));
           hill.setOrigin(0.5, 1).setDisplaySize(width * 1.28, height * 1.05).setDepth(5);
         } else {
           const hill = this.track(this.scene.add.ellipse(centerX, shelter.yBottom - height * 0.28, width * 1.08, height * 1.05, COLORS.grass, 0.72));
@@ -321,6 +330,95 @@ export class EnvironmentMechanicsManager {
       repeat: -1,
       paused: true
     });
+  }
+
+  createShelterProtectionVisuals() {
+    if (!this.tsunami) return;
+    const key = this.level.assets.effects?.shelterShield;
+    this.shelterShieldUsesArt = Boolean(key && !this.scene.registry.get("forceAssetFallback")
+      && this.scene.textures?.exists?.(key));
+    this.shelterShieldKey = key;
+    this.shelterShieldVisual = this.track((this.shelterShieldUsesArt
+      ? this.scene.add.image(0, 0, key)
+      : this.scene.add.graphics()).setDepth(25).setVisible(false));
+  }
+
+  drawFallbackShelterShield(graphics, alpha) {
+    const outline = [[-42, 44], [-55, 12], [-51, -34], [-28, -58], [0, -76],
+      [28, -58], [51, -34], [55, 12], [42, 44], [0, 64], [-42, 44]];
+    for (const [width, color, opacity] of [
+      [9, COLORS.collectBlue, alpha * 0.58],
+      [3, COLORS.white, alpha * 0.92]
+    ]) {
+      graphics.lineStyle(width, color, opacity);
+      for (let index = 1; index < outline.length; index++) {
+        graphics.lineBetween(...outline[index - 1], ...outline[index]);
+      }
+    }
+    graphics.lineStyle(3, COLORS.white, alpha);
+    graphics.lineBetween(-12, -76, 12, -76);
+    graphics.lineBetween(0, -88, 0, -64);
+  }
+
+  renderShelterProtection(now, delta) {
+    if (!this.shelterShieldVisual) return;
+    const target = this.activeShelter ? 1 : 0;
+    const step = Math.min(1, Math.max(0, delta) / 180);
+    this.shelterEffectStrength += (target - this.shelterEffectStrength) * step;
+    if (this.shelterEffectStrength < 0.02) {
+      this.shelterShieldVisual.setVisible(false);
+      return;
+    }
+
+    const strength = this.shelterEffectStrength;
+    const pulse = 0.5 + 0.5 * Math.sin(now / 390);
+    const shield = this.shelterShieldVisual;
+    shield.setVisible(true).setPosition(this.player.x, this.player.y - 70);
+    if (this.shelterShieldUsesArt) {
+      shield.setDisplaySize(146 + pulse * 4, 158 + pulse * 4)
+        .setAlpha(this.getEffectAlpha((0.86 + pulse * 0.12) * strength));
+    } else {
+      shield.clear();
+      this.drawFallbackShelterShield(shield, this.getEffectAlpha((0.74 + pulse * 0.2) * strength));
+    }
+  }
+
+  clearShelterProtection() {
+    this.activeShelter = null;
+    this.shelterEffectStrength = 0;
+    if (!this.shelterShieldUsesArt) this.shelterShieldVisual?.clear();
+    this.shelterShieldVisual?.setVisible(false);
+    this.player.setDepth(this.playerBaseDepth);
+  }
+
+  playShelterWaveBlockEffect() {
+    const impact = (this.shelterShieldUsesArt
+      ? this.scene.add.image(this.player.x, this.player.y - 70, this.shelterShieldKey).setDisplaySize(152, 164)
+      : this.scene.add.graphics({ x: this.player.x, y: this.player.y - 70 })).setDepth(26);
+    if (!this.shelterShieldUsesArt) this.drawFallbackShelterShield(impact, this.getEffectAlpha(1));
+    const side = this.tsunami.direction === "left" ? 1 : -1;
+    const sparks = this.scene.add.graphics({ x: this.player.x, y: this.player.y - 70 }).setDepth(27);
+    sparks.lineStyle(3, COLORS.white, this.getEffectAlpha(0.95));
+    for (const [x, y, size] of [[66, -32, 7], [72, 2, 10], [63, 34, 6]]) {
+      sparks.lineBetween(side * (x - size), y, side * (x + size), y);
+      sparks.lineBetween(side * x, y - size, side * x, y + size);
+    }
+    this.scene.tweens.add({
+      targets: impact,
+      scaleX: (impact.scaleX ?? 1) * 1.28,
+      scaleY: (impact.scaleY ?? 1) * 1.28,
+      alpha: 0,
+      duration: 520,
+      onComplete: () => impact.destroy()
+    });
+    this.scene.tweens.add({
+      targets: sparks,
+      x: sparks.x + side * 18,
+      alpha: 0,
+      duration: 450,
+      onComplete: () => sparks.destroy()
+    });
+    this.scene.audioManager?.playSfx("sfx_projectile_guard", { volume: 0.42, randomizeRate: false });
   }
 
   createMistVisuals() {
@@ -570,7 +668,7 @@ export class EnvironmentMechanicsManager {
     this.updateMist(delta, this.suspendedSystems.has("mist"));
     if (!this.suspendedSystems.has("lasers")) this.updateLasers(now);
     if (!this.tsunami || this.suspendedSystems.has("tsunami")) return;
-    this.updateShelterState(now);
+    this.updateShelterState(now, delta);
     if (this.visualReviewWaveMode) {
       this.initializeVisualReviewWave(now);
       if (this.waveState === WAVE_STATES.ACTIVE) this.updateActiveWave(now, 0);
@@ -698,21 +796,38 @@ export class EnvironmentMechanicsManager {
     this.waveVisual.setAlpha(this.getEffectAlpha(0.72));
     const playerHalfWidth = (this.player.body?.width ?? 44) / 2;
     const overlaps = Math.abs(this.player.x - this.waveVisual.x) <= WAVE_WIDTH / 2 + playerHalfWidth;
-    if (overlaps && this.lastHitWaveId !== this.waveId && !this.isPlayerSafe(now)) {
-      this.lastHitWaveId = this.waveId;
-      if (this.healthManager.takeDamage(this.waveVisual.x, { type: "tsunami" })) {
-        this.scene.audioManager?.playSfx("sfx_tsunami_hit", { randomizeRate: false });
-        this.scene.updateAccessibleStatus?.("파도에 맞아 체력이 1 줄었습니다.");
+    if (overlaps) {
+      if (this.activeShelter && this.lastBlockedWaveId !== this.waveId) {
+        this.lastBlockedWaveId = this.waveId;
+        this.playShelterWaveBlockEffect();
+        this.scene.events.emit(EVENTS.SHELTER_BLOCKED_WAVE, { shelter: this.activeShelter });
+        this.scene.updateAccessibleStatus?.("대피소가 파도를 막았습니다. 체력이 줄지 않았습니다.");
+      }
+      if (this.lastHitWaveId !== this.waveId && !this.isPlayerSafe(now)) {
+        this.lastHitWaveId = this.waveId;
+        if (this.healthManager.takeDamage(this.waveVisual.x, { type: "tsunami" })) {
+          this.scene.audioManager?.playSfx("sfx_tsunami_hit", { randomizeRate: false });
+          this.scene.updateAccessibleStatus?.("파도에 맞아 체력이 1 줄었습니다.");
+        }
       }
     }
     if (now >= this.waveEndsAt) this.finishWave();
   }
 
-  updateShelterState(now) {
+  updateShelterState(now, delta) {
     const bodyCenterY = this.player.body?.center?.y ?? this.player.y - 29;
-    if (isInsideShelter({ x: this.player.x, y: bodyCenterY }, this.tsunami.shelters ?? [])) {
-      this.lastShelteredAt = now;
+    const position = { x: this.player.x, y: bodyCenterY };
+    const shelter = (this.tsunami.shelters ?? []).find((candidate) => isInsideShelter(position, [candidate])) ?? null;
+    if (shelter) this.lastShelteredAt = now;
+    if (shelter?.id !== this.activeShelter?.id) {
+      this.activeShelter = shelter;
+      this.player.setDepth(shelter ? 24 : this.playerBaseDepth);
+      if (shelter) {
+        this.scene.events.emit(EVENTS.SHELTER_ENTERED, { shelter });
+        this.scene.updateAccessibleStatus?.(`${shelter.label ?? "대피소"}에 들어왔습니다. 여기서는 파도를 피할 수 있습니다.`);
+      }
     }
+    this.renderShelterProtection(now, delta);
   }
 
   isPlayerSafe(now) {
@@ -750,6 +865,8 @@ export class EnvironmentMechanicsManager {
       this.finishWave();
       this.waveStartsAt = 0;
       this.nextWaveAt = Number.POSITIVE_INFINITY;
+      this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+      this.clearShelterProtection();
     } else if (tsunamiWasSuspended && !next.has("tsunami") && this.tsunami) {
       this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
     }
@@ -766,6 +883,7 @@ export class EnvironmentMechanicsManager {
     this.waveStartsAt = 0;
     this.nextWaveAt = this.scene.time.now + Math.max(0, this.tsunami.respawnGrace ?? 3) * 1000;
     this.lastShelteredAt = Number.NEGATIVE_INFINITY;
+    this.clearShelterProtection();
     for (const visual of this.waveWarningVisuals ?? []) visual.setVisible(false);
     this.waveWarningTween?.pause?.();
   }
@@ -798,6 +916,7 @@ export class EnvironmentMechanicsManager {
       direction: this.level.progression?.direction ?? "right",
       waveState: this.waveState,
       waveId: this.waveId,
+      activeShelterId: this.activeShelter?.id ?? null,
       secondsUntilWave,
       waterZoneCount: this.waterZones.length,
       breathPointCount: this.breathPoints.length,
@@ -820,6 +939,7 @@ export class EnvironmentMechanicsManager {
   }
 
   destroy() {
+    this.player.setDepth(this.playerBaseDepth);
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;

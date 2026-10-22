@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["tape_king", "merong_king", "potato_archer", "raw_potato", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -125,6 +125,12 @@ const characterAssets = [
 const enemyAssets = [
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("tape_king", role, 1)),
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("merong_king", role, 1)),
+  { name: "wave_crab_anchor.png", path: join(root, "assets", "_anchor", "wave_crab_anchor.png"), kind: "wave_crab", fullColor: true },
+  ...enemySequenceAssets("wave_crab", "idle", 2),
+  ...["move", "warning", "attack", "recover", "defeated"].flatMap(sequence => enemySequenceAssets("wave_crab", sequence, 4)),
+  { name: "coral_urchin_anchor.png", path: join(root, "assets", "_anchor", "coral_urchin_anchor.png"), kind: "coral_urchin", fullColor: true },
+  ...enemySequenceAssets("coral_urchin", "idle", 2),
+  ...enemySequenceAssets("coral_urchin", "warning", 2),
   ...["lantern_goblin", "dew_snail"].flatMap(enemy => [
     { name: `${enemy}_anchor.png`, path: join(root, "assets", "_anchor", `${enemy}_anchor.png`), kind: enemy, fullColor: true },
     ...enemySequenceAssets(enemy, "idle", 2),
@@ -189,13 +195,14 @@ const itemAsset = (key, width, height, fullColor = false) => [
 ];
 const itemAssets = [
   ...itemAsset("item_star", 72, 70, true),
+  ...itemAsset("item_breath_pearl", 72, 72, true),
   ...itemAsset("item_percent_small", 68, 68, true),
   ...itemAsset("item_percent_large", 92, 92, true),
   ...itemAsset("item_horn", 48, 96, true),
   ...itemAsset("item_wings", 96, 62, true),
   ...itemAsset("item_alicorn", 96, 51),
   ...itemAsset("checkpoint_flag", 82, 96, true),
-  ...itemAsset("rainbow_gate", 112, 104)
+  ...itemAsset("rainbow_gate", 112, 104, true)
 ];
 // 수집물은 수집 팔레트만 쓰되, 밝은 배경에서도 실루엣이 무너지지 않도록
 // 공용 짙은 외곽선과 흰 반짝임을 허용한다.
@@ -282,6 +289,8 @@ const tsunamiPropAssets = [
   { name: "shelter_hill", directory: "environment", width: 512, height: 256, fullColor: true },
   { name: "fx_tsunami_wave", directory: "effects", width: 3072, height: 512, fullColor: true },
   { name: "fx_tsunami_warning", directory: "effects", width: 128, height: 128, fullColor: true },
+  { name: "fx_shelter_shield", directory: "effects", width: 192, height: 208, fullColor: true },
+  { name: "projectile_coral_water", directory: "projectiles", width: 80, height: 48, fullColor: true },
   { name: "decor_sign", directory: "decorations", width: 160, height: 192, fullColor: true }
 ];
 const lanternEffectAssets = [
@@ -449,6 +458,12 @@ for (const asset of assets) {
       && (subjectWidth < 48 || subjectWidth > 108 || subjectHeight < 40 || subjectHeight > 100)) {
       errors.push(`${name}: 안개마을 적 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);
     }
+    if (asset.kind === "wave_crab" && (subjectWidth < 72 || subjectWidth > 112 || subjectHeight < 20 || subjectHeight > 90)) {
+      errors.push(`${name}: 집게게 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);
+    }
+    if (asset.kind === "coral_urchin" && (subjectWidth < 96 || subjectWidth > 112 || subjectHeight < 58 || subjectHeight > 82)) {
+      errors.push(`${name}: 산호 성게 실루엣 ${subjectWidth}x${subjectHeight}px가 안전 프레임 범위를 벗어남`);
+    }
     if (asset.kind === "spike_pumpkin" && (subjectWidth < 96 || subjectWidth > 112 || subjectHeight < 35 || subjectHeight > 80)) {
       errors.push(`${name}: 가시 호박 실루엣 ${subjectWidth}x${subjectHeight}px (너비 96~112px, 높이 35~80px 아님)`);
     }
@@ -570,7 +585,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king"]) {
+  for (const enemyType of ["raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

@@ -4,6 +4,7 @@ import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacterAssetKeys, getCharacterSequenceKey } from "../data/characterAnimations.js";
 import { CHARACTER_LIST } from "../data/characters.js";
 import { getEnemyAssetKeys } from "../data/enemyAnimations.js";
+import { isContactHazard } from "../data/items.js";
 
 const entries = new Map(manifest.assets.map((asset) => [asset.key, asset]));
 const audioEntries = manifest.assets.filter((asset) => asset.type === "audio");
@@ -64,7 +65,7 @@ export class AssetManager {
   static queueEnemyAssets(scene, level) {
     const types = new Set(level.enemies.map((enemy) => enemy.type));
     for (const hazard of level.hazards) {
-      if (hazard.type === "spike_pumpkin") types.add(hazard.type);
+      if (isContactHazard(hazard.type)) types.add(hazard.type);
     }
     const boss = level.sections.find((section) => section.type === "boss")?.boss?.key;
     if (boss) types.add(boss);
@@ -73,6 +74,7 @@ export class AssetManager {
     }
     if (types.has("dark_cloud")) AssetManager.queueManifestAsset(scene, "fx_lightning");
     if (types.has("lantern_goblin")) AssetManager.queueManifestAsset(scene, "projectile_lantern_light");
+    if (types.has("coral_urchin")) AssetManager.queueManifestAsset(scene, "projectile_coral_water");
     if (types.has("potato_archer")) AssetManager.queueManifestAsset(scene, "projectile_arrow");
     if (types.has("hula_king")) {
       AssetManager.queueManifestAsset(scene, "fx_hula_spin");
