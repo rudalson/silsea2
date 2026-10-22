@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["hole_king", "music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -123,6 +123,7 @@ const characterAssets = [
   ...sequenceAssets("sylvia", "victory", 6)
 ];
 const enemyAssets = [
+  ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("hole_king", role, 1)),
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("music_king", role, 1)),
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("tape_king", role, 1)),
   ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("merong_king", role, 1)),
@@ -232,6 +233,7 @@ const requiredTileFrames = [
   "slope_down"
 ];
 const backgroundAssets = [
+  { name: "bg_hole_far", luma: [35, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_music_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_tape_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_merong_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
@@ -588,7 +590,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king"]) {
+  for (const enemyType of ["raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king", "hole_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

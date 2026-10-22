@@ -1,6 +1,7 @@
 import { MERONG_KING_PHASES } from "./tongueMechanics.js";
 import { TAPE_KING_PHASES } from "./tapeMechanics.js";
 import { MUSIC_KING_PHASES } from "./musicMechanics.js";
+import { HOLE_KING_PHASES } from "./holeMechanics.js";
 
 const definePhase = (config) => Object.freeze({
   ...config,
@@ -291,6 +292,7 @@ export const RANDOM_KING_PHASES = Object.freeze({
 });
 
 export const BOSS_PATTERNS = Object.freeze({
+  hole_king: HOLE_KING_PHASES,
   music_king: MUSIC_KING_PHASES,
   tape_king: TAPE_KING_PHASES,
   merong_king: MERONG_KING_PHASES,

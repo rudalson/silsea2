@@ -1,6 +1,7 @@
 import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { drawPianoKeys, rhythmInputMoving, RhythmSignal } from "./RhythmSignal.js";
+import { canRestoreBridge } from "../data/holeMechanics.js";
 import {
   createRhythmState, getStickySpeedMultiplier, getTimedHolePhase, RHYTHM_PHASES, stepRhythm
 } from "../data/courseMechanics.js";
@@ -66,8 +67,8 @@ export class CourseMechanicsManager {
     this.interactions.push(this.scene.physics.add.collider(this.player, platform));
     const opening = this.track(this.scene.add.ellipse(x + width / 2, y + 6, width - 8, 22,
       COLORS.outline, 1).setDepth(3).setVisible(false));
-    const label = this.label(x + width / 2, y - 130, "노란 다리\n다가가면 열려요");
-    return { config, platform, opening, label, elapsedMs: null, phase: "closed" };
+    const label = this.label(x + width / 2, y - 130, config.controller ? "대왕의 다리\n표시를 살펴요" : "노란 다리\n다가가면 열려요");
+    return { config, platform, opening, label, elapsedMs: null, phase: "closed", desiredPhase: "closed" };
   }
 
   createRhythm(config) {
@@ -106,16 +107,26 @@ export class CourseMechanicsManager {
 
   updateHole(entry, delta) {
     const { config } = entry;
+    if (config.controller) { this.applyHolePhase(entry, entry.desiredPhase); return; }
     if (entry.elapsedMs === null) {
       if (Math.abs(this.player.x - (config.x + config.width / 2)) > config.triggerDistance) return;
       entry.elapsedMs = 0;
     } else entry.elapsedMs += delta;
-    let phase = getTimedHolePhase(entry.elapsedMs, config);
-    const body = this.player.body;
-    const insideSlab = body.right > config.x && body.left < config.x + config.width
-      && body.bottom > config.y && body.top < config.y + config.height;
-    // A closing bridge must never materialize through the player.
-    if (entry.phase === "open" && phase !== "open" && insideSlab) phase = "open";
+    this.applyHolePhase(entry, getTimedHolePhase(entry.elapsedMs, config));
+  }
+
+  setControlledHoles(owner, ids, phase) {
+    for (const entry of this.holes) {
+      if (entry.config.controller !== owner) continue;
+      entry.desiredPhase = ids.includes(entry.config.id) ? phase : "closed";
+      this.applyHolePhase(entry, entry.desiredPhase);
+    }
+  }
+
+  applyHolePhase(entry, requestedPhase) {
+    let phase = requestedPhase;
+    // Defer materializing a closing bridge until the player's body has left its slab.
+    if (entry.phase === "open" && phase !== "open" && !canRestoreBridge(this.player.body, entry.config)) phase = "open";
     entry.phase = phase;
     entry.platform.body.enable = phase !== "open";
     entry.platform.setVisible(phase !== "open");
@@ -157,6 +168,7 @@ export class CourseMechanicsManager {
     for (const entry of this.holes) {
       entry.elapsedMs = null;
       entry.phase = "closed";
+      entry.desiredPhase = "closed";
       entry.platform.body.enable = true;
       entry.platform.setVisible(true).setAlpha(1).setFillStyle(COLORS.collect);
       entry.opening.setVisible(false);

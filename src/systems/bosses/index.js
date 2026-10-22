@@ -8,8 +8,10 @@ import { BOSS_BEHAVIOR_TYPES } from "../../data/bossBehaviorTypes.js";
 import { MerongKingBehavior } from "./MerongKingBehavior.js";
 import { TapeKingBehavior } from "./TapeKingBehavior.js";
 import { MusicKingBehavior } from "./MusicKingBehavior.js";
+import { HoleKingBehavior } from "./HoleKingBehavior.js";
 
 const BOSS_BEHAVIORS = Object.freeze({
+  hole_king: HoleKingBehavior,
   music_king: MusicKingBehavior,
   tape_king: TapeKingBehavior,
   merong_king: MerongKingBehavior,

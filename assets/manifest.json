@@ -1195,6 +1195,14 @@
     {"key":"stage_preview_music","type":"image","url":"/assets/backgrounds/stage_preview_music.png"},
     {"key":"sfx_rhythm_warning","type":"audio","url":"/assets/audio/sfx/sfx_rhythm_warning.wav"},
     {"key":"sfx_rhythm_stop","type":"audio","url":"/assets/audio/sfx/sfx_rhythm_stop.wav"},
-    {"key":"sfx_rhythm_go","type":"audio","url":"/assets/audio/sfx/sfx_rhythm_go.wav"}
+    {"key":"sfx_rhythm_go","type":"audio","url":"/assets/audio/sfx/sfx_rhythm_go.wav"},
+    {"key":"hole_king_idle","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_idle.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"hole_king_warning","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"hole_king_attack","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"hole_king_vulnerable","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_vulnerable.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"hole_king_hurt","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_hurt.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"hole_king_defeated","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"bg_hole_far","type":"image","url":"/assets/backgrounds/bg_hole_far.png"},
+    {"key":"stage_preview_hole","type":"image","url":"/assets/backgrounds/stage_preview_hole.png"}
   ]
 }

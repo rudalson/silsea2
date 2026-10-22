@@ -459,6 +459,10 @@ const handlers = {
 
 ## 레지스트리
 
+### 대왕 제어 다리 (N5)
+
+`terrainMechanics.timedHoles[].controller: "hole_king"`는 해당 보스 구간 안에서만 허용한다. 다리는 자동 주기 대신 `setControlledHoles(owner, ids, phase)`의 고정 위치 예고·열림·복구를 따른다. 타일맵에는 실제 빈 공간이 있어야 하며 양옆 고정 발판과 다른 구멍 사이 128px 이상의 안전 바닥을 검증한다. 열린 다리를 복구할 때 플레이어 몸이 겹치면 벗어날 때까지 기다린다. 처치 시 전체 다리를 복구하고 개폐를 끝낸다.
+
 ### 피아노 정지 문 (N4)
 
 `environment.rhythmZones[]`의 `requireSuccess: true`는 구역 끝에 실제 충돌 문을 만듭니다. 공중 진입은 신호를 시작하지 않으며 지상에서 예고 후 이동·점프 입력을 놓고 `stopMs: 5000` 동안 기다려야 문이 열립니다. 구역 전체에는 고정 바닥이 필요하며 위험 장치와 보스 구역을 겹칠 수 없습니다. 첫 연습은 `practice: true`로 피해 없이 재안내합니다.

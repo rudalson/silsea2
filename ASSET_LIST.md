@@ -6,6 +6,8 @@
 
 ## 공통 제작 규격
 
+N5 구멍 코스: `hole_king_{idle,warning,attack,vulnerable,hurt,defeated}` 각 128×128 RGBA·기준선 112, `bg_hole_far` 2048×720, `stage_preview_hole` 640×360을 등록했다. [원화·프롬프트](./assets/_source/holes/README.md)를 보존하고 `npm run hole:assets`로 조립한다.
+
 N4 피아노 나라: `music_king_{idle,warning,attack,vulnerable,hurt,defeated}` 6개 단일 포즈 시트(각 128×128 RGBA, 기준선 112), `bg_music_far` 2048×720, `stage_preview_music` 640×360을 등록했다. 원화·프롬프트는 `assets/_source/music/`, 조립은 `npm run music:assets`다. 정지 예고·정지·해제 신호음 `sfx_rhythm_warning/stop/go`는 서로 다른 WAV이며 `npm run music:audio`로 이 세 파일만 재생성한다.
 
 - 캐릭터/적: 투명 PNG, 128×128 프레임, 우향 기준, 프레임별 duration manifest.

@@ -1,0 +1,185 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "terrain",
+      "properties": [
+        {
+          "name": "groundSurface",
+          "type": "string",
+          "value": "stone"
+        },
+        {
+          "name": "platformSurface",
+          "type": "string",
+          "value": "stone"
+        }
+      ],
+      "objects": [
+        {
+          "id": 1,
+          "name": "hole_terrain_0",
+          "rotation": 0,
+          "visible": true,
+          "x": 0,
+          "y": 576,
+          "width": 2688,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 2,
+          "name": "hole_terrain_1",
+          "rotation": 0,
+          "visible": true,
+          "x": 2816,
+          "y": 576,
+          "width": 1024,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 3,
+          "name": "hole_terrain_2",
+          "rotation": 0,
+          "visible": true,
+          "x": 3968,
+          "y": 576,
+          "width": 1152,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 4,
+          "name": "hole_terrain_3",
+          "rotation": 0,
+          "visible": true,
+          "x": 5312,
+          "y": 576,
+          "width": 960,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 5,
+          "name": "hole_terrain_4",
+          "rotation": 0,
+          "visible": true,
+          "x": 6464,
+          "y": 576,
+          "width": 1728,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 6,
+          "name": "hole_terrain_5",
+          "rotation": 0,
+          "visible": true,
+          "x": 8512,
+          "y": 576,
+          "width": 2752,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 7,
+          "name": "hole_terrain_6",
+          "rotation": 0,
+          "visible": true,
+          "x": 11456,
+          "y": 576,
+          "width": 1280,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 8,
+          "name": "hole_terrain_7",
+          "rotation": 0,
+          "visible": true,
+          "x": 12928,
+          "y": 576,
+          "width": 1856,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 9,
+          "name": "hole_terrain_8",
+          "rotation": 0,
+          "visible": true,
+          "x": 14912,
+          "y": 576,
+          "width": 448,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 10,
+          "name": "hole_terrain_9",
+          "rotation": 0,
+          "visible": true,
+          "x": 15488,
+          "y": 576,
+          "width": 896,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 11,
+          "name": "hole_terrain_10",
+          "rotation": 0,
+          "visible": true,
+          "x": 9120,
+          "y": 480,
+          "width": 256,
+          "height": 32,
+          "type": "platform"
+        },
+        {
+          "id": 12,
+          "name": "hole_terrain_11",
+          "rotation": 0,
+          "visible": true,
+          "x": 9600,
+          "y": 400,
+          "width": 448,
+          "height": 32,
+          "type": "platform"
+        },
+        {
+          "id": 13,
+          "name": "hole_terrain_12",
+          "rotation": 0,
+          "visible": true,
+          "x": 13440,
+          "y": 400,
+          "width": 320,
+          "height": 32,
+          "type": "platform"
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 14,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 256
+}

@@ -25,6 +25,19 @@ const COMMON_ANIMATION_ROLES = Object.freeze([
 ]);
 
 export const BOSS_DEFINITIONS = Object.freeze({
+  hole_king: Object.freeze({
+    key: "hole_king", displayName: "구멍 대왕", behavior: "hole_king", defaultHp: 3,
+    phaseIds: Object.freeze(["single_opening", "moving_hole_guard", "two_openings_and_return"]),
+    completion: "level", animationRoles: Object.freeze(["idle", "warning", "attack", "vulnerable", "hurt", "defeated"]),
+    spawn: Object.freeze({ edgeOffset: 704 }),
+    render: freezeRender({ placeholderColor: COLORS.collectPink,
+      art: { origin: { x: 0.5, y: 112 / 128 }, scale: 1.5,
+        body: { width: 76, height: 70, offsetX: 26, offsetY: 42, center: false } },
+      fallback: { origin: { x: 0.5, y: 1 }, scale: 1,
+        body: { width: 118, height: 100, offsetX: 16, offsetY: 34, center: false } }
+    }),
+    copy: Object.freeze({ intro: "표시된 구멍을 피하고 고정 바닥에서 기다려요", hit: "다리가 복구되면 멈춘 대왕의 머리를 밟으세요" })
+  }),
   music_king: Object.freeze({
     key: "music_king", displayName: "음악 대왕", behavior: "music_king", defaultHp: 3,
     phaseIds: Object.freeze(["single_note_phrase", "note_and_five_second_rest", "alternating_notes_and_rest"]),

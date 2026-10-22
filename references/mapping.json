@@ -18,6 +18,7 @@
   "potato89_winged_forms": {"styleRefs":["silsea_sprite-Photoroom.png","silsea_run.png"],"note":"구운 감자의 둥근 갈색 체형을 유지하고 크림색 접힌 날개·비행 날개를 몸에 통합한 페가수스·알리콘 전용 동작 시트."},
   "$delivery": {
     "manifestGroups": {
+      "hole_king": ["hole_king_idle","hole_king_warning","hole_king_attack","hole_king_vulnerable","hole_king_hurt","hole_king_defeated"],
       "music_king": ["music_king_idle","music_king_warning","music_king_attack","music_king_vulnerable","music_king_hurt","music_king_defeated"],
       "tape_king": ["tape_king_idle","tape_king_warning","tape_king_attack","tape_king_vulnerable","tape_king_hurt","tape_king_defeated"],
       "merong_king": ["merong_king_idle","merong_king_warning","merong_king_attack","merong_king_vulnerable","merong_king_hurt","merong_king_defeated"],
@@ -266,5 +267,8 @@
   "stage_preview_tape": {"styleRefs":["maple_story_1.png"],"note":"사용자 테이프 도시 원안의 테이프 작업장과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/tape에 보존."},
   "music_king": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"사용자 음악 대왕 스케치의 음악 음표·하프·둥근 몸체를 유지한 내장 imagegen 원화. 6개 동작 포즈, 공통 배율·발 기준선으로 조립."},
   "bg_music_far": {"styleRefs":["maple_story_1.png"],"note":"사용자 음악 나라 원안의 음악 연주 무대과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/music에 보존."},
-  "stage_preview_music": {"styleRefs":["maple_story_1.png"],"note":"사용자 음악 나라 원안의 음악 연주 무대과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/music에 보존."}
+  "stage_preview_music": {"styleRefs":["maple_story_1.png"],"note":"사용자 음악 나라 원안의 음악 연주 무대과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/music에 보존."},
+  "hole_king": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"사용자 구멍 대왕 스케치의 구멍 난 둥근 몸체·긴 팔다리를 유지한 내장 imagegen 원화. 6개 동작 포즈, 공통 배율·발 기준선으로 조립."},
+  "bg_hole_far": {"styleRefs":["maple_story_1.png"],"note":"사용자 구멍 코스 원안의 구멍 협곡과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/holes에 보존."},
+  "stage_preview_hole": {"styleRefs":["maple_story_1.png"],"note":"사용자 구멍 코스 원안의 구멍 협곡과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/holes에 보존."}
 }

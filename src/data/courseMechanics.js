@@ -81,6 +81,9 @@ export function assertCourseMechanicsShape(level) {
   }
   for (const hole of timedHoles) {
     rectangle(hole);
+    if (hole.controller !== undefined && hole.controller !== "hole_king") fail(`${hole.id} controller가 지원되지 않습니다.`);
+    if (hole.controller && !level.sections.some((section) => section.boss?.key === hole.controller
+      && hole.x >= section.xStart && hole.x + hole.width <= section.xEnd)) fail(`${hole.id}는 해당 보스 구간 안에 있어야 합니다.`);
     range(hole, "triggerDistance", 128, 640);
     range(hole, "warningMs", 500, 10000);
     range(hole, "openMs", 250, 10000);

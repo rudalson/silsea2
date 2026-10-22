@@ -1,4 +1,6 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  hole_king: Object.freeze({ idle: "hole_king_idle", warning: "hole_king_warning",
+    attack: "hole_king_attack", vulnerable: "hole_king_vulnerable", hurt: "hole_king_hurt", defeated: "hole_king_defeated" }),
   music_king: Object.freeze({ idle: "music_king_idle", warning: "music_king_warning",
     attack: "music_king_attack", vulnerable: "music_king_vulnerable", hurt: "music_king_hurt", defeated: "music_king_defeated" }),
   tape_king: Object.freeze({ idle: "tape_king_idle", warning: "tape_king_warning",
@@ -99,6 +101,11 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  hole_king: Object.freeze({
+    idle: Object.freeze({ durations: [3400], repeat: -1 }), warning: Object.freeze({ durations: [1500], repeat: -1 }),
+    attack: Object.freeze({ durations: [600], repeat: -1 }), vulnerable: Object.freeze({ durations: [3800], repeat: -1 }),
+    hurt: Object.freeze({ durations: [900], repeat: 0 }), defeated: Object.freeze({ durations: [1400], repeat: 0 })
+  }),
   music_king: Object.freeze({
     idle: Object.freeze({ durations: [3400], repeat: -1 }), warning: Object.freeze({ durations: [1100], repeat: -1 }),
     attack: Object.freeze({ durations: [600], repeat: -1 }), vulnerable: Object.freeze({ durations: [3600], repeat: -1 }),
