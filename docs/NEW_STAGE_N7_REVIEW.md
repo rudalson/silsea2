@@ -32,6 +32,8 @@
 
 원화는 **built-in imagegen**으로 제작하고 최종 이미지·정확한 프롬프트·조립 메타데이터를 저장소 안에 보존했다. [메롱](../assets/_source/merong/README.md)·[테이프](../assets/_source/tape/README.md)·[음악](../assets/_source/music/README.md)·[구멍](../assets/_source/holes/README.md)·[구름](../assets/_source/cloud/README.md)의 각 폴더에 `prompts.json`이 있다. 상태별 단일 포즈이며 다중 프레임 움직임·전용 음악은 후속 미술·음향 보강 범위다.
 
+후속 [N8](./BOSS_MOTION_N8_REVIEW.md)은 이 단일 포즈에 코드 기반 숨쉬기·준비·반동·처치 동작을 추가한다. 새 그림 프레임과 전용 음악 제작은 포함하지 않는다.
+
 ## 미실시 실기
 
 실물 게임패드, 8명×양 난이도×신규 5코스 전체 실기, 어린이의 난이도·재미·체류 시간과 소리 청취 평가는 미실시다. 영상 음성에만 있는 추가 규칙도 전사하지 않았다. 자발적 정지·구멍 개폐·구름 돌풍은 명시한 개발 해석으로 구현했으며 자동 검사로 사람의 평가를 대신하지 않는다.

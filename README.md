@@ -93,6 +93,8 @@ http://localhost:5173/?p1test=1&debug=1
 
 신규 확장 구현·통합 검수는 [N7 결과](./docs/NEW_STAGE_N7_REVIEW.md)에 정리했습니다. 총 11개 캠페인과 기존 저장 호환을 검사했고, 실제 게임패드·어린이 평가는 추가 실기로 남겼습니다.
 
+N8은 새 5대왕의 기존 포즈에 숨쉬기·공격 준비·반동·처치 동작을 더합니다. 표시 이미지에만 움직임을 적용해 충돌 판정을 유지하며, 음악 대왕의 정지 신호와 효과 감소 설정을 따릅니다. `npm run test:boss-motion`, `/scripts/boss-motion-runtime.html?visualReview=level-07&debug=1&mute=1`과 [N8 검수 기록](./docs/BOSS_MOTION_N8_REVIEW.md)을 참고합니다.
+
 N6 구름 코스는 `?visualReview=level-11&mute=1`, `/scripts/cloud-runtime.html?visualReview=level-11&debug=1&mute=1`에서 확인합니다. `npm run test:cloud`, `npm run cloud:assets`와 [N6 검수 기록](./docs/CLOUD_N6_REVIEW.md)을 참고합니다. 신규 5코스의 저장 호환·해금·양 난이도 배치·기본 점프 도달성은 `npm run test:expansion`으로 검사합니다.
 
 N5 구멍 코스는 `?visualReview=level-10&mute=1`와 `/scripts/hole-runtime.html?visualReview=level-10&debug=1&mute=1`에서 검수합니다. [N5 검수 기록](./docs/HOLE_N5_REVIEW.md)을 참고합니다.

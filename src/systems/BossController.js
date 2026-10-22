@@ -2,6 +2,7 @@ import { EVENTS } from "../config/constants.js";
 import { requireBossDefinition } from "../data/bossDefinitions.js";
 import { createBossBehavior } from "./bosses/index.js";
 import { SeededRandom } from "./SeededRandom.js";
+import { createBossMotionPresenter } from "./BossMotionPresenter.js";
 
 export class BossController {
   constructor(
@@ -36,6 +37,7 @@ export class BossController {
       volleyIntervalMultiplier: difficulty.boss?.volleyIntervalMultiplier ?? 1,
       easyMode: Boolean(difficulty.enabled)
     });
+    this.presentation = createBossMotionPresenter(scene, this.boss);
     this.onBossHit = (payload) => {
       if (payload.key === this.definition.key) this.behavior?.onBossHit?.(payload);
     };
@@ -48,6 +50,9 @@ export class BossController {
 
   update(now, delta) {
     this.behavior?.update?.(now, delta);
+    this.presentation?.update(delta, this.behavior, {
+      frozen: !this.player.body?.enable || this.behavior?.transformationManager?.transforming
+    });
   }
 
   getMovementVelocityX() { return this.behavior?.getMovementVelocityX?.() ?? 0; }
@@ -81,6 +86,8 @@ export class BossController {
     if (!this.boss) return;
     this.scene.events.off(EVENTS.BOSS_HIT, this.onBossHit);
     this.scene.events.off(EVENTS.BOSS_DEFEATED, this.onBossDefeated);
+    this.presentation?.destroy();
+    this.presentation = null;
     this.behavior?.destroy?.();
     this.behavior = null;
   }
