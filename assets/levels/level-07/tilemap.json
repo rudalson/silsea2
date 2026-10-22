@@ -1,0 +1,16 @@
+{
+  "compressionlevel": -1, "height": 12, "infinite": false,
+  "layers": [{ "draworder": "topdown", "id": 1, "name": "terrain",
+    "properties": [{ "name": "groundSurface", "type": "string", "value": "grass" }, { "name": "platformSurface", "type": "string", "value": "wood" }],
+    "objects": [
+      { "height": 192, "id": 1, "name": "merong_ground_start", "rotation": 0, "type": "ground", "visible": true, "width": 3584, "x": 0, "y": 576 },
+      { "height": 192, "id": 2, "name": "merong_ground_middle", "rotation": 0, "type": "ground", "visible": true, "width": 2880, "x": 3776, "y": 576 },
+      { "height": 192, "id": 3, "name": "merong_ground_palace", "rotation": 0, "type": "ground", "visible": true, "width": 5376, "x": 6912, "y": 576 },
+      { "height": 32, "id": 4, "name": "merong_practice_step", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 1856, "y": 480 },
+      { "height": 32, "id": 5, "name": "merong_practice_roof", "rotation": 0, "type": "platform", "visible": true, "width": 256, "x": 2304, "y": 400 },
+      { "height": 32, "id": 6, "name": "merong_rooftop_step", "rotation": 0, "type": "platform", "visible": true, "width": 320, "x": 4608, "y": 480 },
+      { "height": 32, "id": 7, "name": "merong_rooftop_garden", "rotation": 0, "type": "platform", "visible": true, "width": 448, "x": 5184, "y": 400 }
+    ], "opacity": 1, "type": "objectgroup", "visible": true, "x": 0, "y": 0 }],
+  "nextlayerid": 2, "nextobjectid": 8, "orientation": "orthogonal", "renderorder": "right-down",
+  "tiledversion": "1.11.2", "tileheight": 64, "tilesets": [], "tilewidth": 64, "type": "map", "version": "1.10", "width": 192
+}

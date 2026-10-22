@@ -80,7 +80,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["potato_archer", "raw_potato", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["merong_king", "potato_archer", "raw_potato", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -123,6 +123,7 @@ const characterAssets = [
   ...sequenceAssets("sylvia", "victory", 6)
 ];
 const enemyAssets = [
+  ...["idle", "warning", "attack", "vulnerable", "hurt", "defeated"].flatMap((role) => enemySequenceAssets("merong_king", role, 1)),
   ...["lantern_goblin", "dew_snail"].flatMap(enemy => [
     { name: `${enemy}_anchor.png`, path: join(root, "assets", "_anchor", `${enemy}_anchor.png`), kind: enemy, fullColor: true },
     ...enemySequenceAssets(enemy, "idle", 2),
@@ -222,6 +223,7 @@ const requiredTileFrames = [
   "slope_down"
 ];
 const backgroundAssets = [
+  { name: "bg_merong_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   ...["normal", "pit", "boss"].flatMap((mood) => [
     { name: `bg_${mood}_far`, luma: [60, 90], fullColor: true, mirrored: true, coverage: [1, 1] },
     { name: `bg_${mood}_mid`, luma: [45, 75], fullColor: true, mirrored: true, coverage: [0.15, 0.4], minimumY: 220 },
@@ -566,7 +568,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king"]) {
+  for (const enemyType of ["raw_potato", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

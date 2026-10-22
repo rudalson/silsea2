@@ -1,0 +1,51 @@
+{
+  "scale": 0.20465116279069767,
+  "poses": [
+    {
+      "left": 63,
+      "top": 36,
+      "width": 404,
+      "height": 427
+    },
+    {
+      "left": 556,
+      "top": 39,
+      "width": 406,
+      "height": 424
+    },
+    {
+      "left": 1061,
+      "top": 47,
+      "width": 439,
+      "height": 419
+    },
+    {
+      "left": 73,
+      "top": 529,
+      "width": 385,
+      "height": 430
+    },
+    {
+      "left": 538,
+      "top": 537,
+      "width": 432,
+      "height": 420
+    },
+    {
+      "left": 1103,
+      "top": 589,
+      "width": 401,
+      "height": 378
+    }
+  ],
+  "roles": [
+    "idle",
+    "warning",
+    "attack",
+    "vulnerable",
+    "hurt",
+    "defeated"
+  ],
+  "frameSize": 128,
+  "baselineY": 112
+}

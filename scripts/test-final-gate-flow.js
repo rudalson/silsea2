@@ -18,7 +18,8 @@ const storage = {
 const progress = new ProgressManager(storage);
 const campaignItemTypes = new Set();
 
-assert.equal(LEVELS.length, 6);
+assert.ok(LEVELS.length >= 7);
+assert.equal(getNextLevel("level-06")?.id, "level-07");
 
 for (const [index, sourceLevel] of LEVELS.entries()) {
   const level = normalizeLevelDefinition(sourceLevel);
@@ -72,4 +73,4 @@ for (const [index, sourceLevel] of LEVELS.entries()) {
 assert.deepEqual([...campaignItemTypes].sort(), [...TRANSFORMATION_ITEM_TYPES].sort());
 assert.equal(getNextLevel(LEVELS.at(-1).id), null);
 
-console.log("최종 게이트 흐름 테스트 통과: 6개 레벨 목표→실제 게이트→저장→다음 레벨 해금, 변신 3종, 지상 5·공중 1");
+console.log(`최종 게이트 흐름 테스트 통과: ${LEVELS.length}개 레벨 목표→실제 게이트→저장→다음 레벨 해금, 변신 3종`);

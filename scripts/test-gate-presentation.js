@@ -122,7 +122,8 @@ const integratedLevels = LEVELS.map((level) => {
     }
   };
 });
-assert.equal(integratedLevels.length, 6);
+assert.equal(integratedLevels.length, LEVELS.length);
+assert.ok(integratedLevels.some(({ id }) => id === "level-07"));
 for (const level of integratedLevels) {
   assert.equal(assertLevelShape(level), true);
   assert.equal(level.exit.presentation.kind, GATE_KINDS.REAL);
@@ -138,7 +139,7 @@ const integratedGroundLevels = integratedLevels.filter(
   (level) => level.exit.presentation.placement === GATE_PLACEMENTS.GROUND
 );
 assert.deepEqual(integratedAirLevels.map(({ id }) => id), ["level-06"]);
-assert.equal(integratedGroundLevels.length, 5);
+assert.equal(integratedGroundLevels.length, LEVELS.length - integratedAirLevels.length);
 const integratedRelay = integratedAirLevels[0];
 assert.equal(integratedRelay.exit.presentation.airRoute.retryCheckpoint.id, "cp_relay_finish");
 assert.ok(integratedRelay.checkpoints.some(({ id }) => id === "cp_relay_finish"));

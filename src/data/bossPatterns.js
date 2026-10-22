@@ -1,3 +1,5 @@
+import { MERONG_KING_PHASES } from "./tongueMechanics.js";
+
 const definePhase = (config) => Object.freeze({
   ...config,
   volleys: Object.freeze(config.volleys.map((volley) => Object.freeze({
@@ -287,6 +289,7 @@ export const RANDOM_KING_PHASES = Object.freeze({
 });
 
 export const BOSS_PATTERNS = Object.freeze({
+  merong_king: MERONG_KING_PHASES,
   potato_king: POTATO_KING_PHASES,
   hula_king: HULA_KING_PHASES,
   invisible_king: INVISIBLE_KING_PHASES,

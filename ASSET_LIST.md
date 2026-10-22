@@ -49,6 +49,9 @@
 | `dark_cloud` | M | 동화풍 풀컬러 idle 4, charge 4, attack 3, defeated 4 |
 | `magpie` | M | 동화풍 풀컬러 fly 6, warning 3, dive 4, stunned 4, defeated 4 |
 | `potato_king` | M | idle 4, jump 4, fall 2, land 4, shoot 4, hurt 3, defeated 8 |
+| `merong_king` | M | N2: idle, warning, attack, vulnerable, hurt, defeated 각 1포즈·128×128 RGBA |
+
+N2 메롱 대왕과 왕국 배경은 이 대화의 built-in imagegen으로 제작했다. 원화·정확한 프롬프트·재패킹 규격은 `assets/_source/merong/README.md`, `prompts.json`, `frames.json`에 보관한다. `npm run merong:assets`는 원화에서 여섯 상태 시트, `bg_merong_far`(2048×720), `stage_preview_merong`(640×360), `references/merong-poses-review.png`를 재생성한다. 공격 혀와 예고는 동일한 판정 영역을 사용하는 Phaser Graphics로 그린다. 현재 각 상태는 정지 포즈 한 장이며 다중 프레임 동작은 후속 미술 보강 범위다.
 
 ## 아이템과 진행 오브젝트
 

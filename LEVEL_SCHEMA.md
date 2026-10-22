@@ -131,7 +131,7 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 - `graybox`는 고정 검수와 fallback용 표시 선택이며 게임 규칙을 바꾸지 않는다.
 - 운영 장난 게이트는 실제 게이트 활성·보스 구간·체크포인트 256px 이내·제한 시간 15초 이내에 억제하며, 이미 보이는 장난 게이트도 같은 조건에서 자원을 정리하고 소멸 상태로 끝낸다.
 - `?gateReview=real|air|prank|arrival|air-route`는 원본 레벨 데이터를 수정하지 않고 지정 연출을 재현한다. `integration`은 승인된 원본 배치를 그대로 읽어 최종 진단만 노출한다.
-- 현재 운영 배치는 실제 지상 게이트 `level-01`~`level-05`, 실제 공중 게이트 `level-06`, 장난 게이트 `level-02/glow_canopy` 1개다.
+- 현재 운영 배치는 실제 지상 게이트 `level-01`~`level-05`와 `level-07`, 실제 공중 게이트 `level-06`, 장난 게이트 `level-02/glow_canopy` 1개다.
 
 ### version 1 호환 정규화
 
@@ -150,6 +150,32 @@ P0에서 아래 구조를 승인했고 P1에서 파서·검증기·런타임 연
 - 허용 버전은 `SUPPORTED_LEVEL_SCHEMA_VERSIONS = [1, 2]`로 명시한다.
 - `assertLevelShape()`는 원본 버전별 필수 필드를 검사하고, 런타임과 `scripts/validate-levels.js`는 같은 정규화 결과를 사용한다.
 - version 2 전용 필드는 version 2 파일에만 요구한다.
+
+### 신규 코스 N1 선택 필드
+
+신규 장치는 schema version 2의 선택 필드로 추가하며 기존 레벨에는 영향을 주지 않는다. `src/data/courseMechanics.js`의 검증을 초기 로드와 데이터 재로드에서 함께 사용한다.
+
+| 위치 | 필드 | 규칙 |
+|---|---|---|
+| `terrainMechanics.stickyZones[]` | `id,x,y,width,height,speedMultiplier` | y는 지면 높이, 배율 0.1~1. 접지 중 가로 이동만 감속하며 다른 이동 보정과 곱한다. |
+| `terrainMechanics.timedHoles[]` | `id,x,y,width,height,triggerDistance,warningMs,openMs,closedMs` | 정해진 틈을 메우는 충돌 발판. 접근 시 예고를 시작하고 예고→열림→닫힘을 반복한다. 고정 바닥과 겹칠 수 없고 양쪽에 안전 지면이 있어야 한다. |
+| `environment.rhythmZones[]` | `id,xStart,xEnd,floorY,warningMs,stopMs,retryMs,movementTolerance,practice` | 안전한 고정 바닥에서만 시작하는 자발적 정지 규칙. N1은 stopMs=5000, practice=true로 실패 피해 없이 재도전한다. |
+| `difficulty.easyMode.terrainMechanics` | `stickySpeedFloor,holeWarningMultiplier` | 감속 배율의 하한과 구멍 예고 시간 배율. 원본 데이터는 변경하지 않는다. |
+| 최상위 | `developmentOnly` | true인 시험 코스는 캠페인 클리어 기록을 저장하지 않는다. 등록도 DEVELOPMENT_LEVELS에만 한다. |
+
+정지 구역에는 적·낭떠러지·수역·쓰나미·이동/붕괴 발판·상승기류·레이저·임시 구멍을 배치하지 않는다. 신호는 소리와 문구로 함께 전달하며, 일시정지 중에는 카운트다운이 진행되지 않는다. 재시도 상태에서 실패를 매 프레임 중복 판정하지 않는다. 임시 구멍끼리는 최소 128px의 고정 안전 구간을 두고, 플레이어와 겹치는 순간에는 바닥 복구를 미룬다. 부활·데이터 재로드·재시작 시 장치 상태를 초기화하고, 보스 처치 후에는 구멍을 닫고 감속을 해제한다.
+
+### N2 혀 장치와 메롱 대왕
+
+`environment.tongueTraps[]`는 접근하면 예고→공격→휴식을 반복하는 필드 장치다. 각 항목은 고유 `id`, `x`, `y`, `direction`(-1 또는 1), `reach`, `warningMs`, `activeMs`, `restMs`, `triggerDistance`, `practice`(boolean)를 가진다. `y`는 혀 중심이며 기본 두께는 24px이다. 표시와 피해 판정은 같은 사각형을 사용한다.
+
+- 예고는 최소 900ms, 공격은 최대 1500ms, 휴식은 최소 500ms다. 공격 범위는 월드 안에 있어야 하고 일반 장치는 보스 구간과 겹칠 수 없다.
+- `practice: true`인 장치에 닿으면 피해 없이 안내한다. 나머지는 기존 HP·무적 시간을 사용하고 날개 방어 대상에는 포함하지 않는다.
+- 쉬운 모드 `difficulty.easyMode.environment.tongueWarningMultiplier`는 1~2 범위다. 원본 데이터를 변경하지 않고 예고 시간만 늘린다. 7번은 1.4배다.
+- `environment.tongueCourse.palace: {x,y}`와 `bridges: [{x,y,width,height}]`는 장식이다. 다리 충돌은 타일맵이 담당한다.
+- 일시정지는 Scene 시간과 함께 멈춘다. 부활 시 장치 시간을 초기화하고, 보스 처치·재로드·종료 시 공격 표시를 정리한다.
+
+`merong_king`은 궁전 보스 구간 진입 시 등장하며 HP 3과 `single_low_tongue`, `low_then_high_tongue`, `alternating_long_tongue` 단계를 사용한다. 예고 시 플레이어 방향을 고정하고 공격 뒤 약점을 연다. 기본 점프의 하강 중 머리 밟기만 유효하며 부활하면 HP와 단계를 초기화한다. 처치 후 기존 `defeat_boss`→`reach_gate` 흐름을 사용한다.
 
 ### `environment`
 

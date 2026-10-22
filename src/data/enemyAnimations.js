@@ -1,4 +1,6 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  merong_king: Object.freeze({ idle: "merong_king_idle", warning: "merong_king_warning",
+    attack: "merong_king_attack", vulnerable: "merong_king_vulnerable", hurt: "merong_king_hurt", defeated: "merong_king_defeated" }),
   lantern_goblin: Object.freeze({
     idle: "lantern_goblin_idle", move: "lantern_goblin_move", warning: "lantern_goblin_warning",
     attack: "lantern_goblin_attack", recover: "lantern_goblin_recover", defeated: "lantern_goblin_defeated"
@@ -84,6 +86,14 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  merong_king: Object.freeze({
+    idle: Object.freeze({ durations: [3400], repeat: -1 }),
+    warning: Object.freeze({ durations: [1100], repeat: -1 }),
+    attack: Object.freeze({ durations: [600], repeat: -1 }),
+    vulnerable: Object.freeze({ durations: [2800], repeat: -1 }),
+    hurt: Object.freeze({ durations: [900], repeat: 0 }),
+    defeated: Object.freeze({ durations: [1400], repeat: 0 })
+  }),
   lantern_goblin: Object.freeze({
     idle: Object.freeze({ durations: [420, 420], repeat: -1 }),
     move: Object.freeze({ durations: [180, 180, 180, 180], repeat: -1 }),

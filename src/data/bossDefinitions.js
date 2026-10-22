@@ -25,6 +25,19 @@ const COMMON_ANIMATION_ROLES = Object.freeze([
 ]);
 
 export const BOSS_DEFINITIONS = Object.freeze({
+  merong_king: Object.freeze({
+    key: "merong_king", displayName: "메롱 대왕", behavior: "merong_king", defaultHp: 3,
+    phaseIds: Object.freeze(["single_low_tongue", "low_then_high_tongue", "alternating_long_tongue"]),
+    completion: "level", animationRoles: Object.freeze(["idle", "warning", "attack", "vulnerable", "hurt", "defeated"]),
+    spawn: Object.freeze({ edgeOffset: 640 }),
+    render: freezeRender({ placeholderColor: COLORS.collectPink,
+      art: { origin: { x: 0.5, y: 112 / 128 }, scale: 1.5,
+        body: { width: 88, height: 76, offsetX: 20, offsetY: 36, center: false } },
+      fallback: { origin: { x: 0.5, y: 1 }, scale: 1,
+        body: { width: 118, height: 100, offsetX: 16, offsetY: 34, center: false } }
+    }),
+    copy: Object.freeze({ intro: "혀를 거둔 뒤 빛나는 머리를 밟으세요", hit: "다음 혀의 높이를 확인하세요" })
+  }),
   potato_king: Object.freeze({
     key: "potato_king",
     displayName: "감자 대왕",

@@ -27,6 +27,7 @@ import { BreathManager } from "../systems/BreathManager.js";
 import { BossController } from "../systems/BossController.js";
 import { CameraEffectsManager } from "../systems/CameraEffectsManager.js";
 import { CheckpointManager } from "../systems/CheckpointManager.js";
+import { CourseMechanicsManager } from "../systems/CourseMechanicsManager.js";
 import { DebugPanel } from "../systems/DebugPanel.js";
 import { createRuntimeLevel, getDifficultySettings } from "../systems/DifficultyManager.js";
 import { EnemyManager } from "../systems/EnemyManager.js";
@@ -45,6 +46,7 @@ import { ScoreManager } from "../systems/ScoreManager.js";
 import { SecretManager } from "../systems/SecretManager.js";
 import { TerrainMechanicsManager } from "../systems/TerrainMechanicsManager.js";
 import { TransformationManager } from "../systems/TransformationManager.js";
+import { TongueTrapManager } from "../systems/TongueTrapManager.js";
 import { moveTowards } from "../utils/math.js";
 
 export class GameScene extends Phaser.Scene {
@@ -261,16 +263,22 @@ export class GameScene extends Phaser.Scene {
     const input = this.inputManager.sample();
     this.lastInput = input;
     if (input.debugPressed) this.debugPanel?.toggle();
+    this.courseMechanics?.update(input, delta);
     const waterAbility = this.breathManager?.prepareMovement(input, time);
     const transformationAbility = this.transformationManager.prepareMovement(input, delta, {
       underwater: waterAbility?.mode === "swim"
     });
-    const ability = waterAbility ?? transformationAbility;
+    const movement = waterAbility ?? transformationAbility;
+    const courseSpeed = this.courseMechanics?.horizontalSpeedMultiplier ?? 1;
+    const ability = courseSpeed < 1
+      ? { ...movement, horizontalSpeedMultiplier: (movement.horizontalSpeedMultiplier ?? 1) * courseSpeed }
+      : movement;
     this.player.updateControls(input, time, delta, ability);
     this.footstepManager?.update(time, ability);
     this.updatePlayerShadow();
     this.terrainMechanics?.update(time, delta);
     this.environmentMechanics?.update(time, delta);
+    this.tongueTraps?.update(delta);
     this.breathManager?.update(time, delta);
     this.transformationManager.update(time);
     this.healthManager.update(time);
@@ -450,6 +458,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleBossDefeated({ displayName = "보스" } = {}) {
+    this.tongueTraps?.finish();
+    this.courseMechanics?.finish();
     this.transformationManager?.cancelPresentation();
     if (this.levelLoader.gate && !this.gateBound) {
       this.gateBound = true;
@@ -481,6 +491,8 @@ export class GameScene extends Phaser.Scene {
       this.transformationManager,
       this.difficulty
     );
+    this.courseMechanics = new CourseMechanicsManager(this, this.player, this.level, this.healthManager);
+    this.tongueTraps = new TongueTrapManager(this, this.player, this.level, this.healthManager);
     this.environmentMechanics = new EnvironmentMechanicsManager(
       this,
       this.player,
@@ -607,6 +619,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   completeProgressSafely({ score, achieved }) {
+    if (this.level.developmentOnly) return null;
     try {
       return progressManager.complete(this.level.id, score, achieved);
     } catch (error) {
@@ -838,6 +851,8 @@ export class GameScene extends Phaser.Scene {
       particles: this.particleEffects?.getSnapshot() ?? null,
       footsteps: this.footstepManager?.getSnapshot() ?? null,
       terrainMechanics: this.terrainMechanics?.getSnapshot() ?? null,
+      courseMechanics: this.courseMechanics?.getSnapshot() ?? null,
+      tongueTraps: this.tongueTraps?.getSnapshot() ?? [],
       environmentMechanics: this.environmentMechanics?.getSnapshot() ?? null,
       breath: this.breathManager?.getSnapshot() ?? null,
       secrets: this.secretManager?.getSnapshot() ?? null,
@@ -847,6 +862,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   destroyGameplayManagers() {
+    this.tongueTraps?.destroy();
+    this.tongueTraps = null;
+    this.courseMechanics?.destroy();
+    this.courseMechanics = null;
     this.itemPresentation?.destroy();
     this.itemPresentation = null;
     this.footstepManager?.destroy();

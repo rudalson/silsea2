@@ -45,6 +45,7 @@ export class BootScene extends Phaser.Scene {
       ? LEVELS.find(({ id }) => id === query.get("stage")) ?? null
       : null;
     const p1TestLevel = query.get("p1test") === "1" ? getLevel("p1-environment-test") : null;
+    const courseTestLevel = query.get("courseTest") === "1" ? getLevel("new-course-test") : null;
     const p9BossDirection = query.get("p9boss");
     const p9BossTestLevel = ["left", "right"].includes(p9BossDirection)
       ? getLevel(`p9-boss-test-${p9BossDirection}`)
@@ -54,7 +55,7 @@ export class BootScene extends Phaser.Scene {
     const playtestLevel = playtestEnabled
       ? LEVELS.find(({ id }) => id === query.get("level")) ?? null
       : null;
-    const directLevel = coopTestLevel ?? reviewLevel ?? clearReviewLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
+    const directLevel = coopTestLevel ?? reviewLevel ?? clearReviewLevel ?? courseTestLevel ?? p1TestLevel ?? p9BossTestLevel ?? playtestLevel;
     const levelId = directLevel?.id ?? stageSelectLevel?.id ?? LEVELS[0].id;
     const requestedReviewOffset = query.has("offset") ? Number(query.get("offset")) : null;
     const reviewOffset = Number.isFinite(requestedReviewOffset) && requestedReviewOffset >= 0
@@ -75,8 +76,8 @@ export class BootScene extends Phaser.Scene {
 
     this.registry.set("characterId", characterId);
     this.registry.set("levelId", levelId);
-    this.registry.set("visualReviewSectionId", reviewLevel ? query.get("section") : null);
-    this.registry.set("visualReviewOffset", reviewLevel ? reviewOffset : null);
+    this.registry.set("visualReviewSectionId", reviewLevel || courseTestLevel ? query.get("section") : null);
+    this.registry.set("visualReviewOffset", reviewLevel || courseTestLevel ? reviewOffset : null);
     this.registry.set("visualReviewForm", reviewLevel ? reviewForm : null);
     this.registry.set("visualReviewAnimation", reviewLevel ? query.get("animation") : null);
     this.registry.set("visualReviewZoom", reviewLevel ? reviewZoom : null);

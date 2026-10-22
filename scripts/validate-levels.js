@@ -7,6 +7,7 @@ import {
 } from "../src/data/bossDefinitions.js";
 import { BOSS_BEHAVIOR_TYPES } from "../src/data/bossBehaviorTypes.js";
 import { ENEMY_TYPES } from "../src/data/enemies.js";
+import { assertCourseTerrainSafety } from "../src/data/courseMechanics.js";
 import { getEnemyAnimationSpec } from "../src/data/enemyAnimations.js";
 import { ENVIRONMENT_SUSPENSION_TYPES } from "../src/data/environment.js";
 import {
@@ -442,6 +443,7 @@ for (const sourceLevel of ALL_LEVELS) {
   if (tilemap.height * tilemap.tileheight !== level.world.height) fail(level, "tilemap 높이와 world.height 불일치");
   const terrainLayer = getTerrainLayer(tilemap);
   const terrain = terrainLayer?.objects ?? [];
+  try { assertCourseTerrainSafety(level, terrain); } catch (error) { fail(level, error.message); }
   if (["level-01", "level-02", "level-03", "level-04", "level-05"].includes(level.id)) {
     for (const issue of findLayoutIssues(level, terrain)) fail(level, issue);
   }

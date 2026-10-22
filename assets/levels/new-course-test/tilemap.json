@@ -1,0 +1,18 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [{
+    "draworder": "topdown", "id": 1, "name": "terrain",
+    "properties": [{ "name": "groundSurface", "type": "string", "value": "grass" }],
+    "objects": [
+      { "height": 192, "id": 1, "name": "practice_start", "rotation": 0, "type": "ground", "visible": true, "width": 3456, "x": 0, "y": 576 },
+      { "height": 192, "id": 2, "name": "practice_safe_island", "rotation": 0, "type": "ground", "visible": true, "width": 448, "x": 3584, "y": 576 },
+      { "height": 192, "id": 3, "name": "practice_finish", "rotation": 0, "type": "ground", "visible": true, "width": 960, "x": 4160, "y": 576 }
+    ],
+    "opacity": 1, "type": "objectgroup", "visible": true, "x": 0, "y": 0
+  }],
+  "nextlayerid": 2, "nextobjectid": 4, "orientation": "orthogonal", "renderorder": "right-down",
+  "tiledversion": "1.11.2", "tileheight": 64, "tilesets": [], "tilewidth": 64,
+  "type": "map", "version": "1.10", "width": 80
+}

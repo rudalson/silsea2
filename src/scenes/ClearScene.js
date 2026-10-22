@@ -119,7 +119,9 @@ export class ClearScene extends Phaser.Scene {
 
     const actionY = playtestBundle ? 645 : 596;
     const nextLabelY = playtestBundle ? 605 : 548;
-    this.add.text(GAME_WIDTH / 2, nextLabelY, next ? `다음 스테이지: ${next.name}` : "모든 스테이지를 완료했습니다!", {
+    const nextLabel = next ? `다음 스테이지: ${next.name}`
+      : level.developmentOnly ? "장치 연습 완료 · 캠페인 기록은 저장하지 않습니다." : "모든 스테이지를 완료했습니다!";
+    this.add.text(GAME_WIDTH / 2, nextLabelY, nextLabel, {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: "18px",
       color: CSS_COLORS.collectBlue

@@ -115,6 +115,12 @@ export function createRuntimeLevel(level, easyMode = false) {
         crumblePlatforms: (level.terrainMechanics.crumblePlatforms ?? []).map((platform) => ({
           ...platform,
           crumbleDelayMs: Math.round(platform.crumbleDelayMs * crumbleDelayMultiplier)
+        })),
+        stickyZones: (level.terrainMechanics.stickyZones ?? []).map((zone) => ({
+          ...zone, speedMultiplier: Math.max(zone.speedMultiplier, terrainConfig.stickySpeedFloor ?? 0)
+        })),
+        timedHoles: (level.terrainMechanics.timedHoles ?? []).map((hole) => ({
+          ...hole, warningMs: hole.warningMs * (terrainConfig.holeWarningMultiplier ?? 1)
         }))
       }
     : undefined;
@@ -181,6 +187,9 @@ export function createRuntimeLevel(level, easyMode = false) {
   const environment = level.environment
     ? {
         ...level.environment,
+        ...(level.environment.tongueTraps ? { tongueTraps: level.environment.tongueTraps.map((trap) => ({
+          ...trap, warningMs: trap.warningMs * (config.environment?.tongueWarningMultiplier ?? 1)
+        })) } : {}),
         waterZones: (level.environment.waterZones ?? []).map((zone) => ({ ...zone })),
         ...(tsunami ? { tsunami } : {}),
         ...(breath ? { breath } : {}),

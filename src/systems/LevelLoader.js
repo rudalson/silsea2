@@ -1,5 +1,6 @@
 import { COLORS, CSS_COLORS, EVENTS, GAME_HEIGHT } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
+import { assertCourseTerrainSafety } from "../data/courseMechanics.js";
 import {
   createBossEventPayload,
   requireBossDefinition,
@@ -86,6 +87,7 @@ export class LevelLoader {
       (layer) => layer.type === "objectgroup" && layer.name === "terrain"
     )?.objects ?? [];
 
+    assertCourseTerrainSafety(this.level, this.terrainObjects);
     this.scene.physics.world.setBounds(0, 0, this.level.world.width, this.level.world.height + 256);
     this.createBackground();
     this.createAtmosphere();

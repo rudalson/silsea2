@@ -1,4 +1,6 @@
 import { assertGatePresentationShape } from "../gatePresentation.js";
+import { assertCourseMechanicsShape } from "../courseMechanics.js";
+import { assertTongueMechanicsShape } from "../tongueMechanics.js";
 
 export const LEVEL_SCHEMA_VERSION = 2;
 export const SUPPORTED_LEVEL_SCHEMA_VERSIONS = Object.freeze([1, LEVEL_SCHEMA_VERSION]);
@@ -91,6 +93,8 @@ export function assertLevelShape(level) {
   }
 
   assertGatePresentationShape(level);
+  assertCourseMechanicsShape(level);
+  assertTongueMechanicsShape(level);
 
   if (level.progression?.retainAbilities !== undefined && typeof level.progression.retainAbilities !== "boolean") {
     throw new Error(`[${level.id}] progression.retainAbilities는 boolean이어야 합니다.`);
