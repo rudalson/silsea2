@@ -266,6 +266,7 @@ export class LevelLoader {
     this.terrainBodies = this.scene.physics.add.staticGroup();
     const tilesetKey = this.level.assets.tileset;
     const useTileset = Boolean(tilesetKey && this.scene.textures.exists(tilesetKey));
+    const cloudTerrain = this.level.visualTheme === "cloud-kingdom";
     for (const object of this.getTerrainObjects()) {
       const color = object.type === "platform" ? COLORS.ground : COLORS.ground;
       const rectangle = this.scene.add.rectangle(
@@ -274,14 +275,19 @@ export class LevelLoader {
         object.width,
         object.height,
         color,
-        useTileset ? 0 : 1
+        useTileset || cloudTerrain ? 0 : 1
       );
       if (!useTileset) rectangle.setStrokeStyle(4, COLORS.outline, 1);
       rectangle.setDepth(0);
       this.scene.physics.add.existing(rectangle, true);
       this.terrainBodies.add(rectangle);
 
-      if (useTileset) {
+      if (cloudTerrain) {
+        const cloud = this.track(this.scene.add.graphics().setDepth(1));
+        cloud.fillStyle(COLORS.white).fillRoundedRect(object.x, object.y, object.width, object.height, Math.min(24, object.height / 2));
+        for (let x = object.x + 24; x < object.x + object.width; x += 48) cloud.fillStyle(COLORS.white).fillCircle(Math.min(x, object.x + object.width - 24), object.y + 24, 24);
+        cloud.lineStyle(3, COLORS.collectBlue, 0.65).lineBetween(object.x + 8, object.y + 1, object.x + object.width - 8, object.y + 1);
+      } else if (useTileset) {
         this.createTerrainTiles(object, tilesetKey);
       } else {
         const grass = this.track(

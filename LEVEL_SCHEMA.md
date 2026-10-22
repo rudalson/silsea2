@@ -459,6 +459,10 @@ const handlers = {
 
 ## 레지스트리
 
+### 구름 지형과 돌풍 (N6)
+
+`visualTheme: "cloud-kingdom"`은 고정 충돌 지형의 상단과 일치하는 구름 표면을 그린다. 이동 구름·상승기류는 기존 `terrainMechanics`를 사용한다. 공통 `BossController.getMovementVelocityX()`는 전용 보스가 돌풍을 반환할 때만 이동 목표에 `externalVelocityX`를 더하며 나머지 보스는 0이다. 기본 tuning 값을 수정하지 않고 공격 종료·부활·재로드·Scene 종료 시 전용 상태를 정리한다. 구름 대왕은 무대 끝 96px에서 돌풍을 멈추며 약점 시간에는 0을 반환한다.
+
 ### 대왕 제어 다리 (N5)
 
 `terrainMechanics.timedHoles[].controller: "hole_king"`는 해당 보스 구간 안에서만 허용한다. 다리는 자동 주기 대신 `setControlledHoles(owner, ids, phase)`의 고정 위치 예고·열림·복구를 따른다. 타일맵에는 실제 빈 공간이 있어야 하며 양옆 고정 발판과 다른 구멍 사이 128px 이상의 안전 바닥을 검증한다. 열린 다리를 복구할 때 플레이어 몸이 겹치면 벗어날 때까지 기다린다. 처치 시 전체 다리를 복구하고 개폐를 끝낸다.

@@ -50,6 +50,8 @@ export class BossController {
     this.behavior?.update?.(now, delta);
   }
 
+  getMovementVelocityX() { return this.behavior?.getMovementVelocityX?.() ?? 0; }
+
   handlePlayerContact() {
     if (!this.boss?.active || !this.behavior) return { didHit: false };
     const fallingOntoHead = this.player.body.velocity.y > 120

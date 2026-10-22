@@ -25,6 +25,19 @@ const COMMON_ANIMATION_ROLES = Object.freeze([
 ]);
 
 export const BOSS_DEFINITIONS = Object.freeze({
+  cloud_king: Object.freeze({
+    key: "cloud_king", displayName: "구름 대왕", behavior: "cloud_king", defaultHp: 3,
+    phaseIds: Object.freeze(["single_gust", "warned_raindrop", "gust_then_rain"]),
+    completion: "level", animationRoles: Object.freeze(["idle", "warning", "attack", "vulnerable", "hurt", "defeated"]),
+    spawn: Object.freeze({ edgeOffset: 704 }),
+    render: freezeRender({ placeholderColor: COLORS.white,
+      art: { origin: { x: 0.5, y: 112 / 128 }, scale: 1.5,
+        body: { width: 76, height: 70, offsetX: 26, offsetY: 42, center: false } },
+      fallback: { origin: { x: 0.5, y: 1 }, scale: 1,
+        body: { width: 118, height: 100, offsetX: 16, offsetY: 34, center: false } }
+    }),
+    copy: Object.freeze({ intro: "돌풍과 빗방울의 표시를 살펴요", hit: "낮아진 대왕의 빛나는 머리를 기본 점프로 밟으세요" })
+  }),
   hole_king: Object.freeze({
     key: "hole_king", displayName: "구멍 대왕", behavior: "hole_king", defaultHp: 3,
     phaseIds: Object.freeze(["single_opening", "moving_hole_guard", "two_openings_and_return"]),

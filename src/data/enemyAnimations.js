@@ -1,4 +1,6 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  cloud_king: Object.freeze({ idle: "cloud_king_idle", warning: "cloud_king_warning",
+    attack: "cloud_king_attack", vulnerable: "cloud_king_vulnerable", hurt: "cloud_king_hurt", defeated: "cloud_king_defeated" }),
   hole_king: Object.freeze({ idle: "hole_king_idle", warning: "hole_king_warning",
     attack: "hole_king_attack", vulnerable: "hole_king_vulnerable", hurt: "hole_king_hurt", defeated: "hole_king_defeated" }),
   music_king: Object.freeze({ idle: "music_king_idle", warning: "music_king_warning",
@@ -101,6 +103,11 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  cloud_king: Object.freeze({
+    idle: Object.freeze({ durations: [3400], repeat: -1 }), warning: Object.freeze({ durations: [1300], repeat: -1 }),
+    attack: Object.freeze({ durations: [600], repeat: -1 }), vulnerable: Object.freeze({ durations: [3800], repeat: -1 }),
+    hurt: Object.freeze({ durations: [900], repeat: 0 }), defeated: Object.freeze({ durations: [1400], repeat: 0 })
+  }),
   hole_king: Object.freeze({
     idle: Object.freeze({ durations: [3400], repeat: -1 }), warning: Object.freeze({ durations: [1500], repeat: -1 }),
     attack: Object.freeze({ durations: [600], repeat: -1 }), vulnerable: Object.freeze({ durations: [3800], repeat: -1 }),

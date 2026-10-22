@@ -23,6 +23,7 @@ assert.equal(getNextLevel("level-06")?.id, "level-07");
 assert.equal(getNextLevel("level-07")?.id, "level-08");
 assert.equal(getNextLevel("level-08")?.id, "level-09");
 assert.equal(getNextLevel("level-09")?.id, "level-10");
+assert.equal(getNextLevel("level-10")?.id, "level-11");
 
 for (const [index, sourceLevel] of LEVELS.entries()) {
   const level = normalizeLevelDefinition(sourceLevel);

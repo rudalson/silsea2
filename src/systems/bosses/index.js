@@ -9,8 +9,10 @@ import { MerongKingBehavior } from "./MerongKingBehavior.js";
 import { TapeKingBehavior } from "./TapeKingBehavior.js";
 import { MusicKingBehavior } from "./MusicKingBehavior.js";
 import { HoleKingBehavior } from "./HoleKingBehavior.js";
+import { CloudKingBehavior } from "./CloudKingBehavior.js";
 
 const BOSS_BEHAVIORS = Object.freeze({
+  cloud_king: CloudKingBehavior,
   hole_king: HoleKingBehavior,
   music_king: MusicKingBehavior,
   tape_king: TapeKingBehavior,

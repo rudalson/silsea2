@@ -1,0 +1,141 @@
+{
+  "compressionlevel": -1,
+  "height": 12,
+  "infinite": false,
+  "layers": [
+    {
+      "id": 1,
+      "name": "terrain",
+      "objects": [
+        {
+          "id": 1,
+          "name": "cloud_terrain_0",
+          "rotation": 0,
+          "visible": true,
+          "x": 0,
+          "y": 576,
+          "width": 2816,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 2,
+          "name": "cloud_terrain_1",
+          "rotation": 0,
+          "visible": true,
+          "x": 3008,
+          "y": 576,
+          "width": 3136,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 3,
+          "name": "cloud_terrain_2",
+          "rotation": 0,
+          "visible": true,
+          "x": 6336,
+          "y": 576,
+          "width": 1856,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 4,
+          "name": "cloud_terrain_3",
+          "rotation": 0,
+          "visible": true,
+          "x": 8832,
+          "y": 576,
+          "width": 3904,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 5,
+          "name": "cloud_terrain_4",
+          "rotation": 0,
+          "visible": true,
+          "x": 12928,
+          "y": 576,
+          "width": 5504,
+          "height": 192,
+          "type": "ground"
+        },
+        {
+          "id": 6,
+          "name": "cloud_terrain_5",
+          "rotation": 0,
+          "visible": true,
+          "x": 8320,
+          "y": 512,
+          "width": 384,
+          "height": 32,
+          "type": "platform"
+        },
+        {
+          "id": 7,
+          "name": "cloud_terrain_6",
+          "rotation": 0,
+          "visible": true,
+          "x": 9152,
+          "y": 480,
+          "width": 256,
+          "height": 32,
+          "type": "platform"
+        },
+        {
+          "id": 8,
+          "name": "cloud_terrain_7",
+          "rotation": 0,
+          "visible": true,
+          "x": 9600,
+          "y": 400,
+          "width": 448,
+          "height": 32,
+          "type": "platform"
+        },
+        {
+          "id": 9,
+          "name": "cloud_terrain_8",
+          "rotation": 0,
+          "visible": true,
+          "x": 15232,
+          "y": 400,
+          "width": 512,
+          "height": 32,
+          "type": "platform"
+        }
+      ],
+      "properties": [
+        {
+          "name": "groundSurface",
+          "type": "string",
+          "value": "stone"
+        },
+        {
+          "name": "platformSurface",
+          "type": "string",
+          "value": "stone"
+        }
+      ],
+      "draworder": "topdown",
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 10,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 288
+}

@@ -1203,6 +1203,14 @@
     {"key":"hole_king_hurt","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_hurt.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"hole_king_defeated","type":"spritesheet","url":"/assets/enemies/hole_king/hole_king_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"bg_hole_far","type":"image","url":"/assets/backgrounds/bg_hole_far.png"},
-    {"key":"stage_preview_hole","type":"image","url":"/assets/backgrounds/stage_preview_hole.png"}
+    {"key":"stage_preview_hole","type":"image","url":"/assets/backgrounds/stage_preview_hole.png"},
+    {"key":"cloud_king_idle","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_idle.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_king_warning","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_king_attack","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_king_vulnerable","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_vulnerable.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_king_hurt","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_hurt.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_king_defeated","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"bg_cloud_far","type":"image","url":"/assets/backgrounds/bg_cloud_far.png"},
+    {"key":"stage_preview_cloud","type":"image","url":"/assets/backgrounds/stage_preview_cloud.png"}
   ]
 }

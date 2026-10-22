@@ -273,7 +273,8 @@ export class GameScene extends Phaser.Scene {
     const ability = courseSpeed < 1
       ? { ...movement, horizontalSpeedMultiplier: (movement.horizontalSpeedMultiplier ?? 1) * courseSpeed }
       : movement;
-    this.player.updateControls(input, time, delta, ability);
+    const externalVelocityX = this.bossController?.getMovementVelocityX() ?? 0;
+    this.player.updateControls(input, time, delta, externalVelocityX ? { ...ability, externalVelocityX } : ability);
     this.footstepManager?.update(time, ability);
     this.updatePlayerShadow();
     this.terrainMechanics?.update(time, delta);
