@@ -14,6 +14,7 @@ export class CourseMechanicsManager {
     this.created = [];
     this.interactions = [];
     this.stickyZones = level.terrainMechanics?.stickyZones ?? [];
+    this.transientStickyZones = new Map();
     this.holes = (level.terrainMechanics?.timedHoles ?? []).map((config) => this.createHole(config));
     this.rhythms = (level.environment?.rhythmZones ?? []).map((config) => this.createRhythm(config));
     this.finished = false;
@@ -35,6 +36,15 @@ export class CourseMechanicsManager {
   }
 
   createStickyZone(zone) {
+    if (zone.visualStyle === "tape") {
+      const tape = this.track(this.scene.add.graphics().setDepth(3));
+      tape.fillStyle(COLORS.collect, 0.95).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, 4);
+      tape.lineStyle(2, COLORS.outline).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, 4);
+      tape.lineStyle(2, COLORS.white, 0.8);
+      for (let x = zone.x + 12; x < zone.x + zone.width - 10; x += 32) tape.lineBetween(x, zone.y + zone.height - 2, x + 10, zone.y + 2);
+      if (zone.showHint !== false) this.label(zone.x + zone.width / 2, zone.y - 120, "끈끈한 테이프\n점프로 빠져나가요");
+      return;
+    }
     this.track(this.scene.add.rectangle(zone.x + zone.width / 2, zone.y + zone.height / 2,
       zone.width, zone.height, COLORS.collectPink, 0.95).setDepth(3).setStrokeStyle(3, COLORS.outline));
     for (let x = zone.x + 16; x < zone.x + zone.width; x += 40) {
@@ -65,8 +75,12 @@ export class CourseMechanicsManager {
   }
 
   get horizontalSpeedMultiplier() {
-    return this.finished ? 1 : getStickySpeedMultiplier(this.player.body, this.stickyZones, grounded(this.player.body));
+    const zones = [...this.stickyZones, ...[...this.transientStickyZones.values()].flat()];
+    return this.finished ? 1 : getStickySpeedMultiplier(this.player.body, zones, grounded(this.player.body));
   }
+
+  setTransientStickyZones(owner, zones) { this.transientStickyZones.set(owner, zones); }
+  clearTransientStickyZones(owner) { this.transientStickyZones.delete(owner); }
 
   update(input, delta) {
     const body = this.player.body;
@@ -139,6 +153,7 @@ export class CourseMechanicsManager {
   }
 
   reset() {
+    this.transientStickyZones.clear();
     for (const entry of this.holes) {
       entry.elapsedMs = null;
       entry.phase = "closed";
@@ -162,12 +177,14 @@ export class CourseMechanicsManager {
   getSnapshot() {
     return {
       speedMultiplier: this.horizontalSpeedMultiplier,
+      transientStickyCount: [...this.transientStickyZones.values()].reduce((count, zones) => count + zones.length, 0),
       holes: this.holes.map(({ config, phase, elapsedMs, platform }) => ({ id: config.id, phase, elapsedMs, solid: platform.body.enable })),
       rhythms: this.rhythms.map(({ config, state }) => ({ id: config.id, ...state }))
     };
   }
 
   destroy() {
+    this.transientStickyZones.clear();
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
     for (const interaction of this.interactions) interaction.destroy();
     for (const object of this.created) object.destroy();

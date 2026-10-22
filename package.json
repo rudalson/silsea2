@@ -50,7 +50,7 @@
     "validate:runtime": "node scripts/validate-runtime-build.js",
     "validate:integration": "node scripts/validate-integration.js",
     "validate": "node scripts/validate-levels.js && node scripts/validate-structure.js && node scripts/validate-core.js && node scripts/validate-asset-mapping.js && node scripts/validate-assets.js && node scripts/validate-integration.js",
-    "test": "node scripts/test-core.js && node scripts/test-stage1-gameplay.js && node scripts/test-campaign-balance.js && node scripts/test-character-animation.js && node scripts/test-boss-art.js && node scripts/test-gate-presentation.js && node scripts/test-item-presentation.js && node scripts/test-final-gate-flow.js && node scripts/test-mist-enemies.js && node scripts/test-course-mechanics.js && node scripts/test-merong.js",
+    "test": "node scripts/test-core.js && node scripts/test-stage1-gameplay.js && node scripts/test-campaign-balance.js && node scripts/test-character-animation.js && node scripts/test-boss-art.js && node scripts/test-gate-presentation.js && node scripts/test-item-presentation.js && node scripts/test-final-gate-flow.js && node scripts/test-mist-enemies.js && node scripts/test-course-mechanics.js && node scripts/test-merong.js && node scripts/test-tape.js",
     "test:course": "node scripts/test-course-mechanics.js",
     "test:soak": "node --expose-gc scripts/test-soak.js",
     "test:release": "npm run build && npm run validate:runtime",
@@ -61,7 +61,9 @@
     "invisible:effects": "node scripts/build-invisible-effects.js",
     "pegasus:wing": "node scripts/build-pegasus-wing.js",
     "merong:assets": "node scripts/build-merong-assets.js",
-    "test:merong": "node scripts/test-merong.js"
+    "test:merong": "node scripts/test-merong.js",
+    "tape:assets": "node scripts/build-tape-assets.js",
+    "test:tape": "node scripts/test-tape.js"
   },
   "dependencies": {
     "phaser": "3.90.0"

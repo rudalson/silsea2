@@ -76,6 +76,8 @@ export function assertCourseMechanicsShape(level) {
   for (const zone of stickyZones) {
     rectangle(zone);
     range(zone, "speedMultiplier", 0.1, 1);
+    if (zone.visualStyle !== undefined && zone.visualStyle !== "tape") fail(`${zone.id} visualStyle이 지원되지 않습니다.`);
+    if (zone.showHint !== undefined && typeof zone.showHint !== "boolean") fail(`${zone.id} showHint는 boolean이어야 합니다.`);
   }
   for (const hole of timedHoles) {
     rectangle(hole);

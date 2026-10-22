@@ -1164,6 +1164,14 @@
     {"key":"merong_king_hurt","type":"spritesheet","url":"/assets/enemies/merong_king/merong_king_hurt.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"merong_king_defeated","type":"spritesheet","url":"/assets/enemies/merong_king/merong_king_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"bg_merong_far","type":"image","url":"/assets/backgrounds/bg_merong_far.png"},
-    {"key":"stage_preview_merong","type":"image","url":"/assets/backgrounds/stage_preview_merong.png"}
+    {"key":"stage_preview_merong","type":"image","url":"/assets/backgrounds/stage_preview_merong.png"},
+    {"key":"tape_king_idle","type":"spritesheet","url":"/assets/enemies/tape_king/tape_king_idle.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"tape_king_warning","type":"spritesheet","url":"/assets/enemies/tape_king/tape_king_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"tape_king_attack","type":"spritesheet","url":"/assets/enemies/tape_king/tape_king_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"tape_king_vulnerable","type":"spritesheet","url":"/assets/enemies/tape_king/tape_king_vulnerable.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"tape_king_hurt","type":"spritesheet","url":"/assets/enemies/tape_king/tape_king_hurt.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"tape_king_defeated","type":"spritesheet","url":"/assets/enemies/tape_king/tape_king_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"bg_tape_far","type":"image","url":"/assets/backgrounds/bg_tape_far.png"},
+    {"key":"stage_preview_tape","type":"image","url":"/assets/backgrounds/stage_preview_tape.png"}
   ]
 }

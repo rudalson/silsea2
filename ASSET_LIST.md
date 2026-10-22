@@ -50,8 +50,11 @@
 | `magpie` | M | 동화풍 풀컬러 fly 6, warning 3, dive 4, stunned 4, defeated 4 |
 | `potato_king` | M | idle 4, jump 4, fall 2, land 4, shoot 4, hurt 3, defeated 8 |
 | `merong_king` | M | N2: idle, warning, attack, vulnerable, hurt, defeated 각 1포즈·128×128 RGBA |
+| `tape_king` | M | N3: idle, warning, attack, vulnerable, hurt, defeated 각 1포즈·128×128 RGBA |
 
 N2 메롱 대왕과 왕국 배경은 이 대화의 built-in imagegen으로 제작했다. 원화·정확한 프롬프트·재패킹 규격은 `assets/_source/merong/README.md`, `prompts.json`, `frames.json`에 보관한다. `npm run merong:assets`는 원화에서 여섯 상태 시트, `bg_merong_far`(2048×720), `stage_preview_merong`(640×360), `references/merong-poses-review.png`를 재생성한다. 공격 혀와 예고는 동일한 판정 영역을 사용하는 Phaser Graphics로 그린다. 현재 각 상태는 정지 포즈 한 장이며 다중 프레임 동작은 후속 미술 보강 범위다.
+
+N3 테이프 대왕·도시도 built-in imagegen으로 제작했다. `assets/_source/tape/`에 원화와 프롬프트, 여백 수정 최종 원화 `tape-poses-v2.png`, 조립 메타데이터를 보존했다. `npm run tape:assets`로 6상태 시트, `bg_tape_far`(2048×720), `stage_preview_tape`(640×360), `references/tape-poses-review.png`를 재생성한다. 현재 각 상태는 단일 포즈이며 조각·바닥 테이프·예고는 코드로 표시한다.
 
 ## 아이템과 진행 오브젝트
 

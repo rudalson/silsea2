@@ -96,6 +96,15 @@ export function assertLevelShape(level) {
   assertCourseMechanicsShape(level);
   assertTongueMechanicsShape(level);
 
+  if (level.parallax?.layerAlpha !== undefined) {
+    const alpha = level.parallax.layerAlpha;
+    if (!alpha || typeof alpha !== "object" || Array.isArray(alpha)
+      || Object.entries(alpha).some(([key, value]) => !["far", "mid", "near"].includes(key)
+        || !Number.isFinite(value) || value < 0 || value > 1)) {
+      throw new Error(`[${level.id}] parallax.layerAlpha는 far/mid/near의 0~1 값이어야 합니다.`);
+    }
+  }
+
   if (level.progression?.retainAbilities !== undefined && typeof level.progression.retainAbilities !== "boolean") {
     throw new Error(`[${level.id}] progression.retainAbilities는 boolean이어야 합니다.`);
   }

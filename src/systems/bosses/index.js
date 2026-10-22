@@ -6,8 +6,10 @@ import { WaterKingBehavior } from "./WaterKingBehavior.js";
 import { RandomKingBehavior } from "./RandomKingBehavior.js";
 import { BOSS_BEHAVIOR_TYPES } from "../../data/bossBehaviorTypes.js";
 import { MerongKingBehavior } from "./MerongKingBehavior.js";
+import { TapeKingBehavior } from "./TapeKingBehavior.js";
 
 const BOSS_BEHAVIORS = Object.freeze({
+  tape_king: TapeKingBehavior,
   merong_king: MerongKingBehavior,
   potato_king: PotatoKingBehavior,
   training_dummy: TrainingDummyBehavior,

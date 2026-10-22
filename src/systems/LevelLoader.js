@@ -253,6 +253,7 @@ export class LevelLoader {
         .setDisplaySize(tileWidth + BACKGROUND_TILE_OVERLAP, tileHeight)
         .setFlipX(Math.abs(index) % 2 === 1)
         .setScrollFactor(this.level.parallax[layer], 0)
+        .setAlpha(this.level.parallax.layerAlpha?.[layer] ?? 1)
         .setDepth(depth);
       tiles.push(image);
     }
