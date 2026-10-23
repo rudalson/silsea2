@@ -215,7 +215,7 @@ export class EnvironmentMechanicsManager {
           // The house art has 8px of transparent padding below its foundation.
           // Tuck the visible foundation into the ground so it sits on the tile.
           const house = this.track(this.scene.add.image(centerX, shelter.yBottom + 14, houseKey));
-          house.setOrigin(0.5, 1).setDisplaySize(width * 1.22, height + 104).setDepth(5);
+          house.setOrigin(0.5, 1).setDisplaySize(width * 1.1, height + 64).setDepth(5);
         } else {
           const roof = this.track(this.scene.add.triangle(
             centerX,
