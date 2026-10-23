@@ -18,6 +18,8 @@
   "potato89_winged_forms": {"styleRefs":["silsea_sprite-Photoroom.png","silsea_run.png"],"note":"구운 감자의 둥근 갈색 체형을 유지하고 크림색 접힌 날개·비행 날개를 몸에 통합한 페가수스·알리콘 전용 동작 시트."},
   "$delivery": {
     "manifestGroups": {
+      "merong_imp": ["merong_imp_idle","merong_imp_move","merong_imp_defeated"],
+      "merong_sentry": ["merong_sentry_idle","merong_sentry_warning","merong_sentry_attack","merong_sentry_recover"],
       "cloud_king": ["cloud_king_idle","cloud_king_warning","cloud_king_attack","cloud_king_vulnerable","cloud_king_hurt","cloud_king_defeated"],
       "hole_king": ["hole_king_idle","hole_king_warning","hole_king_attack","hole_king_vulnerable","hole_king_hurt","hole_king_defeated"],
       "music_king": ["music_king_idle","music_king_warning","music_king_attack","music_king_vulnerable","music_king_hurt","music_king_defeated"],
@@ -273,5 +275,7 @@
   "stage_preview_hole": {"styleRefs":["maple_story_1.png"],"note":"사용자 구멍 코스 원안의 구멍 협곡과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/holes에 보존."},
   "cloud_king": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"사용자 구름 대왕 스케치의 울퉁불퉁한 구름 몸체·긴 팔다리를 유지한 내장 imagegen 원화. 6개 동작 포즈, 공통 배율·발 기준선으로 조립."},
   "bg_cloud_far": {"styleRefs":["maple_story_1.png"],"note":"사용자 구름 코스 원안의 구름 성과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/cloud에 보존."},
-  "stage_preview_cloud": {"styleRefs":["maple_story_1.png"],"note":"사용자 구름 코스 원안의 구름 성과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/cloud에 보존."}
+  "stage_preview_cloud": {"styleRefs":["maple_story_1.png"],"note":"사용자 구름 코스 원안의 구름 성과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/cloud에 보존."},
+  "merong_sentry": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 메롱 왕국 민트색 문지기. 왕관·큰 입·부풀린 볼·공격·회복 표정. 원화와 프롬프트는 assets/_source/merong-enemies에 보존."},
+  "merong_imp": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 분홍색 메롱 꼬마. 작은 뿔·광대 신발·짧은 혀, 원화 보행과 패배 포즈를 공통 배율·발 기준선으로 조립."}
 }

@@ -3,8 +3,10 @@ import { SCENE_KEYS } from "../src/config/constants.js";
 import { LEVELS } from "../src/data/levels/index.js";
 import { BOSS_MOTION_PROFILES, identityBossPose } from "../src/data/bossMotion.js";
 import { progressManager } from "../src/systems/ProgressManager.js";
+import { auditBossAudio, probeBossAudio } from "./lib/boss-audio-runtime.js";
 
 const output = document.querySelector("#results"), button = document.querySelector("#run");
+const audioReview = document.body.dataset.audioReview === "true";
 const neutral = { moveX: 0, moveY: 0, jumpDown: false, jumpPressed: false, jumpReleased: false, specialDown: false };
 const frame = () => new Promise(resolve => game.events.once("step", resolve));
 const frames = async count => { for (let i = 0; i < count; i++) await frame(); };
@@ -19,12 +21,14 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 async function run() {
   button.disabled = true; output.textContent = "새 5보스 실제 전투·표시 동작 검사 (필드 생략)\n";
+  const savedAudio = { muted: game.registry.get("audioMuted"), sfx: game.registry.get("sfxVolume"), bgm: game.registry.get("bgmVolume") };
+  if (audioReview && !game.registry.get("forceAssetFallback")) await game.sound.context.resume();
   const saved = { data: progressManager.data, memory: progressManager.memory, storage: progressManager.storage };
   const storageBefore = localStorage.getItem("silsea:progress:v1"), temporary = new Map();
   progressManager.data = structuredClone(saved.data); progressManager.memory = structuredClone(saved.memory);
   progressManager.storage = { getItem: key => temporary.get(key) ?? null, setItem: (key, value) => temporary.set(key, value) };
   const savedSection = game.registry.get("visualReviewSectionId"), savedOffset = game.registry.get("visualReviewOffset");
-  let scene, originalInput, monitor, restorePresentation;
+  let scene, originalInput, monitor, restorePresentation, audioAudit, probedAudio = false;
   try {
     for (const level of LEVELS.filter(level => Object.hasOwn(BOSS_MOTION_PROFILES, level.sections.at(-1).boss?.key))) {
       if (!game.scene.isActive(SCENE_KEYS.GAME) || game.scene.getScene(SCENE_KEYS.GAME).level.id !== level.id) {
@@ -47,6 +51,12 @@ async function run() {
       if (oldPresenter) assert(!oldPresenter.image.active, "이전 동작 이미지 제거");
       const boss = scene.levelLoader.boss, behavior = scene.bossController.behavior, presenter = scene.bossController.presentation;
       const key = boss.getData("key"), fallback = game.registry.get("forceAssetFallback"), reduced = game.registry.get("screenEffectStrength") === "reduced";
+      const silent = Boolean(fallback || new URLSearchParams(location.search).get("silent") === "1");
+      if (audioReview) {
+        scene.audioManager.setSfxVolume(0.18);
+        if (!probedAudio) { await probeBossAudio(scene, { fallback, assert, until }); probedAudio = true; }
+        scene.audioManager.setMuted(silent); scene.audioManager.setBgmVolume(0.18);
+      }
       assert(fallback ? presenter === null : Boolean(presenter?.image && !presenter.image.body && !boss.displayList), `${key} 표시/충돌 분리 또는 도형 모드`);
       const home = level.sections.at(-1).boss.spawn.x;
       const safeX = key === "hole_king" ? 15072 : key === "cloud_king" ? 17024 : home - (key === "music_king" ? 832 : 880);
@@ -56,6 +66,7 @@ async function run() {
       const geometry = () => ({ width: boss.body.width, height: boss.body.height, sx: boss.scaleX, sy: boss.scaleY, ox: boss.originX, oy: boss.originY,
         x: boss.x, y: boss.y, angle: boss.angle, dx: boss.body.x - boss.x, dy: boss.body.y - boss.y });
       const invariant = geometry(), faults = new Set(), states = new Set(), poseSamples = new Map();
+      if (audioReview) audioAudit = auditBossAudio(scene, { silent, assert, faults });
       if (presenter) {
         const originalUpdate = presenter.update;
         presenter.update = function (...args) {
@@ -92,6 +103,10 @@ async function run() {
         }
       };
       scene.events.on("postupdate", monitor);
+      if (audioAudit) {
+        const count = audioAudit.count; scene.scene.pause(); await new Promise(resolve => setTimeout(resolve, 250));
+        assert(audioAudit.count === count, "일시정지 중 새 효과음 요청 없음"); scene.scene.resume();
+      }
       if (presenter) {
         const paused = presenter.getSnapshot(), bounds = geometry();
         scene.scene.pause(); await new Promise(resolve => setTimeout(resolve, 250));
@@ -118,6 +133,7 @@ async function run() {
         assert(scene.children.list.filter(object => object.name === `boss-motion-${key}`).length === 1, "중복 동작 이미지 없음");
       }
       assert(faults.size === 0 && states.has("attack") && states.has("vulnerable") && states.has("defeated"), `${key} 충돌 불변·상태 표시 동기화 ${[...faults]}`);
+      audioAudit?.check(); audioAudit?.restore(); audioAudit = null;
       scene.events.off("postupdate", monitor); monitor = null;
       restorePresentation?.(); restorePresentation = null;
       scene.inputManager.sample = () => controller;
@@ -128,21 +144,30 @@ async function run() {
       log(`DONE ${level.name}`); originalInput = null;
     }
     assert(localStorage.getItem("silsea:progress:v1") === storageBefore, "사용자 기존 저장 기록 보존");
-    button.textContent = "검증 완료"; log("COMPLETE — 5보스 15타격·충돌 불변·동작·정지·재로드·처치·게이트·정리 확인");
+    button.textContent = "검증 완료"; log(`COMPLETE — 5보스 15타격·충돌 불변·동작·정지·재로드·처치·게이트·정리${audioReview ? "·공격/약점 효과음 재생/무음 검사" : ""} 확인`);
   } catch (error) {
     scene?.scene.resume(); button.textContent = "검증 실패"; log(`FAIL ${error.stack ?? error}`);
     log(`STATE ${JSON.stringify({ level: scene?.level?.id, boss: scene?.bossController?.behavior?.state, hp: scene?.levelLoader?.boss?.getData("hp"), x: scene?.player?.x, y: scene?.player?.y })}`);
   } finally {
+    audioAudit?.restore();
     if (scene?.events && monitor) scene.events.off("postupdate", monitor);
     restorePresentation?.();
     if (scene?.inputManager && originalInput) scene.inputManager.sample = originalInput;
     Object.assign(progressManager, saved); game.registry.set("visualReviewSectionId", savedSection); game.registry.set("visualReviewOffset", savedOffset);
+    if (audioReview) {
+      game.registry.set("audioMuted", savedAudio.muted); game.registry.set("sfxVolume", savedAudio.sfx); game.registry.set("bgmVolume", savedAudio.bgm);
+      if (scene?.audioManager?.scene) {
+        scene.audioManager.setSfxVolume(savedAudio.sfx ?? 0.72); scene.audioManager.setBgmVolume(savedAudio.bgm ?? 0.46);
+        scene.audioManager.setMuted(savedAudio.muted ?? false);
+      }
+      game.sound.mute = savedAudio.muted ?? false;
+    }
   }
 }
 const ready = setInterval(() => {
   const scene = game?.scene?.getScene(SCENE_KEYS.GAME); if (!scene?.player?.active) return; clearInterval(ready);
   if (!scene.levelHotReload) { output.textContent = "?visualReview=level-07&debug=1&mute=1로 열어 주세요."; return; }
-  button.disabled = false; button.textContent = "5보스 동작 검증 실행";
+  button.disabled = false; button.textContent = audioReview ? "5보스 효과음 검증 실행 (작게 재생)" : "5보스 동작 검증 실행";
   output.textContent = "실제 전투 15타격과 표시/충돌 분리 검사. 사용자 저장은 변경하지 않습니다.";
   button.addEventListener("click", run, { once: true });
 }, 100);

@@ -29,11 +29,15 @@ async function run(scene) {
   const sample = scene.inputManager.sample;
   const controller = { ...neutral };
   const sections = new Set(), attacks = new Set(), trapPhases = new Set();
+  const sentryPoses = new Set();
   let falls = 0;
   const onFall = () => falls++;
   const monitor = () => {
     sections.add(scene.currentSectionId);
-    for (const entry of scene.tongueTraps?.entries ?? []) trapPhases.add(entry.phase);
+    for (const entry of scene.tongueTraps?.entries ?? []) {
+      trapPhases.add(entry.phase);
+      if (entry.sprite) sentryPoses.add(entry.sprite.anims.currentAnim?.key);
+    }
     const behavior = scene.bossController?.behavior;
     if (behavior?.state === "attack") attacks.add(`${scene.levelLoader.boss.getData("phase")}:${behavior.attackIndex}`);
   };
@@ -53,6 +57,11 @@ async function run(scene) {
     assert(progressManager.isUnlocked(getLevel("level-07"), LEVELS), "5번 클리어로 메롱 왕국 해금");
     assert(scene.bossController.behavior.state === "dormant" && !scene.levelLoader.boss.body.enable, "궁전에 들어가기 전 보스 대기");
     assert(!scene.levelLoader.gate, "보스 처치 전 출구 생성 안 됨");
+    const fallback = scene.registry.get("forceAssetFallback");
+    assert(scene.tongueTraps.entries.every(entry => fallback ? !entry.sprite : entry.sprite?.texture.key.startsWith("merong_sentry_")),
+      "혀 함정 6곳의 신규 문지기 에셋/도형 fallback 연결");
+    assert(scene.levelLoader.enemies.every(enemy => enemy.getData("type") === "merong_imp" && (fallback || enemy.getData("usesArt"))),
+      "감자 대신 메롱 꼬마 2마리 생성");
     let previousJump = false;
     const started = scene.time.now;
     scene.inputManager.sample = () => {
@@ -80,11 +89,38 @@ async function run(scene) {
     scene.transformationManager.setForm("base");
     assert(sections.size >= 5 && scene.checkpointManager.current.id === "cp_merong_boss", "시작부터 다섯 필드 구간과 보스 전 회복 지점 통과");
     assert(trapPhases.has("warning") && trapPhases.has("attack") && trapPhases.has("rest"), "필드 혀의 예고·공격·휴식 실제 실행");
+    if (!fallback) assert(["warning", "attack", "recover"].every(role => sentryPoses.has(`enemy:merong_sentry:${role}`)),
+      "혀 예고·공격·휴식과 신규 문지기 표정 동기화");
     assert(falls === 0, "기본 점프와 획득한 비행으로 두 낭떠러지 통과");
     log(`ROUTE ${((scene.time.now - started) / 1000).toFixed(1)}초 · 별 ${scene.objectiveManager.context.starCount}`);
     const oldBehavior = scene.bossController.behavior;
     assert(await scene.levelHotReload.reload(), "신규 코스 데이터 재로드");
     assert(oldBehavior.tongue.visual.active === false, "재로드 시 이전 보스 공격 표시 정리");
+    const imp = scene.levelLoader.enemies[0];
+    place(imp.x - 180);
+    imp.body.reset(imp.getData("spawnX") - imp.getData("patrol") - 1, 576);
+    await frames(2);
+    assert(imp.body.velocity.x > 0 && (fallback || !imp.flipX), "꼬마 오른쪽 순찰·원화 방향 일치");
+    imp.body.reset(imp.getData("spawnX") + imp.getData("patrol") + 1, 576);
+    await frames(2);
+    assert(imp.body.velocity.x < 0 && (fallback || imp.flipX), "꼬마 왼쪽 순찰·원화 반전 일치");
+    assert(fallback || imp.anims.currentAnim?.key === "enemy:merong_imp:move", "꼬마 보행 애니메이션 실행");
+    scene.healthManager.restoreFull();
+    scene.healthManager.invulnerableUntil = 0;
+    const hpBeforeContact = scene.healthManager.hp;
+    place(imp.x, 574);
+    await until(() => scene.healthManager.hp < hpBeforeContact, "꼬마 실제 접촉 피해", 1500);
+    assert(scene.healthManager.hp === hpBeforeContact - 1, "꼬마 접촉은 체력 1 감소");
+    scene.scoreManager.resetCombo();
+    const scoreBeforeStomp = scene.scoreManager.score;
+    place(imp.x, imp.body.top - 1);
+    scene.player.setVelocityY(240);
+    await until(() => !imp.body.enable, "꼬마 실제 밟기 처치", 1500);
+    assert(scene.scoreManager.score === scoreBeforeStomp + 40, "꼬마 밟기 처치 40점");
+    assert(fallback || imp.anims.currentAnim?.key === "enemy:merong_imp:defeated", "꼬마 패배 애니메이션 실행");
+    await until(() => !imp.active, "꼬마 패배 포즈 종료", 1500);
+    assert(scene.scoreManager.score === scoreBeforeStomp + 40, "꼬마 처치 점수 중복 없음");
+    scene.healthManager.restoreFull();
     const boss = scene.levelLoader.boss, behavior = scene.bossController.behavior;
     place(boss.x - 760);
     await until(() => behavior.state === "warning", "보스 첫 예고");

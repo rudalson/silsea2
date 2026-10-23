@@ -2,22 +2,21 @@ import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getTongueTrapPhase } from "../data/tongueMechanics.js";
 import { TongueAttack } from "./TongueAttack.js";
+import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
 export class TongueTrapManager {
   constructor(scene, player, level, healthManager) {
     Object.assign(this, { scene, player, healthManager });
     this.created = [];
+    EnemyAnimationManager.register(scene, "merong_sentry");
     this.entries = (level.environment?.tongueTraps ?? []).map((config) => {
-      const face = scene.add.ellipse(config.x - config.direction * 28, config.y - 12, 64, 56, COLORS.white)
-        .setStrokeStyle(4, COLORS.collectPink).setDepth(3);
-      const mouth = scene.add.ellipse(config.x - config.direction * 17, config.y, 30, 26, COLORS.dangerAlt).setDepth(4);
-      const eye = scene.add.circle(config.x - config.direction * 20, config.y - 24, 4, COLORS.outline).setDepth(4);
+      const sprite = this.createSentry(config);
       const label = scene.add.text(config.x + config.direction * config.reach / 2, config.y - 84, "", {
         fontFamily: GAME_FONT_FAMILY, fontSize: "19px", color: CSS_COLORS.white,
         backgroundColor: CSS_COLORS.panel, padding: { x: 10, y: 7 }, align: "center"
       }).setOrigin(0.5).setDepth(8);
-      this.created.push(face, mouth, eye, label);
-      return { config, label, tongue: new TongueAttack(scene), elapsedMs: null, phase: "idle", practiceHit: false };
+      this.created.push(label);
+      return { config, sprite, label, tongue: new TongueAttack(scene), elapsedMs: null, phase: "idle", practiceHit: false };
     });
     const palace = level.environment?.tongueCourse?.palace;
     if (palace) this.createPalace(palace);
@@ -30,6 +29,32 @@ export class TongueTrapManager {
     this.onRespawn = () => this.reset();
     scene.events.on(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
     this.finished = false;
+  }
+
+  createSentry(config) {
+    const idle = EnemyAnimationManager.getSpec("merong_sentry", "idle");
+    if (this.scene.textures.exists(idle.textureKey)) {
+      // The sprite's open mouth meets the existing tongue origin (config.x/y).
+      // Mirroring around that anchor keeps left-facing traps aligned as well.
+      // Authored attack mouth: (104, 83), frame origin: (64, 112).
+      const scale = 0.76;
+      const sprite = this.scene.add.sprite(config.x - config.direction * 40 * scale, config.y + 29 * scale, idle.textureKey)
+        .setOrigin(0.5, 112 / 128).setScale(scale).setFlipX(config.direction < 0).setDepth(4);
+      sprite.setData("type", "merong_sentry");
+      EnemyAnimationManager.play(sprite, "idle");
+      this.created.push(sprite);
+      return sprite;
+    }
+    const face = this.scene.add.ellipse(config.x - config.direction * 28, config.y - 12, 64, 56, COLORS.white)
+      .setStrokeStyle(4, COLORS.collectPink).setDepth(3);
+    const mouth = this.scene.add.ellipse(config.x - config.direction * 17, config.y, 30, 26, COLORS.dangerAlt).setDepth(4);
+    const eye = this.scene.add.circle(config.x - config.direction * 20, config.y - 24, 4, COLORS.outline).setDepth(4);
+    this.created.push(face, mouth, eye);
+    return null;
+  }
+
+  showPose(entry, phase) {
+    if (entry.sprite) EnemyAnimationManager.play(entry.sprite, phase === "rest" ? "recover" : phase);
   }
 
   createPalace({ x, y }) {
@@ -50,7 +75,9 @@ export class TongueTrapManager {
     for (const entry of this.entries) {
       const { config, tongue } = entry;
       if (Math.abs(this.player.x - config.x) > config.triggerDistance + config.reach) {
-        entry.elapsedMs = null; entry.phase = "idle"; tongue.clear(); entry.label.setText(""); continue;
+        entry.elapsedMs = null; entry.phase = "idle"; tongue.clear(); entry.label.setText("");
+        this.showPose(entry, "idle");
+        continue;
       }
       if (entry.elapsedMs === null) {
         if (Math.abs(this.player.x - config.x) > config.triggerDistance) continue;
@@ -62,6 +89,7 @@ export class TongueTrapManager {
         this.scene.updateAccessibleStatus?.(config.y > 520 ? "낮은 혀 예고. 점프로 피하세요." : "높은 혀 예고. 바닥에서 기다리세요.");
       }
       entry.phase = phase;
+      this.showPose(entry, phase);
       if (phase === "warning") tongue.show(config, { warning: true });
       else if (phase === "attack") {
         const cycle = entry.elapsedMs % (config.warningMs + config.activeMs + config.restMs);
@@ -82,6 +110,7 @@ export class TongueTrapManager {
   reset() {
     for (const entry of this.entries) {
       entry.elapsedMs = null; entry.phase = "idle"; entry.practiceHit = false;
+      this.showPose(entry, "idle");
       entry.tongue.clear(); entry.label.setText("");
     }
   }

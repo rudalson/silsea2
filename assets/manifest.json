@@ -1220,6 +1220,25 @@
     {"key":"bgm_hole","type":"audio","url":"/assets/audio/bgm/bgm_hole.ogg"},
     {"key":"bgm_hole_boss","type":"audio","url":"/assets/audio/bgm/bgm_hole_boss.ogg"},
     {"key":"bgm_cloud","type":"audio","url":"/assets/audio/bgm/bgm_cloud.ogg"},
-    {"key":"bgm_cloud_boss","type":"audio","url":"/assets/audio/bgm/bgm_cloud_boss.ogg"}
+    {"key":"bgm_cloud_boss","type":"audio","url":"/assets/audio/bgm/bgm_cloud_boss.ogg"},
+    {"key":"sfx_merong_tongue","type":"audio","url":"/assets/audio/sfx/sfx_merong_tongue.wav"},
+    {"key":"sfx_merong_weakness","type":"audio","url":"/assets/audio/sfx/sfx_merong_weakness.wav"},
+    {"key":"sfx_tape_shot","type":"audio","url":"/assets/audio/sfx/sfx_tape_shot.wav"},
+    {"key":"sfx_tape_patch","type":"audio","url":"/assets/audio/sfx/sfx_tape_patch.wav"},
+    {"key":"sfx_tape_weakness","type":"audio","url":"/assets/audio/sfx/sfx_tape_weakness.wav"},
+    {"key":"sfx_music_note","type":"audio","url":"/assets/audio/sfx/sfx_music_note.wav"},
+    {"key":"sfx_music_weakness","type":"audio","url":"/assets/audio/sfx/sfx_music_weakness.wav"},
+    {"key":"sfx_hole_open","type":"audio","url":"/assets/audio/sfx/sfx_hole_open.wav"},
+    {"key":"sfx_hole_weakness","type":"audio","url":"/assets/audio/sfx/sfx_hole_weakness.wav"},
+    {"key":"sfx_cloud_wind","type":"audio","url":"/assets/audio/sfx/sfx_cloud_wind.wav"},
+    {"key":"sfx_cloud_rain","type":"audio","url":"/assets/audio/sfx/sfx_cloud_rain.wav"},
+    {"key":"sfx_cloud_weakness","type":"audio","url":"/assets/audio/sfx/sfx_cloud_weakness.wav"},
+    {"key":"merong_sentry_idle","type":"spritesheet","url":"/assets/enemies/merong_sentry/merong_sentry_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"merong_sentry_warning","type":"spritesheet","url":"/assets/enemies/merong_sentry/merong_sentry_warning.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"merong_sentry_attack","type":"spritesheet","url":"/assets/enemies/merong_sentry/merong_sentry_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"merong_sentry_recover","type":"spritesheet","url":"/assets/enemies/merong_sentry/merong_sentry_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"merong_imp_idle","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_idle.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"merong_imp_move","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"merong_imp_defeated","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_defeated.png","frameWidth":128,"frameHeight":128,"frames":2}
   ]
 }

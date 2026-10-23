@@ -64,6 +64,7 @@ export class AssetManager {
 
   static queueEnemyAssets(scene, level) {
     const types = new Set(level.enemies.map((enemy) => enemy.type));
+    if (level.environment?.tongueTraps?.length) types.add("merong_sentry");
     for (const hazard of level.hazards) {
       if (isContactHazard(hazard.type)) types.add(hazard.type);
     }

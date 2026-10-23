@@ -2,6 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EXPANSION_BGM_KEYS } from "../src/data/expansionAudio.js";
+import { BOSS_SFX_KEYS } from "../src/data/bossAudio.js";
 import { readOggVorbis } from "./lib/audio-metadata.js";
 import sharp from "sharp";
 import { KENNEY_TILESETS, readKenneyTile } from "./kenney-tiles.js";
@@ -82,7 +83,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["cloud_king", "hole_king", "music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["merong_sentry", "merong_imp", "cloud_king", "hole_king", "music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -149,6 +150,13 @@ const enemyAssets = [
   ...enemySequenceAssets("raw_potato", "idle", 2),
   ...enemySequenceAssets("raw_potato", "roll", 6),
   ...enemySequenceAssets("raw_potato", "defeated", 4),
+  ...enemySequenceAssets("merong_sentry", "idle", 2),
+  ...enemySequenceAssets("merong_sentry", "warning", 2),
+  ...enemySequenceAssets("merong_sentry", "attack", 1),
+  ...enemySequenceAssets("merong_sentry", "recover", 1),
+  ...enemySequenceAssets("merong_imp", "idle", 1),
+  ...enemySequenceAssets("merong_imp", "move", 4),
+  ...enemySequenceAssets("merong_imp", "defeated", 2),
   { name: "spike_pumpkin_anchor.png", path: join(root, "assets", "_anchor", "spike_pumpkin_anchor.png"), kind: "spike_pumpkin" },
   ...enemySequenceAssets("spike_pumpkin", "idle", 2),
   ...enemySequenceAssets("spike_pumpkin", "warning", 2),
@@ -345,7 +353,7 @@ const requiredAudioKeys = [
   "sfx_water_warning", "sfx_water_emerge", "sfx_water_attack", "sfx_water_dizzy", "sfx_water_submerge", "sfx_water_defeat",
   "sfx_random_draw", "sfx_random_result", "sfx_random_teleport", "sfx_random_throw", "sfx_random_tongue", "sfx_random_weakness", "sfx_random_defeat",
   "bgm_field", "bgm_rainbow_hill", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_clear_loop", "bgm_alicorn_layer",
-  ...EXPANSION_BGM_KEYS
+  ...EXPANSION_BGM_KEYS, ...BOSS_SFX_KEYS
 ];
 let validatedAudioCount = 0;
 let validatedCharacterSheetCount = 0;
@@ -567,7 +575,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king", "hole_king", "cloud_king"]) {
+  for (const enemyType of ["merong_sentry", "merong_imp", "raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king", "hole_king", "cloud_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);

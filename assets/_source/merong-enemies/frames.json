@@ -1,0 +1,121 @@
+{
+  "merong_sentry": {
+    "source": "sentry-poses.png",
+    "poses": [
+      {
+        "left": 67,
+        "top": 60,
+        "width": 409,
+        "height": 409
+      },
+      {
+        "left": 557,
+        "top": 62,
+        "width": 427,
+        "height": 408
+      },
+      {
+        "left": 1072,
+        "top": 81,
+        "width": 410,
+        "height": 388
+      },
+      {
+        "left": 66,
+        "top": 571,
+        "width": 410,
+        "height": 397
+      },
+      {
+        "left": 562,
+        "top": 562,
+        "width": 413,
+        "height": 408
+      },
+      {
+        "left": 1067,
+        "top": 574,
+        "width": 440,
+        "height": 396
+      }
+    ],
+    "scale": 0.23636363636363636,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        4
+      ],
+      "warning": [
+        1,
+        5
+      ],
+      "attack": [
+        2
+      ],
+      "recover": [
+        3
+      ]
+    }
+  },
+  "merong_imp": {
+    "source": "imp-poses.png",
+    "poses": [
+      {
+        "left": 103,
+        "top": 38,
+        "width": 373,
+        "height": 456
+      },
+      {
+        "left": 598,
+        "top": 33,
+        "width": 374,
+        "height": 460
+      },
+      {
+        "left": 1115,
+        "top": 41,
+        "width": 365,
+        "height": 452
+      },
+      {
+        "left": 97,
+        "top": 528,
+        "width": 401,
+        "height": 448
+      },
+      {
+        "left": 577,
+        "top": 574,
+        "width": 447,
+        "height": 399
+      },
+      {
+        "left": 1080,
+        "top": 644,
+        "width": 438,
+        "height": 327
+      }
+    ],
+    "scale": 0.1782608695652174,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0
+      ],
+      "move": [
+        1,
+        2,
+        3,
+        2
+      ],
+      "defeated": [
+        4,
+        5
+      ]
+    }
+  }
+}

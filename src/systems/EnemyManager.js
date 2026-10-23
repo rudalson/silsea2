@@ -314,7 +314,7 @@ export class EnemyManager {
     for (const enemy of this.levelLoader.enemies) {
       if (!enemy.active || !enemy.body?.enable) continue;
       const type = enemy.getData("type");
-      if (type === "raw_potato") this.updateRawPotato(enemy);
+      if (type === "raw_potato" || type === "merong_imp") this.updatePatrolEnemy(enemy);
       if (type === "wave_crab") this.waveCrabController.update(enemy, now, delta);
       if (type === "lantern_jellyfish") this.lanternJellyfishController.update(enemy, now);
       if (isMistEnemy(type)) this.mistEnemyController.update(enemy, now, delta);
@@ -460,13 +460,13 @@ export class EnemyManager {
     EnemyAnimationManager.play(enemy, "idle");
   }
 
-  updateRawPotato(enemy) {
+  updatePatrolEnemy(enemy) {
     const spawnX = enemy.getData("spawnX");
     const patrol = enemy.getData("patrol") ?? 160;
     if (enemy.x <= spawnX - patrol) enemy.body.setVelocityX(72);
     if (enemy.x >= spawnX + patrol) enemy.body.setVelocityX(-72);
     if (enemy.getData("usesArt")) {
-      enemy.setFlipX(enemy.body.velocity.x > 0);
+      enemy.setFlipX(enemy.getData("type") === "merong_imp" ? enemy.body.velocity.x < 0 : enemy.body.velocity.x > 0);
       EnemyAnimationManager.play(enemy, "move");
     }
     else enemy.setRotation(enemy.rotation + enemy.body.velocity.x * 0.0008);
@@ -602,7 +602,7 @@ export class EnemyManager {
       return;
     }
 
-    if (type === "raw_potato" || type === "wave_crab" || type === "lantern_jellyfish"
+    if (type === "raw_potato" || type === "merong_imp" || type === "wave_crab" || type === "lantern_jellyfish"
       || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
   }
 

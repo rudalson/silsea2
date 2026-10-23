@@ -4,6 +4,7 @@ const toNumber = (hex) => Number.parseInt(hex.slice(1), 16);
 
 export const ENEMY_DEFINITIONS = Object.freeze({
   raw_potato: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.base[3]) },
+  merong_imp: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.collect[1]) },
   wave_crab: { behavior: "telegraph_side_rush", params: ["patrol", "canRush"], color: toNumber(PALETTE.danger[0]) },
   lantern_goblin: { behavior: "telegraph_lantern_shot", params: ["patrol"], color: toNumber(PALETTE.alora[4]) },
   dew_snail: { behavior: "telegraph_roll", params: ["patrol"], color: toNumber(PALETTE.sylvia[10]) },
@@ -31,4 +32,4 @@ export const ENEMY_DEFINITIONS = Object.freeze({
 export const ENEMY_TYPES = Object.freeze(Object.keys(ENEMY_DEFINITIONS));
 
 export const isMistEnemy = (type) => type === "lantern_goblin" || type === "dew_snail";
-export const isGroundPatrolEnemy = (type) => type === "raw_potato" || type === "wave_crab" || isMistEnemy(type);
+export const isGroundPatrolEnemy = (type) => type === "raw_potato" || type === "merong_imp" || type === "wave_crab" || isMistEnemy(type);

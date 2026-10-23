@@ -46,8 +46,8 @@ export default {
     { id: "cp_merong_boss", x: 10560, y: 576, activationTop: 0, restoresHealth: true }
   ],
   enemies: [
-    { id: "merong_potato_a", type: "raw_potato", x: 4480, y: 576, patrol: 96 },
-    { id: "merong_potato_b", type: "raw_potato", x: 8064, y: 576, patrol: 96 }
+    { id: "merong_imp_a", type: "merong_imp", x: 4480, y: 576, patrol: 96 },
+    { id: "merong_imp_b", type: "merong_imp", x: 8064, y: 576, patrol: 96 }
   ],
   items: [
     { id: "merong_horn", type: "horn", x: 768, y: 576, activationTop: 0 },
@@ -78,7 +78,7 @@ export default {
     optional: [{ type: "collect_stars", count: 50, reward: 500 }, { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 390, reward: 400 }, { type: "no_damage", reward: 800 }] },
   difficulty: { easyMode: { extraCheckpoints: [{ id: "cp_merong_easy", x: 7168, y: 576, restoresHealth: true }],
-    removeEnemies: ["merong_potato_b"], player: { extraHp: 2, flightDrainMultiplier: 0.65 },
+    removeEnemies: ["merong_imp_b"], player: { extraHp: 2, flightDrainMultiplier: 0.65 },
     boss: { telegraphMultiplier: 1.35, vulnerabilityMultiplier: 1.3 },
     environment: { tongueWarningMultiplier: 1.4 }, pitScoreLoss: 0 } }
 };

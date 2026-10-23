@@ -1,6 +1,7 @@
 import { COLORS, EVENTS } from "../../config/constants.js";
 import { advanceTapeProjectile, canHitTapeKing, planTapePatches, tapeProjectileHits, TAPE_KING_PHASES } from "../../data/tapeMechanics.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
+import { playBossStateSfx } from "./bossAudio.js";
 
 export class TapeKingBehavior {
   constructor(context) {
@@ -41,6 +42,7 @@ export class TapeKingBehavior {
   get step() { return this.pattern.steps[this.stepIndex]; }
 
   enter(state, durationMs, animation) {
+    playBossStateSfx(this.scene, "tape_king", state, this.step?.type);
     this.state = state; this.elapsedMs = 0; this.durationMs = durationMs;
     this.boss.setData({ bossState: state, vulnerable: state === "vulnerable" });
     this.weakness.setVisible(state === "vulnerable");

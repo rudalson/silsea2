@@ -1,6 +1,7 @@
 import { COLORS, EVENTS } from "../../config/constants.js";
 import { advanceHolePatrol, canHitHoleKing, HOLE_KING_PHASES, selectBossHoles } from "../../data/holeMechanics.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
+import { playBossStateSfx } from "./bossAudio.js";
 
 export class HoleKingBehavior {
   constructor(context) {
@@ -25,6 +26,7 @@ export class HoleKingBehavior {
   get pattern() { return HOLE_KING_PHASES[this.boss.getData("phase")]; }
   setHoles(phase, targets = this.targets) { this.scene.courseMechanics?.setControlledHoles("hole_king", targets.map(({config})=>config.id), phase); }
   enter(state,durationMs,animation) {
+    playBossStateSfx(this.scene, "hole_king", state);
     this.state=state; this.elapsedMs=0; this.durationMs=durationMs; this.boss.setData({bossState:state,vulnerable:state==="vulnerable"});
     this.weakness.setVisible(state==="vulnerable"); if(animation && this.boss.getData("usesArt")) EnemyAnimationManager.play(this.boss,animation,false);
   }

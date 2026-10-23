@@ -3,6 +3,7 @@ import { advanceMusicNote, canHitMusicKing, createMusicRestState, isMusicRestSaf
   MUSIC_KING_PHASES, MUSIC_REST_CONFIG, stepMusicRest } from "../../data/musicMechanics.js";
 import { drawPianoKeys, rhythmInputMoving, RhythmSignal } from "../RhythmSignal.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
+import { playBossStateSfx } from "./bossAudio.js";
 
 export class MusicKingBehavior {
   constructor(context) {
@@ -33,6 +34,8 @@ export class MusicKingBehavior {
   }
   get pattern() { return MUSIC_KING_PHASES[this.boss.getData("phase")]; }
   enter(state, durationMs, animation) {
+    // Successful five-second rests already play the distinct "go" signal.
+    if (state !== "vulnerable" || this.rest?.phase !== "success") playBossStateSfx(this.scene, "music_king", state);
     this.state = state; this.elapsedMs = 0; this.durationMs = durationMs;
     this.boss.setData({ bossState: state, vulnerable: state === "vulnerable" });
     this.weakness.setVisible(state === "vulnerable");

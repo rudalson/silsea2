@@ -1,6 +1,7 @@
 import { COLORS, EVENTS } from "../../config/constants.js";
 import { advanceRainDrop, canHitCloudKing, chooseRainColumns, CLOUD_KING_PHASES, getCloudWindVelocity, rainDropHits } from "../../data/cloudMechanics.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
+import { playBossStateSfx } from "./bossAudio.js";
 
 export class CloudKingBehavior {
   constructor(context) {
@@ -23,7 +24,10 @@ export class CloudKingBehavior {
     return getCloudWindVelocity(this.direction,this.pattern.windSpeed*(this.easyMode?0.65:1),this.player.x,this.section);
   }
   moveTo(y){this.boss.body.reset(this.homeX,y);this.fallback?.setPosition(this.homeX,y);this.boss.getData("label")?.setPosition(this.homeX,y-182);}
-  enter(state,durationMs,animation){this.state=state;this.elapsedMs=0;this.durationMs=durationMs;this.boss.setData({bossState:state,vulnerable:state==="vulnerable"});this.weakness.setVisible(state==="vulnerable");if(animation&&this.boss.getData("usesArt"))EnemyAnimationManager.play(this.boss,animation,false);}
+  enter(state,durationMs,animation){
+    playBossStateSfx(this.scene, "cloud_king", state, this.action);
+    this.state=state;this.elapsedMs=0;this.durationMs=durationMs;this.boss.setData({bossState:state,vulnerable:state==="vulnerable"});this.weakness.setVisible(state==="vulnerable");if(animation&&this.boss.getData("usesArt"))EnemyAnimationManager.play(this.boss,animation,false);
+  }
   beginWarning(){
     this.direction=this.player.x<this.homeX?-1:1;this.columns=this.action==="rain"?chooseRainColumns(this.player.x,this.section,this.pattern.rainOffsets,this.easyMode):[];
     this.enter("warning",this.pattern.warningMs*this.telegraphMultiplier,"warning");this.scene.audioManager?.playSfx("sfx_boss_warning",{randomizeRate:false});

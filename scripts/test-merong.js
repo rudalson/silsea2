@@ -7,7 +7,9 @@ import { assertLevelShape, normalizeLevelDefinition } from "../src/data/schema/l
 import { getLevel, getNextLevel, LEVELS } from "../src/data/levels/index.js";
 import { getBossDefinition } from "../src/data/bossDefinitions.js";
 import { getBossPhasePattern } from "../src/data/bossPatterns.js";
-import { getEnemyAnimationSpec } from "../src/data/enemyAnimations.js";
+import { getEnemyAnimationSpec, getEnemySequenceNames } from "../src/data/enemyAnimations.js";
+import { ENEMY_TYPES, isGroundPatrolEnemy } from "../src/data/enemies.js";
+import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
 import { findLayoutIssues } from "./lib/level-layout.js";
 import { ProgressManager } from "../src/systems/ProgressManager.js";
@@ -47,6 +49,10 @@ const before = JSON.stringify(level);
 const easy = createRuntimeLevel(normalizeLevelDefinition(level), true);
 assert.equal(easy.environment.tongueTraps[0].warningMs, 1680);
 assert.equal(JSON.stringify(level), before);
+assert.ok(level.enemies.every(({ type }) => type === "merong_imp"));
+assert.ok(ENEMY_TYPES.includes("merong_imp") && isGroundPatrolEnemy("merong_imp"));
+assert.equal(easy.enemies.length, 1, "쉬움에서는 두 번째 메롱 꼬마 제거");
+assert.equal(new ScoreManager().defeat("merong_imp"), 40, "기존 순찰 적의 처치 점수 유지");
 const bad = structuredClone(level);
 bad.environment.tongueTraps[0].x = level.world.width;
 assert.throws(() => assertLevelShape(bad), /world 밖/);
@@ -77,4 +83,27 @@ for (const role of definition.animationRoles) {
   }
   assert.ok(minX >= 8 && maxX < 120 && maxY >= 110 && maxY <= 112, `${role} 프레임 여백·발 기준선`);
 }
-console.log("메롱 왕국 검사 통과: 혀 범위·예고 경계·3단계 약점·6번 해금·기록 호환·양 난이도 배치·6포즈 RGBA");
+const manifest = JSON.parse(readFileSync(new URL("../assets/manifest.json", import.meta.url), "utf8"));
+for (const type of ["merong_sentry", "merong_imp"]) {
+  for (const sequence of getEnemySequenceNames(type)) {
+    const spec = getEnemyAnimationSpec(type, sequence);
+    const entry = manifest.assets.find(({ key }) => key === spec.textureKey);
+    assert.equal(entry?.frames, spec.durations.length, `${type}/${sequence} manifest·애니메이션 일치`);
+    const { data, info } = await sharp(readFileSync(new URL(`..${entry.url}`, import.meta.url))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(info.width, 128 * entry.frames); assert.equal(info.height, 128);
+    for (let frame = 0; frame < entry.frames; frame++) {
+      let minX = 128, maxX = -1, minY = 128, maxY = -1, clear = 0;
+      for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
+        const alpha = data[(y * info.width + frame * 128 + x) * 4 + 3];
+        if (alpha === 0) clear++;
+        if (alpha < 16) continue;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      assert.ok(clear > 6000, `${type}/${sequence}/${frame} 실제 투명 배경`);
+      assert.ok(minX >= 8 && maxX < 120 && minY >= 8, `${type}/${sequence}/${frame} 잘림 없는 여백`);
+      assert.ok(maxY >= 110 && maxY <= 112, `${type}/${sequence}/${frame} 발 기준선`);
+    }
+  }
+}
+console.log("메롱 왕국 검사 통과: 혀 범위·예고 경계·보스·해금·기록·양 난이도 배치·신규 적 2종 7상태 RGBA·처치 점수");

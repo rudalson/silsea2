@@ -1,4 +1,7 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  merong_sentry: Object.freeze({ idle: "merong_sentry_idle", warning: "merong_sentry_warning",
+    attack: "merong_sentry_attack", recover: "merong_sentry_recover" }),
+  merong_imp: Object.freeze({ idle: "merong_imp_idle", move: "merong_imp_move", defeated: "merong_imp_defeated" }),
   cloud_king: Object.freeze({ idle: "cloud_king_idle", warning: "cloud_king_warning",
     attack: "cloud_king_attack", vulnerable: "cloud_king_vulnerable", hurt: "cloud_king_hurt", defeated: "cloud_king_defeated" }),
   hole_king: Object.freeze({ idle: "hole_king_idle", warning: "hole_king_warning",
@@ -103,6 +106,17 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  merong_sentry: Object.freeze({
+    idle: Object.freeze({ durations: [1800, 130], repeat: -1 }),
+    warning: Object.freeze({ durations: [220, 220], repeat: -1 }),
+    attack: Object.freeze({ durations: [650], repeat: -1 }),
+    recover: Object.freeze({ durations: [2000], repeat: -1 })
+  }),
+  merong_imp: Object.freeze({
+    idle: Object.freeze({ durations: [900], repeat: -1 }),
+    move: Object.freeze({ durations: [160, 150, 160, 150], repeat: -1 }),
+    defeated: Object.freeze({ durations: [180, 380], repeat: 0 })
+  }),
   cloud_king: Object.freeze({
     idle: Object.freeze({ durations: [3400], repeat: -1 }), warning: Object.freeze({ durations: [1300], repeat: -1 }),
     attack: Object.freeze({ durations: [600], repeat: -1 }), vulnerable: Object.freeze({ durations: [3800], repeat: -1 }),

@@ -1,7 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateBgm } from "./generate-bgm.js";
+import { BOSS_SFX_RECIPES } from "./lib/boss-sfx.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const sampleRate = 22050;
@@ -96,7 +97,8 @@ const sfx = {
   sfx_footstep_shallow_water: { duration: 0.11, tones: [tone(0, 0.09, 350, 118, "sine", 0.17)], noise: 0.13 },
   sfx_rhythm_warning: { duration: 0.72, tones: arpeggio([659, 659, 659], 0.22, 0.16, "triangle", 0.24) },
   sfx_rhythm_stop: { duration: 0.85, tones: [tone(0, 0.85, 1319, 1319, "sine", 0.28), tone(0, 0.5, 2638, 2638, "sine", 0.08)] },
-  sfx_rhythm_go: { duration: 0.56, tones: arpeggio([523, 659, 784, 1047], 0.11, 0.22, "triangle", 0.22) }
+  sfx_rhythm_go: { duration: 0.56, tones: arpeggio([523, 659, 784, 1047], 0.11, 0.22, "triangle", 0.22) },
+  ...BOSS_SFX_RECIPES
 };
 
 const waveAt = (kind, phase) => {
@@ -161,19 +163,27 @@ const wavBuffer = (samples) => {
   return buffer;
 };
 
-const writeAudio = (relativePath, samples) => {
-  const output = join(root, relativePath);
-  mkdirSync(dirname(output), { recursive: true });
-  writeFileSync(output, wavBuffer(samples));
-};
+export function renderSfxWav(key) {
+  const index = Object.keys(sfx).indexOf(key);
+  if (index < 0) throw new Error(`알 수 없는 SFX 키: ${key}`);
+  return wavBuffer(renderSfx(sfx[key], 8901 + index * 97));
+}
 
-const requested = new Set(process.argv.slice(2));
-for (const key of requested) if (!sfx[key]) throw new Error(`알 수 없는 SFX 키: ${key}`);
-Object.entries(sfx).forEach(([key, recipe], index) => {
-  if (requested.size && !requested.has(key)) return;
-  writeAudio(`assets/audio/sfx/${key}.wav`, renderSfx(recipe, 8901 + index * 97));
-});
+export function generateSfx(keys = Object.keys(sfx)) {
+  const requested = [...new Set(keys)];
+  // Validate the entire request before writing any files.
+  for (const key of requested) if (!Object.hasOwn(sfx, key)) throw new Error(`알 수 없는 SFX 키: ${key}`);
+  for (const key of requested) {
+    const output = join(root, `assets/audio/sfx/${key}.wav`);
+    mkdirSync(dirname(output), { recursive: true });
+    writeFileSync(output, renderSfxWav(key));
+  }
+  return requested.length;
+}
 
-const bgmCount = requested.size ? 0 : generateBgm();
-
-console.log(`오디오 생성 완료: SFX ${requested.size || Object.keys(sfx).length}개 WAV, BGM ${bgmCount}개 OGG`);
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const requested = process.argv.slice(2);
+  const count = requested.length ? generateSfx(requested) : generateSfx();
+  const bgmCount = requested.length ? 0 : generateBgm();
+  console.log(`오디오 생성 완료: SFX ${count}개 WAV, BGM ${bgmCount}개 OGG`);
+}

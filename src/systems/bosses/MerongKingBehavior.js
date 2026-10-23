@@ -2,6 +2,7 @@ import { COLORS, EVENTS } from "../../config/constants.js";
 import { canHitMerongKing, MERONG_KING_PHASES } from "../../data/tongueMechanics.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 import { TongueAttack } from "../TongueAttack.js";
+import { playBossStateSfx } from "./bossAudio.js";
 
 export class MerongKingBehavior {
   constructor(context) {
@@ -37,6 +38,7 @@ export class MerongKingBehavior {
   get pattern() { return MERONG_KING_PHASES[this.boss.getData("phase")]; }
 
   enter(state, durationMs, animation) {
+    playBossStateSfx(this.scene, "merong_king", state);
     this.state = state;
     this.elapsedMs = 0;
     this.durationMs = durationMs;
