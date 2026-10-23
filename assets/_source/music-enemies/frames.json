@@ -1,0 +1,162 @@
+{
+  "piano_imp": {
+    "source": "piano_imp-poses.png",
+    "poses": [
+      {
+        "left": 57,
+        "top": 117,
+        "width": 292,
+        "height": 321
+      },
+      {
+        "left": 440,
+        "top": 118,
+        "width": 292,
+        "height": 321
+      },
+      {
+        "left": 825,
+        "top": 117,
+        "width": 302,
+        "height": 322
+      },
+      {
+        "left": 1202,
+        "top": 117,
+        "width": 286,
+        "height": 318
+      },
+      {
+        "left": 55,
+        "top": 591,
+        "width": 289,
+        "height": 320
+      },
+      {
+        "left": 431,
+        "top": 590,
+        "width": 315,
+        "height": 320
+      },
+      {
+        "left": 802,
+        "top": 583,
+        "width": 311,
+        "height": 327
+      },
+      {
+        "left": 1197,
+        "top": 611,
+        "width": 297,
+        "height": 294
+      }
+    ],
+    "scale": 0.28134556574923547,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        1
+      ],
+      "move": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "warning": [
+        4
+      ],
+      "attack": [
+        5
+      ],
+      "recover": [
+        6
+      ],
+      "defeated": [
+        7
+      ]
+    }
+  },
+  "metronome_owl": {
+    "source": "metronome_owl-poses.png",
+    "poses": [
+      {
+        "left": 21,
+        "top": 12,
+        "width": 329,
+        "height": 451
+      },
+      {
+        "left": 402,
+        "top": 11,
+        "width": 326,
+        "height": 451
+      },
+      {
+        "left": 773,
+        "top": 9,
+        "width": 352,
+        "height": 454
+      },
+      {
+        "left": 1184,
+        "top": 14,
+        "width": 337,
+        "height": 446
+      },
+      {
+        "left": 14,
+        "top": 507,
+        "width": 380,
+        "height": 458
+      },
+      {
+        "left": 386,
+        "top": 516,
+        "width": 395,
+        "height": 454
+      },
+      {
+        "left": 817,
+        "top": 539,
+        "width": 304,
+        "height": 429
+      },
+      {
+        "left": 1163,
+        "top": 592,
+        "width": 358,
+        "height": 360
+      }
+    ],
+    "scale": 0.20087336244541484,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        1
+      ],
+      "move": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "warning": [
+        4
+      ],
+      "attack": [
+        5
+      ],
+      "recover": [
+        6
+      ],
+      "defeated": [
+        7
+      ]
+    }
+  }
+}

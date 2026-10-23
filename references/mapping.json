@@ -18,6 +18,8 @@
   "potato89_winged_forms": {"styleRefs":["silsea_sprite-Photoroom.png","silsea_run.png"],"note":"구운 감자의 둥근 갈색 체형을 유지하고 크림색 접힌 날개·비행 날개를 몸에 통합한 페가수스·알리콘 전용 동작 시트."},
   "$delivery": {
     "manifestGroups": {
+      "metronome_owl": ["metronome_owl_idle","metronome_owl_move","metronome_owl_warning","metronome_owl_attack","metronome_owl_recover","metronome_owl_defeated"],
+      "piano_imp": ["piano_imp_idle","piano_imp_move","piano_imp_warning","piano_imp_attack","piano_imp_recover","piano_imp_defeated"],
       "tape_boxling": ["tape_boxling_idle","tape_boxling_move","tape_boxling_defeated"],
       "tape_rollbug": ["tape_rollbug_idle","tape_rollbug_move","tape_rollbug_defeated"],
       "merong_imp": ["merong_imp_idle","merong_imp_move","merong_imp_defeated"],
@@ -281,5 +283,7 @@
   "merong_sentry": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 메롱 왕국 민트색 문지기. 왕관·큰 입·부풀린 볼·공격·회복 표정. 원화와 프롬프트는 assets/_source/merong-enemies에 보존."},
   "merong_imp": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 분홍색 메롱 꼬마. 작은 뿔·광대 신발·짧은 혀, 원화 보행과 패배 포즈를 공통 배율·발 기준선으로 조립."},
   "tape_rollbug": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 테이프 도시 금빛 테이프 말이. 대기·보행·패배 6포즈 원화와 프롬프트는 assets/_source/tape-enemies에 보존. 공통 배율·128px 프레임·112px 발 기준선으로 조립."},
-  "tape_boxling": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 테이프 도시 포장 박스 꼬마. 대기·보행·패배 6포즈 원화와 프롬프트는 assets/_source/tape-enemies에 보존. 공통 배율·128px 프레임·112px 발 기준선으로 조립."}
+  "tape_boxling": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 테이프 도시 포장 박스 꼬마. 대기·보행·패배 6포즈 원화와 프롬프트는 assets/_source/tape-enemies에 보존. 공통 배율·128px 프레임·112px 발 기준선으로 조립."},
+  "piano_imp": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 PIANO KINGDOM 전용 적 piano_imp. 8포즈 원화·프롬프트는 assets/_source/music-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."},
+  "metronome_owl": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 PIANO KINGDOM 전용 적 metronome_owl. 8포즈 원화·프롬프트는 assets/_source/music-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."}
 }

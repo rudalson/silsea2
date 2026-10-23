@@ -1245,6 +1245,18 @@
     {"key":"tape_rollbug_defeated","type":"spritesheet","url":"/assets/enemies/tape_rollbug/tape_rollbug_defeated.png","frameWidth":128,"frameHeight":128,"frames":2},
     {"key":"tape_boxling_idle","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
     {"key":"tape_boxling_move","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_move.png","frameWidth":128,"frameHeight":128,"frames":4},
-    {"key":"tape_boxling_defeated","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_defeated.png","frameWidth":128,"frameHeight":128,"frames":2}
+    {"key":"tape_boxling_defeated","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_defeated.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"piano_imp_idle","type":"spritesheet","url":"/assets/enemies/piano_imp/piano_imp_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"piano_imp_move","type":"spritesheet","url":"/assets/enemies/piano_imp/piano_imp_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"piano_imp_warning","type":"spritesheet","url":"/assets/enemies/piano_imp/piano_imp_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"piano_imp_attack","type":"spritesheet","url":"/assets/enemies/piano_imp/piano_imp_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"piano_imp_recover","type":"spritesheet","url":"/assets/enemies/piano_imp/piano_imp_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"piano_imp_defeated","type":"spritesheet","url":"/assets/enemies/piano_imp/piano_imp_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"metronome_owl_idle","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"metronome_owl_move","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"metronome_owl_warning","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"metronome_owl_attack","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"metronome_owl_recover","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"metronome_owl_defeated","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_defeated.png","frameWidth":128,"frameHeight":128,"frames":1}
   ]
 }

@@ -10,6 +10,8 @@ import { CORAL_URCHIN_RULES, CoralUrchinController } from "./CoralUrchinControll
 import { LANTERN_SHOT_RULES, MistEnemyController } from "./MistEnemyController.js";
 import { WaveCrabController } from "./WaveCrabController.js";
 import { LanternJellyfishController } from "./LanternJellyfishController.js";
+import { ThemedEnemyController } from "./ThemedEnemyController.js";
+import { isThemedEnemy } from "../data/themedEnemies.js";
 
 export class EnemyManager {
   constructor(scene, player, levelLoader, healthManager, transformationManager, scoreManager, difficulty = {}) {
@@ -36,6 +38,7 @@ export class EnemyManager {
     this.arrowPool = this.createArrowPool();
     this.lanternShotPool = this.createLanternShotPool();
     this.waterShotPool = this.createWaterShotPool();
+    this.themedEnemyController = new ThemedEnemyController(scene, player, levelLoader, healthManager, transformationManager, difficulty.enabled);
     this.bindInteractions();
   }
 
@@ -43,7 +46,7 @@ export class EnemyManager {
     for (const enemy of this.levelLoader.enemies) {
       if (isGroundPatrolEnemy(enemy.getData("type"))) {
         this.interactions.push(this.scene.physics.add.collider(enemy, this.levelLoader.terrainBodies));
-        if (isMistEnemy(enemy.getData("type")) || enemy.getData("type") === "wave_crab") enemy.body.setGravityY(900);
+        if (isMistEnemy(enemy.getData("type")) || isThemedEnemy(enemy.getData("type")) || enemy.getData("type") === "wave_crab") enemy.body.setGravityY(900);
         else enemy.body.setVelocityX(-70);
       }
       this.interactions.push(
@@ -315,6 +318,7 @@ export class EnemyManager {
       if (!enemy.active || !enemy.body?.enable) continue;
       const type = enemy.getData("type");
       if (isSimplePatrolEnemy(type)) this.updatePatrolEnemy(enemy);
+      if (isThemedEnemy(type)) this.themedEnemyController.update(enemy, now, delta);
       if (type === "wave_crab") this.waveCrabController.update(enemy, now, delta);
       if (type === "lantern_jellyfish") this.lanternJellyfishController.update(enemy, now);
       if (isMistEnemy(type)) this.mistEnemyController.update(enemy, now, delta);
@@ -602,7 +606,7 @@ export class EnemyManager {
       return;
     }
 
-    if (isSimplePatrolEnemy(type) || type === "wave_crab" || type === "lantern_jellyfish"
+    if (isSimplePatrolEnemy(type) || isThemedEnemy(type) || type === "wave_crab" || type === "lantern_jellyfish"
       || type === "potato_archer" || isMistEnemy(type)) this.healthManager.takeDamage(enemy.x);
   }
 
@@ -624,6 +628,7 @@ export class EnemyManager {
   }
 
   defeatEnemy(enemy, type) {
+    this.themedEnemyController.cancel(enemy);
     this.lanternShotPool.forEachActive((shot) => {
       if (shot.owner === enemy) this.lanternShotPool.release(shot);
     });
@@ -714,6 +719,7 @@ export class EnemyManager {
     const next = Boolean(paused);
     if (next === this.paused) return;
     this.paused = next;
+    this.themedEnemyController.setPaused(next);
     if (next) {
       this.pausedAt = now;
       for (const enemy of this.levelLoader.enemies) {
@@ -767,6 +773,7 @@ export class EnemyManager {
   }
 
   destroy() {
+    this.themedEnemyController.destroy();
     for (const interaction of this.interactions) interaction?.destroy();
     this.interactions.length = 0;
     for (const enemy of this.levelLoader.enemies) {

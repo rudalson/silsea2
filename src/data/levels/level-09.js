@@ -49,8 +49,8 @@ export default {
     { id: "cp_music_boss", x: 14656, y: 576, activationTop: 0, restoresHealth: true }
   ],
   enemies: [
-    { id: "music_potato_a", type: "raw_potato", x: 4672, y: 576, patrol: 80 },
-    { id: "music_potato_b", type: "raw_potato", x: 13440, y: 576, patrol: 80 }
+    { id: "music_imp_a", type: "piano_imp", x: 4672, y: 576, patrol: 80 },
+    { id: "music_owl_b", type: "metronome_owl", x: 13440, y: 576, patrol: 80 }
   ],
   items: [
     { id: "music_horn", type: "horn", x: 768, y: 576, activationTop: 0 },
@@ -79,7 +79,7 @@ export default {
     optional: [{ type: "collect_stars", count: 65, reward: 500 }, { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 480, reward: 400 }, { type: "no_damage", reward: 800 }] },
   difficulty: { easyMode: { extraCheckpoints: [{ id: "cp_music_easy", x: 10112, y: 576, activationTop: 0, restoresHealth: true }],
-    removeEnemies: ["music_potato_b"], player: { extraHp: 2, flightDrainMultiplier: 0.65 },
+    removeEnemies: ["music_owl_b"], player: { extraHp: 2, flightDrainMultiplier: 0.65 },
     boss: { telegraphMultiplier: 1.35, vulnerabilityMultiplier: 1.3 },
     terrainMechanics: { movingSpeedMultiplier: 0.8, crumbleDelayMultiplier: 1.3 },
     environment: { rhythmWarningMultiplier: 1.4 }, pitScoreLoss: 0 } }

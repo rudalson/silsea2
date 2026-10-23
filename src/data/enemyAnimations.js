@@ -1,4 +1,9 @@
+import { THEMED_ENEMIES } from "./themedEnemies.js";
+
+const themedRoles = ["idle", "move", "warning", "attack", "recover", "defeated"];
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  ...Object.fromEntries(Object.keys(THEMED_ENEMIES).map(type => [type,
+    Object.freeze(Object.fromEntries(themedRoles.map(role => [role, `${type}_${role}`])))])),
   tape_rollbug: Object.freeze({ idle: "tape_rollbug_idle", move: "tape_rollbug_move", defeated: "tape_rollbug_defeated" }),
   tape_boxling: Object.freeze({ idle: "tape_boxling_idle", move: "tape_boxling_move", defeated: "tape_boxling_defeated" }),
   merong_sentry: Object.freeze({ idle: "merong_sentry_idle", warning: "merong_sentry_warning",
@@ -108,6 +113,14 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  ...Object.fromEntries(Object.keys(THEMED_ENEMIES).map(type => [type, Object.freeze({
+    idle: Object.freeze({ durations: [1700, 140], repeat: -1 }),
+    move: Object.freeze({ durations: [180, 160, 180, 160], repeat: -1 }),
+    warning: Object.freeze({ durations: [1000], repeat: -1 }),
+    attack: Object.freeze({ durations: [800], repeat: -1 }),
+    recover: Object.freeze({ durations: [700], repeat: -1 }),
+    defeated: Object.freeze({ durations: [560], repeat: 0 })
+  })])),
   tape_rollbug: Object.freeze({
     idle: Object.freeze({ durations: [1600, 130], repeat: -1 }),
     move: Object.freeze({ durations: [170, 150, 170, 150], repeat: -1 }),

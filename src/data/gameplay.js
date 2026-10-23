@@ -1,3 +1,5 @@
+import { THEMED_ENEMIES } from "./themedEnemies.js";
+
 export const FORMS = Object.freeze({
   BASE: "base",
   UNICORN: "unicorn",
@@ -27,6 +29,7 @@ export const TRANSFORM_PRESENTATION = Object.freeze({
 });
 
 export const SCORE_VALUES = Object.freeze({
+  ...Object.fromEntries(Object.keys(THEMED_ENEMIES).map(type => [type, 60])),
   star: 10,
   percent_small: 25,
   percent_large: 100,

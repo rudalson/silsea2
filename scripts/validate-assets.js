@@ -5,6 +5,7 @@ import { EXPANSION_BGM_KEYS } from "../src/data/expansionAudio.js";
 import { BOSS_SFX_KEYS } from "../src/data/bossAudio.js";
 import { readOggVorbis } from "./lib/audio-metadata.js";
 import sharp from "sharp";
+import { THEMED_ENEMIES, isThemedEnemy } from "../src/data/themedEnemies.js";
 import { KENNEY_TILESETS, readKenneyTile } from "./kenney-tiles.js";
 import { PALETTE } from "../data/palette.js";
 import {
@@ -83,7 +84,7 @@ const sequenceAssets = (character, sequence, count) => Array.from({ length: coun
 });
 const enemySequenceAssets = (enemy, sequence, count) => Array.from({ length: count }, (_, index) => {
   const frame = `${enemy}_${sequence}_${String(index).padStart(2, "0")}.png`;
-  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: ["tape_rollbug", "tape_boxling", "merong_sentry", "merong_imp", "cloud_king", "hole_king", "music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
+  return { name: frame, path: join(root, "assets", "enemies", enemy, sequence, frame), kind: enemy, fullColor: isThemedEnemy(enemy) || ["tape_rollbug", "tape_boxling", "merong_sentry", "merong_imp", "cloud_king", "hole_king", "music_king", "tape_king", "merong_king", "potato_archer", "raw_potato", "wave_crab", "coral_urchin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "invisible_king"].includes(enemy) };
 });
 const characterAssets = [
   { name: "silsea_anchor.png", path: join(root, "assets", "_anchor", "silsea_anchor.png"), kind: "character" },
@@ -157,6 +158,8 @@ const enemyAssets = [
   ...enemySequenceAssets("merong_imp", "idle", 1),
   ...enemySequenceAssets("merong_imp", "move", 4),
   ...enemySequenceAssets("merong_imp", "defeated", 2),
+  ...Object.keys(THEMED_ENEMIES).flatMap(type => getEnemySequenceNames(type).flatMap(role =>
+    enemySequenceAssets(type, role, getEnemyAnimationSpec(type, role).durations.length))),
   ...["tape_rollbug", "tape_boxling"].flatMap(type => [
     ...enemySequenceAssets(type, "idle", 2),
     ...enemySequenceAssets(type, "move", 4),
@@ -580,7 +583,7 @@ try {
 try {
   const manifest = JSON.parse(await readFile(join(root, "assets", "manifest.json"), "utf8"));
   const manifestEntries = new Map(manifest.assets.map((entry) => [entry.key, entry]));
-  for (const enemyType of ["tape_rollbug", "tape_boxling", "merong_sentry", "merong_imp", "raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king", "hole_king", "cloud_king"]) {
+  for (const enemyType of [...Object.keys(THEMED_ENEMIES), "tape_rollbug", "tape_boxling", "merong_sentry", "merong_imp", "raw_potato", "wave_crab", "coral_urchin", "lantern_jellyfish", "potato_archer", "spike_pumpkin", "dark_cloud", "magpie", "lantern_goblin", "dew_snail", "potato_king", "hula_king", "invisible_king", "merong_king", "tape_king", "music_king", "hole_king", "cloud_king"]) {
     const expectedKeys = new Set(getEnemyAssetKeys(enemyType));
     for (const sequence of getEnemySequenceNames(enemyType)) {
       const spec = getEnemyAnimationSpec(enemyType, sequence);
