@@ -1,7 +1,7 @@
 import { game } from "../src/main.js";
 import { SCENE_KEYS } from "../src/config/constants.js";
 import { LEVELS } from "../src/data/levels/index.js";
-import { identityBossPose } from "../src/data/bossMotion.js";
+import { BOSS_MOTION_PROFILES, identityBossPose } from "../src/data/bossMotion.js";
 import { progressManager } from "../src/systems/ProgressManager.js";
 
 const output = document.querySelector("#results"), button = document.querySelector("#run");
@@ -26,7 +26,7 @@ async function run() {
   const savedSection = game.registry.get("visualReviewSectionId"), savedOffset = game.registry.get("visualReviewOffset");
   let scene, originalInput, monitor, restorePresentation;
   try {
-    for (const level of LEVELS.slice(6)) {
+    for (const level of LEVELS.filter(level => Object.hasOwn(BOSS_MOTION_PROFILES, level.sections.at(-1).boss?.key))) {
       if (!game.scene.isActive(SCENE_KEYS.GAME) || game.scene.getScene(SCENE_KEYS.GAME).level.id !== level.id) {
         game.registry.set("levelId", level.id); game.registry.set("visualReviewSectionId", null);
         game.scene.stop(SCENE_KEYS.CLEAR); game.scene.stop(SCENE_KEYS.GAME);

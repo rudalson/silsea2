@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { EXPANSION_SONGS } from "./lib/expansion-bgm.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const sampleRate = 22050;
@@ -13,6 +14,7 @@ const rest = (steps = 1) => note(null, steps);
 // Sixteen bars give each field theme an A / A' / B / A'' arc. The opening
 // four-note rise is shared across the campaign, with different modes and timbres.
 const songs = {
+  ...EXPANSION_SONGS,
   bgm_field: {
     bpm: 120, chords: [[48, 52, 55], [45, 48, 52], [41, 45, 48], [43, 47, 50]],
     melody: [note(76), note(79), note(81), note(79), note(76, 2), note(74), note(72)],
@@ -61,6 +63,8 @@ const wrap = (index, length) => (index % length + length) % length;
 const addSample = (samples, index, value) => { samples[wrap(index, samples.length)] += value; };
 
 const timbre = (kind, phase, age) => {
+  if (kind === "piano") return Math.sin(phase) * 0.68 + Math.sin(phase * 2) * 0.22 * Math.exp(-age * 4)
+    + Math.sin(phase * 3) * 0.08 * Math.exp(-age * 8) + Math.sin(phase * 4) * 0.02 * Math.exp(-age * 12);
   if (kind === "bell") return Math.sin(phase) * 0.72 + Math.sin(phase * 2.01) * 0.19 + Math.sin(phase * 3.94) * 0.09;
   if (kind === "marimba") return Math.sin(phase) * 0.74 + Math.sin(phase * 2) * 0.2 * Math.exp(-age * 8) + Math.sin(phase * 3) * 0.06;
   if (kind === "pluck") return Math.sin(phase) * 0.58 + Math.sin(phase * 2) * 0.29 * Math.exp(-age * 6) + Math.sin(phase * 3) * 0.13 * Math.exp(-age * 10);
@@ -80,7 +84,7 @@ const addTone = (samples, pitch, start, held, kind, gain, { echo = false } = {})
   for (let i = 0; i < count; i += 1) {
     const age = i / sampleRate;
     const envelope = Math.min(1, age / attack) * Math.min(1, (duration - age) / release);
-    const decay = ["bell", "marimba", "pluck"].includes(kind) ? Math.exp(-age * (kind === "bell" ? 1.7 : 2.6)) : 1;
+    const decay = ["bell", "marimba", "pluck", "piano"].includes(kind) ? Math.exp(-age * (kind === "bell" ? 1.7 : kind === "piano" ? 2 : 2.6)) : 1;
     const value = timbre(kind, tau * frequency * age, age) * envelope * decay * gain;
     addSample(samples, startIndex + i, value);
     if (echo && i % 2 === 0) addSample(samples, startIndex + i + Math.round(0.19 * sampleRate), value * 0.13);
@@ -252,9 +256,20 @@ const encode = (key, pcm) => {
   canonicalizeOgg(path, key);
 };
 
-export const generateBgm = () => {
-  for (const [key, song] of Object.entries(songs)) encode(key, compose(song));
-  encode("bgm_clear", composeFanfare());
-  encode("bgm_alicorn_layer", composeAlicorn());
-  return Object.keys(songs).length + 2;
+const hasBgm = key => Object.hasOwn(songs, key) || ["bgm_clear", "bgm_alicorn_layer"].includes(key);
+
+export const renderBgmPcm = key => {
+  if (!hasBgm(key)) throw new Error(`알 수 없는 BGM 키: ${key}`);
+  return key === "bgm_clear" ? composeFanfare() : key === "bgm_alicorn_layer" ? composeAlicorn() : compose(songs[key]);
+};
+
+export const generateBgm = (keys = [...Object.keys(songs), "bgm_clear", "bgm_alicorn_layer"]) => {
+  const requested = [...new Set(keys)];
+  for (const key of requested) {
+    if (!hasBgm(key)) throw new Error(`알 수 없는 BGM 키: ${key}`);
+  }
+  for (const key of requested) {
+    encode(key, renderBgmPcm(key));
+  }
+  return requested.length;
 };

@@ -62,6 +62,8 @@ N4 공통 정지 신호는 `sfx_rhythm_warning`(0.72초·동일 음 3펄스), `s
 
 ## BGM
 
+N9 신규 5코스는 전용 필드/보스 음악 총 10곡을 사용한다. 메롱 `bgm_merong`/`bgm_merong_boss`, 테이프 `bgm_tape`/`bgm_tape_boss`, 피아노 `bgm_piano`/`bgm_piano_boss`, 구멍 `bgm_hole`/`bgm_hole_boss`, 구름 `bgm_cloud`/`bgm_cloud_boss`다. 모두 16마디·22050Hz 모노 OGG이며 기존 480ms 전환과 볼륨·음소거·신호음 duck을 따른다. 악보·BPM·길이와 검수 범위는 [N9 기록](./docs/EXPANSION_AUDIO_N9_REVIEW.md)을 따른다. `npm run expansion:audio`는 이 10곡만 재생성한다.
+
 | 키 | 용도 | 구조 | 루프 규칙 | 우선 |
 |---|---|---|---|---|
 | `bgm_field` | 일반 구간 | 밝고 경쾌한 주제, 긴장 1~4를 가리지 않는 중간 밀도 | 도입 뒤 마디 경계 A~B seamless loop | M |

@@ -1210,6 +1210,16 @@
     {"key":"cloud_king_hurt","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_hurt.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"cloud_king_defeated","type":"spritesheet","url":"/assets/enemies/cloud_king/cloud_king_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"bg_cloud_far","type":"image","url":"/assets/backgrounds/bg_cloud_far.png"},
-    {"key":"stage_preview_cloud","type":"image","url":"/assets/backgrounds/stage_preview_cloud.png"}
+    {"key":"stage_preview_cloud","type":"image","url":"/assets/backgrounds/stage_preview_cloud.png"},
+    {"key":"bgm_merong","type":"audio","url":"/assets/audio/bgm/bgm_merong.ogg"},
+    {"key":"bgm_merong_boss","type":"audio","url":"/assets/audio/bgm/bgm_merong_boss.ogg"},
+    {"key":"bgm_tape","type":"audio","url":"/assets/audio/bgm/bgm_tape.ogg"},
+    {"key":"bgm_tape_boss","type":"audio","url":"/assets/audio/bgm/bgm_tape_boss.ogg"},
+    {"key":"bgm_piano","type":"audio","url":"/assets/audio/bgm/bgm_piano.ogg"},
+    {"key":"bgm_piano_boss","type":"audio","url":"/assets/audio/bgm/bgm_piano_boss.ogg"},
+    {"key":"bgm_hole","type":"audio","url":"/assets/audio/bgm/bgm_hole.ogg"},
+    {"key":"bgm_hole_boss","type":"audio","url":"/assets/audio/bgm/bgm_hole_boss.ogg"},
+    {"key":"bgm_cloud","type":"audio","url":"/assets/audio/bgm/bgm_cloud.ogg"},
+    {"key":"bgm_cloud_boss","type":"audio","url":"/assets/audio/bgm/bgm_cloud_boss.ogg"}
   ]
 }

@@ -1,4 +1,5 @@
 import { HOLE_KING_PHASES } from "../holeMechanics.js";
+import { EXPANSION_BGM } from "../expansionAudio.js";
 const tilemap = new URL("../../../assets/levels/level-10/tilemap.json", import.meta.url).href;
 const bridge = (id,x,width=128,controller) => ({id,x,y:576,width,height:24,triggerDistance:400,warningMs:1500,openMs:2000,closedMs:3000,...(controller?{controller}: {})});
 export default {
@@ -6,7 +7,7 @@ export default {
   assets:{tilemap,tilemapKey:"level-10-map",tileset:"starlight_tileset",preview:"stage_preview_hole",
     backgrounds:{normal:{far:"bg_hole_far",mid:"bg_normal_mid",near:"bg_normal_near"},boss:{far:"bg_hole_far",mid:"bg_normal_mid",near:"bg_normal_near"}},
     objects:{items:{star:"item_star",percent_small:"item_percent_small",percent_large:"item_percent_large",horn:"item_horn",wings:"item_wings",alicorn:"item_alicorn"},checkpoint:"checkpoint_flag",gate:"rainbow_gate"},
-    bgm:{field:"bgm_field",boss:"bgm_boss",clear:"bgm_clear"}},
+    bgm:{...EXPANSION_BGM["level-10"],clear:"bgm_clear"}},
   world:{width:16384,height:768,tileSize:64},parallax:{sky:0.02,far:0.08,mid:0.2,near:0.45,layerAlpha:{mid:0,near:0}},
   progression:{direction:"right",retainAbilities:true},player:{spawn:{x:128,y:576}},
   exit:{x:16192,y:576,enterFrom:"right",presentation:{kind:"real",placement:"ground",effects:"normal",graybox:false}},

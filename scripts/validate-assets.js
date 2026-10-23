@@ -1,6 +1,8 @@
 import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { EXPANSION_BGM_KEYS } from "../src/data/expansionAudio.js";
+import { readOggVorbis } from "./lib/audio-metadata.js";
 import sharp from "sharp";
 import { KENNEY_TILESETS, readKenneyTile } from "./kenney-tiles.js";
 import { PALETTE } from "../data/palette.js";
@@ -342,36 +344,9 @@ const requiredAudioKeys = [
   "sfx_invisible_warning", "sfx_invisible_reveal", "sfx_invisible_hide", "sfx_invisible_attack", "sfx_invisible_defeat",
   "sfx_water_warning", "sfx_water_emerge", "sfx_water_attack", "sfx_water_dizzy", "sfx_water_submerge", "sfx_water_defeat",
   "sfx_random_draw", "sfx_random_result", "sfx_random_teleport", "sfx_random_throw", "sfx_random_tongue", "sfx_random_weakness", "sfx_random_defeat",
-  "bgm_field", "bgm_rainbow_hill", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_clear_loop", "bgm_alicorn_layer"
+  "bgm_field", "bgm_rainbow_hill", "bgm_starlight", "bgm_mist", "bgm_tsunami", "bgm_submerged", "bgm_boss", "bgm_clear", "bgm_clear_loop", "bgm_alicorn_layer",
+  ...EXPANSION_BGM_KEYS
 ];
-const readOggVorbis = (buffer) => {
-  let offset = 0;
-  let lastGranule = 0n;
-  let rate = 0;
-  let channels = 0;
-  while (offset + 27 <= buffer.length) {
-    if (buffer.toString("ascii", offset, offset + 4) !== "OggS") throw new Error("OggS 페이지가 아님");
-    const segments = buffer[offset + 26];
-    const tableEnd = offset + 27 + segments;
-    if (tableEnd > buffer.length) throw new Error("잘린 OGG 세그먼트 표");
-    let payloadBytes = 0;
-    for (let i = offset + 27; i < tableEnd; i += 1) payloadBytes += buffer[i];
-    const pageEnd = tableEnd + payloadBytes;
-    if (pageEnd > buffer.length) throw new Error("잘린 OGG 페이지");
-    if (!rate) {
-      if (buffer[tableEnd] !== 1 || buffer.toString("ascii", tableEnd + 1, tableEnd + 7) !== "vorbis") {
-        throw new Error("Vorbis 식별 헤더가 없음");
-      }
-      channels = buffer[tableEnd + 11];
-      rate = buffer.readUInt32LE(tableEnd + 12);
-    }
-    const granule = buffer.readBigUInt64LE(offset + 6);
-    if (granule !== 0xffffffffffffffffn) lastGranule = granule;
-    offset = pageEnd;
-  }
-  if (offset !== buffer.length || !rate || !lastGranule) throw new Error("OGG 길이 또는 페이지가 올바르지 않음");
-  return { channels, rate, duration: Number(lastGranule) / rate };
-};
 let validatedAudioCount = 0;
 let validatedCharacterSheetCount = 0;
 let validatedEnemySheetCount = 0;

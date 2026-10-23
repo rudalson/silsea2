@@ -91,6 +91,8 @@ http://localhost:5173/?p1test=1&debug=1
 
 ## 검증
 
+N9은 현재 표시 순서 6~10번인 새 5코스의 필드곡과 보스 편곡을 추가합니다. [음악 검수 페이지](http://localhost:5173/scripts/expansion-audio-runtime.html?visualReview=level-07&debug=1&mute=1)에서 10곡을 각각 들어볼 수 있습니다. `npm run expansion:audio`, `npm run test:expansion-audio`와 [N9 기록](./docs/EXPANSION_AUDIO_N9_REVIEW.md)을 참고합니다. 데이터 ID는 기존 `level-07`~`level-11`을 유지합니다.
+
 신규 확장 구현·통합 검수는 [N7 결과](./docs/NEW_STAGE_N7_REVIEW.md)에 정리했습니다. 현재 10개 캠페인의 순차 해금과 기존 저장 호환을 검사했고, 실제 게임패드·어린이 평가는 추가 실기로 남겼습니다.
 
 N8은 새 5대왕의 기존 포즈에 숨쉬기·공격 준비·반동·처치 동작을 더합니다. 표시 이미지에만 움직임을 적용해 충돌 판정을 유지하며, 음악 대왕의 정지 신호와 효과 감소 설정을 따릅니다. `npm run test:boss-motion`, `/scripts/boss-motion-runtime.html?visualReview=level-07&debug=1&mute=1`과 [N8 검수 기록](./docs/BOSS_MOTION_N8_REVIEW.md)을 참고합니다.
