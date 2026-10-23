@@ -47,6 +47,9 @@ async function run(scene) {
     assert(progressManager.isUnlocked(getLevel("level-08"), LEVELS), "7번 클리어로 테이프 도시 해금");
     assert(scene.bossController.behavior.state === "dormant" && !scene.levelLoader.boss.body.enable, "작업장 진입 전 보스 대기");
     assert(!scene.levelLoader.gate, "처치 전 게이트 없음");
+    const fallback = scene.registry.get("forceAssetFallback");
+    assert(scene.levelLoader.enemies.every(enemy => ["tape_rollbug", "tape_boxling"].includes(enemy.getData("type"))
+      && (fallback || enemy.getData("usesArt"))), "감자 대신 테이프 도시 전용 적 원화 연결");
     const expectedSpeed = scene.registry.get("easyMode") ? 0.8 : 0.6;
     place(1600); await until(onGround, "테이프 연습 접지");
     controller.moveX = 1;
@@ -87,6 +90,31 @@ async function run(scene) {
     const oldBehavior = scene.bossController.behavior;
     assert(await scene.levelHotReload.reload(), "신규 코스 데이터 재로드");
     assert(!oldBehavior.visual.active && scene.courseMechanics.getSnapshot().transientStickyCount === 0, "재로드 시 공격 표시·감속 소유권 정리");
+    for (const enemy of scene.levelLoader.enemies) {
+      const type = enemy.getData("type");
+      place(enemy.x - 180);
+      enemy.body.reset(enemy.getData("spawnX") - enemy.getData("patrol") - 1, 576);
+      await frames(2);
+      assert(enemy.body.velocity.x > 0 && (fallback || !enemy.flipX), `${type} 오른쪽 순찰·원화 방향`);
+      enemy.body.reset(enemy.getData("spawnX") + enemy.getData("patrol") + 1, 576);
+      await frames(2);
+      assert(enemy.body.velocity.x < 0 && (fallback || enemy.flipX), `${type} 왼쪽 순찰·원화 반전`);
+      assert(fallback || enemy.anims.currentAnim?.key === `enemy:${type}:move`, `${type} 보행 애니메이션`);
+      scene.healthManager.restoreFull(); scene.healthManager.invulnerableUntil = 0;
+      const hpBeforeContact = scene.healthManager.hp;
+      place(enemy.x, 574);
+      await until(() => scene.healthManager.hp < hpBeforeContact, `${type} 실제 접촉`, 1500);
+      assert(scene.healthManager.hp === hpBeforeContact - 1, `${type} 접촉 피해 1`);
+      scene.scoreManager.resetCombo();
+      const scoreBeforeStomp = scene.scoreManager.score;
+      place(enemy.x, enemy.body.top - 1); scene.player.setVelocityY(240);
+      await until(() => !enemy.body.enable, `${type} 실제 밟기`, 1500);
+      assert(scene.scoreManager.score === scoreBeforeStomp + 40, `${type} 밟기 처치 40점`);
+      assert(fallback || enemy.anims.currentAnim?.key === `enemy:${type}:defeated`, `${type} 패배 애니메이션`);
+      await until(() => !enemy.active, `${type} 패배 포즈 종료`, 1500);
+      assert(scene.scoreManager.score === scoreBeforeStomp + 40, `${type} 처치 중복 점수 없음`);
+    }
+    scene.healthManager.restoreFull();
     const boss = scene.levelLoader.boss, behavior = scene.bossController.behavior;
     place(boss.x - 880);
     await until(() => behavior.state === "warning", "보스 첫 예고");

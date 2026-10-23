@@ -18,6 +18,8 @@
   "potato89_winged_forms": {"styleRefs":["silsea_sprite-Photoroom.png","silsea_run.png"],"note":"구운 감자의 둥근 갈색 체형을 유지하고 크림색 접힌 날개·비행 날개를 몸에 통합한 페가수스·알리콘 전용 동작 시트."},
   "$delivery": {
     "manifestGroups": {
+      "tape_boxling": ["tape_boxling_idle","tape_boxling_move","tape_boxling_defeated"],
+      "tape_rollbug": ["tape_rollbug_idle","tape_rollbug_move","tape_rollbug_defeated"],
       "merong_imp": ["merong_imp_idle","merong_imp_move","merong_imp_defeated"],
       "merong_sentry": ["merong_sentry_idle","merong_sentry_warning","merong_sentry_attack","merong_sentry_recover"],
       "cloud_king": ["cloud_king_idle","cloud_king_warning","cloud_king_attack","cloud_king_vulnerable","cloud_king_hurt","cloud_king_defeated"],
@@ -277,5 +279,7 @@
   "bg_cloud_far": {"styleRefs":["maple_story_1.png"],"note":"사용자 구름 코스 원안의 구름 성과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/cloud에 보존."},
   "stage_preview_cloud": {"styleRefs":["maple_story_1.png"],"note":"사용자 구름 코스 원안의 구름 성과 밝은 동화풍 마을. 원화·프롬프트는 assets/_source/cloud에 보존."},
   "merong_sentry": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 메롱 왕국 민트색 문지기. 왕관·큰 입·부풀린 볼·공격·회복 표정. 원화와 프롬프트는 assets/_source/merong-enemies에 보존."},
-  "merong_imp": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 분홍색 메롱 꼬마. 작은 뿔·광대 신발·짧은 혀, 원화 보행과 패배 포즈를 공통 배율·발 기준선으로 조립."}
+  "merong_imp": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 분홍색 메롱 꼬마. 작은 뿔·광대 신발·짧은 혀, 원화 보행과 패배 포즈를 공통 배율·발 기준선으로 조립."},
+  "tape_rollbug": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 테이프 도시 금빛 테이프 말이. 대기·보행·패배 6포즈 원화와 프롬프트는 assets/_source/tape-enemies에 보존. 공통 배율·128px 프레임·112px 발 기준선으로 조립."},
+  "tape_boxling": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 테이프 도시 포장 박스 꼬마. 대기·보행·패배 6포즈 원화와 프롬프트는 assets/_source/tape-enemies에 보존. 공통 배율·128px 프레임·112px 발 기준선으로 조립."}
 }

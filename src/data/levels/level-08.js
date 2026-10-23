@@ -47,8 +47,8 @@ export default {
     { id: "cp_tape_boss", x: 12608, y: 576, activationTop: 0, restoresHealth: true }
   ],
   enemies: [
-    { id: "tape_potato_a", type: "raw_potato", x: 5056, y: 576, patrol: 80 },
-    { id: "tape_potato_b", type: "raw_potato", x: 11264, y: 576, patrol: 80 }
+    { id: "tape_rollbug_a", type: "tape_rollbug", x: 5056, y: 576, patrol: 80 },
+    { id: "tape_boxling_b", type: "tape_boxling", x: 11264, y: 576, patrol: 80 }
   ],
   items: [
     { id: "tape_horn", type: "horn", x: 768, y: 576, activationTop: 0 },
@@ -81,7 +81,7 @@ export default {
     optional: [{ type: "collect_stars", count: 60, reward: 500 }, { type: "find_secrets", count: 1, reward: 300 },
       { type: "clear_time", seconds: 420, reward: 400 }, { type: "no_damage", reward: 800 }] },
   difficulty: { easyMode: { extraCheckpoints: [{ id: "cp_tape_easy", x: 11072, y: 576, activationTop: 0, restoresHealth: true }],
-    removeEnemies: ["tape_potato_b"], player: { extraHp: 2, flightDrainMultiplier: 0.65 },
+    removeEnemies: ["tape_boxling_b"], player: { extraHp: 2, flightDrainMultiplier: 0.65 },
     boss: { telegraphMultiplier: 1.35, vulnerabilityMultiplier: 1.3 },
     terrainMechanics: { stickySpeedFloor: 0.8, movingSpeedMultiplier: 0.8, crumbleDelayMultiplier: 1.3 }, pitScoreLoss: 0 } }
 };

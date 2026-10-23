@@ -1239,6 +1239,12 @@
     {"key":"merong_sentry_recover","type":"spritesheet","url":"/assets/enemies/merong_sentry/merong_sentry_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"merong_imp_idle","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_idle.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"merong_imp_move","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_move.png","frameWidth":128,"frameHeight":128,"frames":4},
-    {"key":"merong_imp_defeated","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_defeated.png","frameWidth":128,"frameHeight":128,"frames":2}
+    {"key":"merong_imp_defeated","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_defeated.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"tape_rollbug_idle","type":"spritesheet","url":"/assets/enemies/tape_rollbug/tape_rollbug_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"tape_rollbug_move","type":"spritesheet","url":"/assets/enemies/tape_rollbug/tape_rollbug_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"tape_rollbug_defeated","type":"spritesheet","url":"/assets/enemies/tape_rollbug/tape_rollbug_defeated.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"tape_boxling_idle","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"tape_boxling_move","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"tape_boxling_defeated","type":"spritesheet","url":"/assets/enemies/tape_boxling/tape_boxling_defeated.png","frameWidth":128,"frameHeight":128,"frames":2}
   ]
 }

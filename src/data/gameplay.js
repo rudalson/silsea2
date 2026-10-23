@@ -32,6 +32,8 @@ export const SCORE_VALUES = Object.freeze({
   percent_large: 100,
   raw_potato: 40,
   merong_imp: 40,
+  tape_rollbug: 40,
+  tape_boxling: 40,
   wave_crab: 60,
   lantern_goblin: 60,
   dew_snail: 60,

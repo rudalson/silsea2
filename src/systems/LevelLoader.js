@@ -554,14 +554,15 @@ export class LevelLoader {
         const isPotatoArcher = enemy.type === "potato_archer";
         const mistEnemy = isMistEnemy(enemy.type);
         const isJellyfish = enemy.type === "lantern_jellyfish";
-        const bodyWidth = isRawPotato ? 38 : isMerongImp ? 48 : isWaveCrab ? 72 : isPotatoArcher ? 52 : mistEnemy ? 58 : isJellyfish ? 64 : 50;
-        const bodyHeight = isRawPotato ? 36 : isMerongImp ? 46 : isWaveCrab ? 42 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : isJellyfish ? 70 : 46;
+        const bodyWidth = definition?.artBody?.width ?? (isRawPotato ? 38 : isMerongImp ? 48 : isWaveCrab ? 72 : isPotatoArcher ? 52 : mistEnemy ? 58 : isJellyfish ? 64 : 50);
+        const bodyHeight = definition?.artBody?.height ?? (isRawPotato ? 36 : isMerongImp ? 46 : isWaveCrab ? 42 : isPotatoArcher ? 52 : enemy.type === "lantern_goblin" ? 64 : isJellyfish ? 70 : 46);
         if (isRawPotato) marker.setScale(0.72);
         if (isMerongImp) marker.setScale(0.82);
         if (isWaveCrab) marker.setScale(0.92);
         if (isPotatoArcher) marker.setScale(0.82);
         if (mistEnemy) marker.setScale(0.82);
         if (isJellyfish) marker.setOrigin(0.5).setScale(0.82);
+        if (definition?.artBody) marker.setScale(definition.artBody.scale);
         marker.body.setSize(bodyWidth, bodyHeight, false);
         marker.body.setOffset((128 - bodyWidth) / 2, isJellyfish ? (128 - bodyHeight) / 2 : 112 - bodyHeight);
       } else {

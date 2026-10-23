@@ -70,6 +70,7 @@
     "merong:assets": "node scripts/build-merong-assets.js",
     "test:merong": "node scripts/test-merong.js",
     "tape:assets": "node scripts/build-tape-assets.js",
+    "tape:enemies": "node scripts/build-tape-enemies.js",
     "test:tape": "node scripts/test-tape.js",
     "music:assets": "node scripts/build-music-assets.js",
     "music:audio": "node scripts/generate-audio.js sfx_rhythm_warning sfx_rhythm_stop sfx_rhythm_go",

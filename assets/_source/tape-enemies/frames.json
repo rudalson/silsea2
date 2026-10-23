@@ -1,0 +1,122 @@
+{
+  "tape_rollbug": {
+    "source": "rollbug-poses.png",
+    "poses": [
+      {
+        "left": 53,
+        "top": 52,
+        "width": 414,
+        "height": 426
+      },
+      {
+        "left": 552,
+        "top": 53,
+        "width": 413,
+        "height": 425
+      },
+      {
+        "left": 1056,
+        "top": 60,
+        "width": 439,
+        "height": 418
+      },
+      {
+        "left": 52,
+        "top": 540,
+        "width": 438,
+        "height": 415
+      },
+      {
+        "left": 562,
+        "top": 568,
+        "width": 452,
+        "height": 375
+      },
+      {
+        "left": 1076,
+        "top": 624,
+        "width": 416,
+        "height": 326
+      }
+    ],
+    "scale": 0.20657276995305165,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        1
+      ],
+      "move": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "defeated": [
+        4,
+        5
+      ]
+    }
+  },
+  "tape_boxling": {
+    "source": "boxling-poses.png",
+    "poses": [
+      {
+        "left": 72,
+        "top": 74,
+        "width": 401,
+        "height": 400
+      },
+      {
+        "left": 577,
+        "top": 77,
+        "width": 388,
+        "height": 397
+      },
+      {
+        "left": 1095,
+        "top": 66,
+        "width": 396,
+        "height": 406
+      },
+      {
+        "left": 73,
+        "top": 550,
+        "width": 404,
+        "height": 399
+      },
+      {
+        "left": 590,
+        "top": 570,
+        "width": 421,
+        "height": 374
+      },
+      {
+        "left": 1095,
+        "top": 582,
+        "width": 399,
+        "height": 366
+      }
+    ],
+    "scale": 0.21674876847290642,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        1
+      ],
+      "move": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "defeated": [
+        4,
+        5
+      ]
+    }
+  }
+}

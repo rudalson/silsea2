@@ -1,4 +1,6 @@
 const ENEMY_SEQUENCE_KEYS = Object.freeze({
+  tape_rollbug: Object.freeze({ idle: "tape_rollbug_idle", move: "tape_rollbug_move", defeated: "tape_rollbug_defeated" }),
+  tape_boxling: Object.freeze({ idle: "tape_boxling_idle", move: "tape_boxling_move", defeated: "tape_boxling_defeated" }),
   merong_sentry: Object.freeze({ idle: "merong_sentry_idle", warning: "merong_sentry_warning",
     attack: "merong_sentry_attack", recover: "merong_sentry_recover" }),
   merong_imp: Object.freeze({ idle: "merong_imp_idle", move: "merong_imp_move", defeated: "merong_imp_defeated" }),
@@ -106,6 +108,16 @@ const ENEMY_SEQUENCE_KEYS = Object.freeze({
 });
 
 const ENEMY_TIMINGS = Object.freeze({
+  tape_rollbug: Object.freeze({
+    idle: Object.freeze({ durations: [1600, 130], repeat: -1 }),
+    move: Object.freeze({ durations: [170, 150, 170, 150], repeat: -1 }),
+    defeated: Object.freeze({ durations: [180, 380], repeat: 0 })
+  }),
+  tape_boxling: Object.freeze({
+    idle: Object.freeze({ durations: [1750, 140], repeat: -1 }),
+    move: Object.freeze({ durations: [180, 160, 180, 160], repeat: -1 }),
+    defeated: Object.freeze({ durations: [180, 380], repeat: 0 })
+  }),
   merong_sentry: Object.freeze({
     idle: Object.freeze({ durations: [1800, 130], repeat: -1 }),
     warning: Object.freeze({ durations: [220, 220], repeat: -1 }),

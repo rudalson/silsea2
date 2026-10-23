@@ -9,7 +9,9 @@ import { assertLevelShape } from "../src/data/schema/levelSchema.js";
 import { getLevel, getNextLevel, LEVELS } from "../src/data/levels/index.js";
 import { getBossDefinition } from "../src/data/bossDefinitions.js";
 import { getBossPhasePattern } from "../src/data/bossPatterns.js";
-import { getEnemyAnimationSpec } from "../src/data/enemyAnimations.js";
+import { getEnemyAnimationSpec, getEnemySequenceNames } from "../src/data/enemyAnimations.js";
+import { ENEMY_DEFINITIONS, isGroundPatrolEnemy, isSimplePatrolEnemy } from "../src/data/enemies.js";
+import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
 import { CourseMechanicsManager } from "../src/systems/CourseMechanicsManager.js";
 import { ProgressManager } from "../src/systems/ProgressManager.js";
@@ -53,6 +55,14 @@ const source = JSON.stringify(level), easy = createRuntimeLevel(level, true);
 assert.equal(JSON.stringify(level), source);
 assert.equal(easy.terrainMechanics.stickyZones[0].speedMultiplier, 0.8);
 assert.equal(easy.terrainMechanics.movingPlatforms[0].speed, 57.6);
+assert.deepEqual(level.enemies.map(({ type }) => type), ["tape_rollbug", "tape_boxling"]);
+assert.deepEqual(easy.enemies.map(({ type }) => type), ["tape_rollbug"], "쉬움에서는 두 번째 박스 꼬마 제거");
+for (const type of ["raw_potato", "merong_imp", "tape_rollbug", "tape_boxling"]) {
+  assert.ok(isSimplePatrolEnemy(type) && isGroundPatrolEnemy(type), `${type} 순찰·지면 충돌 연결`);
+  assert.equal(new ScoreManager().defeat(type), 40, `${type} 처치 점수 유지`);
+}
+assert.equal(isSimplePatrolEnemy("wave_crab"), false, "기존 돌진 적의 개별 동작 유지");
+assert.equal(isSimplePatrolEnemy("unknown"), false);
 const zone = level.terrainMechanics.stickyZones[0];
 const stickyBody = { ...body, left: zone.x + 24, right: zone.x + 68, velocity: { y: 0 }, blocked: { down: true }, touching: {} };
 assert.equal(getStickySpeedMultiplier(stickyBody, [zone], true), 0.6);
@@ -95,4 +105,32 @@ for (const role of definition.animationRoles) {
   }
   assert.ok(transparent > 8000 && minX >= 8 && maxX < 120 && maxY >= 110 && maxY <= 112, `${role} transparent margin and baseline`);
 }
-console.log("테이프 도시 검사 통과: 8번 해금·3단계·투사체 연속 판정·안전한 바닥 설치·감속 소유권/해제·양 난이도 배치·6포즈 RGBA");
+const manifest = JSON.parse(readFileSync(new URL("../assets/manifest.json", import.meta.url), "utf8"));
+for (const type of ["tape_rollbug", "tape_boxling"]) {
+  const artBody = ENEMY_DEFINITIONS[type].artBody;
+  assert.ok(artBody.width > 0 && artBody.height > 0 && artBody.scale > 0);
+  for (const sequence of getEnemySequenceNames(type)) {
+    const spec = getEnemyAnimationSpec(type, sequence), entry = manifest.assets.find(({ key }) => key === spec.textureKey);
+    assert.equal(entry?.frames, spec.durations.length, `${type}/${sequence} 프레임·시간 매핑`);
+    const { data, info } = await sharp(readFileSync(new URL(`..${entry.url}`, import.meta.url))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(info.width, 128 * entry.frames); assert.equal(info.height, 128);
+    const frameArt = [];
+    for (let frame = 0; frame < entry.frames; frame++) {
+      let minX = 128, maxX = -1, minY = 128, maxY = -1, clear = 0;
+      const pixels = [];
+      for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) {
+        const offset = (y * info.width + frame * 128 + x) * 4, alpha = data[offset + 3];
+        pixels.push(data[offset], data[offset + 1], data[offset + 2], alpha);
+        if (alpha === 0) clear++;
+        if (alpha < 16) continue;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      frameArt.push(Buffer.from(pixels));
+      assert.ok(clear > 6000, `${type}/${sequence}/${frame} 실제 투명 배경`);
+      assert.ok(minX >= 8 && maxX < 120 && minY >= 8, `${type}/${sequence}/${frame} 투명 여백`);
+      assert.ok(maxY >= 110 && maxY <= 112, `${type}/${sequence}/${frame} 발 기준선`);
+    }
+    assert.notDeepEqual(frameArt[0], frameArt[1], `${type}/${sequence} 구분되는 원화 포즈`);
+  }
+}
+console.log("테이프 도시 검사 통과: 해금·보스·투사체·바닥 감속·양 난이도 배치·신규 적 2종 16프레임 RGBA·순찰·40점");
