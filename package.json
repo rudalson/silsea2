@@ -78,6 +78,7 @@
     "test:music": "node scripts/test-music.js",
     "test:themed-enemies": "node scripts/test-themed-enemies.js",
     "hole:assets": "node scripts/build-hole-assets.js",
+    "hole:enemies": "node scripts/build-hole-enemies.js",
     "test:hole": "node scripts/test-hole.js",
     "cloud:assets": "node scripts/build-cloud-assets.js",
     "test:cloud": "node scripts/test-cloud.js",

@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { THEMED_ENEMIES, createThemedAttack, findThemedAttackHits, getThemedEnemyTypes, sampleThemedAttack } from "../src/data/themedEnemies.js";
+import { THEMED_ENEMIES, createThemedAttack, findThemedAttackHits, getThemedEnemyTypes, overlapsThemedHazard, sampleThemedAttack } from "../src/data/themedEnemies.js";
 import { ThemedEnemyController } from "../src/systems/ThemedEnemyController.js";
 import { getEnemyAnimationSpec, getEnemySequenceNames } from "../src/data/enemyAnimations.js";
 import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
@@ -117,9 +117,16 @@ for (const type of Object.keys(THEMED_ENEMIES)) for (const role of getEnemySeque
     assert.ok(clear > 6000 && minX >= 8 && maxX < 120 && maxY >= 110 && maxY <= 112, `${type}/${role} 실제 투명 배경·여백·발 기준선`);
   }
 }
-for (const [stage, levelId] of Object.entries({ music: "level-09" })) {
+for (const [stage, levelId] of Object.entries({ music: "level-09", hole: "level-10" })) {
   const level = getLevel(levelId), types = getThemedEnemyTypes(stage);
   assert.deepEqual(level.enemies.map(({ type }) => type), types);
   assert.equal(createRuntimeLevel(level, true).enemies.length, 1, `${stage} 쉬움 두 번째 적 제거`);
 }
+const ringPlan = createThemedAttack("ring_golem", { x: 600, floorY: 576, direction: 1, targetX: 750 });
+const ring = sampleThemedAttack(ringPlan, 900)[0];
+assert.equal(overlapsThemedHazard({ enable: true, left: ring.x - 2, right: ring.x + 2, top: ring.y - 2, bottom: ring.y + 2 }, ring), false, "돌고리의 빈 중심에는 피해 없음");
+assert.ok(sampleThemedAttack(ringPlan, 900)[0].x > sampleThemedAttack(ringPlan, 1700)[0].x, "돌고리 복귀 궤적");
+const mole = createThemedAttack("burrow_mole", { x: 600, floorY: 576, direction: -1, targetX: 450 });
+assert.equal(sampleThemedAttack(mole, 500)[0].x, 450, "흙기둥은 미리 고정한 지점에서 분출");
+assert.ok(sampleThemedAttack({ ...mole, easy: true }, 500)[0].height < sampleThemedAttack(mole, 500)[0].height, "쉬움 흙기둥 높이 감소");
 console.log(`캐릭터 고유 공격 ${Object.keys(THEMED_ENEMIES).length}종 검사 통과: 잠긴 예고·궤적·점프 회피·피해·중복 방지·정지·취소·RGBA·배치`);

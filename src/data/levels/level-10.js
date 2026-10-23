@@ -29,7 +29,7 @@ export default {
     {id:"cp_hole_palace",x:10688,y:576,activationTop:0,restoresHealth:true},
     {id:"cp_hole_last_gap",x:12480,y:576,activationTop:0,restoresHealth:true},
     {id:"cp_hole_boss",x:14336,y:576,activationTop:0,restoresHealth:true}],
-  enemies:[{id:"hole_potato_a",type:"raw_potato",x:4480,y:576,patrol:64},{id:"hole_potato_b",type:"raw_potato",x:13632,y:576,patrol:80}],
+  enemies:[{id:"hole_mole_a",type:"burrow_mole",x:4480,y:576,patrol:64},{id:"hole_golem_b",type:"ring_golem",x:13632,y:576,patrol:80}],
   items:[{id:"hole_horn",type:"horn",x:768,y:576,activationTop:0},{id:"hole_wings",type:"wings",x:7424,y:576,activationTop:0},
     {id:"hole_fever",type:"alicorn",x:11904,y:576,activationTop:0},
     ...[448,1280,1920,2752,3392,3904,4672,5216,5792,6368,6912,7680,8352,9088,9792,10432,11360,12096,12832,13760,14208]
@@ -44,7 +44,7 @@ export default {
     .map(([xStart,xEnd,respawnX],index)=>({id:`hole_pit_${index}`,type:"pit",xStart,xEnd,respawnX}))],
   environment:{},objectives:{required:[{type:"defeat_boss",target:"hole_king"},{type:"reach_gate"}],
     optional:[{type:"collect_stars",count:70,reward:500},{type:"find_secrets",count:1,reward:300},{type:"clear_time",seconds:480,reward:400},{type:"no_damage",reward:800}]},
-  difficulty:{easyMode:{extraCheckpoints:[{id:"cp_hole_easy",x:5888,y:576,activationTop:0,restoresHealth:true}],removeEnemies:["hole_potato_b"],
+  difficulty:{easyMode:{extraCheckpoints:[{id:"cp_hole_easy",x:5888,y:576,activationTop:0,restoresHealth:true}],removeEnemies:["hole_golem_b"],
     player:{extraHp:2,flightDrainMultiplier:0.65},boss:{telegraphMultiplier:1.35,vulnerabilityMultiplier:1.3},
     terrainMechanics:{movingSpeedMultiplier:0.8,crumbleDelayMultiplier:1.3,holeWarningMultiplier:1.5},pitScoreLoss:0}}
 };

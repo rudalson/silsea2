@@ -1257,6 +1257,18 @@
     {"key":"metronome_owl_warning","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"metronome_owl_attack","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"metronome_owl_recover","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
-    {"key":"metronome_owl_defeated","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_defeated.png","frameWidth":128,"frameHeight":128,"frames":1}
+    {"key":"metronome_owl_defeated","type":"spritesheet","url":"/assets/enemies/metronome_owl/metronome_owl_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"burrow_mole_idle","type":"spritesheet","url":"/assets/enemies/burrow_mole/burrow_mole_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"burrow_mole_move","type":"spritesheet","url":"/assets/enemies/burrow_mole/burrow_mole_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"burrow_mole_warning","type":"spritesheet","url":"/assets/enemies/burrow_mole/burrow_mole_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"burrow_mole_attack","type":"spritesheet","url":"/assets/enemies/burrow_mole/burrow_mole_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"burrow_mole_recover","type":"spritesheet","url":"/assets/enemies/burrow_mole/burrow_mole_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"burrow_mole_defeated","type":"spritesheet","url":"/assets/enemies/burrow_mole/burrow_mole_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"ring_golem_idle","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"ring_golem_move","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"ring_golem_warning","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"ring_golem_attack","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"ring_golem_recover","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"ring_golem_defeated","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_defeated.png","frameWidth":128,"frameHeight":128,"frames":1}
   ]
 }

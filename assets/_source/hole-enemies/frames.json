@@ -1,0 +1,162 @@
+{
+  "burrow_mole": {
+    "source": "burrow_mole-poses.png",
+    "poses": [
+      {
+        "left": 62,
+        "top": 114,
+        "width": 293,
+        "height": 364
+      },
+      {
+        "left": 441,
+        "top": 115,
+        "width": 294,
+        "height": 364
+      },
+      {
+        "left": 805,
+        "top": 118,
+        "width": 322,
+        "height": 361
+      },
+      {
+        "left": 1193,
+        "top": 122,
+        "width": 312,
+        "height": 357
+      },
+      {
+        "left": 44,
+        "top": 620,
+        "width": 359,
+        "height": 279
+      },
+      {
+        "left": 441,
+        "top": 608,
+        "width": 377,
+        "height": 285
+      },
+      {
+        "left": 851,
+        "top": 546,
+        "width": 275,
+        "height": 380
+      },
+      {
+        "left": 1199,
+        "top": 610,
+        "width": 297,
+        "height": 318
+      }
+    ],
+    "scale": 0.24210526315789474,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        1
+      ],
+      "move": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "warning": [
+        4
+      ],
+      "attack": [
+        5
+      ],
+      "recover": [
+        6
+      ],
+      "defeated": [
+        7
+      ]
+    }
+  },
+  "ring_golem": {
+    "source": "ring_golem-poses.png",
+    "poses": [
+      {
+        "left": 45,
+        "top": 115,
+        "width": 312,
+        "height": 310
+      },
+      {
+        "left": 424,
+        "top": 117,
+        "width": 313,
+        "height": 312
+      },
+      {
+        "left": 800,
+        "top": 118,
+        "width": 336,
+        "height": 309
+      },
+      {
+        "left": 1191,
+        "top": 114,
+        "width": 327,
+        "height": 312
+      },
+      {
+        "left": 16,
+        "top": 601,
+        "width": 375,
+        "height": 297
+      },
+      {
+        "left": 424,
+        "top": 607,
+        "width": 409,
+        "height": 295
+      },
+      {
+        "left": 848,
+        "top": 605,
+        "width": 270,
+        "height": 301
+      },
+      {
+        "left": 1183,
+        "top": 656,
+        "width": 328,
+        "height": 255
+      }
+    ],
+    "scale": 0.254278728606357,
+    "frameSize": 128,
+    "baselineY": 112,
+    "sequences": {
+      "idle": [
+        0,
+        1
+      ],
+      "move": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "warning": [
+        4
+      ],
+      "attack": [
+        5
+      ],
+      "recover": [
+        6
+      ],
+      "defeated": [
+        7
+      ]
+    }
+  }
+}

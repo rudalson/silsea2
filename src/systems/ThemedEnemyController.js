@@ -82,7 +82,10 @@ export class ThemedEnemyController {
     if (this.visible(enemy) && now >= (enemy.getData("attackReadyAt") ?? 0)
       && Math.abs(distance) >= 75 && Math.abs(distance) <= rules.range && Math.abs(this.player.y - enemy.y) < 110) {
       const direction = distance < 0 ? -1 : 1;
-      entry.plan = createThemedAttack(enemy.getData("type"), { x: enemy.x, floorY: enemy.body.bottom, direction, targetX: this.player.x }, this.easy);
+      const supported = x => this.levelLoader.terrainObjects.some(t => Math.abs(t.y - enemy.body.bottom) <= 14 && t.x <= x - 36 && t.x + t.width >= x + 36);
+      const targetX = rules.kind === "dirt_spout" ? [this.player.x, enemy.x + direction * 96, enemy.x].find(supported) : this.player.x;
+      if (targetX === undefined) return;
+      entry.plan = createThemedAttack(enemy.getData("type"), { x: enemy.x, floorY: enemy.body.bottom, direction, targetX }, this.easy);
       entry.resolved.clear(); enemy.setFlipX(direction < 0);
       this.enter(enemy, "telegraph", "warning"); this.draw(entry, true);
       this.scene.updateAccessibleStatus?.(rules.hint);
@@ -105,6 +108,11 @@ export class ThemedEnemyController {
     if (!plan) return;
     if (warning) {
       g.lineStyle(2, plan.color, 0.85);
+      if (plan.kind === "dirt_spout") {
+        g.strokeEllipse(plan.targetX, plan.floorY - 3, plan.easy ? 60 : 76, 16);
+        g.lineBetween(plan.targetX, plan.floorY - 12, plan.targetX, plan.floorY - (plan.easy ? 64 : 84));
+        return;
+      }
       for (let time = 0; time < plan.durationMs; time += 120) {
         for (const h of sampleThemedAttack(plan, time)) g.strokeEllipse(h.x, h.y, h.width, h.height);
       }
@@ -112,6 +120,16 @@ export class ThemedEnemyController {
     }
     for (const h of sampleThemedAttack(plan, entry.elapsedMs)) {
       if (entry.resolved.has(h.id)) continue;
+      if (h.shape === "spout") {
+        g.fillStyle(plan.color, 1).fillRoundedRect(h.x - h.width / 2, h.y - h.height / 2, h.width, h.height, 8);
+        g.lineStyle(2, COLORS.outline).strokeRoundedRect(h.x - h.width / 2, h.y - h.height / 2, h.width, h.height, 8);
+        continue;
+      }
+      if (h.shape === "ring") {
+        g.lineStyle(h.width / 2 - h.innerRadius, plan.color).strokeCircle(h.x, h.y, (h.width / 2 + h.innerRadius) / 2);
+        g.lineStyle(2, COLORS.outline).strokeCircle(h.x, h.y, h.width / 2).strokeCircle(h.x, h.y, h.innerRadius);
+        continue;
+      }
       if (h.shape === "pendulum") g.lineStyle(4, COLORS.collect).lineBetween(plan.x, plan.floorY - 65, h.x, h.y);
       g.fillStyle(plan.color, 1).fillEllipse(h.x, h.y, h.width, h.height);
       g.lineStyle(2, COLORS.outline).strokeEllipse(h.x, h.y, h.width, h.height);
