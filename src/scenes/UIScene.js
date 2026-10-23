@@ -87,15 +87,6 @@ export class UIScene extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
       .setVisible(false);
-    this.waveWarning = this.createLabel(GAME_WIDTH - 24, 150, "", {
-      align: "right",
-      fontSize: "19px",
-      fontStyle: "900",
-      color: CSS_COLORS.white,
-      backgroundColor: CSS_COLORS.dangerSoft,
-      padding: { x: 14, y: 9 }
-    }).setOrigin(1, 0).setScrollFactor(0).setVisible(false);
-
     this.scoreText = this.createLabel(GAME_WIDTH / 2, 35, "진행도 0%", {
       fontSize: "24px",
       fontStyle: "900",
@@ -259,18 +250,6 @@ export class UIScene extends Phaser.Scene {
       .setVisible(showBreath)
       .setScale(Math.max(0.001, breath?.ratio ?? 1), 1)
       .setFillStyle(breath?.warning ? COLORS.danger : COLORS.collectBlue);
-    const environment = this.gameScene.environmentMechanics?.getSnapshot();
-    const showWave = environment?.waveState === "warning" || environment?.waveState === "active";
-    const sheltered = Boolean(environment?.activeShelterId);
-    const waveArrow = environment?.direction === "left" ? "←" : "→";
-    const waveStatus = environment?.waveState === "active"
-      ? "파도 통과 중"
-      : `파도 ${environment?.secondsUntilWave?.toFixed(1) ?? "?"}초`;
-    this.waveWarning
-      .setVisible(showWave)
-      .setBackgroundColor(sheltered ? CSS_COLORS.collectSoft : CSS_COLORS.dangerSoft)
-      .setColor(sheltered ? CSS_COLORS.near : CSS_COLORS.white)
-      .setText(showWave ? `${waveArrow} ${waveStatus}` : "");
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
     this.objectiveText.setText(`✦  별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}  ✦`);

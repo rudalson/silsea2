@@ -297,15 +297,16 @@ export class EnvironmentMechanicsManager {
 
     if (!this.tsunami) return;
     const warningKey = effectKeys.tsunamiWarning;
+    const warningX = this.tsunami.direction === "left" ? GAME_WIDTH - 70 : 70;
     if (finalArt && warningKey && this.scene.textures?.exists?.(warningKey)) {
-      const warningArt = this.track(this.scene.add.image(GAME_WIDTH - 70, GAME_HEIGHT / 2, warningKey));
+      const warningArt = this.track(this.scene.add.image(warningX, GAME_HEIGHT / 2, warningKey));
       warningArt.setScrollFactor(0).setDisplaySize(112, 112).setDepth(25).setVisible(false);
       if (this.tsunami.direction !== "left") warningArt.setFlipX(true);
       this.waveWarningVisuals = [warningArt];
     } else {
-      const warningGlow = this.track(this.scene.add.circle(GAME_WIDTH - 70, GAME_HEIGHT / 2, 46, COLORS.danger, 0.42));
+      const warningGlow = this.track(this.scene.add.circle(warningX, GAME_HEIGHT / 2, 46, COLORS.danger, 0.42));
       const warningArrow = this.track(this.scene.add.triangle(
-        GAME_WIDTH - 70,
+        warningX,
         GAME_HEIGHT / 2,
         48,
         0,
