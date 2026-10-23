@@ -5,7 +5,7 @@ const rest = (id, xStart, xEnd, practice = false) => ({ id, xStart, xEnd, floorY
   warningMs: 1500, stopMs: 5000, retryMs: 1200, movementTolerance: 0.2, practice, requireSuccess: true });
 
 export default {
-  schemaVersion: 2, id: "level-09", name: "피아노 나라", order: 9,
+  schemaVersion: 2, id: "level-09", name: "피아노 나라", order: 8,
   description: "띵! 신호에 5초 멈추고 음악 대왕의 연주를 들어요", visualTheme: "piano-kingdom",
   assets: {
     tilemap, tilemapKey: "level-09-map", tileset: "rainbow_tileset", preview: "stage_preview_music",

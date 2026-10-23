@@ -90,13 +90,12 @@ if (!getLevel("level-02")) fail("level-02가 레지스트리에 등록되지 않
 if (!getLevel("level-03")) fail("level-03이 레지스트리에 등록되지 않음");
 if (!getLevel("level-04")) fail("level-04가 레지스트리에 등록되지 않음");
 if (!getLevel("level-05")) fail("level-05가 레지스트리에 등록되지 않음");
-if (!getLevel("level-06")) fail("level-06이 레지스트리에 등록되지 않음");
+if (getLevel("level-06")) fail("삭제된 level-06이 레지스트리에 남아 있음");
 if (!getLevel("p9-boss-test-right") || !getLevel("p9-boss-test-left")) fail("P9 좌·우 보스 시험 레벨이 레지스트리에 없음");
 if (getNextLevel(LEVELS[0].id)?.id !== LEVELS[1].id) fail("getNextLevel 순서가 잘못됨");
 if (getNextLevel("level-03")?.id !== "level-04") fail("안개 골짜기 다음 레벨이 쓰나미 마을이 아님");
 if (getNextLevel("level-04")?.id !== "level-05") fail("쓰나미 마을 다음 레벨이 물에 잠긴 마을이 아님");
-if (getNextLevel("level-05")?.id !== "level-06") fail("물에 잠긴 마을 다음 레벨이 무지개 이어달리기가 아님");
-if (getNextLevel("level-06")?.id !== "level-07") fail("무지개 이어달리기 다음 레벨이 메롱 왕국이 아님");
+if (getNextLevel("level-05")?.id !== "level-07") fail("물에 잠긴 마을 다음 레벨이 메롱 왕국이 아님");
 if (getNextLevel("level-07")?.id !== "level-08") fail("메롱 왕국 다음 레벨이 테이프 도시가 아님");
 if (getNextLevel("level-08")?.id !== "level-09") fail("테이프 도시 다음 레벨이 피아노 나라가 아님");
 if (getNextLevel("level-09")?.id !== "level-10") fail("피아노 나라 다음 레벨이 구멍 코스가 아님");
@@ -108,7 +107,7 @@ if (!levelIndex.includes('import level02 from "./level-02.js";')) fail("level-02
 if (!levelIndex.includes('import level03 from "./level-03.js";')) fail("level-03 import 한 줄이 없음");
 if (!levelIndex.includes('import level04 from "./level-04.js";')) fail("level-04 import 한 줄이 없음");
 if (!levelIndex.includes('import level05 from "./level-05.js";')) fail("level-05 import 한 줄이 없음");
-if (!levelIndex.includes('import level06 from "./level-06.js";')) fail("level-06 import 한 줄이 없음");
+if (levelIndex.includes('level-06.js')) fail("삭제된 level-06 import가 남아 있음");
 if (!getLevel("level-07") || LEVELS.some((level, index) => level.order !== index + 1)) fail("신규 캠페인 등록·순서가 잘못됨");
 
 if (!bootScene.includes('query.get("visualReview")')) fail("런타임 화풍 검수용 visualReview 진입점이 없음");
@@ -428,7 +427,6 @@ if (!stageSelectScene.includes("pageIndicator") || !stageSelectScene.includes("r
   fail("다섯 번째 스테이지를 위한 좌우 캐러셀·페이지 표시가 없음");
 }
 if (!stageSelectScene.includes('level.visualTheme === "submerged-graybox"')) fail("물에 잠긴 마을 선택 카드 실루엣이 없음");
-if (!stageSelectScene.includes('level.visualTheme === "rainbow-relay-graybox"')) fail("C1 무지개 이어달리기 선택 카드 fallback 실루엣이 없음");
 if (!bootScene.includes('query.get("unlock")') || !stageSelectScene.includes('registry.get("stageSelectReviewUnlockAll")')) {
   fail("C1 선택 카드 잠금 해제 검수 진입점이 없음");
 }

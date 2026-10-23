@@ -14,7 +14,7 @@ import { ProgressManager } from "../src/systems/ProgressManager.js";
 
 assertLevelShape(level);
 assert.equal(getLevel("level-07"), level);
-assert.equal(getNextLevel("level-06"), level);
+assert.equal(getNextLevel("level-05"), level);
 assert.equal(getNextLevel(LEVELS.at(-1).id), null);
 const definition = getBossDefinition("merong_king");
 assert.equal(definition.defaultHp, 3);
@@ -59,10 +59,10 @@ assert.deepEqual(findLayoutIssues(easy, terrain), []);
 const progress = new ProgressManager(null);
 progress.data = {};
 assert.equal(progress.isUnlocked(level, LEVELS), false);
-progress.complete("level-06", 300, []);
+progress.complete("level-05", 300, []);
 assert.equal(progress.isUnlocked(level, LEVELS), true);
 progress.complete("level-07", 450, ["no_damage"]);
-assert.equal(progress.get("level-06").bestScore, 300);
+assert.equal(progress.get("level-05").bestScore, 300);
 assert.equal(progress.get("level-07").cleared, true);
 for (const role of definition.animationRoles) {
   const spec = getEnemyAnimationSpec("merong_king", role);
@@ -77,4 +77,4 @@ for (const role of definition.animationRoles) {
   }
   assert.ok(minX >= 8 && maxX < 120 && maxY >= 110 && maxY <= 112, `${role} 프레임 여백·발 기준선`);
 }
-console.log("메롱 왕국 검사 통과: 혀 범위·예고 경계·3단계 약점·7번 해금·기록 호환·양 난이도 배치·6포즈 RGBA");
+console.log("메롱 왕국 검사 통과: 혀 범위·예고 경계·3단계 약점·6번 해금·기록 호환·양 난이도 배치·6포즈 RGBA");

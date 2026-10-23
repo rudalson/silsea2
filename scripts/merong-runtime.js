@@ -47,10 +47,10 @@ async function run(scene) {
   const onGround = () => scene.player.body.velocity.y >= 0
     && (scene.player.body.blocked.down || scene.player.body.touching.down);
   try {
-    progressManager.data["level-06"] = { cleared: false, bestScore: 0, achieved: [] };
-    assert(!progressManager.isUnlocked(getLevel("level-07"), LEVELS), "6번 클리어 전 7번 잠금");
-    progressManager.complete("level-06", 100, []);
-    assert(progressManager.isUnlocked(getLevel("level-07"), LEVELS), "6번 클리어로 메롱 왕국 해금");
+    progressManager.data["level-05"] = { cleared: false, bestScore: 0, achieved: [] };
+    assert(!progressManager.isUnlocked(getLevel("level-07"), LEVELS), "5번 클리어 전 메롱 왕국 잠금");
+    progressManager.complete("level-05", 100, []);
+    assert(progressManager.isUnlocked(getLevel("level-07"), LEVELS), "5번 클리어로 메롱 왕국 해금");
     assert(scene.bossController.behavior.state === "dormant" && !scene.levelLoader.boss.body.enable, "궁전에 들어가기 전 보스 대기");
     assert(!scene.levelLoader.gate, "보스 처치 전 출구 생성 안 됨");
     let previousJump = false;

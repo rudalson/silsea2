@@ -2,7 +2,7 @@ import { HOLE_KING_PHASES } from "../holeMechanics.js";
 const tilemap = new URL("../../../assets/levels/level-10/tilemap.json", import.meta.url).href;
 const bridge = (id,x,width=128,controller) => ({id,x,y:576,width,height:24,triggerDistance:400,warningMs:1500,openMs:2000,closedMs:3000,...(controller?{controller}: {})});
 export default {
-  schemaVersion:2,id:"level-10",name:"구멍 코스",order:10,description:"표시된 구멍을 뛰어넘고 움직이는 구멍 대왕을 멈춰요",visualTheme:"hole-canyon",
+  schemaVersion:2,id:"level-10",name:"구멍 코스",order:9,description:"표시된 구멍을 뛰어넘고 움직이는 구멍 대왕을 멈춰요",visualTheme:"hole-canyon",
   assets:{tilemap,tilemapKey:"level-10-map",tileset:"starlight_tileset",preview:"stage_preview_hole",
     backgrounds:{normal:{far:"bg_hole_far",mid:"bg_normal_mid",near:"bg_normal_near"},boss:{far:"bg_hole_far",mid:"bg_normal_mid",near:"bg_normal_near"}},
     objects:{items:{star:"item_star",percent_small:"item_percent_small",percent_large:"item_percent_large",horn:"item_horn",wings:"item_wings",alicorn:"item_alicorn"},checkpoint:"checkpoint_flag",gate:"rainbow_gate"},

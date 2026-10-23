@@ -1,7 +1,7 @@
 import { CLOUD_KING_PHASES } from "../cloudMechanics.js";
 const tilemap=new URL("../../../assets/levels/level-11/tilemap.json",import.meta.url).href;
 export default {
-  schemaVersion:2,id:"level-11",name:"구름 코스",order:11,description:"구름 다리와 상승기류를 지나 마지막 구름 대왕을 만나요",visualTheme:"cloud-kingdom",
+  schemaVersion:2,id:"level-11",name:"구름 코스",order:10,description:"구름 다리와 상승기류를 지나 마지막 구름 대왕을 만나요",visualTheme:"cloud-kingdom",
   assets:{tilemap,tilemapKey:"level-11-map",tileset:"grass_tileset",preview:"stage_preview_cloud",
     backgrounds:{normal:{far:"bg_cloud_far",mid:"bg_normal_mid",near:"bg_normal_near"},boss:{far:"bg_cloud_far",mid:"bg_normal_mid",near:"bg_normal_near"}},
     objects:{items:{star:"item_star",percent_small:"item_percent_small",percent_large:"item_percent_large",horn:"item_horn",wings:"item_wings",alicorn:"item_alicorn"},checkpoint:"checkpoint_flag",gate:"rainbow_gate"},

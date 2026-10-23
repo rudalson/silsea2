@@ -5,7 +5,7 @@ const trap = (id, x, laneOffset, reach, practice = false) => ({ id, x, y: 576 - 
   direction: 1, reach, warningMs: 1200, activeMs: 650, restMs: 2000, triggerDistance: 400, practice });
 
 export default {
-  schemaVersion: 2, id: "level-07", name: "메롱 왕국", order: 7,
+  schemaVersion: 2, id: "level-07", name: "메롱 왕국", order: 6,
   description: "메롱하는 길을 지나 웃음 궁전의 대왕을 만나요", visualTheme: "merong-kingdom",
   assets: {
     tilemap, tilemapKey: "level-07-map", tileset: "rainbow_tileset", preview: "stage_preview_merong",

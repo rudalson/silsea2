@@ -19,7 +19,7 @@ const progress = new ProgressManager(storage);
 const campaignItemTypes = new Set();
 
 assert.ok(LEVELS.length >= 7);
-assert.equal(getNextLevel("level-06")?.id, "level-07");
+assert.equal(getNextLevel("level-05")?.id, "level-07");
 assert.equal(getNextLevel("level-07")?.id, "level-08");
 assert.equal(getNextLevel("level-08")?.id, "level-09");
 assert.equal(getNextLevel("level-09")?.id, "level-10");
@@ -37,21 +37,10 @@ for (const [index, sourceLevel] of LEVELS.entries()) {
   assert.equal(reachObjectives.length, 1, `${level.id}는 실제 게이트 목표가 정확히 하나여야 함`);
   assert.equal(presentation.kind, GATE_KINDS.REAL);
   assert.equal(presentation.graybox, false);
-  assert.equal(
-    presentation.placement,
-    level.id === "level-06" ? GATE_PLACEMENTS.AIR : GATE_PLACEMENTS.GROUND
-  );
-
-  if (level.id === "level-06") {
-    assert.equal(bossSections.length, 0);
-    assert.equal(bossObjectives.length, 0);
-    assert.equal(presentation.airRoute.reachability.directReachable, true);
-    assert.equal(presentation.airRoute.reachability.platformReachable, true);
-  } else {
-    assert.equal(bossSections.length, 1, `${level.id} 보스 section 누락`);
-    assert.equal(bossObjectives.length, 1, `${level.id} 보스 필수 목표 누락`);
-    assert.equal(bossSections[0].boss.key, bossObjectives[0].target);
-  }
+  assert.equal(presentation.placement, GATE_PLACEMENTS.GROUND);
+  assert.equal(bossSections.length, 1, `${level.id} 보스 section 누락`);
+  assert.equal(bossObjectives.length, 1, `${level.id} 보스 필수 목표 누락`);
+  assert.equal(bossSections[0].boss.key, bossObjectives[0].target);
 
   const objectives = new ObjectiveManager({ events: { emit() {} } }, level.objectives);
   assert.equal(objectives.areRequiredComplete(), false);

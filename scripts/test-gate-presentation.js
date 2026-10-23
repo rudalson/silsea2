@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { DEFAULT_TUNING } from "../src/data/characters.js";
-import level06 from "../src/data/levels/level-06.js";
 import { LEVELS } from "../src/data/levels/index.js";
 import {
   AIRBORNE_GATE_ROUTE,
@@ -100,8 +99,8 @@ assert.equal(getGateReviewMode("?gateReview=integration"), GATE_REVIEW_MODES.INT
 assert.equal(getGateReviewMode("?gateReview=unknown"), null);
 
 const normalized = normalizeLevelDefinition({
-  ...level06,
-  exit: { x: level06.exit.x, y: level06.exit.y, enterFrom: level06.exit.enterFrom }
+  ...LEVELS[5],
+  exit: { x: LEVELS[5].exit.x, y: LEVELS[5].exit.y, enterFrom: LEVELS[5].exit.enterFrom }
 });
 assert.equal(normalized.prankGates, undefined, "기존 레벨 정규화 결과에 빈 선택 필드를 강제로 추가하지 않아야 함");
 assert.equal(normalized.exit.presentation, undefined);
@@ -138,14 +137,8 @@ const integratedAirLevels = integratedLevels.filter(
 const integratedGroundLevels = integratedLevels.filter(
   (level) => level.exit.presentation.placement === GATE_PLACEMENTS.GROUND
 );
-assert.deepEqual(integratedAirLevels.map(({ id }) => id), ["level-06"]);
+assert.deepEqual(integratedAirLevels, []);
 assert.equal(integratedGroundLevels.length, LEVELS.length - integratedAirLevels.length);
-const integratedRelay = integratedAirLevels[0];
-assert.equal(integratedRelay.exit.presentation.airRoute.retryCheckpoint.id, "cp_relay_finish");
-assert.ok(integratedRelay.checkpoints.some(({ id }) => id === "cp_relay_finish"));
-assert.ok(integratedRelay.cameraCues.some(({ id }) => id === "cue_relay_air_gate"));
-assert.equal(integratedRelay.exit.presentation.airRoute.reachability.directReachable, true);
-assert.equal(integratedRelay.exit.presentation.airRoute.reachability.platformReachable, true);
 
 const productionPrankLevels = integratedLevels.filter((level) => (level.prankGates ?? []).length > 0);
 assert.deepEqual(productionPrankLevels.map(({ id }) => id), ["level-02"]);

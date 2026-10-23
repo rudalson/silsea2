@@ -123,28 +123,6 @@ export class StageSelectScene extends Phaser.Scene {
         add(this.add.circle(38, 314, 5, COLORS.white, 0.72));
         add(this.add.triangle(92, 324, 0, 20, 16, 0, 32, 20, COLORS.collect, 0.94));
       }
-      if (level.visualTheme === "rainbow-relay-graybox" && !hasPreview) {
-        add(this.add.rectangle(-110, 348, 84, 48, COLORS.ground, 0.98));
-        add(this.add.rectangle(-110, 322, 84, 8, COLORS.grass, 1));
-        add(this.add.rectangle(110, 348, 96, 48, COLORS.ground, 0.98));
-        add(this.add.rectangle(110, 322, 96, 8, COLORS.grass, 1));
-        add(this.add.ellipse(-38, 326, 58, 18, COLORS.white, 0.96)).setStrokeStyle(2, COLORS.outline);
-        [-4, 12, 28, 44].forEach((x) => {
-          add(this.add.rectangle(x, 326, 14, 14, COLORS.ground, 1)).setStrokeStyle(2, COLORS.outline);
-        });
-        [[-92, 286], [-58, 266], [-20, 252], [20, 250], [58, 266], [88, 288]].forEach(([x, y]) => {
-          add(this.add.star(x, y, 5, 4, 10, COLORS.collect, 0.98)).setStrokeStyle(2, COLORS.outline);
-        });
-        const gate = add(this.add.graphics());
-        [[34, COLORS.collectPink], [27, COLORS.collect], [20, COLORS.collectBlue]].forEach(([radius, color]) => {
-          gate.lineStyle(6, color, 1);
-          gate.beginPath();
-          gate.arc(110, 320, radius, Math.PI, Math.PI * 2, false);
-          gate.strokePath();
-          gate.lineBetween(110 - radius, 320, 110 - radius, 350);
-          gate.lineBetween(110 + radius, 320, 110 + radius, 350);
-        });
-      }
       const fallbackArt = this.add.container(0, -23, children.splice(fallbackStart));
       add(fallbackArt);
       const lockedOverlay = add(this.add.rectangle(0, 291, 310, 170, COLORS.outline, 0.64)).setVisible(!unlocked);
