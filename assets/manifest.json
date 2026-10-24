@@ -1269,6 +1269,18 @@
     {"key":"ring_golem_warning","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"ring_golem_attack","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"ring_golem_recover","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
-    {"key":"ring_golem_defeated","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_defeated.png","frameWidth":128,"frameHeight":128,"frames":1}
+    {"key":"ring_golem_defeated","type":"spritesheet","url":"/assets/enemies/ring_golem/ring_golem_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_sheep_idle","type":"spritesheet","url":"/assets/enemies/cloud_sheep/cloud_sheep_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"cloud_sheep_move","type":"spritesheet","url":"/assets/enemies/cloud_sheep/cloud_sheep_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"cloud_sheep_warning","type":"spritesheet","url":"/assets/enemies/cloud_sheep/cloud_sheep_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_sheep_attack","type":"spritesheet","url":"/assets/enemies/cloud_sheep/cloud_sheep_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_sheep_recover","type":"spritesheet","url":"/assets/enemies/cloud_sheep/cloud_sheep_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"cloud_sheep_defeated","type":"spritesheet","url":"/assets/enemies/cloud_sheep/cloud_sheep_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"umbrella_duck_idle","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_idle.png","frameWidth":128,"frameHeight":128,"frames":2},
+    {"key":"umbrella_duck_move","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_move.png","frameWidth":128,"frameHeight":128,"frames":4},
+    {"key":"umbrella_duck_warning","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"umbrella_duck_attack","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"umbrella_duck_recover","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"umbrella_duck_defeated","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_defeated.png","frameWidth":128,"frameHeight":128,"frames":1}
   ]
 }

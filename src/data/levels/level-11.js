@@ -26,7 +26,7 @@ export default {
     {id:"cp_cloud_recharge",x:10624,y:576,activationTop:0,restoresHealth:true},
     {id:"cp_cloud_rainbow",x:14336,y:576,activationTop:0,restoresHealth:true},
     {id:"cp_cloud_boss",x:16448,y:576,activationTop:0,restoresHealth:true}],
-  enemies:[{id:"cloud_potato_a",type:"raw_potato",x:4224,y:576,patrol:80},{id:"cloud_potato_b",type:"raw_potato",x:15104,y:576,patrol:80}],
+  enemies:[{id:"cloud_sheep_a",type:"cloud_sheep",x:4224,y:576,patrol:80},{id:"cloud_duck_b",type:"umbrella_duck",x:15104,y:576,patrol:80}],
   items:[{id:"cloud_horn",type:"horn",x:768,y:576,activationTop:0},{id:"cloud_wings",type:"wings",x:7168,y:576,activationTop:0},
     {id:"cloud_fever",type:"alicorn",x:14080,y:576,activationTop:0},
     ...[448,1280,1920,2912,3584,4480,5440,6272,6848,7680,8384,9024,9856,10880,11840,12832,13504,14464,15552,16192]
@@ -42,7 +42,7 @@ export default {
     .map(([xStart,xEnd,respawnX],index)=>({id:`cloud_pit_${index}`,type:"pit",xStart,xEnd,respawnX}))],
   environment:{},objectives:{required:[{type:"defeat_boss",target:"cloud_king"},{type:"reach_gate"}],optional:[{type:"collect_stars",count:70,reward:500},
     {type:"find_secrets",count:1,reward:300},{type:"clear_time",seconds:480,reward:400},{type:"no_damage",reward:800}]},
-  difficulty:{easyMode:{extraCheckpoints:[{id:"cp_cloud_easy",x:11776,y:576,activationTop:0,restoresHealth:true}],removeEnemies:["cloud_potato_b"],
+  difficulty:{easyMode:{extraCheckpoints:[{id:"cp_cloud_easy",x:11776,y:576,activationTop:0,restoresHealth:true}],removeEnemies:["cloud_duck_b"],
     player:{extraHp:2,flightDrainMultiplier:0.65},boss:{telegraphMultiplier:1.35,vulnerabilityMultiplier:1.3},
     terrainMechanics:{movingSpeedMultiplier:0.8,crumbleDelayMultiplier:1.3},pitScoreLoss:0}}
 };

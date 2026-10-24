@@ -43,6 +43,7 @@ async function run(scene) {
       place(target.x, target.y + scene.player.body.height / 2);
       await until(() => hitKinds.length > oldHits, `${type} 실제 공격 충돌`, 800);
       assert(hitKinds.at(-1) === rules.kind, `${type} 몸통 접촉과 구분되는 ${rules.kind} 피해`);
+      if (rules.kind === "sneeze_gust") assert(Math.sign(scene.player.body.velocity.x) === entry.plan.direction, "돌풍 진행 방향으로 실제 밀림");
       place(enemy.x - 350); scene.healthManager.restoreFull(); scene.healthManager.grantInvulnerability(5000);
       manager.cancel(enemy); enemy.setData("attackReadyAt", 0); place(enemy.x - 150);
       await until(() => enemy.getData("state") === "telegraph", `${type} 재공격 예고`);

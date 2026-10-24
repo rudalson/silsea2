@@ -1,5 +1,5 @@
 import { COLORS, EVENTS } from "../config/constants.js";
-import { THEMED_ENEMIES, createThemedAttack, findThemedAttackHits, isThemedEnemy, sampleThemedAttack } from "../data/themedEnemies.js";
+import { THEMED_ENEMIES, createThemedAttack, findThemedAttackHits, getThemedRainColumns, isThemedEnemy, sampleThemedAttack } from "../data/themedEnemies.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
 export class ThemedEnemyController {
@@ -68,7 +68,7 @@ export class ThemedEnemyController {
         entry.resolved.add(hazard.id);
         if (hazard.guardable && this.transformationManager.canGuardProjectile(hazard.x, hazard.y)) {
           this.transformationManager.registerGuardImpact(hazard.x, hazard.y);
-        } else this.healthManager.takeDamage(hazard.x, { type: rules.kind });
+        } else this.healthManager.takeDamage(rules.kind === "sneeze_gust" ? entry.plan.x : hazard.x, { type: rules.kind });
       }
       this.draw(entry);
       if (entry.elapsedMs >= entry.plan.durationMs) this.recover(enemy, now);
@@ -108,6 +108,13 @@ export class ThemedEnemyController {
     if (!plan) return;
     if (warning) {
       g.lineStyle(2, plan.color, 0.85);
+      if (plan.kind === "umbrella_rain") {
+        for (const x of getThemedRainColumns(plan)) {
+          g.strokeEllipse(x, plan.floorY - 3, 36, 12);
+          g.lineBetween(x, plan.floorY - 220, x, plan.floorY - 14);
+        }
+        return;
+      }
       if (plan.kind === "dirt_spout") {
         g.strokeEllipse(plan.targetX, plan.floorY - 3, plan.easy ? 60 : 76, 16);
         g.lineBetween(plan.targetX, plan.floorY - 12, plan.targetX, plan.floorY - (plan.easy ? 64 : 84));
@@ -120,6 +127,12 @@ export class ThemedEnemyController {
     }
     for (const h of sampleThemedAttack(plan, entry.elapsedMs)) {
       if (entry.resolved.has(h.id)) continue;
+      if (h.shape === "gust") {
+        g.fillStyle(plan.color, 0.7).fillEllipse(h.x, h.y, h.width, h.height);
+        g.lineStyle(3, COLORS.outline).strokeEllipse(h.x, h.y, h.width, h.height);
+        g.lineStyle(2, COLORS.white).strokeEllipse(h.x, h.y, h.width * 0.6, h.height * 0.6);
+        continue;
+      }
       if (h.shape === "spout") {
         g.fillStyle(plan.color, 1).fillRoundedRect(h.x - h.width / 2, h.y - h.height / 2, h.width, h.height, 8);
         g.lineStyle(2, COLORS.outline).strokeRoundedRect(h.x - h.width / 2, h.y - h.height / 2, h.width, h.height, 8);

@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { THEMED_ENEMIES, createThemedAttack, findThemedAttackHits, getThemedEnemyTypes, overlapsThemedHazard, sampleThemedAttack } from "../src/data/themedEnemies.js";
+import { THEMED_ENEMIES, createThemedAttack, findThemedAttackHits, getThemedEnemyTypes, getThemedRainColumns, overlapsThemedHazard, sampleThemedAttack } from "../src/data/themedEnemies.js";
 import { ThemedEnemyController } from "../src/systems/ThemedEnemyController.js";
 import { getEnemyAnimationSpec, getEnemySequenceNames } from "../src/data/enemyAnimations.js";
 import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
@@ -48,7 +48,7 @@ for (const [type, rules] of Object.entries(THEMED_ENEMIES)) {
   assert.deepEqual(sampleThemedAttack(plan, plan.durationMs), []);
   assert.deepEqual(findThemedAttackHits(plan, 0, plan.durationMs, { enable: false }), []);
   const jump = { enable: true, left: 300, right: 700, top: 388, bottom: 450 };
-  assert.deepEqual(findThemedAttackHits(plan, 0, plan.durationMs, jump), [], `${type} 기본 점프로 낮은 공격 회피`);
+  if (rules.kind !== "umbrella_rain") assert.deepEqual(findThemedAttackHits(plan, 0, plan.durationMs, jump), [], `${type} 기본 점프로 낮은 공격 회피`);
 
   const f = fixture(type), entry = f.controller.entries.get(f.enemy);
   f.controller.update(f.enemy, 0, 16);
@@ -117,7 +117,7 @@ for (const type of Object.keys(THEMED_ENEMIES)) for (const role of getEnemySeque
     assert.ok(clear > 6000 && minX >= 8 && maxX < 120 && maxY >= 110 && maxY <= 112, `${type}/${role} 실제 투명 배경·여백·발 기준선`);
   }
 }
-for (const [stage, levelId] of Object.entries({ music: "level-09", hole: "level-10" })) {
+for (const [stage, levelId] of Object.entries({ music: "level-09", hole: "level-10", cloud: "level-11" })) {
   const level = getLevel(levelId), types = getThemedEnemyTypes(stage);
   assert.deepEqual(level.enemies.map(({ type }) => type), types);
   assert.equal(createRuntimeLevel(level, true).enemies.length, 1, `${stage} 쉬움 두 번째 적 제거`);
@@ -129,4 +129,12 @@ assert.ok(sampleThemedAttack(ringPlan, 900)[0].x > sampleThemedAttack(ringPlan, 
 const mole = createThemedAttack("burrow_mole", { x: 600, floorY: 576, direction: -1, targetX: 450 });
 assert.equal(sampleThemedAttack(mole, 500)[0].x, 450, "흙기둥은 미리 고정한 지점에서 분출");
 assert.ok(sampleThemedAttack({ ...mole, easy: true }, 500)[0].height < sampleThemedAttack(mole, 500)[0].height, "쉬움 흙기둥 높이 감소");
+const gust = createThemedAttack("cloud_sheep", { x: 600, floorY: 576, direction: -1, targetX: 450 });
+assert.ok(sampleThemedAttack(gust, 1500)[0].width > sampleThemedAttack(gust, 200)[0].width, "돌풍이 진행하면서 커짐");
+assert.ok(sampleThemedAttack({ ...gust, easy: true }, 1500)[0].width < sampleThemedAttack(gust, 1500)[0].width, "쉬움 돌풍 크기 감소");
+const rain = createThemedAttack("umbrella_duck", { x: 600, floorY: 576, direction: -1, targetX: 450 });
+assert.equal(getThemedRainColumns(rain).length, 3); assert.equal(getThemedRainColumns({ ...rain, easy: true }).length, 1);
+assert.equal(sampleThemedAttack(rain, 100).length, 1); assert.equal(sampleThemedAttack(rain, 700).length, 3);
+const between = { enable: true, left: 464, right: 508, top: 518, bottom: 576 };
+assert.deepEqual(findThemedAttackHits(rain, 0, rain.durationMs, between), [], "폭 44px 플레이어가 비줄기 사이에서 회피");
 console.log(`캐릭터 고유 공격 ${Object.keys(THEMED_ENEMIES).length}종 검사 통과: 잠긴 예고·궤적·점프 회피·피해·중복 방지·정지·취소·RGBA·배치`);

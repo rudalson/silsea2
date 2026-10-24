@@ -81,6 +81,7 @@
     "hole:enemies": "node scripts/build-hole-enemies.js",
     "test:hole": "node scripts/test-hole.js",
     "cloud:assets": "node scripts/build-cloud-assets.js",
+    "cloud:enemies": "node scripts/build-cloud-enemies.js",
     "test:cloud": "node scripts/test-cloud.js",
     "test:expansion": "node scripts/test-new-stage-integration.js",
     "test:boss-motion": "node scripts/test-boss-motion.js",

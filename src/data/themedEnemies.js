@@ -4,6 +4,14 @@ const color = hex => Number.parseInt(hex.slice(1), 16);
 // Character-specific attacks share the same sampled geometry for drawing,
 // telegraphing and collision. Origins and directions lock before anticipation.
 export const THEMED_ENEMIES = Object.freeze({
+  cloud_sheep: Object.freeze({ name: "재채기 구름양", stage: "cloud", kind: "sneeze_gust", warningMs: 1400,
+    attackMs: 1900, recoverMs: 900, cooldownMs: 2800, range: 260, walkSpeed: 20,
+    artBody: { width: 76, height: 64, scale: 0.86 },
+    color: color(PALETTE.collect[1]), sfx: "sfx_cloud_wind", hint: "구름양이 숨을 들이켜요. 커지는 돌풍을 점프로 넘거나 날개로 막아요. 닿으면 바람 방향으로 밀려요." }),
+  umbrella_duck: Object.freeze({ name: "우산 오리", stage: "cloud", kind: "umbrella_rain", warningMs: 1500,
+    attackMs: 1700, recoverMs: 900, cooldownMs: 2800, range: 230, walkSpeed: 18,
+    artBody: { width: 70, height: 82, scale: 0.86 },
+    color: color(PALETTE.oceandream[4]), sfx: "sfx_cloud_rain", hint: "오리가 우산을 털어요. 표시한 곳에 차례로 비가 오니 비줄기 사이로 옆걸음해요." }),
   burrow_mole: Object.freeze({ name: "굴파기 두더지", stage: "hole", kind: "dirt_spout", warningMs: 1300,
     attackMs: 1000, recoverMs: 850, cooldownMs: 2700, range: 220, walkSpeed: 22,
     color: color(PALETTE.sunlight[3]), sfx: "sfx_hole_open", hint: "두더지가 땅을 긁어요. 표시된 자리에서 흙기둥이 솟으니 자리를 피하거나 점프해요." }),
@@ -20,6 +28,7 @@ export const THEMED_ENEMIES = Object.freeze({
 
 export const isThemedEnemy = type => Boolean(THEMED_ENEMIES[type]);
 export const getThemedEnemyTypes = stage => Object.keys(THEMED_ENEMIES).filter(type => THEMED_ENEMIES[type].stage === stage);
+export const getThemedRainColumns = plan => (plan.easy ? [0] : [-72, 0, 72]).map(offset => plan.targetX + plan.direction * offset);
 
 export function createThemedAttack(type, { x, floorY, direction, targetX }, easy = false) {
   const rules = THEMED_ENEMIES[type];
@@ -30,6 +39,21 @@ export function createThemedAttack(type, { x, floorY, direction, targetX }, easy
 
 export function sampleThemedAttack(plan, elapsedMs) {
   if (elapsedMs < 0 || elapsedMs >= plan.durationMs) return [];
+  if (plan.kind === "sneeze_gust") {
+    const progress = elapsedMs / plan.durationMs;
+    return [{ id: "gust", shape: "gust", x: plan.x + plan.direction * (40 + progress * (plan.easy ? 230 : 310)),
+      y: plan.floorY - 44 - Math.sin(progress * Math.PI) * 6,
+      width: 36 + progress * (plan.easy ? 32 : 54), height: 32 + progress * (plan.easy ? 18 : 36), guardable: true }];
+  }
+  if (plan.kind === "umbrella_rain") {
+    const speed = plan.easy ? 192 : 240;
+    return getThemedRainColumns(plan).flatMap((x, index) => {
+      const seconds = (elapsedMs - index * 300) / 1000;
+      if (seconds < 0 || seconds >= 220 / speed) return [];
+      return [{ id: `rain-${index}`, shape: "rain", x, y: plan.floorY - 220 + seconds * speed,
+        width: plan.easy ? 14 : 18, height: 28, guardable: true }];
+    });
+  }
   if (plan.kind === "dirt_spout") {
     const height = Math.sin(elapsedMs / plan.durationMs * Math.PI) * (plan.easy ? 64 : 84);
     return height < 6 ? [] : [{ id: "spout", shape: "spout", x: plan.targetX, y: plan.floorY - height / 2,
