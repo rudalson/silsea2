@@ -121,9 +121,9 @@ async function run(scene) {
     const pausedRest = behavior.rest.elapsedMs; scene.scene.pause(); await new Promise((resolve) => setTimeout(resolve, 300));
     assert(behavior.rest.elapsedMs === pausedRest && behavior.notes.length === 0, "보스 정지 중 일시정지 보존"); scene.scene.resume();
     scene.healthManager.handleFall(); await until(() => !scene.checkpointManager.respawning && scene.player.body.enable, "보스 중 복귀");
-    assert(boss.getData("hp") === 3 && boss.getData("phase") === 1 && behavior.state === "dormant" && !behavior.rest, "복귀 시 보스 HP·단계·정지 초기화");
+    assert(boss.getData("hp") === 2 && boss.getData("phase") === 2 && behavior.state === "dormant" && !behavior.rest, "복귀 시 깎인 보스 HP·단계 유지와 정지 신호 정리");
     place(boss.x - 832);
-    for (let phase = 1; phase <= 3; phase++) { await stomp(); if (phase < 3) place(boss.x - 832); }
+    for (let phase = 2; phase <= 3; phase++) { await stomp(); if (phase < 3) place(boss.x - 832); }
     assert(attacks.has("3:2") && behavior.defeated && behavior.notes.length === 0 && scene.courseMechanics.finished, "3단계 높낮이 음표·5초 정지·처치 정리");
     assert(!scene.objectiveManager.areRequiredComplete(), "보스 처치 후 실제 게이트 진입 필요");
     await until(() => scene.levelLoader.gate?.lifecycle?.phase === "active", "게이트 활성");

@@ -152,9 +152,9 @@ async function run(scene) {
     await stomp();
     scene.healthManager.handleFall();
     await until(() => !scene.checkpointManager.respawning && scene.player.body.enable, "보스 재도전 복귀");
-    assert(boss.getData("hp") === 3 && boss.getData("phase") === 1 && behavior.state === "dormant", "보스 실패 복귀 시 HP·단계·공격 초기화");
+    assert(boss.getData("hp") === 2 && boss.getData("phase") === 2 && behavior.state === "dormant", "보스 실패 복귀 시 깎인 HP·단계 유지와 공격 정리");
     place(boss.x - 760);
-    for (let phase = 1; phase <= 3; phase++) {
+    for (let phase = 2; phase <= 3; phase++) {
       await stomp();
       if (phase < 3) place(boss.x - 760);
     }

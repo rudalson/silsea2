@@ -46,7 +46,7 @@ async function run(scene){
     scene.healthManager.grantInvulnerability(1500);place(boss.x,boss.body.top+12);scene.player.setVelocityY(240);await frames(4);assert(boss.getData("hp")===3,"약점 외 머리 밟기 거부");place(15072);
     await until(()=>b.state==="attack","대왕 다리 개방");const target=b.targets[0];place(target.config.x+target.config.width/2);const fallBefore=falls;
     await until(()=>falls>fallBefore,"대왕 열린 구멍 실제 추락");await until(()=>!scene.checkpointManager.respawning&&scene.player.body.enable,"대왕 구간 부활");
-    assert(boss.getData("hp")===3&&boss.getData("phase")===1&&b.state==="dormant"&&b.holes.every(h=>h.platform.body.enable),"복귀 시 HP·단계·위치·구멍 초기화");
+    assert(boss.getData("hp")===3&&boss.getData("phase")===1&&b.state==="dormant"&&b.holes.every(h=>h.platform.body.enable),"복귀 시 미타격 HP·단계 유지와 위치·구멍 정리");
     place(15072);
     for(let phase=1;phase<=3;phase++){
       await until(()=>b.state==="vulnerable",`대왕 ${phase}단계 약점`);assert(b.holes.every(h=>h.platform.body.enable)&&boss.x===b.homeX,"약점 전에 실제 다리 복구·대왕 중앙 정지");

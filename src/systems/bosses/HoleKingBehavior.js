@@ -11,7 +11,7 @@ export class HoleKingBehavior {
     this.visual = this.scene.add.graphics().setDepth(7);
     this.weakness = this.scene.add.star(this.homeX, this.boss.body.top - 24, 5, 9, 21, COLORS.collect).setStrokeStyle(3, COLORS.outline).setDepth(8).setVisible(false);
     this.fallback = this.boss.getData("usesArt") ? null : this.createFallback();
-    this.sleep(); this.onRespawn = () => { if (!this.defeated) { this.boss.setData({ hp: this.boss.getData("maxHp"), phase: 1 }); this.sleep(); } };
+    this.sleep(); this.onRespawn = () => { if (!this.defeated) this.sleep(); };
     this.scene.events.on(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
   }
   createFallback() {

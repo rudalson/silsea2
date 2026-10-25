@@ -54,7 +54,7 @@ for(const easyMode of [false,true]){
   Object.assign(player.body,{left:14790,right:14820,top:560,bottom:590});manager.setControlledHoles("hole_king",[],"closed");assert.equal(controlled[0].phase,"open");
   player.body.top=601;manager.updateHole(controlled[0],16);assert.equal(controlled[0].platform.body.enable,true);
   Object.assign(player.body,{left:15050,right:15094,top:530,bottom:576});
-  const data={section,hp:3,maxHp:3,phase:3,usesArt:false};const boss={x:15680,y:576,active:true,getData:k=>data[k],setData(k,v){typeof k==="object"?Object.assign(data,k):data[k]=v;return this;},
+  const data={section,hp:1,maxHp:3,phase:3,usesArt:false};const boss={x:15680,y:576,active:true,getData:k=>data[k],setData(k,v){typeof k==="object"?Object.assign(data,k):data[k]=v;return this;},
     setVisible(){return this;},setActive(v){this.active=v;return this;},body:{top:471,enable:true,reset(x,y){boss.x=x;boss.y=y;}}};
   const behavior=new HoleKingBehavior({scene,player,levelLoader:{boss},healthManager:{},transformationManager:{transforming:false,scoreMultiplier:1},scoreManager:{defeat(){}},easyMode,telegraphMultiplier:1,vulnerabilityMultiplier:1});
   behavior.update(0,16);behavior.update(0,1000);assert.equal(behavior.state,"warning");assert.equal(behavior.targets.length,easyMode?1:2);
@@ -62,7 +62,7 @@ for(const easyMode of [false,true]){
   for(let i=0;i<29;i++){behavior.update(0,100);assert.ok(boss.x>=15552&&boss.x<=15808);}
   behavior.update(0,100);assert.equal(behavior.state,"returning");assert.ok(controlled.every(e=>e.platform.body.enable));
   behavior.update(0,700);assert.equal(behavior.state,"vulnerable");assert.equal(boss.x,15680);
-  scene.events.emit(EVENTS.PLAYER_RESPAWNED);assert.equal(data.hp,3);assert.equal(data.phase,1);assert.equal(behavior.state,"dormant");
+  scene.events.emit(EVENTS.PLAYER_RESPAWNED);assert.equal(data.hp,1);assert.equal(data.phase,3);assert.equal(behavior.state,"dormant");
   behavior.onBossDefeated();assert.ok(controlled.every(e=>e.platform.body.enable));behavior.destroy();manager.destroy();assert.equal(scene.events.listenerCount(EVENTS.PLAYER_RESPAWNED),0);
 }
 const progress=new ProgressManager(null);progress.data={};assert.equal(progress.isUnlocked(level,LEVELS),false);progress.complete("level-09",100,[]);assert.equal(progress.isUnlocked(level,LEVELS),true);

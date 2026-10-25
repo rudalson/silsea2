@@ -31,7 +31,7 @@ assert.ok(terrain.some(t=>t.x<=section.xStart&&t.x+t.width>=section.xEnd&&t.y===
 assert.ok(level.checkpoints.filter(cp=>cp.restoresHealth).length>=5);
 const display=()=>{const o={active:true,destroy(){this.active=false;}};for(const k of ["setDepth","setStrokeStyle","setAlpha","clear","fillStyle","fillEllipse","fillCircle","lineStyle","strokeEllipse","lineBetween","strokeRect","fillRect"])o[k]=()=>o;o.setVisible=v=>{o.visible=v;return o;};o.setPosition=(x,y)=>{o.x=x;o.y=y;return o;};return o;};
 for(const easyMode of [false,true]){
-  const scene={events:new EventEmitter(),add:{graphics:display,star:display}},data={section,hp:3,maxHp:3,phase:3,usesArt:false};
+  const scene={events:new EventEmitter(),add:{graphics:display,star:display}},data={section,hp:1,maxHp:3,phase:3,usesArt:false};
   const boss={x:17728,y:576,active:true,getData:k=>data[k],setData(k,v){typeof k==="object"?Object.assign(data,k):data[k]=v;return this;},setVisible(){return this;},setActive(v){this.active=v;return this;},body:{enable:true,top:471,reset(x,y){boss.x=x;boss.y=y;}}};
   const player={x:17024,body:{enable:true,left:17000,right:17048,top:512,bottom:576}},transformation={transforming:false,scoreMultiplier:1,canGuardProjectile:()=>false};
   const b=new CloudKingBehavior({scene,player,levelLoader:{boss},transformationManager:transformation,healthManager:{takeDamage(){}},scoreManager:{defeat(){}},easyMode,telegraphMultiplier:1,vulnerabilityMultiplier:1});
@@ -41,7 +41,7 @@ for(const easyMode of [false,true]){
   b.update(0,1800);assert.equal(b.getMovementVelocityX(),0);assert.equal(b.state,"between");b.update(0,600);assert.equal(b.action,"rain");assert.equal(b.columns.length,easyMode?1:3);
   const columns=[...b.columns];player.x+=64;b.update(0,1200);assert.deepEqual(b.drops.map(d=>d.x),columns);assert.equal(b.getMovementVelocityX(),0);
   b.update(0,1700);assert.equal(b.state,"returning");assert.equal(b.drops.length,0);b.update(0,700);assert.equal(b.state,"vulnerable");assert.equal(boss.y,576);
-  scene.events.emit(EVENTS.PLAYER_RESPAWNED);assert.equal(data.hp,3);assert.equal(data.phase,1);assert.equal(b.state,"dormant");assert.equal(b.getMovementVelocityX(),0);
+  scene.events.emit(EVENTS.PLAYER_RESPAWNED);assert.equal(data.hp,1);assert.equal(data.phase,3);assert.equal(b.state,"dormant");assert.equal(b.getMovementVelocityX(),0);
   b.onBossDefeated();assert.equal(b.getMovementVelocityX(),0);assert.equal(b.drops.length,0);b.destroy();assert.equal(scene.events.listenerCount(EVENTS.PLAYER_RESPAWNED),0);
 }
 const progress=new ProgressManager(null);progress.data={"level-01":{cleared:true,bestScore:88,achieved:[]}};assert.equal(progress.isUnlocked(level,LEVELS),false);progress.complete("level-10",100,[]);assert.equal(progress.isUnlocked(level,LEVELS),true);progress.complete("level-11",200,[]);assert.equal(progress.get("level-01").bestScore,88);

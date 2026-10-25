@@ -129,7 +129,6 @@ export class MerongKingBehavior {
 
   resetAfterRespawn() {
     if (this.defeated) return;
-    this.boss.setData({ hp: this.boss.getData("maxHp"), phase: 1 });
     this.sleep();
   }
   getPoolSnapshot() { return {}; }

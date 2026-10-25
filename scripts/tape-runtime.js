@@ -150,10 +150,10 @@ async function run(scene) {
     assert(scene.courseMechanics.horizontalSpeedMultiplier === 1, "보스 바닥 테이프도 점프로 탈출");
     scene.healthManager.handleFall();
     await until(() => !scene.checkpointManager.respawning && scene.player.body.enable, "보스 실패 복귀");
-    assert(boss.getData("hp") === 3 && boss.getData("phase") === 1 && behavior.state === "dormant"
-      && scene.courseMechanics.getSnapshot().transientStickyCount === 0 && behavior.patches.length === 0, "복귀 시 HP·단계·테이프 감속 초기화");
+    assert(boss.getData("hp") === 2 && boss.getData("phase") === 2 && behavior.state === "dormant"
+      && scene.courseMechanics.getSnapshot().transientStickyCount === 0 && behavior.patches.length === 0, "복귀 시 깎인 HP·단계 유지와 테이프 감속 정리");
     place(boss.x - 880);
-    for (let phase = 1; phase <= 3; phase++) { await stomp(); if (phase < 3) place(boss.x - 880); }
+    for (let phase = 2; phase <= 3; phase++) { await stomp(); if (phase < 3) place(boss.x - 880); }
     assert(attacks.has("2:0") && attacks.has("3:2") && maxPatches === (scene.registry.get("easyMode") ? 1 : 2), "바닥 설치와 3단계 조합·쉬운 모드 수량 실행");
     assert(behavior.shots.length === 0 && behavior.patches.length === 0 && scene.courseMechanics.finished, "처치 후 공격·감속 정리");
     assert(!scene.objectiveManager.areRequiredComplete(), "처치 후 직접 게이트 진입 필요");

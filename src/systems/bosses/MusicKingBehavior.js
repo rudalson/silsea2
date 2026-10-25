@@ -18,7 +18,7 @@ export class MusicKingBehavior {
       .setStrokeStyle(3, COLORS.outline).setDepth(8).setVisible(false);
     this.fallback = this.boss.getData("usesArt") ? null : this.createFallback();
     this.boss.setVisible(false); this.boss.body.enable = false; this.boss.getData("label")?.setVisible(false);
-    this.onRespawn = () => { if (!this.defeated) { this.boss.setData({ hp: this.boss.getData("maxHp"), phase: 1 }); this.sleep(); } };
+    this.onRespawn = () => { if (!this.defeated) this.sleep(); };
     this.scene.events.on(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
   }
   createFallback() {
