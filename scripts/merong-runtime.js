@@ -4,6 +4,12 @@ import { game } from "../src/main.js";
 import { EVENTS } from "../src/config/constants.js";
 import { getLevel, LEVELS } from "../src/data/levels/index.js";
 import { progressManager } from "../src/systems/ProgressManager.js";
+import { showMerongSentryPreview, verifyMerongPresentation } from "./lib/merong-presentation-runtime.js";
+import { gameConfig } from "../src/config/gameConfig.js";
+
+// Use Phaser's normal timer loop for this test entry point. Desktop browsers
+// can throttle requestAnimationFrame in an unfocused inspection panel.
+gameConfig.fps = { target: 60, forceSetTimeOut: true };
 
 const output = document.querySelector("#results"), button = document.querySelector("#run");
 const neutral = { moveX: 0, moveY: 0, jumpDown: false, jumpPressed: false, jumpReleased: false, specialDown: false };
@@ -62,6 +68,8 @@ async function run(scene) {
       "혀 함정 6곳의 신규 문지기 에셋/도형 fallback 연결");
     assert(scene.levelLoader.enemies.every(enemy => enemy.getData("type") === "merong_imp" && (fallback || enemy.getData("usesArt"))),
       "감자 대신 메롱 꼬마 2마리 생성");
+    scene.inputManager.sample = () => controller;
+    await verifyMerongPresentation(scene, { assert, frames, until, place });
     let previousJump = false;
     const started = scene.time.now;
     scene.inputManager.sample = () => {
@@ -98,10 +106,10 @@ async function run(scene) {
     assert(oldBehavior.tongue.visual.active === false, "재로드 시 이전 보스 공격 표시 정리");
     const imp = scene.levelLoader.enemies[0];
     place(imp.x - 180);
-    imp.body.reset(imp.getData("spawnX") - imp.getData("patrol") - 1, 576);
+    imp.body.reset(imp.getData("spawnX") - imp.getData("patrol") - 1, imp.getData("spawnY"));
     await frames(2);
     assert(imp.body.velocity.x > 0 && (fallback || !imp.flipX), "꼬마 오른쪽 순찰·원화 방향 일치");
-    imp.body.reset(imp.getData("spawnX") + imp.getData("patrol") + 1, 576);
+    imp.body.reset(imp.getData("spawnX") + imp.getData("patrol") + 1, imp.getData("spawnY"));
     await frames(2);
     assert(imp.body.velocity.x < 0 && (fallback || imp.flipX), "꼬마 왼쪽 순찰·원화 반전 일치");
     assert(fallback || imp.anims.currentAnim?.key === "enemy:merong_imp:move", "꼬마 보행 애니메이션 실행");
@@ -185,6 +193,11 @@ const ready = setInterval(() => {
   const scene = game?.scene?.getScene("GameScene");
   if (!scene?.player?.active) return;
   clearInterval(ready);
+  const preview = new URLSearchParams(location.search).get("sentryPreview");
+  if (scene.level.id === "level-07" && ["left", "right"].includes(preview)) {
+    showMerongSentryPreview(scene, preview === "left" ? -1 : 1).catch(error => { output.textContent = error.stack; });
+    return;
+  }
   if (scene.level.id !== "level-07" || !scene.levelHotReload) {
     output.textContent = "?visualReview=level-07&debug=1&mute=1로 열어 주세요."; return;
   }

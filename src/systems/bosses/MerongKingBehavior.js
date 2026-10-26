@@ -12,6 +12,7 @@ export class MerongKingBehavior {
     this.state = "dormant";
     this.elapsedMs = 0;
     this.attackIndex = 0;
+    this.direction = -1;
     this.defeated = false;
     this.tongue = new TongueAttack(this.scene);
     this.weakness = this.scene.add.star(this.boss.x, this.boss.body.top - 24, 5, 9, 21, COLORS.collect)
@@ -37,6 +38,13 @@ export class MerongKingBehavior {
 
   get pattern() { return MERONG_KING_PHASES[this.boss.getData("phase")]; }
 
+  facePlayer() {
+    const distance = this.player.x - this.boss.x;
+    if (Math.abs(distance) > 12) this.direction = distance < 0 ? -1 : 1;
+    // The king's authored poses face left; the sentry's poses face right.
+    this.boss.setFlipX(this.direction > 0);
+  }
+
   enter(state, durationMs, animation) {
     playBossStateSfx(this.scene, "merong_king", state);
     this.state = state;
@@ -50,11 +58,11 @@ export class MerongKingBehavior {
 
   beginWarning() {
     const attack = this.pattern.attacks[this.attackIndex];
-    const direction = this.player.x < this.boss.x ? -1 : 1;
+    this.facePlayer();
+    const direction = this.direction;
     this.attack = { x: this.boss.x + direction * 42, y: this.boss.y - attack.laneOffset, direction, reach: attack.reach };
-    this.boss.setFlipX(direction > 0);
     this.enter("warning", this.pattern.warningMs * this.telegraphMultiplier, "warning");
-    this.tongue.show(this.attack, { warning: true });
+    this.tongue.clear();
     this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false });
     this.scene.updateAccessibleStatus?.(attack.laneOffset < 60 ? "메롱 대왕: 낮은 혀 예고. 점프하세요." : "메롱 대왕: 높은 혀 예고. 바닥에서 기다리세요.");
   }
@@ -66,6 +74,7 @@ export class MerongKingBehavior {
       if (this.state !== "dormant") this.sleep();
       return;
     }
+    if (this.state !== "warning" && this.state !== "attack") this.facePlayer();
     if (this.state === "dormant") {
       this.boss.setVisible(!this.fallback);
       this.boss.body.enable = true;

@@ -13,6 +13,82 @@ import { ScoreManager } from "../src/systems/ScoreManager.js";
 import { createRuntimeLevel } from "../src/systems/DifficultyManager.js";
 import { findLayoutIssues } from "./lib/level-layout.js";
 import { ProgressManager } from "../src/systems/ProgressManager.js";
+import { EventEmitter } from "node:events";
+import { TongueTrapManager } from "../src/systems/TongueTrapManager.js";
+import { MerongKingBehavior } from "../src/systems/bosses/MerongKingBehavior.js";
+
+function presentationScene(art) {
+  const objects = [], texts = [];
+  const display = (x = 0, y = 0) => {
+    const data = {}, object = { x, y, active: true, visible: true, scaleX: 1, scaleY: 1,
+      setPosition(x, y) { Object.assign(this, { x, y }); return this; },
+      setVisible(value) { this.visible = value; return this; },
+      setActive(value) { this.active = value; return this; },
+      setScale(x, y = x) { this.scaleX = x; this.scaleY = y; return this; },
+      setFlipX(value) { this.flipX = value; return this; },
+      setData(key, value) { typeof key === "object" ? Object.assign(data, key) : data[key] = value; return this; },
+      getData: key => data[key], play(key) { this.animation = key; return this; }, destroy() { this.active = false; } };
+    for (const key of ["setOrigin", "setDepth", "setStrokeStyle", "setAlpha", "fillStyle", "fillEllipse", "fillCircle",
+      "lineStyle", "strokeEllipse", "strokeCircle", "lineBetween", "fillRoundedRect", "strokeRoundedRect", "clear"]) object[key] = () => object;
+    object.scene = scene; objects.push(object); return object;
+  };
+  const scene = { events: new EventEmitter(), textures: { exists: () => art }, anims: { exists: () => true },
+    add: { sprite: display, ellipse: display, circle: display, star: display, graphics: display,
+      text: (...args) => { texts.push(args[2]); return display(args[0], args[1]); } } };
+  return { scene, objects, texts, display };
+}
+
+// Mirroring must move the attack mouth, never the sentry's body. Anticipation
+// uses the existing cheek pose and stays harmless until the actual tongue.
+for (const art of [false, true]) for (const authoredDirection of [-1, 1]) for (const y of [470, 554]) {
+  const f = presentationScene(art), config = { id: "sentry", x: 1000, y, direction: authoredDirection,
+    reach: 256, warningMs: 1200, activeMs: 650, restMs: 2000, triggerDistance: 400, practice: false };
+  const original = JSON.stringify(config), player = { x: 800, body: { enable: true } }, hits = [];
+  const place = x => { player.x = x; Object.assign(player.body, { left: x - 20, right: x + 20, top: y - 20, bottom: y + 20 }); };
+  const manager = new TongueTrapManager(f.scene, player, { environment: { tongueTraps: [config] } }, { takeDamage: (...args) => hits.push(args) });
+  const entry = manager.entries[0], bodyX = entry.x;
+  place(bodyX - 150); manager.update(0);
+  assert.equal(entry.phase, "warning"); assert.equal(entry.direction, -1);
+  assert.equal(entry.tongue.visual.visible, false); assert.equal(entry.tongue.bounds, null);
+  assert.deepEqual(f.texts, [], "문구·점프 지시·공격 범위 안내판 생성 없음");
+  const locked = { ...entry.attack }; place(bodyX + 150); manager.update(200);
+  assert.deepEqual(entry.attack, locked, "준비 동작 시작 후 방향 고정"); assert.equal(hits.length, 0);
+  if (art) { assert.equal(entry.sprite.x, bodyX); assert.equal(entry.sprite.flipX, true); assert.ok(entry.sprite.scaleX > 0.76); }
+  else assert.ok(entry.fallback.eye.x < bodyX);
+  manager.update(config.warningMs - 200 + 160);
+  assert.equal(entry.phase, "attack"); assert.equal(entry.direction, -1); assert.equal(hits.length, 0, "반대쪽 플레이어는 공격받지 않음");
+  assert.equal(entry.tongue.bounds.x + entry.tongue.bounds.width, bodyX - 40 * 0.76, "왼쪽 입과 실제 혀 시작점 일치");
+  place(bodyX - 150); manager.update(1); assert.equal(hits.length, 1, "왼쪽 실제 혀 피해");
+  place(bodyX + 150); manager.update(config.activeMs - 160);
+  assert.equal(entry.phase, "rest"); assert.equal(entry.direction, 1); assert.equal(entry.attack, null);
+  if (art) { assert.equal(entry.sprite.x, bodyX); assert.equal(entry.sprite.flipX, false); assert.equal(entry.sprite.scaleX, 0.76); }
+  else assert.ok(entry.fallback.eye.x > bodyX);
+  manager.update(config.restMs); assert.equal(entry.phase, "warning"); assert.equal(entry.direction, 1);
+  assert.equal(entry.tongue.visual.visible, false); assert.equal(entry.attack.x, bodyX + 40 * 0.76);
+  place(bodyX - 150); manager.update(config.warningMs + 160);
+  assert.equal(entry.direction, 1); assert.equal(hits.length, 1, "다음 오른쪽 공격도 준비 후 추적하지 않음");
+  assert.equal(entry.tongue.bounds.x, bodyX + 40 * 0.76, "오른쪽 입과 실제 혀 시작점 일치");
+  place(bodyX + 150); manager.update(1); assert.equal(hits.length, 2, "오른쪽 실제 혀 피해");
+  config.practice = true; manager.update(1); assert.equal(hits.length, 2, "연습 문지기는 양방향 모두 무피해"); config.practice = false;
+  manager.reset(); assert.equal(entry.phase, "idle"); assert.equal(entry.attack, null); assert.equal(entry.tongue.active, false);
+  assert.equal(JSON.stringify(config), original, "레벨 원본 설정 보존");
+  manager.destroy(); assert.ok(f.objects.every(object => !object.active)); assert.equal(f.scene.events.listenerCount("player:respawned"), 0);
+}
+
+for (const art of [false, true]) {
+  const f = presentationScene(art), boss = f.display(1800, 576);
+  boss.body = { top: 470, enable: true }; boss.setData({ key: "merong_king", usesArt: art, phase: 1, section: { xStart: 0, xEnd: 2400 } });
+  const player = { x: 1000, body: { enable: true, left: 980, right: 1020, top: 518, bottom: 576 } };
+  const b = new MerongKingBehavior({ scene: f.scene, player, levelLoader: { boss }, healthManager: { takeDamage() {} },
+    telegraphMultiplier: 1, vulnerabilityMultiplier: 1 });
+  b.update(0, 16); assert.equal(boss.flipX, false, "대왕의 원화는 왼쪽이 기본 방향");
+  player.x = 2100; b.update(0, 100); assert.equal(boss.flipX, true, "대왕도 대기 중 주인공 쪽으로 회전");
+  b.update(0, 900); assert.equal(b.state, "warning"); assert.equal(b.tongue.visual.visible, false);
+  player.x = 1000; b.update(0, 200); assert.equal(boss.flipX, true); assert.equal(b.attack.direction, 1);
+  b.update(0, 1000); b.update(0, 160); assert.equal(b.state, "attack"); assert.ok(b.tongue.bounds.x > boss.x);
+  b.update(0, 600); b.update(0, 16); assert.equal(boss.flipX, false, "공격 후 다시 주인공 위치를 바라봄");
+  b.destroy();
+}
 
 assertLevelShape(level);
 assert.equal(getLevel("level-07"), level);
@@ -106,4 +182,4 @@ for (const type of ["merong_sentry", "merong_imp"]) {
     }
   }
 }
-console.log("메롱 왕국 검사 통과: 혀 범위·예고 경계·보스·해금·기록·양 난이도 배치·신규 적 2종 7상태 RGBA·처치 점수");
+console.log("메롱 왕국 검사 통과: 안내판/범위 예고 제거·표정 준비·좌우 반전/방향 고정·입 정렬/실제 피해·보스·해금·기록·양 난이도·RGBA·처치 점수");

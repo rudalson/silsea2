@@ -4,19 +4,24 @@ import { getTongueTrapPhase } from "../data/tongueMechanics.js";
 import { TongueAttack } from "./TongueAttack.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
 
+const SENTRY_SCALE = 0.76;
+const MOUTH_X = 40 * SENTRY_SCALE;
+const MOUTH_Y = 29 * SENTRY_SCALE;
+
 export class TongueTrapManager {
   constructor(scene, player, level, healthManager) {
     Object.assign(this, { scene, player, healthManager });
     this.created = [];
     EnemyAnimationManager.register(scene, "merong_sentry");
     this.entries = (level.environment?.tongueTraps ?? []).map((config) => {
-      const sprite = this.createSentry(config);
-      const label = scene.add.text(config.x + config.direction * config.reach / 2, config.y - 84, "", {
-        fontFamily: GAME_FONT_FAMILY, fontSize: "19px", color: CSS_COLORS.white,
-        backgroundColor: CSS_COLORS.panel, padding: { x: 10, y: 7 }, align: "center"
-      }).setOrigin(0.5).setDepth(8);
-      this.created.push(label);
-      return { config, sprite, label, tongue: new TongueAttack(scene), elapsedMs: null, phase: "idle", practiceHit: false };
+      // The authored direction places the body once. Turning mirrors the mouth
+      // around this fixed body, rather than moving the character across its spawn.
+      const x = config.x - config.direction * MOUTH_X, y = config.y + MOUTH_Y;
+      const entry = { config, x, y, direction: config.direction, ...this.createSentry(x, y, config.direction),
+        tongue: new TongueAttack(scene), attack: null, elapsedMs: null, phase: "idle", practiceHit: false };
+      this.facePlayer(entry);
+      this.showPose(entry, "idle");
+      return entry;
     });
     const palace = level.environment?.tongueCourse?.palace;
     if (palace) this.createPalace(palace);
@@ -31,30 +36,42 @@ export class TongueTrapManager {
     this.finished = false;
   }
 
-  createSentry(config) {
+  createSentry(x, y, direction) {
     const idle = EnemyAnimationManager.getSpec("merong_sentry", "idle");
     if (this.scene.textures.exists(idle.textureKey)) {
-      // The sprite's open mouth meets the existing tongue origin (config.x/y).
-      // Mirroring around that anchor keeps left-facing traps aligned as well.
       // Authored attack mouth: (104, 83), frame origin: (64, 112).
-      const scale = 0.76;
-      const sprite = this.scene.add.sprite(config.x - config.direction * 40 * scale, config.y + 29 * scale, idle.textureKey)
-        .setOrigin(0.5, 112 / 128).setScale(scale).setFlipX(config.direction < 0).setDepth(4);
+      const sprite = this.scene.add.sprite(x, y, idle.textureKey)
+        .setOrigin(0.5, 112 / 128).setScale(SENTRY_SCALE).setFlipX(direction < 0).setDepth(4);
       sprite.setData("type", "merong_sentry");
       EnemyAnimationManager.play(sprite, "idle");
       this.created.push(sprite);
-      return sprite;
+      return { sprite, fallback: null };
     }
-    const face = this.scene.add.ellipse(config.x - config.direction * 28, config.y - 12, 64, 56, COLORS.white)
-      .setStrokeStyle(4, COLORS.collectPink).setDepth(3);
-    const mouth = this.scene.add.ellipse(config.x - config.direction * 17, config.y, 30, 26, COLORS.dangerAlt).setDepth(4);
-    const eye = this.scene.add.circle(config.x - config.direction * 20, config.y - 24, 4, COLORS.outline).setDepth(4);
+    const face = this.scene.add.ellipse(x, y, 64, 56, COLORS.white)
+      .setOrigin(0.5, 1).setStrokeStyle(4, COLORS.collectPink).setDepth(3);
+    const mouth = this.scene.add.ellipse(x + direction * MOUTH_X, y - MOUTH_Y, 30, 26, COLORS.dangerAlt).setDepth(4);
+    const eye = this.scene.add.circle(x + direction * 12, y - 46, 4, COLORS.outline).setDepth(4);
     this.created.push(face, mouth, eye);
-    return null;
+    return { sprite: null, fallback: { face, mouth, eye } };
+  }
+
+  facePlayer(entry) {
+    const distance = this.player.x - entry.x;
+    if (Math.abs(distance) > 12) entry.direction = distance < 0 ? -1 : 1;
   }
 
   showPose(entry, phase) {
-    if (entry.sprite) EnemyAnimationManager.play(entry.sprite, phase === "rest" ? "recover" : phase);
+    const cycle = (entry.elapsedMs ?? 0) % (entry.config.warningMs + entry.config.activeMs + entry.config.restMs);
+    const breath = phase === "warning" ? Math.sin(Math.min(1, cycle / entry.config.warningMs) * Math.PI / 2) : 0;
+    if (entry.sprite) {
+      entry.sprite.setFlipX(entry.direction < 0).setScale(SENTRY_SCALE * (1 + breath * 0.04), SENTRY_SCALE * (1 - breath * 0.04));
+      EnemyAnimationManager.play(entry.sprite, phase === "rest" ? "recover" : phase);
+    } else {
+      const { face, mouth, eye } = entry.fallback;
+      face.setScale(1 + breath * 0.06, 1 - breath * 0.05);
+      mouth.setPosition(entry.x + entry.direction * MOUTH_X, entry.y - MOUTH_Y).setScale(phase === "warning" ? 0.65 : 1);
+      eye.setPosition(entry.x + entry.direction * 12, entry.y - 46);
+    }
   }
 
   createPalace({ x, y }) {
@@ -74,48 +91,52 @@ export class TongueTrapManager {
     if (this.finished || !this.player.body?.enable || this.scene.transformationManager?.transforming) return;
     for (const entry of this.entries) {
       const { config, tongue } = entry;
-      if (Math.abs(this.player.x - config.x) > config.triggerDistance + config.reach) {
-        entry.elapsedMs = null; entry.phase = "idle"; tongue.clear(); entry.label.setText("");
+      const distance = Math.abs(this.player.x - entry.x);
+      if (distance > config.triggerDistance + config.reach) {
+        entry.elapsedMs = null; entry.phase = "idle"; entry.attack = null; tongue.clear();
+        this.facePlayer(entry);
         this.showPose(entry, "idle");
         continue;
       }
       if (entry.elapsedMs === null) {
-        if (Math.abs(this.player.x - config.x) > config.triggerDistance) continue;
+        if (distance > config.triggerDistance) { this.facePlayer(entry); this.showPose(entry, "idle"); continue; }
         entry.elapsedMs = 0;
       } else entry.elapsedMs += delta;
       const phase = getTongueTrapPhase(entry.elapsedMs, config);
       if (phase !== entry.phase && phase === "warning") {
+        this.facePlayer(entry);
+        entry.attack = { ...config, x: entry.x + entry.direction * MOUTH_X, direction: entry.direction };
         this.scene.audioManager?.playSfx("sfx_boss_warning", { randomizeRate: false, volume: 0.35 });
         this.scene.updateAccessibleStatus?.(config.y > 520 ? "낮은 혀 예고. 점프로 피하세요." : "높은 혀 예고. 바닥에서 기다리세요.");
       }
+      if (phase !== "warning" && phase !== "attack") this.facePlayer(entry);
       entry.phase = phase;
       this.showPose(entry, phase);
-      if (phase === "warning") tongue.show(config, { warning: true });
-      else if (phase === "attack") {
+      if (phase === "attack" && entry.attack) {
         const cycle = entry.elapsedMs % (config.warningMs + config.activeMs + config.restMs);
-        tongue.show(config, { extension: (cycle - config.warningMs) / 160 });
+        tongue.show(entry.attack, { extension: (cycle - config.warningMs) / 160 });
         if (tongue.hits(this.player.body)) {
-          if (!config.practice) this.healthManager.takeDamage(config.x, { type: "tongue" });
+          if (!config.practice) this.healthManager.takeDamage(entry.x, { type: "tongue" });
           else if (!entry.practiceHit) {
             entry.practiceHit = true;
             this.scene.updateAccessibleStatus?.("연습 혀에 닿았어요. 다음 예고에는 점프해 보세요.");
           }
         }
       } else tongue.clear();
-      entry.label.setText(phase === "warning" ? (config.practice ? "연습 · 곧 혀가 나와요!" : "！ 혀 공격 예고")
-        : phase === "attack" ? (config.y > 520 ? "↑ 점프!" : "바닥에서 기다려요") : "지금 지나가요");
+      if (phase === "rest") entry.attack = null;
     }
   }
 
   reset() {
     for (const entry of this.entries) {
       entry.elapsedMs = null; entry.phase = "idle"; entry.practiceHit = false;
+      entry.attack = null; this.facePlayer(entry);
       this.showPose(entry, "idle");
-      entry.tongue.clear(); entry.label.setText("");
+      entry.tongue.clear();
     }
   }
   finish() { this.reset(); this.finished = true; }
-  getSnapshot() { return this.entries.map(({ config, phase }) => ({ id: config.id, phase })); }
+  getSnapshot() { return this.entries.map(({ config, phase, direction }) => ({ id: config.id, phase, direction })); }
   destroy() {
     this.scene.events.off(EVENTS.PLAYER_RESPAWNED, this.onRespawn);
     for (const entry of this.entries) entry.tongue.destroy();
