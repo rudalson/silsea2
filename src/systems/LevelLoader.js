@@ -464,7 +464,9 @@ export class LevelLoader {
       const key = this.level.assets.objects?.checkpoint;
       let visuals;
       if (key && this.scene.textures.exists(key)) {
-        const flag = this.track(this.scene.add.image(checkpoint.x, checkpoint.y - 48, key));
+        const presentation = this.level.checkpointPresentation;
+        const flag = this.track(this.scene.add.image(checkpoint.x, checkpoint.y - (presentation?.offsetY ?? 48), key));
+        if (presentation?.width && presentation?.height) flag.setDisplaySize(presentation.width, presentation.height);
         flag.setDepth(3).setAlpha(0.92);
         visuals = [flag];
       } else {

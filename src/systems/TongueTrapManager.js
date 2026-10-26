@@ -24,8 +24,14 @@ export class TongueTrapManager {
       return entry;
     });
     const palace = level.environment?.tongueCourse?.palace;
-    if (palace) this.createPalace(palace);
+    if (palace) this.createPalace(palace, level.assets?.decorations?.palace);
     for (const bridge of level.environment?.tongueCourse?.bridges ?? []) {
+      const key = level.assets?.decorations?.bridge;
+      if (key && scene.textures.exists(key)) {
+        const image = scene.add.image(bridge.x, bridge.y, key).setOrigin(0, 0).setDisplaySize(bridge.width, 32).setDepth(2);
+        this.created.push(image);
+        continue;
+      }
       const visual = scene.add.graphics().setDepth(2);
       visual.fillStyle(COLORS.collectPink, 1).fillRoundedRect(bridge.x, bridge.y, bridge.width, bridge.height, 12);
       visual.lineStyle(3, COLORS.dangerAlt).strokeRoundedRect(bridge.x, bridge.y, bridge.width, bridge.height, 12);
@@ -74,7 +80,12 @@ export class TongueTrapManager {
     }
   }
 
-  createPalace({ x, y }) {
+  createPalace({ x, y }, key) {
+    if (key && this.scene.textures.exists(key)) {
+      const image = this.scene.add.image(x, y, key).setOrigin(0.5, 1).setDisplaySize(360, 440).setDepth(-1);
+      this.created.push(image);
+      return;
+    }
     const visual = this.scene.add.graphics().setDepth(-1);
     visual.fillStyle(COLORS.white, 1).fillRoundedRect(x - 160, y - 330, 320, 330, 100);
     visual.lineStyle(8, COLORS.collectPink).strokeRoundedRect(x - 160, y - 330, 320, 330, 100);

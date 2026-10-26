@@ -293,5 +293,12 @@
   "burrow_mole": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 HOLE CANYON 전용 적 burrow_mole. 8포즈 원화·프롬프트는 assets/_source/hole-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."},
   "ring_golem": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 HOLE CANYON 전용 적 ring_golem. 8포즈 원화·프롬프트는 assets/_source/hole-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."},
   "cloud_sheep": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 CLOUD KINGDOM 전용 적 cloud_sheep. 8포즈 원화·프롬프트는 assets/_source/cloud-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."},
-  "umbrella_duck": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 CLOUD KINGDOM 전용 적 umbrella_duck. 8포즈 원화·프롬프트는 assets/_source/cloud-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."}
+  "umbrella_duck": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 imagegen으로 생성한 CLOUD KINGDOM 전용 적 umbrella_duck. 8포즈 원화·프롬프트는 assets/_source/cloud-enemies에 보존. 6상태 10프레임을 공통 배율·128px 프레임·112px 기준선으로 조립."},
+  "bg_merong_mid": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "bg_merong_near": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "decor_merong_planter": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "decor_merong_lantern": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "decor_merong_palace": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "decor_merong_bridge": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "merong_tileset": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."}
 }

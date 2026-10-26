@@ -9,17 +9,19 @@ export default {
   schemaVersion: 2, id: "level-07", name: "메롱 왕국", order: 6,
   description: "메롱하는 길을 지나 웃음 궁전의 대왕을 만나요", visualTheme: "merong-kingdom",
   assets: {
-    tilemap, tilemapKey: "level-07-map", tileset: "rainbow_tileset", preview: "stage_preview_merong",
+    tilemap, tilemapKey: "level-07-map", tileset: "merong_tileset", preview: "stage_preview_merong",
     backgrounds: {
-      normal: { far: "bg_merong_far", mid: "bg_normal_mid", near: "bg_normal_near" },
-      boss: { far: "bg_merong_far", mid: "bg_normal_mid", near: "bg_normal_near" }
+      normal: { far: "bg_merong_far", mid: "bg_merong_mid", near: "bg_merong_near" },
+      boss: { far: "bg_merong_far", mid: "bg_merong_mid", near: "bg_merong_near" }
     },
+    decorations: { planter: "decor_merong_planter", lantern: "decor_merong_lantern", palace: "decor_merong_palace", bridge: "decor_merong_bridge" },
     objects: { items: { star: "item_star", percent_small: "item_percent_small", percent_large: "item_percent_large",
-      horn: "item_horn", wings: "item_wings", alicorn: "item_alicorn" }, checkpoint: "checkpoint_flag", gate: "rainbow_gate" },
+      horn: "item_horn", wings: "item_wings", alicorn: "item_alicorn" }, checkpoint: "decor_merong_lantern", gate: "rainbow_gate" },
     bgm: { ...EXPANSION_BGM["level-07"], clear: "bgm_clear" }
   },
   world: { width: 12288, height: 768, tileSize: 64 },
-  parallax: { sky: 0.02, far: 0.08, mid: 0.2, near: 0.45 },
+  parallax: { sky: 0.02, far: 0.08, mid: 0.18, near: 0.38 },
+  checkpointPresentation: { width: 80, height: 144, offsetY: 72 },
   progression: { direction: "right", retainAbilities: true },
   player: { spawn: { x: 128, y: 576 } },
   exit: { x: 12096, y: 576, enterFrom: "right", presentation: { kind: "real", placement: "ground", effects: "normal", graybox: false } },
@@ -37,6 +39,15 @@ export default {
     { id: "cue_low", xStart: 1024, xEnd: 1536, lookAhead: 220, targetX: 1664 },
     { id: "cue_bridge", xStart: 3136, xEnd: 3584, lookAhead: 220, targetX: 3680 },
     { id: "cue_palace", xStart: 9984, xEnd: 10752, lookAhead: 240, targetX: 10752 }
+  ],
+  decorations: [
+    ...[384, 1090, 2180, 3190, 4050, 5632, 6400, 7184, 8600, 10176, 11200, 12096].map((x, index) => ({
+      id: `merong_planter_${index}`, asset: "planter", x, y: 578, width: 136 + index % 3 * 16,
+      height: 112 + index % 3 * 12, depth: -3, flipX: index % 2 === 1
+    })),
+    ...[576, 1856, 4928, 9024, 11264].map((x, index) => ({
+      id: `merong_lantern_${index}`, asset: "lantern", x, y: 578, width: 80, height: 144, depth: -4
+    }))
   ],
   checkpoints: [
     { id: "cp_merong_practice", x: 1344, y: 576, activationTop: 0 },

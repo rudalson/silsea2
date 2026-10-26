@@ -1281,6 +1281,13 @@
     {"key":"umbrella_duck_warning","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"umbrella_duck_attack","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
     {"key":"umbrella_duck_recover","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_recover.png","frameWidth":128,"frameHeight":128,"frames":1},
-    {"key":"umbrella_duck_defeated","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_defeated.png","frameWidth":128,"frameHeight":128,"frames":1}
+    {"key":"umbrella_duck_defeated","type":"spritesheet","url":"/assets/enemies/umbrella_duck/umbrella_duck_defeated.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"bg_merong_mid","type":"image","url":"/assets/backgrounds/bg_merong_mid.png"},
+    {"key":"bg_merong_near","type":"image","url":"/assets/backgrounds/bg_merong_near.png"},
+    {"key":"decor_merong_planter","type":"image","url":"/assets/decorations/decor_merong_planter.png"},
+    {"key":"decor_merong_lantern","type":"image","url":"/assets/decorations/decor_merong_lantern.png"},
+    {"key":"decor_merong_palace","type":"image","url":"/assets/decorations/decor_merong_palace.png"},
+    {"key":"decor_merong_bridge","type":"image","url":"/assets/decorations/decor_merong_bridge.png"},
+    {"key":"merong_tileset","type":"atlas","url":"/assets/tiles/merong_tileset.png","atlasUrl":"/assets/tiles/merong_tileset.json","tileWidth":64,"tileHeight":64,"extrude":2,"frames":16}
   ]
 }

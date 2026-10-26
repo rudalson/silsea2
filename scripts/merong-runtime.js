@@ -68,6 +68,15 @@ async function run(scene) {
       "혀 함정 6곳의 신규 문지기 에셋/도형 fallback 연결");
     assert(scene.levelLoader.enemies.every(enemy => enemy.getData("type") === "merong_imp" && (fallback || enemy.getData("usesArt"))),
       "감자 대신 메롱 꼬마 2마리 생성");
+    if (!fallback) {
+      assert(scene.levelLoader.backgroundLayers.every(({ layer, tiles }) => tiles.every(tile => tile.texture.key === `bg_merong_${layer}`)),
+        "기존 큰 배경과 메롱 전용 중경·근경 연결");
+      assert(scene.children.list.some(object => object.texture?.key === "merong_tileset"), "전용 분홍·보라 석조 지형 렌더링");
+      assert(scene.levelLoader.checkpointZones.every(({ visuals }) => visuals[0].texture.key === "decor_merong_lantern"
+        && Math.abs(visuals[0].displayHeight - 144) < 0.1), "등불 체크포인트 전용 원화·크기 적용");
+      assert(scene.children.list.filter(object => object.texture?.key === "decor_merong_bridge").length === 3
+        && scene.children.list.some(object => object.texture?.key === "decor_merong_palace"), "전용 다리 세 곳·입 모양 궁전 입구 적용");
+    }
     scene.inputManager.sample = () => controller;
     await verifyMerongPresentation(scene, { assert, frames, until, place });
     let previousJump = false;

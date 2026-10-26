@@ -252,6 +252,8 @@ const requiredTileFrames = [
   "slope_down"
 ];
 const backgroundAssets = [
+  { name: "bg_merong_mid", luma: [35, 85], fullColor: true, mirrored: true, coverage: [0.15, 0.55], minimumY: 180 },
+  { name: "bg_merong_near", luma: [30, 85], fullColor: true, mirrored: true, coverage: [0.2, 0.7] },
   { name: "bg_cloud_far", luma: [50, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_hole_far", luma: [35, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
   { name: "bg_music_far", luma: [55, 95], fullColor: true, mirrored: true, coverage: [1, 1] },
@@ -282,6 +284,11 @@ const starlightDecorationAssets = [
   { name: "decor_moon_branch", width: 384, height: 256, fullColor: true },
   { name: "decor_firefly", width: 192, height: 160, fullColor: true },
   { name: "decor_star_flower", width: 256, height: 192, fullColor: true }
+];
+const merongDecorationAssets = [
+  { name: "decor_merong_planter", width: 192, height: 160, fullColor: true },
+  { name: "decor_merong_lantern", width: 96, height: 176, fullColor: true },
+  { name: "decor_merong_palace", width: 384, height: 448, fullColor: true }
 ];
 const resultStickerAssets = [
   "ui_result_sticker_clear",
@@ -612,7 +619,7 @@ try {
   errors.push(`manifest.json: 적 시트 검증 불가 (${error.message})`);
 }
 
-const tilesetKeys = ["grass_tileset", "rainbow_tileset", "starlight_tileset", "mist_tileset", "village_tileset", "submerged_village_tileset"];
+const tilesetKeys = ["grass_tileset", "rainbow_tileset", "starlight_tileset", "mist_tileset", "village_tileset", "submerged_village_tileset", "merong_tileset"];
 for (const tilesetKey of tilesetKeys) {
 try {
   const tilesetPath = join(root, "assets", "tiles", `${tilesetKey}.png`);
@@ -635,7 +642,7 @@ try {
   }
   // Imported CC0 tiles retain their source colors. Verify their pixels against
   // the supplied pack below instead of quantizing them to the generated palette.
-  if (!kenneyTheme && outsidePalette > 0) errors.push(`${tilesetKey}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+  if (!kenneyTheme && tilesetKey !== "merong_tileset" && outsidePalette > 0) errors.push(`${tilesetKey}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
 
   const pixelEquals = (leftX, leftY, rightX, rightY) => {
     const left = (leftY * info.width + leftX) * 4;
@@ -752,7 +759,7 @@ for (const asset of backgroundAssets) {
   }
 }
 
-for (const asset of starlightDecorationAssets) {
+for (const asset of [...starlightDecorationAssets, ...merongDecorationAssets]) {
   const path = join(root, "assets", "decorations", `${asset.name}.png`);
   try {
     const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });

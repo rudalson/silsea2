@@ -1,0 +1,35 @@
+{
+  "generator": "built-in image_gen",
+  "generatedOn": "2026-10-27",
+  "prompts": [
+    {
+      "key": "mid",
+      "prompt": "Use case: stylized-concept. Asset type: transparent midground parallax strip for a polished hand-painted 2D side-scrolling fairytale game, Merong Kingdom. Create a NEW very wide landscape image, canvas about 2048x720 (2.84:1), TRUE TRANSPARENT background, no sky. Only a low whimsical royal garden occupies the LOWER 40 percent: rose-pink and pale ivory stone balustrades with little rounded mouth-shaped arch openings, squat lavender pavilions and curling teal ivy, small gold finials and occasional coral drooping paddle leaves. Large open empty transparent upper 60 percent so an existing distant peach castle panorama will remain visible. Soft elegant storybook brushwork with restrained plum outlines, warm cream highlights, muted mauve shadows, mint accents. Side-on orthographic scenery, flat base at the bottom, wide spaced silhouettes, soft midground detail. No ordinary green round-canopy trees, no grass hills, no daisies, no dirt, no characters, no words, no labels, no UI, no rainbow. Scenery must feel like a silly royal sculpture garden, entirely different from a generic green forest. Both outer edges should end in low continuous stonework rather than chopped trees. Genuine alpha everywhere behind the garden."
+    },
+    {
+      "key": "near",
+      "prompt": "Use case: stylized-concept. Asset type: transparent foreground parallax foliage for a hand-painted 2D fairytale platform game, Merong Kingdom. NEW very wide 2048x720-ish canvas (2.84:1), TRUE TRANSPARENT background, no sky, no ground. A royal garden with strange elegant CURL-LEAF WILLOWS: narrow twisting indigo-lavender trunks, branches curling like loose scrolls, hanging long coral-pink and pale jade paddle leaves with rounded tongue-shaped tips. Tree clusters near the LEFT quarter and RIGHT quarter, one taller and one shorter, NOT generic round green tree crowns. Along the bottom add low sculpted crown-shaped mauve topiary and rose-violet curled leaves, with big open transparent spaces through the center and between trees. At least 50 percent of the whole canvas transparent; empty top-center for the existing castle vista. Base of trunks and shrubs near the bottom edge. Warm ivory-gold rim light, soft watercolor/gouache shading, readable dark plum outlines, friendly silly royal mood; painterly colors match cream-pink castle gardens, NO saturated grass green, NO orange-brown bark, NO meadow flowers. Pure side elevation, not isometric. No characters, eyes, faces, text, stars, floating particles, platforms or UI. Actual transparent alpha background, no checkerboard painted in."
+    },
+    {
+      "key": "stone",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square seamless opaque albedo texture for 2D fairytale game terrain. Merong Kingdom royal courtyard masonry, distinctly NOT grassy orange earth. Hand-painted staggered blocks of soft ROSE-PINK limestone and dusty LILAC stone with pale IVORY mortar, subtle lavender-plum outline and warm cream top-edge highlights. Exactly four broad rows of two to three large rounded cushion-shaped stones, alternating joints. Front-facing flat side elevation, no perspective, no external cast shadow. Very subtle small spiral carving on only a few blocks; clean broad shapes readable after shrinking to a 64px game tile. Edge-to-edge square texture, tileable repeat on all four edges, even lighting, no border around the image. Whimsical polished storybook gouache, smooth painted shading rather than photorealistic or pixel art. No green, no grass, no brown soil, no flowers, no gems, no text, no UI, no animals."
+    },
+    {
+      "key": "planter",
+      "prompt": "Use case: stylized-concept. Asset type: one isolated full-color game scenery prop, true transparent background. A whimsical Merong Kingdom CROWN TOPIARY PLANTER: a squat pale ivory and dusty rose stone urn, shaped like a wide smiling mouth opening WITHOUT eyes or a face, holding a sculpted lavender crown-shaped shrub with three soft rounded points and a few long curling coral and mint tongue-shaped leaves hanging from the rim. Small subtle gold trim, plum shaded underside, warm cream highlights. Side-view, friendly storybook gouache with readable plum outlines, matching an elegant silly royal sculpture garden. One single connected prop, entirely inside frame with 12 percent empty margins. Wider than tall, designed to read at 170x135 pixels behind a game character. No ground plane or shadow outside the object, no generic round green bush, no daisies, no characters, no labels, no text, no UI, no stars or collectable gem shapes. Genuine alpha background."
+    },
+    {
+      "key": "lantern",
+      "prompt": "Use case: stylized-concept. Asset type: one isolated checkpoint scenery prop for a hand-painted 2D fairytale platform game. Merong Kingdom royal lantern WAYMARKER: a slender lavender and rose limestone pedestal on a broad stable cream base, topped with a small ivory mouth-shaped arched lantern housing and a three-point matte gold crown roof. Warm soft peach glass, a tiny coral tassel curling like a tongue below the lamp. Nonliving architecture, no eyes, no face, no words, no flag, no collectible star shapes. Front/side elevation with shallow volume, not isometric, smooth gouache shading and clear plum outline; courtly playful atmosphere. Single connected silhouette, all inside frame, 12 percent transparent margins. Designed to read at 80x144 pixels. True transparent background, no scenery, no ground line, no external shadow or glow halo."
+    },
+    {
+      "key": "palace",
+      "prompt": "Use case: stylized-concept. Asset type: ONE isolated nonliving architectural gateway prop for Merong Kingdom, hand-painted 2D side-scrolling fairytale game. A tall ornate ivory and rose-pink limestone MOUTH-ARCH gateway: a wide oval open doorway rimmed by plump rounded coral-pink lip-shaped stone voussoirs, little scroll-carved lavender side columns, a matte golden crown-shaped crest, trailing mint and dusty rose ivy, a short pink tongue-shaped carpet curled at the foot. OPEN doorway center must be truly transparent so a distant existing castle background can be seen through it. No eyes or face or teeth, not a monster or character, no door panel. Side elevation/front facade, shallow storybook volume, painterly gouache, soft cream highlights and muted plum outlines, cute silly royal garden. Clear central passage at least half the total width, full arch visible with 12 percent empty margins, designed for 360x440 pixels. Genuine transparent background everywhere outside AND inside the arch. No sky, ground plane, text, signs, UI, stars, characters, generic green trees or flowers."
+    }
+  ],
+  "preserved": {
+    "far": "B51E9E2114EEB7931EFF87780CC910E5484CF5C1591CEAC2319C8F3D1BDB3E8A",
+    "normalMid": "A31D3B163446A09A9194B6E446CB6B6683E4B05745D332A1EE6B1101C143D262",
+    "normalNear": "0400F0E003AD316321A6E48E7712251FB73BD6C7C87AF00874529B5FD61B2FD8"
+  }
+}
