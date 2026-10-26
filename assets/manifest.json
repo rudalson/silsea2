@@ -1288,6 +1288,9 @@
     {"key":"decor_merong_lantern","type":"image","url":"/assets/decorations/decor_merong_lantern.png"},
     {"key":"decor_merong_palace","type":"image","url":"/assets/decorations/decor_merong_palace.png"},
     {"key":"decor_merong_bridge","type":"image","url":"/assets/decorations/decor_merong_bridge.png"},
-    {"key":"merong_tileset","type":"atlas","url":"/assets/tiles/merong_tileset.png","atlasUrl":"/assets/tiles/merong_tileset.json","tileWidth":64,"tileHeight":64,"extrude":2,"frames":16}
+    {"key":"merong_tileset","type":"atlas","url":"/assets/tiles/merong_tileset.png","atlasUrl":"/assets/tiles/merong_tileset.json","tileWidth":64,"tileHeight":64,"extrude":2,"frames":16},
+    {"key":"merong_imp_warning","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_warning.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"merong_imp_attack","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_attack.png","frameWidth":128,"frameHeight":128,"frames":1},
+    {"key":"merong_imp_recover","type":"spritesheet","url":"/assets/enemies/merong_imp/merong_imp_recover.png","frameWidth":128,"frameHeight":128,"frames":1}
   ]
 }

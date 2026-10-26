@@ -9,7 +9,7 @@ export const ENEMY_DEFINITIONS = Object.freeze({
     artBody: rules.artBody ?? { width: 58, height: 56, scale: 0.86 }
   }])),
   raw_potato: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.base[3]) },
-  merong_imp: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.collect[1]) },
+  merong_imp: { behavior: "telegraph_prank_balloon", params: ["patrol"], color: toNumber(PALETTE.collect[1]) },
   tape_rollbug: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.collect[0]),
     artBody: { width: 62, height: 48, scale: 0.82 } },
   tape_boxling: { behavior: "patrol", params: ["patrol"], color: toNumber(PALETTE.collect[1]),
@@ -42,4 +42,4 @@ export const ENEMY_TYPES = Object.freeze(Object.keys(ENEMY_DEFINITIONS));
 
 export const isMistEnemy = (type) => type === "lantern_goblin" || type === "dew_snail";
 export const isSimplePatrolEnemy = (type) => ENEMY_DEFINITIONS[type]?.behavior === "patrol";
-export const isGroundPatrolEnemy = (type) => isSimplePatrolEnemy(type) || isThemedEnemy(type) || type === "wave_crab" || isMistEnemy(type);
+export const isGroundPatrolEnemy = (type) => isSimplePatrolEnemy(type) || isThemedEnemy(type) || type === "merong_imp" || type === "wave_crab" || isMistEnemy(type);

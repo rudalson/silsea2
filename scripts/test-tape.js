@@ -57,10 +57,12 @@ assert.equal(easy.terrainMechanics.stickyZones[0].speedMultiplier, 0.8);
 assert.equal(easy.terrainMechanics.movingPlatforms[0].speed, 57.6);
 assert.deepEqual(level.enemies.map(({ type }) => type), ["tape_rollbug", "tape_boxling"]);
 assert.deepEqual(easy.enemies.map(({ type }) => type), ["tape_rollbug"], "쉬움에서는 두 번째 박스 꼬마 제거");
-for (const type of ["raw_potato", "merong_imp", "tape_rollbug", "tape_boxling"]) {
+for (const type of ["raw_potato", "tape_rollbug", "tape_boxling"]) {
   assert.ok(isSimplePatrolEnemy(type) && isGroundPatrolEnemy(type), `${type} 순찰·지면 충돌 연결`);
   assert.equal(new ScoreManager().defeat(type), 40, `${type} 처치 점수 유지`);
 }
+assert.ok(isGroundPatrolEnemy("merong_imp") && !isSimplePatrolEnemy("merong_imp"), "메롱 꼬마 전용 풍선 AI·지면 충돌 연결");
+assert.equal(new ScoreManager().defeat("merong_imp"), 40, "메롱 꼬마 처치 점수 유지");
 assert.equal(isSimplePatrolEnemy("wave_crab"), false, "기존 돌진 적의 개별 동작 유지");
 assert.equal(isSimplePatrolEnemy("unknown"), false);
 const zone = level.terrainMechanics.stickyZones[0];

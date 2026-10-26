@@ -6,6 +6,7 @@ import { getLevel, LEVELS } from "../src/data/levels/index.js";
 import { progressManager } from "../src/systems/ProgressManager.js";
 import { showMerongSentryPreview, verifyMerongPresentation } from "./lib/merong-presentation-runtime.js";
 import { gameConfig } from "../src/config/gameConfig.js";
+import { showMerongImpPreview, verifyMerongImpAttack } from "./lib/merong-imp-runtime.js";
 
 // Use Phaser's normal timer loop for this test entry point. Desktop browsers
 // can throttle requestAnimationFrame in an unfocused inspection panel.
@@ -79,6 +80,7 @@ async function run(scene) {
     }
     scene.inputManager.sample = () => controller;
     await verifyMerongPresentation(scene, { assert, frames, until, place });
+    await verifyMerongImpAttack(scene, { assert, frames, until, place, controller });
     let previousJump = false;
     const started = scene.time.now;
     scene.inputManager.sample = () => {
@@ -111,10 +113,12 @@ async function run(scene) {
     assert(falls === 0, "기본 점프와 획득한 비행으로 두 낭떠러지 통과");
     log(`ROUTE ${((scene.time.now - started) / 1000).toFixed(1)}초 · 별 ${scene.objectiveManager.context.starCount}`);
     const oldBehavior = scene.bossController.behavior;
+    const oldImpVisuals = [...scene.enemyManager.merongImpController.entries.values()].map(entry => entry.visual);
     assert(await scene.levelHotReload.reload(), "신규 코스 데이터 재로드");
     assert(oldBehavior.tongue.visual.active === false, "재로드 시 이전 보스 공격 표시 정리");
+    assert(oldImpVisuals.every(visual => !visual.active), "재로드 시 이전 꼬마 풍선 표시 정리");
     const imp = scene.levelLoader.enemies[0];
-    place(imp.x - 180);
+    place(imp.x - 500);
     imp.body.reset(imp.getData("spawnX") - imp.getData("patrol") - 1, imp.getData("spawnY"));
     await frames(2);
     assert(imp.body.velocity.x > 0 && (fallback || !imp.flipX), "꼬마 오른쪽 순찰·원화 방향 일치");
@@ -203,6 +207,11 @@ const ready = setInterval(() => {
   if (!scene?.player?.active) return;
   clearInterval(ready);
   const preview = new URLSearchParams(location.search).get("sentryPreview");
+  const impPreview = new URLSearchParams(location.search).get("impPreview");
+  if (scene.level.id === "level-07" && ["warning", "balloon", "burst"].includes(impPreview)) {
+    const direction = new URLSearchParams(location.search).get("direction") === "left" ? -1 : 1;
+    showMerongImpPreview(scene, impPreview, direction).catch(error => { output.textContent = error.stack; }); return;
+  }
   if (scene.level.id === "level-07" && ["left", "right"].includes(preview)) {
     showMerongSentryPreview(scene, preview === "left" ? -1 : 1).catch(error => { output.textContent = error.stack; });
     return;

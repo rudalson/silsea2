@@ -1,0 +1,31 @@
+{
+  "source": "poses.png",
+  "poses": [
+    {
+      "left": 69,
+      "top": 60,
+      "width": 549,
+      "height": 664
+    },
+    {
+      "left": 692,
+      "top": 76,
+      "width": 540,
+      "height": 648
+    },
+    {
+      "left": 1332,
+      "top": 75,
+      "width": 520,
+      "height": 649
+    }
+  ],
+  "scale": 0.12349397590361445,
+  "frameSize": 128,
+  "baselineY": 112,
+  "roles": [
+    "warning",
+    "attack",
+    "recover"
+  ]
+}

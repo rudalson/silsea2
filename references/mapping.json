@@ -26,7 +26,7 @@
       "piano_imp": ["piano_imp_idle","piano_imp_move","piano_imp_warning","piano_imp_attack","piano_imp_recover","piano_imp_defeated"],
       "tape_boxling": ["tape_boxling_idle","tape_boxling_move","tape_boxling_defeated"],
       "tape_rollbug": ["tape_rollbug_idle","tape_rollbug_move","tape_rollbug_defeated"],
-      "merong_imp": ["merong_imp_idle","merong_imp_move","merong_imp_defeated"],
+      "merong_imp": ["merong_imp_idle","merong_imp_move","merong_imp_defeated","merong_imp_warning","merong_imp_attack","merong_imp_recover"],
       "merong_sentry": ["merong_sentry_idle","merong_sentry_warning","merong_sentry_attack","merong_sentry_recover"],
       "cloud_king": ["cloud_king_idle","cloud_king_warning","cloud_king_attack","cloud_king_vulnerable","cloud_king_hurt","cloud_king_defeated"],
       "hole_king": ["hole_king_idle","hole_king_warning","hole_king_attack","hole_king_vulnerable","hole_king_hurt","hole_king_defeated"],
