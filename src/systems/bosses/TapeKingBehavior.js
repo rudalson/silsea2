@@ -2,6 +2,7 @@ import { COLORS, EVENTS } from "../../config/constants.js";
 import { advanceTapeProjectile, canHitTapeKing, planTapePatches, tapeProjectileHits, TAPE_KING_PHASES } from "../../data/tapeMechanics.js";
 import { EnemyAnimationManager } from "../EnemyAnimationManager.js";
 import { playBossStateSfx } from "./bossAudio.js";
+import { createStickyTapeVisual } from "../StickyTapeVisual.js";
 
 export class TapeKingBehavior {
   constructor(context) {
@@ -13,6 +14,7 @@ export class TapeKingBehavior {
     this.stepIndex = 0;
     this.shots = [];
     this.patches = [];
+    this.patchVisuals = new Map();
     this.defeated = false;
     this.visual = this.scene.add.graphics().setDepth(7);
     this.weakness = this.scene.add.star(this.boss.x, this.boss.body.top - 24, 5, 9, 21, COLORS.collect)
@@ -78,6 +80,15 @@ export class TapeKingBehavior {
 
   publishPatches() {
     this.scene.courseMechanics?.setTransientStickyZones(this, this.patches);
+    const live = new Set();
+    for (const zone of this.patches) {
+      const key = `${zone.id}:${zone.x}:${zone.y}:${zone.width}`;
+      live.add(key);
+      if (!this.patchVisuals.has(key)) this.patchVisuals.set(key, createStickyTapeVisual(this.scene, zone));
+    }
+    for (const [key, visual] of this.patchVisuals) {
+      if (!live.has(key)) { visual.destroy(); this.patchVisuals.delete(key); }
+    }
   }
 
   updateAttacks(delta) {
@@ -96,12 +107,6 @@ export class TapeKingBehavior {
 
   drawAttacks() {
     const visual = this.visual.clear();
-    for (const zone of this.patches) {
-      visual.fillStyle(COLORS.collect, 0.95).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, 4);
-      visual.lineStyle(3, COLORS.outline).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, 4);
-      visual.lineStyle(2, COLORS.white);
-      for (let x = zone.x + 12; x < zone.x + zone.width - 8; x += 32) visual.lineBetween(x, zone.y + 10, x + 8, zone.y + 2);
-    }
     for (const shot of this.shots) {
       visual.fillStyle(COLORS.collect).fillRoundedRect(shot.x - 24, shot.y - 10, 48, 20, 4);
       visual.lineStyle(3, COLORS.outline).strokeRoundedRect(shot.x - 24, shot.y - 10, 48, 20, 4);
@@ -173,6 +178,8 @@ export class TapeKingBehavior {
   }
   clearAttacks() {
     this.shots = []; this.patches = []; this.pending = null;
+    for (const visual of this.patchVisuals.values()) visual.destroy();
+    this.patchVisuals.clear();
     this.scene.courseMechanics?.clearTransientStickyZones(this);
     this.visual.clear();
   }

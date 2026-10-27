@@ -52,10 +52,18 @@ async function run(scene) {
     assert(scene.bossController.behavior.state === "dormant" && !scene.levelLoader.boss.body.enable, "작업장 진입 전 보스 대기");
     assert(!scene.levelLoader.gate, "처치 전 게이트 없음");
     const fallback = scene.registry.get("forceAssetFallback");
+    assert(!scene.children.list.some(object => object.type === "Text" && /끈끈한 테이프|점프로 빠져나가요/.test(object.text)),
+      "테이프 바닥의 안내 문구 제거");
     if (!fallback) {
       assert(scene.children.list.some(object => object.texture?.key === "tape_tileset"), "바닥·고정 발판에 테이프 전용 타일 적용");
       assert(scene.terrainMechanics.movingPlatforms.every(entry => entry.visual.list.every(tile => tile.texture.key === "tape_tileset")),
         "이동 다리·리프트에 같은 전용 타일 적용");
+      const paintings = scene.courseMechanics.created.filter(object => object.list?.length === 3
+        && object.list.every(part => part.texture?.key === "fx_sticky_tape"));
+      assert(paintings.length === scene.level.terrainMechanics.stickyZones.length,
+        "모든 끈끈한 구간에 말린 테이프·접착제 원화 로드");
+      assert(paintings.every((painting, index) => Math.abs(painting.list.reduce((width, part) => width + part.displayWidth, 0)
+        - scene.level.terrainMechanics.stickyZones[index].width) < 0.01), "원화 길이와 감속 구간 일치");
     }
     const moving = scene.terrainMechanics.movingPlatforms[0];
     place(moving.platform.x, moving.platform.body.top - 2);
@@ -165,6 +173,9 @@ async function run(scene) {
     await stomp();
     place(boss.x - 880);
     await until(() => behavior.patches.length > 0, "2단계 실제 바닥 테이프 설치");
+    assert(behavior.patchVisuals.size === behavior.patches.length && [...behavior.patchVisuals.values()].every(visual =>
+      visual.active && (fallback || visual.list.every(part => part.texture.key === "fx_sticky_tape"))),
+      "보스 설치물에도 같은 접착제 원화 적용");
     const patch = behavior.patches[0]; place(patch.x + patch.width / 2); await until(onGround, "보스 테이프 접지"); await frames(2);
     assert(scene.courseMechanics.horizontalSpeedMultiplier === expectedSpeed, "보스가 붙인 테이프도 동일 감속");
     controller.jumpDown = controller.jumpPressed = true; await frames(4); controller.jumpPressed = false;
@@ -172,11 +183,13 @@ async function run(scene) {
     scene.healthManager.handleFall();
     await until(() => !scene.checkpointManager.respawning && scene.player.body.enable, "보스 실패 복귀");
     assert(boss.getData("hp") === 2 && boss.getData("phase") === 2 && behavior.state === "dormant"
-      && scene.courseMechanics.getSnapshot().transientStickyCount === 0 && behavior.patches.length === 0, "복귀 시 깎인 HP·단계 유지와 테이프 감속 정리");
+      && scene.courseMechanics.getSnapshot().transientStickyCount === 0 && behavior.patches.length === 0
+      && behavior.patchVisuals.size === 0, "복귀 시 깎인 HP·단계 유지와 테이프 원화·감속 정리");
     place(boss.x - 880);
     for (let phase = 2; phase <= 3; phase++) { await stomp(); if (phase < 3) place(boss.x - 880); }
     assert(attacks.has("2:0") && attacks.has("3:2") && maxPatches === (scene.registry.get("easyMode") ? 1 : 2), "바닥 설치와 3단계 조합·쉬운 모드 수량 실행");
-    assert(behavior.shots.length === 0 && behavior.patches.length === 0 && scene.courseMechanics.finished, "처치 후 공격·감속 정리");
+    assert(behavior.shots.length === 0 && behavior.patches.length === 0 && behavior.patchVisuals.size === 0
+      && scene.courseMechanics.finished, "처치 후 공격·테이프 원화·감속 정리");
     assert(!scene.objectiveManager.areRequiredComplete(), "처치 후 직접 게이트 진입 필요");
     await until(() => scene.levelLoader.gate?.lifecycle?.phase === "active", "실제 게이트 활성");
     place(scene.level.exit.x); await until(() => game.scene.isActive("ClearScene"), "게이트 진입 후 클리어");
@@ -199,15 +212,17 @@ const ready = setInterval(() => {
   const scene = game?.scene?.getScene("GameScene");
   if (!scene?.player?.active) return; clearInterval(ready);
   const preview = new URLSearchParams(location.search).get("tapePreview");
-  if (scene.level.id === "level-08" && ["ground", "moving"].includes(preview)) {
+  if (scene.level.id === "level-08" && ["ground", "moving", "sticky"].includes(preview)) {
     scene.inputManager.sample = () => ({ ...neutral });
     scene.transformationManager.cancelPresentation(); scene.transformationManager.setForm("base", false);
     const moving = scene.terrainMechanics.movingPlatforms[0];
-    scene.player.body.reset(preview === "moving" ? moving.platform.x : 160, preview === "moving" ? moving.platform.body.top - 2 : 574);
+    const sticky = scene.level.terrainMechanics.stickyZones[0];
+    scene.player.body.reset(preview === "moving" ? moving.platform.x : preview === "sticky" ? sticky.x + sticky.width + 70 : 160,
+      preview === "moving" ? moving.platform.body.top - 2 : 574);
     scene.player.setVelocity(0, 0); scene.cameras.main.stopFollow();
-    scene.cameras.main.setZoom(1.5).centerOn(preview === "moving" ? moving.platform.x : 430, 410);
+    scene.cameras.main.setZoom(1.5).centerOn(preview === "moving" ? moving.platform.x : preview === "sticky" ? sticky.x + sticky.width / 2 + 30 : 430, 410);
     document.querySelector("#checks").hidden = true;
-    frames(60).then(() => { scene.scene.pause(); document.title = `테이프 도시 · ${preview} 타일`; });
+    frames(60).then(() => { scene.scene.pause(); document.title = `테이프 도시 · ${preview}`; });
     return;
   }
   if (scene.level.id !== "level-08" || !scene.levelHotReload) { output.textContent = "?visualReview=level-08&debug=1&mute=1로 열어 주세요."; return; }

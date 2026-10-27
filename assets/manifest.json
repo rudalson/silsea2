@@ -1297,6 +1297,7 @@
     {"key":"item_music_note","type":"image","url":"/assets/items/item_music_note.png"},
     {"key":"item_hole_ring","type":"image","url":"/assets/items/item_hole_ring.png"},
     {"key":"item_cloud_drop","type":"image","url":"/assets/items/item_cloud_drop.png"},
-    {"key":"tape_tileset","type":"atlas","url":"/assets/tiles/tape_tileset.png","atlasUrl":"/assets/tiles/tape_tileset.json","tileWidth":64,"tileHeight":64,"extrude":2,"frames":16}
+    {"key":"tape_tileset","type":"atlas","url":"/assets/tiles/tape_tileset.png","atlasUrl":"/assets/tiles/tape_tileset.json","tileWidth":64,"tileHeight":64,"extrude":2,"frames":16},
+    {"key":"fx_sticky_tape","type":"atlas","url":"/assets/effects/fx_sticky_tape.png","atlasUrl":"/assets/effects/fx_sticky_tape.json","frames":3}
   ]
 }

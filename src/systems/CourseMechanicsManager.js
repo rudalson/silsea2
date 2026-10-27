@@ -2,6 +2,7 @@ import { COLORS, CSS_COLORS, EVENTS } from "../config/constants.js";
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { drawPianoKeys, rhythmInputMoving, RhythmSignal } from "./RhythmSignal.js";
 import { canRestoreBridge } from "../data/holeMechanics.js";
+import { createStickyTapeVisual } from "./StickyTapeVisual.js";
 import {
   createRhythmState, getStickySpeedMultiplier, getTimedHolePhase, RHYTHM_PHASES, stepRhythm
 } from "../data/courseMechanics.js";
@@ -43,12 +44,7 @@ export class CourseMechanicsManager {
 
   createStickyZone(zone) {
     if (zone.visualStyle === "tape") {
-      const tape = this.track(this.scene.add.graphics().setDepth(3));
-      tape.fillStyle(COLORS.collect, 0.95).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, 4);
-      tape.lineStyle(2, COLORS.outline).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, 4);
-      tape.lineStyle(2, COLORS.white, 0.8);
-      for (let x = zone.x + 12; x < zone.x + zone.width - 10; x += 32) tape.lineBetween(x, zone.y + zone.height - 2, x + 10, zone.y + 2);
-      if (zone.showHint !== false) this.label(zone.x + zone.width / 2, zone.y - 120, "끈끈한 테이프\n점프로 빠져나가요");
+      this.track(createStickyTapeVisual(this.scene, zone));
       return;
     }
     this.track(this.scene.add.rectangle(zone.x + zone.width / 2, zone.y + zone.height / 2,

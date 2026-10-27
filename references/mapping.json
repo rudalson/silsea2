@@ -306,5 +306,6 @@
   "item_music_note": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 음표 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
   "item_hole_ring": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 고리 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
   "item_cloud_drop": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 빗방울 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
-  "tape_tileset": {"styleRefs":["maple_story_1.png"],"note":"테이프 도시 전용 내장 image_gen 금빛 테이프·크림색 종이층 타일. 16프레임·2px extrude. 원본과 프롬프트: assets/_source/tape-tiles. 기존 원경·공용 타일·충돌 배치 보존."}
+  "tape_tileset": {"styleRefs":["maple_story_1.png"],"note":"테이프 도시 전용 내장 image_gen 금빛 테이프·크림색 종이층 타일. 16프레임·2px extrude. 원본과 프롬프트: assets/_source/tape-tiles. 기존 원경·공용 타일·충돌 배치 보존."},
+  "fx_sticky_tape": {"styleRefs":["maple_story_1.png"],"note":"내장 image_gen으로 생성한 청록·산호빛 말린 테이프와 호박빛 접착제 원화. 필드·보스 공용 3분할 투명 아틀라스. 원본과 프롬프트: assets/_source/sticky-tape."}
 }

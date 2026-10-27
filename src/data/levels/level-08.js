@@ -2,14 +2,15 @@ import { TAPE_KING_PHASES } from "../tapeMechanics.js";
 import { EXPANSION_BGM } from "../expansionAudio.js";
 
 const tilemap = new URL("../../../assets/levels/level-08/tilemap.json", import.meta.url).href;
-const sticky = (id, x, width, showHint = false) => ({ id, x, y: 576, width, height: 12,
-  speedMultiplier: 0.6, visualStyle: "tape", showHint });
+const sticky = (id, x, width) => ({ id, x, y: 576, width, height: 12,
+  speedMultiplier: 0.6, visualStyle: "tape" });
 
 export default {
   schemaVersion: 2, id: "level-08", name: "테이프 도시", order: 7,
   description: "끈끈한 길을 뛰어넘어 테이프 작업장으로 가요", visualTheme: "tape-city",
   assets: {
     tilemap, tilemapKey: "level-08-map", tileset: "tape_tileset", preview: "stage_preview_tape",
+    effects: { stickyTape: "fx_sticky_tape" },
     backgrounds: {
       normal: { far: "bg_tape_far", mid: "bg_normal_mid", near: "bg_normal_near" },
       boss: { far: "bg_tape_far", mid: "bg_normal_mid", near: "bg_normal_near" }
@@ -64,8 +65,8 @@ export default {
   secrets: [{ id: "tape_roof", name: "테이프 말이 전망대", xStart: 5504, xEnd: 5952, yTop: 160, yBottom: 440,
     reward: 200, guideItemIds: ["tape_secret_guide"], rewardItemId: "tape_secret_reward" }],
   terrainMechanics: {
-    stickyZones: [sticky("tape_first", 1536, 256, true), sticky("tape_second", 2304, 320), sticky("tape_third", 3008, 384),
-      sticky("tape_street_a", 4480, 320), sticky("tape_street_b", 5376, 320), sticky("tape_factory_a", 8448, 320, true),
+    stickyZones: [sticky("tape_first", 1536, 256), sticky("tape_second", 2304, 320), sticky("tape_third", 3008, 384),
+      sticky("tape_street_a", 4480, 320), sticky("tape_street_b", 5376, 320), sticky("tape_factory_a", 8448, 320),
       sticky("tape_factory_b", 9472, 384), sticky("tape_factory_c", 10560, 320), sticky("tape_factory_d", 11840, 384)],
     movingPlatforms: [
       { id: "tape_moving_bridge", x: 7712, y: 480, width: 160, height: 32, axis: "x", distance: 160, speed: 72 },

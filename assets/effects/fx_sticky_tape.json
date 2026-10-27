@@ -1,0 +1,73 @@
+{
+  "frames": {
+    "left": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 40
+      }
+    },
+    "body": {
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 256,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 40
+      }
+    },
+    "right": {
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 64,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 40
+      }
+    }
+  },
+  "meta": {
+    "image": "fx_sticky_tape.png",
+    "size": {
+      "w": 384,
+      "h": 40
+    },
+    "scale": "1",
+    "fullColor": true
+  }
+}
