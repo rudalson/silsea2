@@ -15,7 +15,7 @@ export default {
       boss: { far: "bg_merong_far", mid: "bg_merong_mid", near: "bg_merong_near" }
     },
     decorations: { planter: "decor_merong_planter", lantern: "decor_merong_lantern", palace: "decor_merong_palace", bridge: "decor_merong_bridge" },
-    objects: { items: { star: "item_star", percent_small: "item_percent_small", percent_large: "item_percent_large",
+    objects: { items: { star: "item_merong_crown", percent_small: "item_percent_small", percent_large: "item_percent_large",
       horn: "item_horn", wings: "item_wings", alicorn: "item_alicorn" }, checkpoint: "decor_merong_lantern", gate: "rainbow_gate" },
     bgm: { ...EXPANSION_BGM["level-07"], clear: "bgm_clear" }
   },

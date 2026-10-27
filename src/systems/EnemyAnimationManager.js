@@ -25,7 +25,7 @@ export class EnemyAnimationManager {
   static play(sprite, sequence, ignoreIfPlaying = true) {
     const enemyType = sprite.getData("type") ?? sprite.getData("key");
     const spec = EnemyAnimationManager.getSpec(enemyType, sequence);
-    if (!spec || !sprite.scene.anims.exists(spec.key)) return null;
+    if (!spec || !sprite.play || !sprite.scene.anims.exists(spec.key)) return null;
     sprite.play(spec.key, ignoreIfPlaying);
     return spec;
   }

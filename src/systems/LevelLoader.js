@@ -26,6 +26,8 @@ import {
 } from "../data/prankGateEncounter.js";
 import { AssetManager } from "./AssetManager.js";
 import { EnemyAnimationManager } from "./EnemyAnimationManager.js";
+import { getStageCollectible } from "../data/stageCollectibles.js";
+import { createCollectibleFallback } from "./CollectibleVisuals.js";
 
 const ITEM_SCALES = Object.freeze({
   star: 0.75,
@@ -496,6 +498,8 @@ export class LevelLoader {
         return [glow, image];
       }
       if (type === "star") {
+        const theme = getStageCollectible(this.level);
+        if (theme.themed) return [glow, this.track(createCollectibleFallback(this.scene, theme, x, y, alpha))];
         const star = this.track(this.scene.add.star(x, y, 5, 8, 18, COLORS.collect, alpha));
         star.setStrokeStyle(3, COLORS.outline).setDepth(4);
         return [glow, star];

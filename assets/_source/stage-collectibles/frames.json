@@ -1,0 +1,62 @@
+{
+  "item_merong_crown": {
+    "source": "item_merong_crown.png",
+    "crop": {
+      "left": 50,
+      "top": 201,
+      "width": 1154,
+      "height": 863
+    },
+    "width": 72,
+    "height": 54,
+    "frameSize": 128
+  },
+  "item_tape_ribbon": {
+    "source": "item_tape_ribbon.png",
+    "crop": {
+      "left": 129,
+      "top": 316,
+      "width": 1034,
+      "height": 639
+    },
+    "width": 72,
+    "height": 44,
+    "frameSize": 128
+  },
+  "item_music_note": {
+    "source": "item_music_note.png",
+    "crop": {
+      "left": 171,
+      "top": 179,
+      "width": 913,
+      "height": 892
+    },
+    "width": 72,
+    "height": 70,
+    "frameSize": 128
+  },
+  "item_hole_ring": {
+    "source": "item_hole_ring.png",
+    "crop": {
+      "left": 161,
+      "top": 117,
+      "width": 927,
+      "height": 1018
+    },
+    "width": 64,
+    "height": 70,
+    "frameSize": 128
+  },
+  "item_cloud_drop": {
+    "source": "item_cloud_drop.png",
+    "crop": {
+      "left": 231,
+      "top": 144,
+      "width": 794,
+      "height": 980
+    },
+    "width": 57,
+    "height": 70,
+    "frameSize": 128
+  }
+}

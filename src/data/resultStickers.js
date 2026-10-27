@@ -1,3 +1,5 @@
+import { getStageCollectible } from "./stageCollectibles.js";
+
 export const MAX_RESULT_STICKERS = 5;
 export const RESULT_STICKER_RADIUS = 35;
 
@@ -31,16 +33,18 @@ export const RESULT_STICKER_SLOTS = Object.freeze([
   Object.freeze({ x: 640, y: 112, angle: 0 })
 ]);
 
-export function resolveResultStickers(achieved = []) {
+export function resolveResultStickers(achieved = [], level) {
   const achievedTypes = new Set(Array.isArray(achieved) ? achieved : []);
   return RESULT_STICKER_DEFINITIONS
     .filter(({ objectiveType }) => objectiveType === null || achievedTypes.has(objectiveType))
     .slice(0, MAX_RESULT_STICKERS)
-    .map((sticker) => ({ ...sticker }));
+    .map((sticker) => ({ ...sticker, ...(sticker.key === "collect_stars" && getStageCollectible(level).themed ? {
+      label: `${getStageCollectible(level).name} 수집가`, textureKey: getStageCollectible(level).key
+    } : {}) }));
 }
 
-export function getResultStickerLayout(achieved = []) {
-  return resolveResultStickers(achieved).map((sticker) => {
+export function getResultStickerLayout(achieved = [], level) {
+  return resolveResultStickers(achieved, level).map((sticker) => {
     const slotIndex = RESULT_STICKER_DEFINITIONS.findIndex(({ key }) => key === sticker.key);
     return {
       ...sticker,

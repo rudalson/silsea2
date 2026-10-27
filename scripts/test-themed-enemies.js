@@ -31,6 +31,12 @@ function fixture(type, easy = false) {
 }
 
 for (const [type, rules] of Object.entries(THEMED_ENEMIES)) {
+  const fallback = fixture(type); delete fallback.enemy.setFlipX; delete fallback.enemy.play;
+  fallback.player.x = 0;
+  assert.doesNotThrow(() => fallback.controller.update(fallback.enemy, 0, 16), `${type} 도형 fallback 순찰`);
+  fallback.player.x = 450;
+  assert.doesNotThrow(() => fallback.controller.update(fallback.enemy, 16, 16), `${type} 도형 fallback 준비`);
+  fallback.controller.destroy();
   const input = { x: 600, floorY: 576, direction: -1, targetX: 450 };
   const plan = createThemedAttack(type, input), mirror = createThemedAttack(type, { ...input, direction: 1, targetX: 750 });
   assert.ok(rules.warningMs >= 1000 && rules.cooldownMs >= 2000, `${type} 읽을 수 있는 예고와 재공격 간격`);

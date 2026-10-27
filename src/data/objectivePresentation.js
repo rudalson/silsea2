@@ -1,3 +1,5 @@
+import { getStageCollectible } from "./stageCollectibles.js";
+
 export const OBJECTIVE_PRESENTATIONS = Object.freeze({
   collect_stars: Object.freeze({ glyph: "★", title: "별 수집가" }),
   find_secrets: Object.freeze({ glyph: "?", title: "비밀 탐험가" }),
@@ -5,10 +7,10 @@ export const OBJECTIVE_PRESENTATIONS = Object.freeze({
   no_damage: Object.freeze({ glyph: "HP", title: "완벽한 모험" })
 });
 
-export const getObjectiveDetail = (objective = {}) => {
+export const getObjectiveDetail = (objective = {}, level) => {
   switch (objective.type) {
     case "collect_stars":
-      return `별 ${objective.count}개 모으기`;
+      return `${getStageCollectible(level).name} ${objective.count}개 모으기`;
     case "find_secrets":
       return `비밀 공간 ${objective.count}곳 발견`;
     case "clear_time":
@@ -27,7 +29,10 @@ export function getObjectiveCelebrations(level, achieved = [], limit = 3) {
     .map((objective) => ({
       ...OBJECTIVE_PRESENTATIONS[objective.type],
       type: objective.type,
-      detail: getObjectiveDetail(objective)
+      ...(objective.type === "collect_stars" && getStageCollectible(level).themed ? {
+        glyph: getStageCollectible(level).glyph, title: `${getStageCollectible(level).name} 수집가`, textureKey: getStageCollectible(level).key
+      } : {}),
+      detail: getObjectiveDetail(objective, level)
     }));
   const safeLimit = Math.max(0, Math.floor(Number(limit) || 0));
   const cards = all.slice(0, safeLimit);

@@ -5,6 +5,7 @@ import {
   getDebugTuningPreset,
   getDebugTuningPresetChanges
 } from "../data/debugTuningPresets.js";
+import { getStageCollectible } from "../data/stageCollectibles.js";
 
 const OBJECTIVE_LABELS = Object.freeze({
   defeat_boss: "임시 보스 격파",
@@ -245,7 +246,8 @@ export class DebugPanel {
     list.replaceChildren();
     for (const objective of this.objectives.getSnapshot()) {
       const item = document.createElement("li");
-      item.textContent = `${objective.complete ? "✓" : "○"} ${OBJECTIVE_LABELS[objective.type] ?? objective.type}`;
+      const label = objective.type === "collect_stars" ? `${getStageCollectible(this.level).name} 수집` : OBJECTIVE_LABELS[objective.type] ?? objective.type;
+      item.textContent = `${objective.complete ? "✓" : "○"} ${label}`;
       list.appendChild(item);
     }
   }

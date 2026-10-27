@@ -6,7 +6,7 @@ export default {
   schemaVersion:2,id:"level-10",name:"구멍 코스",order:9,description:"표시된 구멍을 뛰어넘고 움직이는 구멍 대왕을 멈춰요",visualTheme:"hole-canyon",
   assets:{tilemap,tilemapKey:"level-10-map",tileset:"starlight_tileset",preview:"stage_preview_hole",
     backgrounds:{normal:{far:"bg_hole_far",mid:"bg_normal_mid",near:"bg_normal_near"},boss:{far:"bg_hole_far",mid:"bg_normal_mid",near:"bg_normal_near"}},
-    objects:{items:{star:"item_star",percent_small:"item_percent_small",percent_large:"item_percent_large",horn:"item_horn",wings:"item_wings",alicorn:"item_alicorn"},checkpoint:"checkpoint_flag",gate:"rainbow_gate"},
+    objects:{items:{star:"item_hole_ring",percent_small:"item_percent_small",percent_large:"item_percent_large",horn:"item_horn",wings:"item_wings",alicorn:"item_alicorn"},checkpoint:"checkpoint_flag",gate:"rainbow_gate"},
     bgm:{...EXPANSION_BGM["level-10"],clear:"bgm_clear"}},
   world:{width:16384,height:768,tileSize:64},parallax:{sky:0.02,far:0.08,mid:0.2,near:0.45,layerAlpha:{mid:0,near:0}},
   progression:{direction:"right",retainAbilities:true},player:{spawn:{x:128,y:576}},

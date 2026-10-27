@@ -3,6 +3,8 @@ import { COLORS, CSS_COLORS, EVENTS, GAME_WIDTH, SCENE_KEYS } from "../config/co
 import { GAME_FONT_FAMILY } from "../config/font.js";
 import { applyDisplayMode, DISPLAY_MODES } from "../systems/DisplayModeManager.js";
 import { InputManager } from "../systems/InputManager.js";
+import { getCollectibleGoalText, getStageCollectible } from "../data/stageCollectibles.js";
+import { createCollectibleFallback } from "../systems/CollectibleVisuals.js";
 
 export class UIScene extends Phaser.Scene {
   constructor() {
@@ -94,13 +96,23 @@ export class UIScene extends Phaser.Scene {
       stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 2
     }).setOrigin(0.5).setScrollFactor(0).setFixedSize(320, 34).setAlign("center");
-    this.objectiveText = this.createLabel(GAME_WIDTH / 2, 73, "✦  별 목표 0/0  ✦", {
+    this.collectibleTheme = getStageCollectible(this.gameScene.level);
+    this.objectiveText = this.createLabel(GAME_WIDTH / 2, 73, this.collectibleTheme.themed
+      ? getCollectibleGoalText(this.gameScene.level, 0) : "✦  별 목표 0/0  ✦", {
       fontSize: "15px",
       fontStyle: "700",
       color: CSS_COLORS.storybookCaption,
       stroke: CSS_COLORS.storybookCaptionStroke,
       strokeThickness: 1
     }).setOrigin(0.5).setScrollFactor(0);
+    this.collectibleIcon = null;
+    if (this.collectibleTheme.themed) {
+      this.collectibleIcon = this.textures.exists(this.collectibleTheme.key)
+        ? this.add.image(0, 81, this.collectibleTheme.key).setDisplaySize(48, 48)
+        : createCollectibleFallback(this, this.collectibleTheme, 0, 81).setScale(0.55);
+      this.collectibleIcon.setScrollFactor(0);
+      this.objectiveText.setX(GAME_WIDTH / 2 + 16);
+    }
     this.comboText = this.createLabel(GAME_WIDTH / 2 + 202, 34, "", {
       fontSize: "17px",
       fontStyle: "900",
@@ -169,10 +181,12 @@ export class UIScene extends Phaser.Scene {
     };
     this.onBossDefeated = ({ displayName, levelName }) => this.showToast(`${displayName} 격파! ${levelName} 클리어!`);
     this.onFormChanged = ({ form, emphasize, retainsMagnet }) => {
+      const collectible = getStageCollectible(this.gameScene.level);
       const lessons = {
-        unicorn: "유니콘! 가까운 별이 따라와요 · 가시는 점프로 피하세요",
+        unicorn: `유니콘! 가까운 ${collectible.name}이 따라와요 · 가시는 점프로 피하세요`,
         pegasus: `페가수스! 점프를 누르고 있으면 비행${retainsMagnet ? " · 자석도 유지!" : ""}`,
-        alicorn: "12초 알리콘! 감자를 돌파하고 별을 모으세요 · 점수 2배!"
+        alicorn: collectible.themed ? `12초 알리콘! 적을 돌파하고 ${collectible.name}을 모으세요 · 점수 2배!`
+          : "12초 알리콘! 감자를 돌파하고 별을 모으세요 · 점수 2배!"
       };
       this.showToast(
         emphasize && this.gameScene.level.progression?.retainAbilities
@@ -252,7 +266,10 @@ export class UIScene extends Phaser.Scene {
       .setFillStyle(breath?.warning ? COLORS.danger : COLORS.collectBlue);
     const objectives = this.gameScene.objectiveManager?.getSnapshot() ?? [];
     const required = objectives.filter((objective) => objective.required);
-    this.objectiveText.setText(`✦  별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}  ✦`);
+    this.objectiveText.setText(this.collectibleTheme.themed
+      ? getCollectibleGoalText(this.gameScene.level, this.gameScene.objectiveManager.context.starCount)
+      : `✦  별 목표 ${required.filter((objective) => objective.complete).length}/${required.length}  ✦`);
+    this.collectibleIcon?.setX(this.objectiveText.x - this.objectiveText.width / 2 - 22);
     if (this.registry.get("debugEnabled")) {
       this.fpsText.setText(`FPS ${Math.round(this.game.loop.actualFps)}\nEsc 일시정지 · \` 디버그`);
     }

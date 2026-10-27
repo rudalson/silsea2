@@ -76,6 +76,12 @@ for (const guarded of [false, true]) {
 }
 const slower = fixture(true); slower.controller.update(slower.enemy, 0, 16); slower.controller.update(slower.enemy, 1100, 1100);
 assert.equal(slower.enemy.getData("state"), "telegraph", "쉬움 준비 동작 연장"); slower.controller.destroy();
+const fallback = fixture(); delete fallback.enemy.setFlipX; delete fallback.enemy.play;
+fallback.player.x = 0;
+assert.doesNotThrow(() => fallback.controller.update(fallback.enemy, 0, 16), "도형 fallback은 반전/애니메이션 메서드 없이 순찰");
+fallback.player.x = 800;
+assert.doesNotThrow(() => fallback.controller.update(fallback.enemy, 16, 16), "도형 fallback 준비 동작도 중단되지 않음");
+fallback.controller.destroy();
 const patrol = fixture(); patrol.player.x = 0;
 patrol.enemy.x = 519; patrol.controller.update(patrol.enemy, 0, 16); assert.ok(patrol.enemy.body.velocity.x > 0);
 patrol.enemy.x = 681; patrol.player.x = 1200; patrol.controller.update(patrol.enemy, 16, 16); assert.ok(patrol.enemy.body.velocity.x < 0);

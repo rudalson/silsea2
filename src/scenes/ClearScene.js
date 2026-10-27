@@ -4,6 +4,8 @@ import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getCharacter } from "../data/characters.js";
 import { getLevel, getNextLevel } from "../data/levels/index.js";
 import { getObjectiveCelebrations } from "../data/objectivePresentation.js";
+import { getStageCollectible } from "../data/stageCollectibles.js";
+import { createCollectibleFallback } from "../systems/CollectibleVisuals.js";
 import {
   RESULT_STICKER_PRESENTATION,
   RESULT_STICKER_RADIUS,
@@ -34,7 +36,8 @@ export class ClearScene extends Phaser.Scene {
     this.reducedEffects = this.registry.get("screenEffectStrength") === "reduced";
     this.celebrations = getObjectiveCelebrations(level, this.result.achieved, 3);
     this.allCelebrations = getObjectiveCelebrations(level, this.result.achieved, Number.MAX_SAFE_INTEGER);
-    this.resultStickerLayout = getResultStickerLayout(this.result.achieved);
+    this.collectibleTheme = getStageCollectible(level);
+    this.resultStickerLayout = getResultStickerLayout(this.result.achieved, level);
     this.cameras.main.setBackgroundColor(COLORS.near);
     this.inputManager = new InputManager(this);
     this.audioManager = new AudioManager(this);
@@ -165,7 +168,7 @@ export class ClearScene extends Phaser.Scene {
     if (cards.length === 0) {
       this.add.rectangle(GAME_WIDTH / 2, cardY, 580, 82, COLORS.near, 0.9)
         .setStrokeStyle(2, COLORS.collectBlue, 0.7);
-      this.add.text(GAME_WIDTH / 2, cardY, "별 · 비밀 · 시간 · 무피해 목표에 도전해 보세요", {
+      this.add.text(GAME_WIDTH / 2, cardY, `${this.collectibleTheme.name} · 비밀 · 시간 · 무피해 목표에 도전해 보세요`, {
         fontFamily: GAME_FONT_FAMILY,
         fontSize: "17px",
         fontStyle: "700",
@@ -188,7 +191,11 @@ export class ClearScene extends Phaser.Scene {
       .setStrokeStyle(3, accent, 1);
     const icon = this.add.circle(-108, -17, 24, accent, 1)
       .setStrokeStyle(2, COLORS.white, 0.9);
-    const glyph = this.add.text(-108, -18, card.glyph, {
+    const glyph = card.textureKey && this.textures.exists(card.textureKey)
+      ? this.add.image(-108, -18, card.textureKey).setDisplaySize(64, 64)
+      : card.textureKey && this.collectibleTheme.themed
+        ? createCollectibleFallback(this, this.collectibleTheme, -108, -18).setScale(0.65)
+      : this.add.text(-108, -18, card.glyph, {
       fontFamily: GAME_FONT_FAMILY,
       fontSize: card.glyph.length > 2 ? "13px" : "25px",
       fontStyle: "900",
@@ -277,6 +284,9 @@ export class ClearScene extends Phaser.Scene {
   }
 
   createResultStickerFallback(sticker, accent) {
+    if (sticker.key === "collect_stars" && this.collectibleTheme.themed) {
+      return createCollectibleFallback(this, this.collectibleTheme, 0, 0).setScale(0.85);
+    }
     const symbol = this.add.graphics();
     symbol.lineStyle(5, COLORS.outline, 1);
     symbol.fillStyle(COLORS.white, 1);

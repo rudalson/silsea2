@@ -4,6 +4,7 @@ import { GAME_FONT_FAMILY } from "../config/font.js";
 import { getLevel } from "../data/levels/index.js";
 import { assertLevelShape, normalizeLevelDefinition } from "../data/schema/levelSchema.js";
 import { AssetManager } from "../systems/AssetManager.js";
+import { STAGE_COLLECTIBLES } from "../data/stageCollectibles.js";
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -80,6 +81,9 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
+    for (const { key } of STAGE_COLLECTIBLES) {
+      if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+    }
     for (const key of ["shelter_house_open", "shelter_house_weathered", "shelter_hill", "fx_shelter_shield", "fx_tsunami_wave", "fx_tsunami_warning", "decor_sign"]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     }

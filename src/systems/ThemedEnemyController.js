@@ -86,7 +86,7 @@ export class ThemedEnemyController {
       const targetX = rules.kind === "dirt_spout" ? [this.player.x, enemy.x + direction * 96, enemy.x].find(supported) : this.player.x;
       if (targetX === undefined) return;
       entry.plan = createThemedAttack(enemy.getData("type"), { x: enemy.x, floorY: enemy.body.bottom, direction, targetX }, this.easy);
-      entry.resolved.clear(); enemy.setFlipX(direction < 0);
+      entry.resolved.clear(); enemy.setFlipX?.(direction < 0);
       this.enter(enemy, "telegraph", "warning"); this.draw(entry, true);
       this.scene.updateAccessibleStatus?.(rules.hint);
       this.scene.audioManager?.playSfx("sfx_boss_warning", { volume: 0.2, randomizeRate: false });
@@ -98,7 +98,7 @@ export class ThemedEnemyController {
     if (enemy.x >= spawn + patrol - 2) direction = -1;
     if (!this.groundAhead(enemy, direction) || enemy.body.blocked[direction < 0 ? "left" : "right"]) direction *= -1;
     const moving = patrol > 0 && this.groundAhead(enemy, direction);
-    enemy.setData("patrolDirection", direction); enemy.setFlipX(direction < 0);
+    enemy.setData("patrolDirection", direction); enemy.setFlipX?.(direction < 0);
     enemy.body.setVelocityX(moving ? direction * rules.walkSpeed * (this.easy ? 0.8 : 1) : 0);
     EnemyAnimationManager.play(enemy, moving ? "move" : "idle");
   }

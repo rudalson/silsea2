@@ -14,7 +14,7 @@ export default {
       normal: { far: "bg_music_far", mid: "bg_normal_mid", near: "bg_normal_near" },
       boss: { far: "bg_music_far", mid: "bg_normal_mid", near: "bg_normal_near" }
     },
-    objects: { items: { star: "item_star", percent_small: "item_percent_small", percent_large: "item_percent_large",
+    objects: { items: { star: "item_music_note", percent_small: "item_percent_small", percent_large: "item_percent_large",
       horn: "item_horn", wings: "item_wings", alicorn: "item_alicorn" }, checkpoint: "checkpoint_flag", gate: "rainbow_gate" },
     bgm: { ...EXPANSION_BGM["level-09"], clear: "bgm_clear" }
   },

@@ -2,6 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EXPANSION_BGM_KEYS } from "../src/data/expansionAudio.js";
+import { STAGE_COLLECTIBLES } from "../src/data/stageCollectibles.js";
 import { BOSS_SFX_KEYS } from "../src/data/bossAudio.js";
 import { readOggVorbis } from "./lib/audio-metadata.js";
 import sharp from "sharp";
@@ -24,6 +25,7 @@ import { generateAssetReport } from "./asset-report.js";
 import { colorDistance, hexToRgb, paletteRgb } from "./image-utils.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const collectibleFrames = JSON.parse(await readFile(join(root, "assets/_source/stage-collectibles/frames.json"), "utf8"));
 const bossPalettes = JSON.parse(await readFile(join(root, "assets/_source/boss-refresh/palette.json"), "utf8"));
 const QUALITY_THRESHOLDS = Object.freeze({
   alpha: 16,
@@ -216,6 +218,7 @@ const itemAsset = (key, width, height, fullColor = false) => [
 ];
 const itemAssets = [
   ...itemAsset("item_star", 72, 70, true),
+  ...STAGE_COLLECTIBLES.flatMap(({ key }) => itemAsset(key, collectibleFrames[key].width, collectibleFrames[key].height, true)),
   ...itemAsset("item_breath_pearl", 72, 72, true),
   ...itemAsset("item_percent_small", 68, 68, true),
   ...itemAsset("item_percent_large", 92, 92, true),

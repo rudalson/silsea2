@@ -300,5 +300,10 @@
   "decor_merong_lantern": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
   "decor_merong_palace": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
   "decor_merong_bridge": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
-  "merong_tileset": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."}
+  "merong_tileset": {"styleRefs":["maple_story_1.png"],"note":"메롱왕국 전용 새 내장 image_gen 정원 원화. 분홍·보라 석조와 말린 잎·왕관 장식. 원화·프롬프트: assets/_source/merong-environment. 큰 배경 및 타 스테이지 에셋 보존."},
+  "item_merong_crown": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 왕관 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
+  "item_tape_ribbon": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 테이프 조각. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
+  "item_music_note": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 음표 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
+  "item_hole_ring": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 고리 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."},
+  "item_cloud_drop": {"styleRefs":["silsea_sprite-Photoroom.png"],"note":"내장 image_gen으로 생성한 빗방울 보석. 기존 별의 렌더링 화풍을 참조한 스테이지 전용 수집물. 원본·프롬프트·128px 조립 정보는 assets/_source/stage-collectibles에 보존."}
 }

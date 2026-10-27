@@ -85,7 +85,7 @@ export class MerongImpController {
       && Math.abs(distance) <= RULES.range && Math.abs(this.player.y - enemy.y) < 110 && span.left < span.right) {
       const direction = distance < 0 ? -1 : 1;
       entry.plan = createMerongPrank({ x: enemy.x, floorY: enemy.body.bottom, direction, groundLimit: direction < 0 ? span.left : span.right }, this.easy);
-      enemy.setFlipX(direction < 0); this.enter(enemy, "telegraph", "warning");
+      enemy.setFlipX?.(direction < 0); this.enter(enemy, "telegraph", "warning");
       this.scene.updateAccessibleStatus?.("메롱 꼬마가 볼을 부풀려요. 튀는 풍선과 터질 때 나오는 짧은 혀를 점프로 피하거나 날개로 막아요.");
       return;
     }
@@ -94,7 +94,7 @@ export class MerongImpController {
     if (enemy.x <= spawn - patrol) direction = 1;
     if (enemy.x >= spawn + patrol) direction = -1;
     if (enemy.x + direction * (enemy.body.width / 2 + 18) < span.left || enemy.x + direction * (enemy.body.width / 2 + 18) > span.right) direction *= -1;
-    enemy.setData("patrolDirection", direction); enemy.setFlipX(direction < 0);
+    enemy.setData("patrolDirection", direction); enemy.setFlipX?.(direction < 0);
     const safe = patrol > 0 && enemy.x + direction * (enemy.body.width / 2 + 18) >= span.left && enemy.x + direction * (enemy.body.width / 2 + 18) <= span.right;
     enemy.body.setVelocityX(safe ? direction * RULES.walkSpeed * (this.easy ? 0.8 : 1) : 0);
     EnemyAnimationManager.play(enemy, safe ? "move" : "idle");
