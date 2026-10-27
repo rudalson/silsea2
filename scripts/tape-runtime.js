@@ -3,6 +3,10 @@ import { game } from "../src/main.js";
 import { EVENTS } from "../src/config/constants.js";
 import { getLevel, LEVELS } from "../src/data/levels/index.js";
 import { progressManager } from "../src/systems/ProgressManager.js";
+import { gameConfig } from "../src/config/gameConfig.js";
+
+// Keep this inspection entry point responsive in an unfocused desktop tab.
+gameConfig.fps = { target: 60, forceSetTimeOut: true };
 
 const output = document.querySelector("#results"), button = document.querySelector("#run");
 const neutral = { moveX: 0, moveY: 0, jumpDown: false, jumpPressed: false, jumpReleased: false, specialDown: false };
@@ -48,6 +52,23 @@ async function run(scene) {
     assert(scene.bossController.behavior.state === "dormant" && !scene.levelLoader.boss.body.enable, "작업장 진입 전 보스 대기");
     assert(!scene.levelLoader.gate, "처치 전 게이트 없음");
     const fallback = scene.registry.get("forceAssetFallback");
+    if (!fallback) {
+      assert(scene.children.list.some(object => object.texture?.key === "tape_tileset"), "바닥·고정 발판에 테이프 전용 타일 적용");
+      assert(scene.terrainMechanics.movingPlatforms.every(entry => entry.visual.list.every(tile => tile.texture.key === "tape_tileset")),
+        "이동 다리·리프트에 같은 전용 타일 적용");
+    }
+    const moving = scene.terrainMechanics.movingPlatforms[0];
+    place(moving.platform.x, moving.platform.body.top - 2);
+    await until(() => Math.abs(scene.player.body.bottom - moving.platform.body.top) < 3 && onGround(), "이동 발판 실제 착지", 2500);
+    let travelled = 0, lastMovingX = moving.platform.x;
+    for (let index = 0; index < 20; index++) {
+      await frames(1); travelled += Math.abs(moving.platform.x - lastMovingX); lastMovingX = moving.platform.x;
+    }
+    // Graphics follow the Arcade body within one physics step; measure total
+    // travel so an endpoint reversal cannot cancel out the movement being tested.
+    assert(travelled > 10
+      && Math.abs(moving.visual.x - moving.platform.x) < 3 && Math.abs(scene.player.body.bottom - moving.platform.body.top) < 4,
+      "타일 이동 발판 위에서 충돌·이동 동기화");
     assert(scene.levelLoader.enemies.every(enemy => ["tape_rollbug", "tape_boxling"].includes(enemy.getData("type"))
       && (fallback || enemy.getData("usesArt"))), "감자 대신 테이프 도시 전용 적 원화 연결");
     const expectedSpeed = scene.registry.get("easyMode") ? 0.8 : 0.6;
@@ -177,6 +198,18 @@ async function run(scene) {
 const ready = setInterval(() => {
   const scene = game?.scene?.getScene("GameScene");
   if (!scene?.player?.active) return; clearInterval(ready);
+  const preview = new URLSearchParams(location.search).get("tapePreview");
+  if (scene.level.id === "level-08" && ["ground", "moving"].includes(preview)) {
+    scene.inputManager.sample = () => ({ ...neutral });
+    scene.transformationManager.cancelPresentation(); scene.transformationManager.setForm("base", false);
+    const moving = scene.terrainMechanics.movingPlatforms[0];
+    scene.player.body.reset(preview === "moving" ? moving.platform.x : 160, preview === "moving" ? moving.platform.body.top - 2 : 574);
+    scene.player.setVelocity(0, 0); scene.cameras.main.stopFollow();
+    scene.cameras.main.setZoom(1.5).centerOn(preview === "moving" ? moving.platform.x : 430, 410);
+    document.querySelector("#checks").hidden = true;
+    frames(60).then(() => { scene.scene.pause(); document.title = `테이프 도시 · ${preview} 타일`; });
+    return;
+  }
   if (scene.level.id !== "level-08" || !scene.levelHotReload) { output.textContent = "?visualReview=level-08&debug=1&mute=1로 열어 주세요."; return; }
   button.disabled = false; button.textContent = "테이프 도시 검증 실행";
   output.textContent = "실제 완주·보스·진행 검사. 검증 중에는 사용자 저장을 변경하지 않습니다.\n";

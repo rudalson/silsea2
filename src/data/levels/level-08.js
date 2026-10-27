@@ -9,7 +9,7 @@ export default {
   schemaVersion: 2, id: "level-08", name: "테이프 도시", order: 7,
   description: "끈끈한 길을 뛰어넘어 테이프 작업장으로 가요", visualTheme: "tape-city",
   assets: {
-    tilemap, tilemapKey: "level-08-map", tileset: "rainbow_tileset", preview: "stage_preview_tape",
+    tilemap, tilemapKey: "level-08-map", tileset: "tape_tileset", preview: "stage_preview_tape",
     backgrounds: {
       normal: { far: "bg_tape_far", mid: "bg_normal_mid", near: "bg_normal_near" },
       boss: { far: "bg_tape_far", mid: "bg_normal_mid", near: "bg_normal_near" }

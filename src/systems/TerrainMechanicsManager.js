@@ -27,7 +27,7 @@ export class TerrainMechanicsManager {
     this.updrafts = [];
     this.crumblePlatforms = [];
     this.visualTheme = config.visualTheme ?? "default";
-    this.tilesetKey = ["rainbow_tileset", "starlight_tileset"].includes(config.tileset)
+    this.tilesetKey = ["rainbow_tileset", "starlight_tileset", "tape_tileset"].includes(config.tileset)
       && scene.textures.exists(config.tileset) ? config.tileset : null;
 
     for (const platform of config.movingPlatforms ?? []) this.createMovingPlatform(platform);

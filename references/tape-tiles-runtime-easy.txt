@@ -1,0 +1,42 @@
+테이프 도시 실제 입력·충돌 완주 검사
+PASS 7번 클리어 전 8번 잠금
+PASS 7번 클리어로 테이프 도시 해금
+PASS 작업장 진입 전 보스 대기
+PASS 처치 전 게이트 없음
+PASS 바닥·고정 발판에 테이프 전용 타일 적용
+PASS 이동 다리·리프트에 같은 전용 타일 적용
+PASS 타일 이동 발판 위에서 충돌·이동 동기화
+PASS 감자 대신 테이프 도시 전용 적 원화 연결
+PASS 지상 테이프 속도 0.8배
+PASS 점프 상승 즉시 감속 해제
+PASS 비행 중 테이프 감속 없음
+PASS 다섯 필드 구간과 보스 전 회복 지점 통과
+PASS 점프·비행으로 테이프와 두 낭떠러지 통과
+ROUTE 38.1초 · 별 92
+PASS 신규 코스 데이터 재로드
+PASS 재로드 시 공격 표시·감속 소유권 정리
+PASS tape_rollbug 오른쪽 순찰·원화 방향
+PASS tape_rollbug 왼쪽 순찰·원화 반전
+PASS tape_rollbug 보행 애니메이션
+PASS tape_rollbug 접촉 피해 1
+PASS tape_rollbug 밟기 처치 40점
+PASS tape_rollbug 패배 애니메이션
+PASS tape_rollbug 처치 중복 점수 없음
+PASS 일시정지 중 공격 시간 보존
+PASS 약점 외 머리 밟기 피해 거부
+PASS 날개로 테이프 조각 방어 시 HP 보존
+PASS 약점 시간의 조각·바닥 감속 정리
+PASS 실제 점프 HP 3 → 2, 중복 피해 없음
+PASS 보스가 붙인 테이프도 동일 감속
+PASS 보스 바닥 테이프도 점프로 탈출
+PASS 복귀 시 깎인 HP·단계 유지와 테이프 감속 정리
+PASS 약점 시간의 조각·바닥 감속 정리
+PASS 실제 점프 HP 2 → 1, 중복 피해 없음
+PASS 약점 시간의 조각·바닥 감속 정리
+PASS 실제 점프 HP 1 → 0, 중복 피해 없음
+PASS 바닥 설치와 3단계 조합·쉬운 모드 수량 실행
+PASS 처치 후 공격·감속 정리
+PASS 처치 후 직접 게이트 진입 필요
+PASS 8번 클리어 임시 저장
+PASS 사용자 기존 진행 기록 보존
+COMPLETE — 감속·필드 완주·3단계 실제 점프·복귀·재로드·게이트·저장 확인

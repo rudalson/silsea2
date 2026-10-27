@@ -1,0 +1,21 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "assets/backgrounds/bg_tape_far.png",
+  "transparent_background": false,
+  "preserved": {
+    "assets/backgrounds/bg_tape_far.png": "82365ecb78eb725091780a85f4962bbe968b8c64ee05bb919bb7027a50ae1ff0",
+    "assets/tiles/rainbow_tileset.png": "6bc86cd95654793c4ab22ea575fa9591e3c0d9bb21eaa4ab993a6d4ddd27ad24",
+    "assets/tiles/rainbow_tileset.json": "0da6f27d8781efe97397d16b23de16c0720fa9e1753c1d315cf0f27d7d33a063",
+    "assets/levels/level-08/tilemap.json": "ec16e5509e0cfd82b72811abb75af30ba3ef15a64b94829e487ef71135946bd4"
+  },
+  "prompts": [
+    {
+      "name": "paper",
+      "prompt": "Use case: stylized-concept. Asset type: seamless opaque MATERIAL TEXTURE for the underground cross-section of a hand-painted storybook 2D side-scrolling platform game, Tape City. The reference image is only a palette and brushwork guide; do not draw its city or scenery. Create a front-facing, perfectly flat square texture entirely filled with densely stacked thick cream paper/cardboard laminate layers, broad warm ivory and pale honey bands with fine warm tan seams, a few subtle soft paper fibers. The material should look like a fantasy city built from many compressed paper/tape layers, NOT soil, dirt, grass, wood planks, brickwork, rocks, tiles, or leaves. Mostly light warm cream with modest golden-ochre shadows, restrained brushwork and low-contrast detail so small sprites remain clear in front. Horizontal strata run continuously all the way from left to right. Similar color at all four edges, evenly lit, no vignette or directional cast shadow, no central focal point, no perspective. Edge-to-edge repeating texture, no border or bevel around the overall image, no icons, objects, written text, markings, gaps or transparency. One square material swatch."
+    },
+    {
+      "name": "tape",
+      "prompt": "Use case: stylized-concept. Asset type: seamless opaque MATERIAL TEXTURE for the gold adhesive ribbon surface of a hand-painted storybook 2D side-scrolling platform game, Tape City. The reference image is only a palette and soft painted brushwork guide; do not depict its city. Create a wide perfectly flat FRONT-VIEW rectangular close-up texture, entirely filled with pale buttery GOLDEN-YELLOW satin paper adhesive ribbon. Gentle horizontal honey-gold striations, a few broad creamy highlights, tactile paper fibers, soft gouache texture and restrained dark ochre seams. This is material for a flat walkable ledge, not a loose ribbon object. All lines run smoothly left-to-right in parallel, no waves, no curls, no perspective, no object silhouette, no diagonal patterns, no icons, no glitter objects. Luminous warm pale gold, compatible with cream stone bridges and turquoise rooftops. Even illumination, all edges same family of color, no overall border, no background scenery, no typography or symbols, no grass or soil. Single edge-to-edge repeating golden adhesive paper material swatch."
+    }
+  ]
+}

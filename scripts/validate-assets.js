@@ -622,7 +622,7 @@ try {
   errors.push(`manifest.json: 적 시트 검증 불가 (${error.message})`);
 }
 
-const tilesetKeys = ["grass_tileset", "rainbow_tileset", "starlight_tileset", "mist_tileset", "village_tileset", "submerged_village_tileset", "merong_tileset"];
+const tilesetKeys = ["grass_tileset", "rainbow_tileset", "starlight_tileset", "mist_tileset", "village_tileset", "submerged_village_tileset", "merong_tileset", "tape_tileset"];
 for (const tilesetKey of tilesetKeys) {
 try {
   const tilesetPath = join(root, "assets", "tiles", `${tilesetKey}.png`);
@@ -645,7 +645,8 @@ try {
   }
   // Imported CC0 tiles retain their source colors. Verify their pixels against
   // the supplied pack below instead of quantizing them to the generated palette.
-  if (!kenneyTheme && tilesetKey !== "merong_tileset" && outsidePalette > 0) errors.push(`${tilesetKey}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
+  // Painted material atlases declare fullColor and retain their authored colors.
+  if (!kenneyTheme && !atlas.meta?.fullColor && outsidePalette > 0) errors.push(`${tilesetKey}.png: 팔레트 밖 픽셀 ${outsidePalette}개`);
 
   const pixelEquals = (leftX, leftY, rightX, rightY) => {
     const left = (leftY * info.width + leftX) * 4;
